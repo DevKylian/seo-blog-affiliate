@@ -1,0 +1,479 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\EditorialIdea;
+use App\Models\EditorialPlan;
+use App\Models\Keyword;
+use App\Models\SeoProject;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
+use RuntimeException;
+
+final class EditorialPlanBuilder
+{
+    private const FORBIDDEN_ANGLES = ['general', 'guide-pratique', 'guide-complet', 'presentation-generale', 'vue-ensemble'];
+
+    public function __construct(
+        private readonly GeminiEditorialIdeaGenerator $generator,
+        private readonly EditorialDuplicateDetector $duplicates,
+        private readonly ProductKeywordMatcher $matcher,
+    ) {}
+
+    public function build(SeoProject $project, ?int $userId, int $requestedCount, string $instructions = ''): EditorialPlan
+    {
+        $plan = $this->createPlan($project, $userId, $requestedCount, $instructions);
+
+        try {
+            while ($plan->status === 'planning') {
+                $plan = $this->advance($plan);
+            }
+
+            return $plan;
+        } catch (\Throwable $exception) {
+            if ($plan->fresh()->status === 'planning') {
+                $plan->update(['status' => 'failed']);
+            }
+            throw $exception;
+        }
+    }
+
+    public function createPlan(SeoProject $project, ?int $userId, int $requestedCount, string $instructions = '', array $keywordScope = []): EditorialPlan
+    {
+        return EditorialPlan::query()->create([
+            'seo_project_id' => $project->id,
+            'user_id' => $userId,
+            'name' => 'Plan '.$project->name.' — '.now()->format('d/m/Y H:i'),
+            'requested_count' => $requestedCount,
+            'instructions' => $instructions ?: null,
+            'keyword_scope' => array_values(array_unique(array_map('intval', $keywordScope))) ?: null,
+            'status' => 'planning',
+        ]);
+    }
+
+    public function advance(EditorialPlan $plan): EditorialPlan
+    {
+        $lock = Cache::lock("editorial-plan-advance:{$plan->id}", 240);
+        if (! $lock->get()) {
+            return $plan->fresh(['ideas' => fn ($query) => $query->orderBy('position')]);
+        }
+
+        try {
+            return $this->advanceLocked($plan);
+        } finally {
+            $lock->release();
+        }
+    }
+
+    private function advanceLocked(EditorialPlan $plan): EditorialPlan
+    {
+        $plan->refresh();
+        if ($plan->status !== 'planning') {
+            return $plan;
+        }
+
+        $project = $plan->project;
+        $keywords = $this->strategicKeywords($project, $plan->keyword_scope ?? []);
+        if ($keywords->isEmpty()) {
+            $plan->update(['status' => 'failed']);
+            throw new RuntimeException('Aucun mot-clé importé ne correspond réellement au produit.');
+        }
+
+        $valid = $plan->ideas()->where('status', 'candidate')->get();
+        $reserveTarget = max(2, (int) ceil($plan->requested_count * .2));
+        $target = $plan->requested_count + $reserveTarget;
+        if ($valid->count() >= $target) {
+            return $this->lockPlan($plan, $valid);
+        }
+        if ($plan->attempts >= 5) {
+            if ($valid->count() >= $plan->requested_count) {
+                return $this->lockPlan($plan, $valid);
+            }
+            $plan->update(['status' => 'failed']);
+            throw new RuntimeException("Seulement {$valid->count()} angles uniques ont été trouvés sur {$plan->requested_count} demandés après 5 étapes.");
+        }
+
+        $priorIdeas = EditorialIdea::query()
+            ->whereHas('plan', fn ($query) => $query->where('seo_project_id', $project->id)->whereKeyNot($plan->id))
+            ->where(fn ($query) => $this->reusableEditorialIdeas($query))
+            ->with('closestArticle')
+            ->get();
+        $excluded = collect($this->existingFingerprints($project))
+            ->merge($plan->ideas()->pluck('fingerprint'))
+            ->filter()->unique()->values()->all();
+        // Six idées fixes imposaient plusieurs appels même quand toutes les
+        // propositions étaient valides. On couvre le manque et une petite marge
+        // dans le même appel, sans surproduire des dizaines de briefs facturés.
+        $missing = $target - $valid->count();
+        $desired = min(15, max(6, $missing + max(2, (int) ceil($missing * .35))));
+        $rawIdeas = $this->generator->generate(
+            $project,
+            $keywords,
+            $desired,
+            $excluded,
+            (string) $plan->instructions,
+            $plan->attempts + 1,
+        );
+        $plan->increment('attempts');
+
+        foreach ($rawIdeas as $rawIdea) {
+            $plan->increment('candidate_count');
+            $blueprint = $this->duplicates->normalizeBlueprint($rawIdea);
+            $keyword = $this->sourceKeyword($keywords, $rawIdea, $blueprint);
+            $decision = $this->validate($project, $blueprint, $valid->concat($priorIdeas), $keyword);
+            $idea = $this->persistCandidate($plan, $blueprint, $rawIdea, $keyword, $decision);
+
+            if ($decision['accepted']) {
+                $valid->push($idea);
+            } else {
+                $plan->increment('rejected_count');
+                if ($decision['category'] === 'duplicate') {
+                    $plan->increment('duplicate_count');
+                } elseif ($decision['category'] === 'weak_angle') {
+                    $plan->increment('weak_angle_count');
+                } elseif ($decision['category'] === 'source_gap') {
+                    $plan->increment('source_gap_count');
+                }
+            }
+        }
+
+        $plan->refresh();
+        if ($valid->count() >= $target || ($plan->attempts >= 5 && $valid->count() >= $plan->requested_count)) {
+            return $this->lockPlan($plan, $valid);
+        }
+
+        return $plan->fresh(['ideas' => fn ($query) => $query->orderByDesc('seo_score')]);
+    }
+
+    private function lockPlan(EditorialPlan $plan, Collection $valid): EditorialPlan
+    {
+        $ranked = $valid->unique('id')->sortByDesc('seo_score')->values();
+        $publishedPillars = $plan->project->articles()
+            ->where('status', 'published')
+            ->with('keyword')
+            ->get()
+            ->filter(fn ($article) => $article->keyword?->strategyTier() === 'pillar')
+            ->count();
+        if ($publishedPillars < 2) {
+            $needed = min(2 - $publishedPillars, $plan->requested_count);
+            $priority = $ranked->filter(fn (EditorialIdea $idea) => $idea->keyword?->strategyTier() === 'pillar')->take($needed);
+            $ranked = $priority->concat($ranked->reject(fn (EditorialIdea $idea) => $priority->contains('id', $idea->id)))->values();
+        } else {
+            $needed = min((int) ceil($plan->requested_count * .6), $plan->requested_count);
+            $priority = $ranked->filter(fn (EditorialIdea $idea) => in_array($idea->keyword?->strategyTier(), ['quick_win', 'niche'], true))->take($needed);
+            $ranked = $priority->concat($ranked->reject(fn (EditorialIdea $idea) => $priority->contains('id', $idea->id)))->values();
+        }
+        $plan->ideas()->whereIn('status', ['candidate', 'accepted', 'reserve'])->update([
+            'status' => 'reserve',
+            'position' => null,
+        ]);
+        foreach ($ranked as $index => $idea) {
+            $idea->update([
+                'status' => $index < $plan->requested_count ? 'accepted' : 'reserve',
+                'position' => $index + 1,
+            ]);
+        }
+        $acceptedCount = $plan->ideas()->where('status', 'accepted')->count();
+        $plan->update([
+            'accepted_count' => $acceptedCount,
+            'status' => 'locked',
+            'locked_at' => now(),
+        ]);
+
+        return $plan->fresh(['ideas' => fn ($query) => $query->orderBy('position')]);
+    }
+
+    public function replacementFor(EditorialPlan $plan, EditorialIdea $rejected): EditorialIdea
+    {
+        $replacement = $plan->ideas()->where('status', 'reserve')->orderByDesc('seo_score')->first();
+        if (! $replacement) {
+            $this->replenishReserves($plan);
+            $replacement = $plan->ideas()->where('status', 'reserve')->orderByDesc('seo_score')->first();
+        }
+        if (! $replacement) {
+            throw new RuntimeException('Aucun angle de remplacement exploitable n’a été trouvé après trois nouveaux cycles de planification.');
+        }
+
+        $rejected->update(['status' => 'rejected']);
+        $replacement->update([
+            'status' => 'accepted',
+            'replacement_for_id' => $rejected->id,
+            'position' => $rejected->position,
+        ]);
+
+        return $replacement;
+    }
+
+    private function replenishReserves(EditorialPlan $plan): void
+    {
+        $project = $plan->project;
+        $keywords = $this->strategicKeywords($project, $plan->keyword_scope ?? []);
+        $comparisonPool = $plan->ideas()->whereIn('status', ['accepted', 'generating', 'generated', 'reserve'])->get();
+        $excluded = $plan->ideas()->pluck('fingerprint')->filter()->unique()->values()->all();
+
+        for ($attempt = 1; $attempt <= 1; $attempt++) {
+            $rawIdeas = $this->generator->generate(
+                $project,
+                $keywords,
+                6,
+                $excluded,
+                (string) $plan->instructions,
+                $plan->attempts + $attempt,
+            );
+            $plan->increment('attempts');
+
+            foreach ($rawIdeas as $rawIdea) {
+                $plan->increment('candidate_count');
+                $blueprint = $this->duplicates->normalizeBlueprint($rawIdea);
+                $keyword = $this->sourceKeyword($keywords, $rawIdea, $blueprint);
+                $decision = $this->validate($project, $blueprint, $comparisonPool, $keyword);
+                $idea = $this->persistCandidate($plan, $blueprint, $rawIdea, $keyword, $decision);
+                $excluded[] = $blueprint['fingerprint'];
+
+                if ($decision['accepted']) {
+                    $idea->update(['status' => 'reserve']);
+                    $comparisonPool->push($idea);
+                } else {
+                    $plan->increment('rejected_count');
+                    if ($decision['category'] === 'duplicate') {
+                        $plan->increment('duplicate_count');
+                    } elseif ($decision['category'] === 'weak_angle') {
+                        $plan->increment('weak_angle_count');
+                    } elseif ($decision['category'] === 'source_gap') {
+                        $plan->increment('source_gap_count');
+                    }
+                }
+            }
+
+            if ($plan->ideas()->where('status', 'reserve')->exists()) {
+                return;
+            }
+        }
+    }
+
+    private function validate(SeoProject $project, array $blueprint, Collection $valid, ?Keyword $keyword): array
+    {
+        if (in_array($blueprint['angle'], self::FORBIDDEN_ANGLES, true)
+            || mb_strlen($blueprint['unique_promise']) < 35
+            || count($blueprint['outline']) < 5) {
+            return $this->reject('weak_angle', 'Angle, promesse ou mini-plan trop générique.');
+        }
+
+        $proposedKeyword = new Keyword(['keyword' => $blueprint['primary_keyword']]);
+        if (! $keyword || ! $this->matcher->matches($project, $keyword) || ! $this->matcher->matches($project, $proposedKeyword)) {
+            return $this->reject('off_topic', 'Le mot-clé ne correspond pas au produit.');
+        }
+
+        if ($formatIssue = $this->multiProductFormatIssue($project, $blueprint)) {
+            return $this->reject('weak_angle', $formatIssue);
+        }
+
+        $sourceCoverage = $this->sourceCoverage($project);
+        if ($sourceCoverage < 40) {
+            return $this->reject('source_gap', 'Les sources vérifiées ne couvrent pas suffisamment ce sujet.', $sourceCoverage);
+        }
+
+        $representation = implode(' ', [
+            $blueprint['title'] ?? '', $blueprint['primary_keyword'], $blueprint['problem'],
+            $blueprint['expected_outcome'], $blueprint['unique_promise'], implode(' ', $blueprint['outline']),
+        ]);
+        $existing = $this->duplicates->analyzeBlueprint($project, $blueprint, $representation);
+        $bestScore = (float) $existing['score'];
+        $closestArticle = $existing['article'];
+        if ($bestScore >= 72) {
+            return $this->reject('duplicate', $bestScore >= 86 ? 'Sujet déjà couvert.' : 'Angle trop proche d’un contenu existant.', $sourceCoverage, $bestScore, $closestArticle?->id);
+        }
+
+        foreach ($valid as $accepted) {
+            $score = $this->duplicates->compareBlueprints($blueprint, $accepted->blueprint());
+            $outlineScore = $this->duplicates->compareOutlines($blueprint['outline'], $accepted->outline ?? []);
+            if ($score >= 72 || $outlineScore >= .80) {
+                return $this->reject('duplicate', $outlineScore >= .80 ? 'Mini-plan trop similaire à une idée du lot.' : 'Promesse trop proche d’une idée du lot.', $sourceCoverage, max($score, $outlineScore * 100));
+            }
+            $bestScore = max($bestScore, $score);
+        }
+
+        return [
+            'accepted' => true,
+            'category' => null,
+            'reason' => null,
+            'source_coverage' => $sourceCoverage,
+            'similarity' => round($bestScore, 2),
+            'closest_article_id' => $closestArticle?->id,
+            'seo_score' => $this->score($keyword, $blueprint, $sourceCoverage, $bestScore, $project),
+        ];
+    }
+
+    private function multiProductFormatIssue(SeoProject $project, array $blueprint): ?string
+    {
+        $type = (string) ($blueprint['content_type'] ?? 'informational');
+        $title = (string) ($blueprint['title'] ?? '');
+        $normalizedTitle = mb_strtolower($title);
+
+        if ($type === 'comparison' && preg_match('/\bvs\.?\b|\bface à\b|\bentre\s+.+\s+et\s+.+/iu', $title) !== 1) {
+            return 'Un comparatif doit annoncer explicitement les deux solutions confrontées dans son titre.';
+        }
+
+        if ($type === 'alternatives' && ! str_contains($normalizedTitle, mb_strtolower($project->name))) {
+            return "Une page d’alternatives doit partir explicitement de {$project->name} et nommer cette référence dans son titre.";
+        }
+
+        if ($type === 'best_tools') {
+            $promisesSeveralTools = preg_match('/\b(?:[2-9]|[1-9][0-9]+)\b|\b(?:meilleurs?|sélection|top)\b/iu', $title) === 1;
+            if (! $promisesSeveralTools) {
+                return 'Une sélection de meilleurs outils doit annoncer plusieurs solutions ; un titre mono-produit doit utiliser le type test ou guide.';
+            }
+        }
+
+        return null;
+    }
+
+    private function persistCandidate(EditorialPlan $plan, array $blueprint, array $raw, ?Keyword $keyword, array $decision): EditorialIdea
+    {
+        return $plan->ideas()->create([
+            'keyword_id' => $keyword?->id,
+            'closest_article_id' => $decision['closest_article_id'] ?? null,
+            'title' => mb_substr(trim((string) ($raw['title'] ?? $blueprint['unique_promise'])), 0, 255),
+            'primary_keyword' => mb_substr((string) ($keyword?->keyword ?: $blueprint['primary_keyword']), 0, 255),
+            'entity_key' => $blueprint['entity'],
+            'topic_key' => $blueprint['topic'],
+            'intent' => $blueprint['intent'],
+            'angle' => $blueprint['angle'],
+            'audience' => $blueprint['audience'],
+            'problem' => $blueprint['problem'],
+            'expected_outcome' => $blueprint['expected_outcome'],
+            'funnel_stage' => $blueprint['funnel_stage'] ?? 'consideration',
+            'unique_promise' => $blueprint['unique_promise'],
+            'excluded_topics' => $blueprint['excluded_topics'],
+            'outline' => $blueprint['outline'],
+            'fingerprint' => $blueprint['fingerprint'],
+            'content_type' => in_array($raw['content_type'] ?? '', ['informational', 'tool_review', 'pricing', 'comparison', 'alternatives', 'best_tools'], true) ? $raw['content_type'] : 'informational',
+            'status' => $decision['accepted'] ? 'candidate' : 'rejected',
+            'rejection_reason' => $decision['reason'],
+            'seo_score' => $decision['seo_score'] ?? 0,
+            'similarity_score' => $decision['similarity'] ?? 0,
+            'source_coverage' => $decision['source_coverage'] ?? 0,
+        ]);
+    }
+
+    private function reject(string $category, string $reason, float $coverage = 0, float $similarity = 0, ?int $articleId = null): array
+    {
+        return ['accepted' => false, 'category' => $category, 'reason' => $reason, 'source_coverage' => $coverage, 'similarity' => $similarity, 'closest_article_id' => $articleId];
+    }
+
+    private function closestKeyword(Collection $keywords, string $value): ?Keyword
+    {
+        $exact = $keywords->first(fn (Keyword $keyword) => mb_strtolower($keyword->keyword) === mb_strtolower($value));
+        if ($exact) {
+            return $exact;
+        }
+
+        $closest = $keywords->sortByDesc(fn (Keyword $keyword) => $this->duplicates->similarity($keyword->keyword, $value))->first();
+        if (! $closest || $this->duplicates->similarity($closest->keyword, $value) < .45) {
+            return null;
+        }
+
+        return $closest;
+    }
+
+    private function sourceKeyword(Collection $keywords, array $rawIdea, array $blueprint): ?Keyword
+    {
+        $sourceId = filter_var($rawIdea['source_keyword_id'] ?? null, FILTER_VALIDATE_INT);
+        if ($sourceId !== false && $sourceId !== null) {
+            $source = $keywords->first(fn (Keyword $keyword) => $keyword->id === (int) $sourceId);
+            if ($source !== null
+                && $this->duplicates->similarity($source->keyword, (string) ($blueprint['primary_keyword'] ?? '')) >= .80) {
+                return $source;
+            }
+        }
+
+        return $this->closestKeyword($keywords, (string) ($blueprint['primary_keyword'] ?? ''));
+    }
+
+    private function sourceCoverage(SeoProject $project): float
+    {
+        $pages = $project->sourcePages()->where('status', 'verified')->count();
+        $chunks = $project->sourcePages()->where('status', 'verified')->withCount('evidenceChunks')->get()->sum('evidence_chunks_count');
+
+        return min(100, 45 + ($pages * 8) + min(35, $chunks * 2));
+    }
+
+    /**
+     * Empêche les synonymes à fort volume de monopoliser les 120 mots-clés
+     * transmis à Gemini et réserve une vraie place aux faibles KD qualifiés.
+     *
+     * @return Collection<int, Keyword>
+     */
+    private function strategicKeywords(SeoProject $project, array $keywordScope = []): Collection
+    {
+        if ($keywordScope !== []) {
+            return $project->keywords()
+                ->withCount(['articles', 'editorialIdeas'])
+                ->whereIn('id', array_map('intval', $keywordScope))
+                ->get()
+                ->filter(fn (Keyword $keyword) => $this->matcher->matches($project, $keyword))
+                ->values();
+        }
+
+        $top = $project->keywords()->withCount(['articles', 'editorialIdeas'])
+            ->orderByDesc('opportunity_score')->limit(500)->get();
+        $recent = $project->keywords()->withCount(['articles', 'editorialIdeas'])
+            ->latest('created_at')->limit(200)->get();
+        $all = $top->concat($recent)->unique('id')
+            ->filter(fn (Keyword $keyword) => $this->matcher->matches($project, $keyword))
+            ->values();
+        $bucket = fn (string $tier) => $all->filter(fn (Keyword $keyword) => $keyword->strategyTier() === $tier);
+        $newlyImported = $all->filter(fn (Keyword $keyword) => $keyword->isUnplanned())
+            ->sortByDesc('created_at')
+            ->take(45);
+
+        return $bucket('pillar')->sortByDesc('search_volume')->take(12)
+            ->concat($newlyImported)
+            ->concat($bucket('quick_win')->sortByDesc('opportunity_score')->take(45))
+            ->concat($bucket('niche')->sortByDesc('opportunity_score')->take(33))
+            ->concat($bucket('supporting')->sortByDesc('opportunity_score')->take(15))
+            ->concat($all)
+            ->unique('id')
+            ->take(150)
+            ->values();
+    }
+
+    private function score(Keyword $keyword, array $blueprint, float $coverage, float $similarity, SeoProject $project): float
+    {
+        $seoOpportunity = min(100, max(0, (float) $keyword->opportunity_score));
+        $commercial = in_array($blueprint['intent'], ['commercial', 'transactional'], true) ? 95 : 65;
+        $internalLinks = min(100, 45 + ($project->articles()->count() * 5));
+        $difficultyPenalty = min(12, ((float) $keyword->keyword_difficulty) * .12);
+        $newKeywordBonus = $keyword->isUnplanned() ? 8 : 0;
+
+        return round(max(0,
+            ($seoOpportunity * .25) + 15 + ($commercial * .15) + 15
+            + ((100 - $similarity) * .15) + ($coverage * .10) + ($internalLinks * .05)
+            + $newKeywordBonus - $difficultyPenalty
+        ), 2);
+    }
+
+    private function existingFingerprints(SeoProject $project): array
+    {
+        $articles = $project->articles()->whereIn('status', ['draft', 'review', 'scheduled', 'published'])->pluck('topic_fingerprint')->filter();
+        $ideas = EditorialIdea::query()->whereHas('plan', fn ($query) => $query->where('seo_project_id', $project->id))
+            ->where(fn ($query) => $this->reusableEditorialIdeas($query))
+            ->pluck('fingerprint');
+
+        return $articles->merge($ideas)->filter()->unique()->values()->all();
+    }
+
+    /**
+     * Une idée retirée par le garde-fou reste une référence de déduplication :
+     * elle ne sera jamais rédigée, mais Gemini ne pourra pas la reproposer sous
+     * un titre légèrement différent au prochain remplissage du calendrier.
+     */
+    private function reusableEditorialIdeas($query): void
+    {
+        $query->whereIn('status', ['accepted', 'reserve', 'generating', 'generated'])
+            ->orWhere(function ($rejected): void {
+                $rejected->where('status', 'rejected')
+                    ->where('rejection_reason', 'like', 'Doublon retiré automatiquement%');
+            });
+    }
+}
