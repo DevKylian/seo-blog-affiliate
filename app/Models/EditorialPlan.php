@@ -10,7 +10,7 @@ class EditorialPlan extends Model
 {
     protected $guarded = [];
 
-    protected $casts = ['locked_at' => 'datetime', 'keyword_scope' => 'array'];
+    protected $casts = ['locked_at' => 'datetime', 'keyword_scope' => 'array', 'content_cluster_scope' => 'array'];
 
     public function project(): BelongsTo
     {

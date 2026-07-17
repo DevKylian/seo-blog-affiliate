@@ -19,6 +19,12 @@ final class BackgroundArtisanLauncher
         $artisan = base_path('artisan');
         $log = storage_path('logs/'.$logName);
 
+        if (PHP_OS_FAMILY === 'Windows') {
+            $this->launchDetachedWindows($artisanCommand, $identifier, $php, $artisan, $log);
+
+            return;
+        }
+
         if (PHP_OS_FAMILY !== 'Windows'
             && function_exists('pcntl_fork')
             && function_exists('posix_setsid')
@@ -29,11 +35,11 @@ final class BackgroundArtisanLauncher
         }
 
         if (! function_exists('exec')) {
-            throw new RuntimeException('La fonction PHP exec est désactivée : impossible de lancer le worker autonome.');
+            throw new RuntimeException('La fonction PHP exec est desactivee : impossible de lancer le worker autonome.');
         }
 
-        $nohup = PHP_OS_FAMILY === 'Windows' ? null : $this->binaries->resolveNohup();
-        if (PHP_OS_FAMILY !== 'Windows' && $nohup === null) {
+        $nohup = $this->binaries->resolveNohup();
+        if ($nohup === null) {
             throw new RuntimeException('La commande nohup est introuvable : configurez un gestionnaire de workers en production.');
         }
 
@@ -51,7 +57,7 @@ final class BackgroundArtisanLauncher
         exec($command, $output, $exitCode);
 
         if ($exitCode !== 0) {
-            throw new RuntimeException("Impossible de démarrer le worker autonome {$artisanCommand}.");
+            throw new RuntimeException("Impossible de demarrer le worker autonome {$artisanCommand}.");
         }
     }
 
@@ -65,14 +71,23 @@ final class BackgroundArtisanLauncher
         ?string $nohup = null,
     ): string {
         if ($osFamily === 'Windows') {
-            return sprintf(
-                'start "" /B %s %s %s %d >> %s 2>&1 < NUL',
-                $this->quoteWindows($php),
-                $this->quoteWindows($artisan),
+            $arguments = implode(' ', [
+                $this->quoteWindowsProcessArgument($artisan),
                 $artisanCommand,
-                max(1, $identifier),
-                $this->quoteWindows($log),
+                (string) max(1, $identifier),
+            ]);
+            $errorLog = preg_replace('/\.log$/i', '.err.log', $log) ?: $log.'.err';
+            $script = sprintf(
+                '$ErrorActionPreference = %s; Start-Process -FilePath %s -ArgumentList %s -WorkingDirectory %s -WindowStyle Hidden -RedirectStandardOutput %s -RedirectStandardError %s',
+                $this->quotePowerShell('Stop'),
+                $this->quotePowerShell($php),
+                $this->quotePowerShell($arguments),
+                $this->quotePowerShell(dirname($artisan)),
+                $this->quotePowerShell($log),
+                $this->quotePowerShell($errorLog),
             );
+
+            return 'cmd /D /C start "" /B powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand '.base64_encode(mb_convert_encoding($script, 'UTF-16LE', 'UTF-8')).' > NUL 2>&1';
         }
 
         if ($nohup === null || $nohup === '') {
@@ -81,13 +96,47 @@ final class BackgroundArtisanLauncher
 
         return sprintf(
             '%s %s %s %s %d >> %s 2>&1 < /dev/null &',
-            escapeshellarg($nohup),
-            escapeshellarg($php),
-            escapeshellarg($artisan),
+            $this->quoteUnix($nohup),
+            $this->quoteUnix($php),
+            $this->quoteUnix($artisan),
             $artisanCommand,
             max(1, $identifier),
-            escapeshellarg($log),
+            $this->quoteUnix($log),
         );
+    }
+
+    private function launchDetachedWindows(string $artisanCommand, int $identifier, string $php, string $artisan, string $log): void
+    {
+        if (! function_exists('popen') && ! function_exists('exec')) {
+            throw new RuntimeException('Les fonctions PHP popen/exec sont desactivees : impossible de lancer le worker autonome.');
+        }
+
+        $command = $this->buildDetachedCommand(
+            $artisanCommand,
+            $identifier,
+            $php,
+            $artisan,
+            $log,
+            'Windows',
+        );
+
+        if (function_exists('popen')) {
+            $handle = popen($command, 'r');
+            if ($handle === false) {
+                throw new RuntimeException("Impossible de demarrer le worker autonome {$artisanCommand}.");
+            }
+            pclose($handle);
+
+            return;
+        }
+
+        $output = [];
+        $exitCode = 1;
+        exec($command, $output, $exitCode);
+
+        if ($exitCode !== 0) {
+            throw new RuntimeException("Impossible de demarrer le worker autonome {$artisanCommand}.");
+        }
     }
 
     private function launchDetachedUnix(string $artisanCommand, int $identifier, string $php, string $artisan, string $log): void
@@ -121,12 +170,22 @@ final class BackgroundArtisanLauncher
         exit(1);
     }
 
-    private function quoteWindows(string $value): string
+    private function quoteWindowsProcessArgument(string $value): string
     {
         if (str_contains($value, '"')) {
-            throw new RuntimeException('Un chemin d’exécution contient un guillemet invalide.');
+            throw new RuntimeException('Un chemin d execution contient un guillemet invalide.');
         }
 
-        return '"'.str_replace('%', '%%', $value).'"';
+        return preg_match('/\s/', $value) === 1 ? '"'.$value.'"' : $value;
+    }
+
+    private function quotePowerShell(string $value): string
+    {
+        return "'".str_replace("'", "''", $value)."'";
+    }
+
+    private function quoteUnix(string $value): string
+    {
+        return "'".str_replace("'", "'\\''", $value)."'";
     }
 }

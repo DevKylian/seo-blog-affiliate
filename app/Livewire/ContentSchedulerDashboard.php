@@ -9,16 +9,22 @@ use App\Models\Setting;
 use App\Services\ContentScheduler;
 use App\Services\ContentSchedulerWorkerLauncher;
 use App\Services\SemrushCsvImporter;
+use App\Services\SemrushSeedExpansionEngine;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Throwable;
 
 #[Layout('layouts.admin')]
 final class ContentSchedulerDashboard extends Component
 {
+    use WithFileUploads;
+
     public ?int $projectId = null;
+
+    public $csv;
 
     public string $pastedKeywords = '';
 
@@ -56,6 +62,7 @@ final class ContentSchedulerDashboard extends Component
         $this->validate([
             'projectId' => ['required', 'exists:seo_projects,id'],
             'articlesPerWeek' => ['required', 'integer', 'min:1', 'max:7'],
+            'csv' => ['nullable', 'file', 'mimes:csv,txt', 'max:10240'],
             'pastedKeywords' => ['nullable', 'string', 'max:1500000'],
             'instructions' => ['nullable', 'string', 'max:10000'],
         ]);
@@ -67,8 +74,12 @@ final class ContentSchedulerDashboard extends Component
             }
             $project = SeoProject::query()->findOrFail($this->projectId);
             $imported = 0;
+            if ($this->csv) {
+                $imported += $importer->import($project, $this->csv->getRealPath());
+                $this->reset('csv');
+            }
             if (trim($this->pastedKeywords) !== '') {
-                $imported = $importer->importText($project, $this->pastedKeywords);
+                $imported += $importer->importText($project, $this->pastedKeywords);
                 $this->pastedKeywords = '';
             }
             if (! $project->keywords()->exists()) {
@@ -129,6 +140,31 @@ final class ContentSchedulerDashboard extends Component
             $this->message = $result['scheduled'] > 0
                 ? "Les {$result['scheduled']} prochains contenus retenus remplissent désormais les prochains créneaux."
                 : 'Le prochain lot d’idées est en cours de préparation et remplira automatiquement la semaine.';
+        } catch (Throwable $exception) {
+            $this->error = $exception->getMessage();
+        }
+    }
+
+    public function expandFacturationSeeds(SemrushSeedExpansionEngine $engine, ContentScheduler $scheduler): void
+    {
+        if (! $this->projectId) {
+            $this->error = 'Selectionnez un projet avant d analyser Semrush.';
+
+            return;
+        }
+
+        try {
+            $project = SeoProject::query()->findOrFail($this->projectId);
+            $stats = $engine->runForProject($project, 'facturation', 10);
+
+            if ($schedule = $this->schedule()) {
+                $scheduler->prepareInventory($schedule, $stats['imported'] > 0);
+            }
+
+            $this->error = '';
+            $this->message = $stats['imported'] > 0
+                ? "{$stats['imported']} mot(s)-cles Facturation ajoutes depuis Semrush."
+                : 'Analyse Semrush terminee, aucun nouveau mot-cle exploitable ajoute.';
         } catch (Throwable $exception) {
             $this->error = $exception->getMessage();
         }
@@ -243,10 +279,10 @@ final class ContentSchedulerDashboard extends Component
         $calendarStart = Carbon::createFromFormat('Y-m', $this->month)->startOfMonth()->startOfWeek();
         $calendarEnd = $calendarStart->copy()->addDays(41)->endOfDay();
         $tasks = $schedule
-            ? $schedule->tasks()->with(['keyword', 'editorialIdea', 'article'])->whereNotIn('status', ['cancelled'])->whereBetween('scheduled_for', [$calendarStart, $calendarEnd])->orderBy('scheduled_for')->get()
+            ? $schedule->tasks()->with(['keyword', 'contentCluster', 'editorialIdea', 'article'])->whereNotIn('status', ['cancelled'])->whereBetween('scheduled_for', [$calendarStart, $calendarEnd])->orderBy('scheduled_for')->get()
             : collect();
         $latestPlan = $schedule?->editorialPlans()
-            ->with(['ideas' => fn ($query) => $query->with('keyword')->whereNotIn('status', ['rejected'])->orderBy('position')->orderByDesc('seo_score')])
+            ->with(['ideas' => fn ($query) => $query->with(['keyword', 'contentCluster'])->whereNotIn('status', ['rejected'])->orderBy('position')->orderByDesc('seo_score')])
             ->latest('id')
             ->first();
 
@@ -255,10 +291,11 @@ final class ContentSchedulerDashboard extends Component
             'schedule' => $schedule,
             'calendarTitle' => Carbon::createFromFormat('Y-m', $this->month)->translatedFormat('F Y'),
             'days' => $this->calendarDays($calendarStart, $tasks),
-            'queue' => $schedule ? $schedule->tasks()->with(['keyword', 'editorialIdea', 'article'])->whereNotIn('status', ['cancelled'])->latest('updated_at')->limit(80)->get() : collect(),
+            'queue' => $schedule ? $schedule->tasks()->with(['keyword', 'contentCluster', 'editorialIdea', 'article'])->whereNotIn('status', ['cancelled'])->latest('updated_at')->limit(80)->get() : collect(),
             'latestPlan' => $latestPlan,
             'stats' => $this->stats($schedule),
             'hasApiKey' => (bool) Setting::value('gemini_api_key', config('services.gemini.key')),
+            'hasSemrushKey' => (bool) Setting::value('semrush_api_key', config('services.semrush.key')),
         ])->title('Calendrier éditorial');
     }
 

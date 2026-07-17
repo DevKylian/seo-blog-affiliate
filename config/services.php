@@ -6,6 +6,26 @@ return [
         'key' => env('GEMINI_API_KEY'),
     ],
 
+    'semrush' => [
+        'key' => env('SEMRUSH_API_KEY'),
+        'metrics_url' => env('SEMRUSH_KEYWORD_METRICS_URL', 'https://api.semrush.com/apis/v4/keywords/v1/metrics'),
+        'seed_expansion_enabled' => env('SEMRUSH_SEED_EXPANSION_ENABLED', false),
+    ],
+
+    'indexnow' => [
+        'key' => env('INDEXNOW_KEY'),
+    ],
+
+    'google_search_console' => [
+        'site_url' => env('GOOGLE_SEARCH_CONSOLE_SITE_URL'),
+        'service_account_json' => env('GOOGLE_SERVICE_ACCOUNT_JSON'),
+    ],
+
+    'bing_webmaster' => [
+        'site_url' => env('BING_WEBMASTER_SITE_URL'),
+        'api_key' => env('BING_WEBMASTER_API_KEY'),
+    ],
+
     'runtime' => [
         'php_binary' => env('PHP_CLI_BINARY'),
     ],
@@ -14,6 +34,7 @@ return [
         'node_binary' => env('NODE_BINARY'),
         'browser_binary' => env('BROWSER_BINARY'),
         'browser_enabled' => env('SCRAPING_BROWSER_ENABLED', true),
+        'ca_bundle' => env('SCRAPING_CA_BUNDLE'),
     ],
 
     /*

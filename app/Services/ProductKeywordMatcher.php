@@ -10,8 +10,14 @@ final class ProductKeywordMatcher
 {
     private array $lexicons = [];
 
+    public function __construct(private readonly CompetitorCatalog $competitors) {}
+
     public function matches(SeoProject $project, Keyword $keyword): bool
     {
+        if ($this->competitors->unknownCompetitorMentions($project, $keyword->keyword) !== []) {
+            return false;
+        }
+
         $keywordTokens = $this->tokens($keyword->keyword);
         $productNameTokens = $this->tokens($project->name, false);
 

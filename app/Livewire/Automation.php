@@ -16,6 +16,7 @@ use App\Services\ContentRunWorkerLauncher;
 use App\Services\EditorialPlanBuilder;
 use App\Services\EditorialPlanWorkerLauncher;
 use App\Services\GeminiContentGenerator;
+use App\Services\CompetitorPricingUrlParser;
 use App\Services\SemrushCsvImporter;
 use App\Services\SourceCrawlWorkerLauncher;
 use Illuminate\Http\Client\ConnectionException;
@@ -51,6 +52,10 @@ class Automation extends Component
 
     public string $extraSourceUrls = '';
 
+    public string $competitorsText = '';
+
+    public string $competitorPricingUrlsText = '';
+
     public string $apiKey = '';
 
     public $csv;
@@ -83,6 +88,8 @@ class Automation extends Component
             $this->activePlanId = $active->editorial_plan_id;
             $this->projectId = $active->seo_project_id;
             $this->existingProjectId = $active->seo_project_id;
+            $this->competitorsText = implode("\n", $active->project?->competitors ?? []);
+            $this->competitorPricingUrlsText = app(CompetitorPricingUrlParser::class)->format($active->project?->competitor_pricing_urls ?? []);
             $this->mode = 'existing';
             $this->workspaceReady = true;
 
@@ -94,6 +101,8 @@ class Automation extends Component
             $this->activePlanId = $plan->id;
             $this->projectId = $plan->seo_project_id;
             $this->existingProjectId = $plan->seo_project_id;
+            $this->competitorsText = implode("\n", $plan->project?->competitors ?? []);
+            $this->competitorPricingUrlsText = app(CompetitorPricingUrlParser::class)->format($plan->project?->competitor_pricing_urls ?? []);
             $this->contentCount = $plan->requested_count;
             $this->mode = 'existing';
             $this->workspaceReady = true;
@@ -110,6 +119,8 @@ class Automation extends Component
             $this->mode = 'existing';
             $this->existingProjectId = $project->id;
             $this->projectId = $project->id;
+            $this->competitorsText = implode("\n", $project->competitors ?? []);
+            $this->competitorPricingUrlsText = app(CompetitorPricingUrlParser::class)->format($project->competitor_pricing_urls ?? []);
             $this->workspaceReady = true;
         }
     }
@@ -126,11 +137,13 @@ class Automation extends Component
         $project = $value ? SeoProject::query()->find($value) : null;
         $this->projectId = $project?->id;
         $this->workspaceReady = $project ? $this->projectReady($project) : false;
+        $this->competitorsText = $project ? implode("\n", $project->competitors ?? []) : '';
+        $this->competitorPricingUrlsText = $project ? app(CompetitorPricingUrlParser::class)->format($project->competitor_pricing_urls ?? []) : '';
         $this->activePlanId = null;
         $this->message = $this->workspaceReady ? "Le dossier {$project->name} est prêt à générer." : '';
     }
 
-    public function prepare(SourceCrawlWorkerLauncher $worker, SemrushCsvImporter $importer): void
+    public function prepare(SourceCrawlWorkerLauncher $worker, SemrushCsvImporter $importer, CompetitorPricingUrlParser $competitorPricingUrls): void
     {
         $this->allowLongRequest(180);
 
@@ -140,6 +153,8 @@ class Automation extends Component
             'csv' => ['nullable', 'file', 'mimes:csv,txt', 'max:10240'],
             'pastedKeywords' => ['nullable', 'string', 'max:1500000'],
             'extraSourceUrls' => ['nullable', 'string', 'max:10000'],
+            'competitorsText' => ['nullable', 'string', 'max:5000'],
+            'competitorPricingUrlsText' => ['nullable', 'string', 'max:10000'],
         ];
         if ($this->mode === 'new') {
             $rules += [
@@ -153,7 +168,22 @@ class Automation extends Component
         } else {
             $rules['existingProjectId'] = ['required', 'exists:seo_projects,id'];
         }
-        $this->validate($rules);
+        $this->validate($rules, [], [
+            'mode' => 'mode',
+            'apiKey' => 'clé Gemini',
+            'csv' => 'fichier de mots-clés',
+            'pastedKeywords' => 'mots-clés collés',
+            'extraSourceUrls' => 'autres pages officielles',
+            'competitorsText' => 'concurrents reels',
+            'competitorPricingUrlsText' => 'pages tarifs concurrents',
+            'name' => 'nom de l’outil',
+            'websiteUrl' => 'site officiel',
+            'pricingUrl' => 'page tarifs',
+            'affiliateUrl' => 'lien affilié',
+            'country' => 'pays',
+            'currency' => 'devise',
+            'existingProjectId' => 'projet existant',
+        ]);
 
         $this->message = '';
         $this->error = '';
@@ -165,6 +195,8 @@ class Automation extends Component
             $this->apiKey = '';
         }
 
+        $competitorConfig = $competitorPricingUrls->parse($this->competitorsText, $this->competitorPricingUrlsText);
+
         $project = $this->mode === 'existing'
             ? SeoProject::query()->findOrFail($this->existingProjectId)
             : SeoProject::query()->create([
@@ -175,9 +207,19 @@ class Automation extends Component
                 'affiliate_url' => $this->affiliateUrl ?: null,
                 'country' => strtoupper($this->country),
                 'currency' => strtoupper($this->currency),
+                'competitors' => $competitorConfig['competitors'],
+                'competitor_pricing_urls' => $competitorConfig['pricing_urls'],
                 'crawl_status' => 'processing',
             ]);
         $this->projectId = $project->id;
+
+        if ($this->mode === 'existing') {
+            $project->update([
+                'competitors' => $competitorConfig['competitors'] ?: ($project->competitors ?? []),
+                'competitor_pricing_urls' => $competitorConfig['pricing_urls'],
+            ]);
+        }
+        app(\App\Services\AffiliateSeoDefaults::class)->ensureForProject($project);
 
         if ($this->csv) {
             try {
@@ -205,21 +247,26 @@ class Automation extends Component
         }
 
         $urls = collect([
-            ['url' => $project->website_url, 'type' => 'homepage'],
-            ['url' => $project->pricing_url, 'type' => 'pricing'],
+            ['url' => $project->website_url, 'type' => 'homepage', 'competitor_name' => null],
+            ['url' => $project->pricing_url, 'type' => 'pricing', 'competitor_name' => null],
         ])->filter(fn ($source) => $source['url']);
+        foreach (($project->competitor_pricing_urls ?? []) as $competitorName => $url) {
+            if (trim((string) $url) !== '') {
+                $urls->push(['url' => trim((string) $url), 'type' => 'pricing', 'competitor_name' => trim((string) $competitorName)]);
+            }
+        }
         foreach (array_slice(preg_split('/\R/', $this->extraSourceUrls) ?: [], 0, 4) as $url) {
             if (trim($url) !== '') {
-                $urls->push(['url' => trim($url), 'type' => 'other']);
+                $urls->push(['url' => trim($url), 'type' => 'other', 'competitor_name' => null]);
             }
         }
 
         $queued = 0;
-        foreach ($urls->unique('url')->take(6) as $sourceData) {
+        foreach ($urls->unique('url')->take(12) as $sourceData) {
             try {
                 $source = SourcePage::query()->updateOrCreate(
                     ['seo_project_id' => $project->id, 'url' => $sourceData['url']],
-                    ['type' => $sourceData['type'], 'status' => 'processing', 'error_message' => null],
+                    ['type' => $sourceData['type'], 'competitor_name' => $sourceData['competitor_name'] ?? null, 'status' => 'processing', 'error_message' => null],
                 );
                 if (! app()->runningUnitTests()) {
                     $worker->launch($source->id);
@@ -362,7 +409,8 @@ class Automation extends Component
                     $this->error = $exception->getMessage();
                 }
             }
-            $this->message = "Planification en arrière-plan : {$plan->candidate_count} idées analysées, étape {$plan->attempts}/5.";
+            $maxAttempts = $plan->requested_count >= 20 ? 8 : 5;
+            $this->message = "Planification en arrière-plan : {$plan->candidate_count} idées analysées, étape {$plan->attempts}/{$maxAttempts}.";
             $this->dispatch('planning-step-finished');
 
             return;
@@ -413,7 +461,8 @@ class Automation extends Component
         }
 
         $candidateCount = $plan->ideas()->where('status', 'candidate')->count();
-        $this->message = "Planification en cours : {$candidateCount}/{$plan->requested_count} angles retenus après l’étape {$plan->attempts}/5.";
+        $maxAttempts = $plan->requested_count >= 20 ? 8 : 5;
+        $this->message = "Planification en cours : {$candidateCount}/{$plan->requested_count} angles retenus après l’étape {$plan->attempts}/{$maxAttempts}.";
         $this->dispatch('planning-step-finished');
     }
 
@@ -988,6 +1037,15 @@ class Automation extends Component
         }
 
         return $slug;
+    }
+
+    private function lines(string $value): array
+    {
+        return collect(preg_split('/\R/', $value))
+            ->map(fn ($line) => trim((string) $line))
+            ->filter()
+            ->values()
+            ->all();
     }
 
     private function projectReady(SeoProject $project): bool

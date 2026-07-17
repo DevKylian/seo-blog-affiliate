@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\AffiliateRedirectController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\IndexNowKeyController;
 use App\Livewire\AccessLogs;
 use App\Livewire\ArticleEditor;
 use App\Livewire\Articles;
@@ -10,9 +12,12 @@ use App\Livewire\ContentSchedulerDashboard;
 use App\Livewire\ContentStudio;
 use App\Livewire\Dashboard;
 use App\Livewire\Keywords;
+use App\Livewire\PrePublishAudits;
 use App\Livewire\Projects;
 use App\Livewire\Research;
+use App\Livewire\SeoIntelligence;
 use App\Livewire\Settings;
+use App\Services\DevGenerationCircuitBreaker;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -27,8 +32,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::redirect('/', '/blog');
+Route::get('/', [BlogController::class, 'home'])->name('home');
+Route::redirect('/home', '/admin');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/outils-gratuits', [BlogController::class, 'freeTools'])->name('free-tools.index');
+Route::get('/outils-gratuits/{slug}', [BlogController::class, 'freeTool'])->name('free-tools.show');
 Route::get('/outils', [BlogController::class, 'tools'])->name('tools.index');
 Route::get('/outils/{slug}/tarifs', [BlogController::class, 'pricing'])->name('tools.pricing');
 Route::get('/outils/{slug}', [BlogController::class, 'tool'])->name('tools.show');
@@ -36,6 +44,8 @@ Route::get('/comparatifs/{slug}', [BlogController::class, 'comparison'])->name('
 Route::get('/alternatives/{slug}', [BlogController::class, 'alternatives'])->name('alternatives.show');
 Route::get('/meilleurs-outils/{slug}', [BlogController::class, 'bestTools'])->name('best-tools.show');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
+Route::get('/go/{project:slug}', AffiliateRedirectController::class)->name('affiliate.redirect');
+Route::get('/indexnow/{key}.txt', IndexNowKeyController::class)->where('key', '[A-Za-z0-9_-]{8,128}')->name('indexnow.key');
 Route::get('/sitemap.xml', [BlogController::class, 'sitemap'])->name('sitemap');
 
 Route::middleware('guest')->group(function () {
@@ -58,10 +68,22 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/research', Research::class)->name('admin.research');
     Route::get('/keywords', Keywords::class)->name('admin.keywords');
     Route::get('/content', ContentStudio::class)->name('admin.content');
+    Route::get('/audits', PrePublishAudits::class)->name('admin.audits');
+    Route::get('/seo-intelligence', SeoIntelligence::class)->name('admin.seo-intelligence');
     Route::get('/articles', Articles::class)->name('admin.articles');
     Route::get('/articles/create', ArticleEditor::class)->name('admin.articles.create');
     Route::get('/articles/{article}/preview', [BlogController::class, 'preview'])->name('admin.articles.preview');
     Route::get('/articles/{article}/edit', ArticleEditor::class)->name('admin.articles.edit');
     Route::get('/settings', Settings::class)->name('admin.settings');
     Route::get('/access-logs', AccessLogs::class)->name('admin.logs');
+    Route::post('/dev/stop-generations', function (DevGenerationCircuitBreaker $breaker) {
+        abort_unless(app()->isLocal(), 404);
+
+        $result = $breaker->stopAll();
+
+        return back()->with(
+            'dev_generation_stop',
+            "Generations coupees : {$result['runs']} campagne(s), {$result['items']} contenu(s), {$result['tasks']} tache(s), {$result['plans']} plan(s), {$result['articles']} regeneration(s) article.",
+        );
+    })->name('admin.dev.stop-generations');
 });

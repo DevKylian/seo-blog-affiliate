@@ -4,11 +4,13 @@ namespace App\Livewire;
 
 use App\Livewire\Concerns\WithBulkSelection;
 use App\Models\Article;
+use App\Services\ArticleRegenerationWorkerLauncher;
 use App\Services\EditorialConsolidationService;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Throwable;
 
 #[Layout('layouts.admin')]
 class Articles extends Component
@@ -24,6 +26,8 @@ class Articles extends Component
     public string $message = '';
 
     public string $error = '';
+
+    public ?int $regeneratingArticleId = null;
 
     public function updatedSearch(): void
     {
@@ -78,6 +82,51 @@ class Articles extends Component
         $this->resetPage();
     }
 
+    public function regenerate(int $articleId, ArticleRegenerationWorkerLauncher $worker): void
+    {
+        $this->message = '';
+        $this->error = '';
+        $this->regeneratingArticleId = $articleId;
+        $article = null;
+
+        try {
+            $article = Article::query()->findOrFail($articleId);
+            $checks = $article->quality_checks ?? [];
+            if (in_array($checks['regeneration_status'] ?? null, ['queued', 'processing'], true)) {
+                $this->message = "Régénération déjà en cours pour « {$article->title} ».";
+
+                return;
+            }
+
+            $article->forceFill([
+                'quality_checks' => array_merge($checks, [
+                    'regeneration_status' => 'queued',
+                    'regeneration_queued_at' => now()->toDateTimeString(),
+                    'regeneration_started_at' => null,
+                    'regeneration_finished_at' => null,
+                    'regeneration_error' => null,
+                    'regeneration_user_id' => auth()->id(),
+                ]),
+            ])->save();
+            $worker->launch($article->id);
+            $this->message = "Régénération lancée en arrière-plan pour « {$article->title} ». Vous pouvez rester sur la page.";
+        } catch (Throwable $exception) {
+            report($exception);
+            if ($article) {
+                $article->forceFill([
+                    'quality_checks' => array_merge($article->quality_checks ?? [], [
+                        'regeneration_status' => 'failed',
+                        'regeneration_finished_at' => now()->toDateTimeString(),
+                        'regeneration_error' => mb_substr($exception->getMessage(), 0, 1000),
+                    ]),
+                ])->save();
+            }
+            $this->error = 'Régénération impossible à lancer : '.$exception->getMessage();
+        } finally {
+            $this->regeneratingArticleId = null;
+        }
+    }
+
     protected function bulkSelectionIds(): array
     {
         return $this->filteredQuery()->pluck('id')->map(fn ($id) => (int) $id)->all();
@@ -95,7 +144,7 @@ class Articles extends Component
 
     public function render()
     {
-        $articles = $this->filteredQuery()->with(['project', 'keyword', 'categories', 'canonicalArticle'])
+        $articles = $this->filteredQuery()->with(['project', 'keyword', 'categories', 'canonicalArticle', 'latestAudit'])
             ->latest()->paginate(15);
 
         return view('livewire.articles', compact('articles'))->title('Articles');

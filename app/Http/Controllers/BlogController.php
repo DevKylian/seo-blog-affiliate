@@ -10,11 +10,27 @@ use Illuminate\Http\Response;
 
 class BlogController extends Controller
 {
+    public function home(): View
+    {
+        return view('blog.home', [
+            'latestArticles' => Article::query()->with(['project', 'categories'])->where('status', 'published')->latest('published_at')->limit(6)->get(),
+            'categories' => Category::query()->withCount(['articles' => fn ($query) => $query->where('status', 'published')])->orderBy('name')->get(),
+        ]);
+    }
+
     public function index(): View
     {
+        $cluster = request('cluster');
+
         return view('blog.index', [
-            'articles' => Article::query()->with(['project', 'categories'])->where('status', 'published')->latest('published_at')->paginate(12),
+            'articles' => Article::query()
+                ->with(['project', 'categories', 'keyword'])
+                ->where('status', 'published')
+                ->when($cluster, fn ($query) => $query->whereHas('keyword', fn ($keywordQuery) => $keywordQuery->where('affiliate_cluster', $cluster)))
+                ->latest('published_at')
+                ->paginate(12),
             'categories' => Category::query()->withCount(['articles' => fn ($query) => $query->where('status', 'published')])->orderBy('name')->get(),
+            'cluster' => $cluster,
         ]);
     }
 
@@ -33,7 +49,17 @@ class BlogController extends Controller
 
     public function article(string $slug, ?string $type = null): View
     {
-        $article = Article::query()->with(['project.plans' => fn ($query) => $query->where('is_active', true)->orderBy('position'), 'categories', 'tags', 'sources', 'internalLinks.target'])
+        $article = Article::query()->with([
+            'project.plans' => fn ($query) => $query->where('is_active', true)->orderBy('position'),
+            'project.competitorPlans' => fn ($query) => $query->where('is_active', true)->orderBy('competitor_name')->orderBy('position'),
+            'project.sourcePages' => fn ($query) => $query->where('status', 'verified')->where('type', 'pricing')->orderBy('competitor_name'),
+            'keyword',
+            'contentCluster',
+            'categories',
+            'tags',
+            'sources',
+            'internalLinks.target',
+        ])
             ->where('status', 'published')->where('slug', $slug)
             ->when($type, fn ($query) => $query->where('type', $type))->firstOrFail();
 
@@ -44,6 +70,10 @@ class BlogController extends Controller
     {
         $article->load([
             'project.plans' => fn ($query) => $query->where('is_active', true)->orderBy('position'),
+            'project.competitorPlans' => fn ($query) => $query->where('is_active', true)->orderBy('competitor_name')->orderBy('position'),
+            'project.sourcePages' => fn ($query) => $query->where('status', 'verified')->where('type', 'pricing')->orderBy('competitor_name'),
+            'keyword',
+            'contentCluster',
             'categories',
             'tags',
             'sources',
@@ -87,11 +117,51 @@ class BlogController extends Controller
         return view('tools.pricing', compact('tool'));
     }
 
+    public function freeTools(): View
+    {
+        return view('tools.free-index', ['tools' => $this->freeToolCatalog()]);
+    }
+
+    public function freeTool(string $slug): View
+    {
+        $tool = collect($this->freeToolCatalog())->firstWhere('slug', $slug);
+        abort_unless($tool, 404);
+
+        return view('tools.free-show', compact('tool'));
+    }
+
     public function sitemap(): Response
     {
         $articles = Article::query()->where('status', 'published')->get(['slug', 'type', 'updated_at']);
         $tools = SeoProject::query()->where('status', 'active')->get(['slug', 'updated_at']);
 
         return response()->view('blog.sitemap', compact('articles', 'tools'))->header('Content-Type', 'application/xml');
+    }
+
+    private function freeToolCatalog(): array
+    {
+        return [
+            [
+                'slug' => 'calculateur-tjm-freelance',
+                'title' => 'Calculateur TJM freelance',
+                'description' => 'Estimez le tarif journalier nécessaire pour atteindre votre objectif annuel.',
+                'type' => 'tjm',
+                'cta' => 'Recevoir mon résultat détaillé',
+            ],
+            [
+                'slug' => 'calculateur-revenu-freelance',
+                'title' => 'Calculateur revenu freelance',
+                'description' => 'Estimez ce qu’il reste après charges pour mieux piloter votre activité.',
+                'type' => 'revenu',
+                'cta' => 'Calculer mon revenu net',
+            ],
+            [
+                'slug' => 'checklist-creation-micro-entreprise',
+                'title' => 'Checklist création micro-entreprise',
+                'description' => 'Les étapes à suivre après le SIRET pour éviter les oublis administratifs.',
+                'type' => 'checklist',
+                'cta' => 'Voir la checklist',
+            ],
+        ];
     }
 }

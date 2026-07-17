@@ -31,6 +31,11 @@ final class ScheduledContentTask extends Model
         return $this->belongsTo(Keyword::class);
     }
 
+    public function contentCluster(): BelongsTo
+    {
+        return $this->belongsTo(ContentCluster::class);
+    }
+
     public function editorialIdea(): BelongsTo
     {
         return $this->belongsTo(EditorialIdea::class);

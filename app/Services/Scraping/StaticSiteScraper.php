@@ -24,12 +24,12 @@ class StaticSiteScraper
         private readonly BrowserHtmlFetcher $browserHtmlFetcher,
     ) {}
 
-    public function scrape(SeoProject $project, string $url, string $type = 'other'): SourcePage
+    public function scrape(SeoProject $project, string $url, string $type = 'other', ?string $competitorName = null): SourcePage
     {
         $url = $this->validatePublicUrl($url);
         $source = SourcePage::query()->updateOrCreate(
             ['seo_project_id' => $project->id, 'url' => $url],
-            ['type' => $type, 'status' => 'processing', 'error_message' => null],
+            ['type' => $type, 'competitor_name' => $competitorName, 'status' => 'processing', 'error_message' => null],
         );
 
         try {
@@ -94,9 +94,9 @@ class StaticSiteScraper
                 // taille, pays, mensuel/annuel). Ils constituent des preuves,
                 // pas autant de formules à afficher dans le CMS.
                 $data['prices'] = $this->consolidatePrices($data['prices']);
-                $data['prices'] = $this->pricingNormalizer->normalize($project, $url, $data['prices']);
+                $data['prices'] = $this->pricingNormalizer->normalize($project, $url, $data['prices'], $competitorName);
                 $data['prices'] = array_map(function (array $price): array {
-                    $price['features'] = array_values(array_slice(array_unique(array_filter($price['features'] ?? [])), 0, 4));
+                    $price['features'] = array_values(array_slice(array_unique(array_filter($price['features'] ?? [])), 0, 6));
                     $price['raw'] = $this->formatPlanEvidence($price);
 
                     return $price;
@@ -105,7 +105,7 @@ class StaticSiteScraper
                 $data['content'] = implode("\n\n", $data['chunks']);
             }
 
-            DB::transaction(function () use ($project, $source, $verifiedHttpStatus, $data, $extractionMethod): void {
+            DB::transaction(function () use ($project, $source, $verifiedHttpStatus, $data, $extractionMethod, $competitorName): void {
                 $source->update([
                     'title' => $data['title'],
                     'excerpt' => mb_substr($data['content'], 0, 700),
@@ -132,11 +132,15 @@ class StaticSiteScraper
                 }
 
                 if ($source->type === 'pricing') {
-                    $source->project->plans()->where('source_page_id', $source->id)->update(['is_active' => false]);
+                    Plan::query()
+                        ->where('seo_project_id', $project->id)
+                        ->where('source_page_id', $source->id)
+                        ->update(['is_active' => false]);
                     foreach ($data['prices'] as $index => $price) {
                         $plan = Plan::query()->create([
                             'seo_project_id' => $project->id,
                             'source_page_id' => $source->id,
+                            'competitor_name' => $competitorName,
                             'name' => $price['name'],
                             'position' => $index,
                             'is_active' => true,
@@ -185,7 +189,7 @@ class StaticSiteScraper
 
     private function fetch(string $url): Response
     {
-        $response = Http::timeout(20)
+        $response = $this->http()->timeout(20)
             ->connectTimeout(8)
             ->retry(2, 300, throw: false)
             ->withHeaders([
@@ -262,7 +266,7 @@ class StaticSiteScraper
         $this->appendEmbeddedApplicationPrices($crawler, $embeddedPrices, $embeddedSeen);
 
         if (count($embeddedPrices) >= 2) {
-            return array_slice($this->inheritDominantCurrency($embeddedPrices), 0, 60);
+            return array_slice($this->inheritDominantCurrency($this->enrichEmbeddedPricesFromDom($crawler, $embeddedPrices)), 0, 60);
         }
 
         $crawler->filter(implode(', ', [
@@ -519,7 +523,7 @@ class StaticSiteScraper
                         $price['features'] = collect(is_array($features) ? $features : [])
                             ->map(fn ($feature) => is_scalar($feature) ? $this->cleanPricingText((string) $feature) : null)
                             ->filter()
-                            ->take(4)
+                            ->take(6)
                             ->values()
                             ->all();
                         $price['audience'] = $this->firstApiScalar($value, ['audience', 'description', 'subtitle', 'tagline']);
@@ -599,13 +603,7 @@ class StaticSiteScraper
             return;
         }
 
-        $features = $container->filter('li:not(.excluded)')->each(fn (Crawler $feature) => $this->cleanPricingText($feature->text('')));
-        $features = array_values(array_slice(array_unique(array_filter($features, function (string $feature): bool {
-            return mb_strlen($feature) >= 5
-                && mb_strlen($feature) <= 220
-                && ! $this->isCallToAction($feature)
-                && ! $this->containsPrice($feature);
-        })), 0, 4));
+        $features = $this->extractFeatureTexts($container);
         $audience = $this->firstPricingText($container, '.card-text, [class*="audience"], [class*="subtitle"], [class*="description"], p');
         if ($audience && ($this->containsPrice($audience) || $this->isCallToAction($audience))) {
             $audience = null;
@@ -639,6 +637,94 @@ class StaticSiteScraper
             $prices[] = $price;
             $seen[$key] = true;
         }
+    }
+
+    /** @param array<int, array<string, mixed>> $prices */
+    private function enrichEmbeddedPricesFromDom(Crawler $crawler, array $prices): array
+    {
+        return array_map(function (array $price) use ($crawler): array {
+            $name = (string) ($price['name'] ?? '');
+            if ($name === '') {
+                return $price;
+            }
+
+            $container = $this->findPlanContainerByName($crawler, $name);
+            if ($container === null) {
+                return $price;
+            }
+
+            $features = $this->extractFeatureTexts($container);
+            if ($features !== []) {
+                $price['features'] = array_values(array_slice(array_unique(array_filter(array_merge(
+                    $price['features'] ?? [],
+                    $features,
+                ))), 0, 6));
+            }
+
+            if (empty($price['audience'])) {
+                $audience = $this->firstPricingText($container, '.card-text, [class*="audience"], [class*="subtitle"], [class*="description"], p');
+                if ($audience && ! $this->containsPrice($audience) && ! $this->isCallToAction($audience)) {
+                    $price['audience'] = $audience;
+                }
+            }
+
+            $price['raw'] = $this->formatPlanEvidence($price);
+
+            return $price;
+        }, $prices);
+    }
+
+    private function findPlanContainerByName(Crawler $crawler, string $planName): ?Crawler
+    {
+        $target = $this->canonicalPlanKey($planName);
+        if ($target === '') {
+            return null;
+        }
+
+        $bestContainer = null;
+        $bestScore = -1;
+        $crawler->filter('h1, h2, h3, h4, span, strong, p, div')->each(function (Crawler $label) use ($target, &$bestContainer, &$bestScore): void {
+            if ($this->isInsidePricingNoise($label) || $this->isInheritedPlanReference($label)) {
+                return;
+            }
+
+            $text = $this->cleanPricingText($label->text(''));
+            if ($text === '' || mb_strlen($text) > 120 || $this->canonicalPlanKey($text) !== $target) {
+                return;
+            }
+
+            $container = $this->pricingContainer($label);
+            if ($container === null) {
+                return;
+            }
+
+            $score = count($this->extractFeatureTexts($container, 12)) * 3
+                + ($this->containsPrice($this->spacedText($container)) ? 2 : 0);
+            if ($score > $bestScore) {
+                $bestContainer = $container;
+                $bestScore = $score;
+            }
+        });
+
+        return $bestContainer;
+    }
+
+    private function extractFeatureTexts(Crawler $container, int $limit = 6): array
+    {
+        $features = $container->filter('li:not(.excluded)')->each(fn (Crawler $feature) => $this->cleanPricingText($feature->text('')));
+
+        return array_values(array_slice(array_unique(array_filter($features, fn (string $feature): bool => $this->isPlanFeature($feature))), 0, $limit));
+    }
+
+    private function isPlanFeature(string $feature): bool
+    {
+        if (mb_strlen($feature) < 5 || mb_strlen($feature) > 220 || $this->isCallToAction($feature) || $this->containsPrice($feature)) {
+            return false;
+        }
+
+        $normalized = Str::ascii(mb_strtolower($feature));
+
+        return preg_match('/\b(?:en plus de l[\' ]offre|toutes? les fonctionnalites? du plan|includes? (?:the )?plan)\b/u', $normalized) !== 1;
     }
 
     /** @return array<int, array{text:string,label:string}> */
@@ -875,7 +961,7 @@ class StaticSiteScraper
                 ->flatMap(fn (array $variant) => $variant['features'] ?? [])
                 ->filter()
                 ->unique()
-                ->take(4)
+                ->take(6)
                 ->values()
                 ->all();
             $base['audience'] = collect($variants)
@@ -1254,7 +1340,7 @@ class StaticSiteScraper
             $parts[] = 'Public / objectif : '.$price['audience'];
         }
         if ($price['features'] !== []) {
-            $parts[] = 'Fonctionnalités clés : '.implode(' ; ', array_slice($price['features'], 0, 4));
+            $parts[] = 'Fonctionnalités clés : '.implode(' ; ', array_slice($price['features'], 0, 6));
         }
 
         return implode("\n", $parts);
@@ -1300,7 +1386,7 @@ class StaticSiteScraper
         $parts = parse_url($url);
         $robotsUrl = $parts['scheme'].'://'.$parts['host'].(isset($parts['port']) ? ':'.$parts['port'] : '').'/robots.txt';
         try {
-            $response = Http::timeout(8)->withHeaders(['User-Agent' => 'BlogSEOResearchBot/1.0'])->get($robotsUrl);
+            $response = $this->http()->timeout(8)->withHeaders(['User-Agent' => 'BlogSEOResearchBot/1.0'])->get($robotsUrl);
             if (! $response->successful()) {
                 return;
             }
@@ -1343,6 +1429,33 @@ class StaticSiteScraper
         }
 
         return $url;
+    }
+
+    private function http(): \Illuminate\Http\Client\PendingRequest
+    {
+        return Http::withOptions(['verify' => $this->caBundlePath() ?: true]);
+    }
+
+    private function caBundlePath(): ?string
+    {
+        $configured = trim((string) config('services.scraping.ca_bundle', ''));
+        $candidates = array_filter([
+            $configured,
+            ini_get('curl.cainfo') ?: null,
+            ini_get('openssl.cafile') ?: null,
+            getenv('CURL_CA_BUNDLE') ?: null,
+            getenv('SSL_CERT_FILE') ?: null,
+            getenv('USERPROFILE') ? getenv('USERPROFILE').'/.config/herd/config/php/cacert.pem' : null,
+            getenv('USERPROFILE') ? getenv('USERPROFILE').'/.config/herd-lite/bin/cacert.pem' : null,
+        ]);
+
+        foreach ($candidates as $candidate) {
+            if (is_string($candidate) && $candidate !== '' && is_file($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return null;
     }
 
     private function categorize(string $text): string

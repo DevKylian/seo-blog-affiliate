@@ -10,6 +10,8 @@ use RuntimeException;
 
 class SemrushCsvImporter
 {
+    public function __construct(private readonly AffiliateIntentClassifier $affiliateIntent) {}
+
     public function import(SeoProject $project, string $path): int
     {
         $contents = file_get_contents($path);
@@ -59,36 +61,82 @@ class SemrushCsvImporter
                 if (! $this->isValidKeyword($keyword)) {
                     continue;
                 }
-                $volume = $this->number($data['search_volume'] ?? 0);
-                $difficulty = $this->nullableNumber($data['keyword_difficulty'] ?? null)
-                    ?? $this->competitionDifficulty($data['competition'] ?? null)
-                    ?? 0.0;
-                $intent = $this->normalizeIntent((string) ($data['intent'] ?? '')) ?: $this->intent($keyword, $project->name);
-                Keyword::query()->updateOrCreate(
-                    ['seo_project_id' => $project->id, 'keyword' => $keyword],
-                    [
-                        'search_volume' => (int) $volume,
-                        'keyword_difficulty' => $difficulty,
-                        'intent' => $intent,
-                        'cpc' => $this->nullableNumber($data['cpc'] ?? $data['cpc_low'] ?? null),
-                        'trend' => $data['trend'] ?? null,
-                        'country' => strtoupper((string) ($data['country'] ?? $project->country)),
-                        'serp_features' => $data['serp_features'] ?? null,
-                        'current_position' => $this->nullableNumber($data['current_position'] ?? null),
-                        'ranking_url' => $data['ranking_url'] ?? null,
-                        'cluster' => $this->cluster($keyword, $intent),
-                        'opportunity_score' => $this->score($volume, $difficulty, $intent, $keyword, $project->name),
-                    ],
-                );
+                $this->upsertKeywordFromData($project, $keyword, $data);
                 $count++;
             }
         });
         fclose($handle);
 
+        if ($count > 0) {
+            $this->backfillEquivalentMetrics($project);
+            app(SemanticKeywordClusterer::class)->rebuildProject($project);
+        }
+
         return $count;
     }
 
-    private function score(float $volume, float $difficulty, string $intent, string $keyword, string $brand): float
+    public function importMetricRow(SeoProject $project, array $data, bool $refreshProject = true): ?Keyword
+    {
+        $keyword = $this->cleanKeyword((string) ($data['keyword'] ?? ''));
+        if (! $this->isValidKeyword($keyword)) {
+            return null;
+        }
+
+        $model = DB::transaction(fn (): Keyword => $this->upsertKeywordFromData($project, $keyword, $data));
+
+        if ($refreshProject) {
+            $this->refreshProject($project);
+        }
+
+        return $model;
+    }
+
+    public function refreshProject(SeoProject $project): void
+    {
+        $this->backfillEquivalentMetrics($project);
+        app(SemanticKeywordClusterer::class)->rebuildProject($project);
+    }
+
+    private function upsertKeywordFromData(SeoProject $project, string $keyword, array $data): Keyword
+    {
+        $existing = Keyword::query()->firstOrNew([
+            'seo_project_id' => $project->id,
+            'keyword' => $keyword,
+        ]);
+        $volume = $this->nullableNumber($data['search_volume'] ?? null)
+            ?? (float) ($existing->exists ? $existing->search_volume : 0);
+        $difficulty = $this->nullableNumber($data['keyword_difficulty'] ?? null)
+            ?? $this->competitionDifficulty($data['competition'] ?? null)
+            ?? ($existing->exists ? (float) $existing->keyword_difficulty : null)
+            ?? 0.0;
+        $intent = $this->normalizeIntent((string) ($data['intent'] ?? '')) ?: $this->intent($keyword, $project->name);
+        $cpc = $this->firstNullableNumber($data['cpc'] ?? null, $data['cpc_low'] ?? null)
+            ?? ($existing->exists ? $existing->cpc : null);
+        $classification = $this->affiliateIntent->classify($keyword, $project->name, $intent, (float) $volume, (float) $difficulty, $cpc);
+        $existing->fill([
+            'search_volume' => (int) $volume,
+            'keyword_difficulty' => $difficulty,
+            'intent' => $intent,
+            'intent_type' => $classification['intent_type'],
+            'cpc' => $cpc,
+            'trend' => $this->filledValue($data['trend'] ?? null, $existing->exists ? $existing->trend : null),
+            'country' => strtoupper((string) $this->filledValue($data['country'] ?? null, $existing->exists ? $existing->country : $project->country)),
+            'serp_features' => $this->filledValue($data['serp_features'] ?? null, $existing->exists ? $existing->serp_features : null),
+            'current_position' => $this->nullableNumber($data['current_position'] ?? null) ?? ($existing->exists ? $existing->current_position : null),
+            'ranking_url' => $this->filledValue($data['ranking_url'] ?? null, $existing->exists ? $existing->ranking_url : null),
+            'cluster' => $this->cluster($keyword, $intent),
+            'affiliate_cluster' => $classification['affiliate_cluster'],
+            'affiliate_priority' => $classification['affiliate_priority'],
+            'user_moment' => $classification['user_moment'],
+            'problem_label' => $classification['problem_label'],
+            'solution_label' => $classification['solution_label'],
+            'opportunity_score' => $this->score($volume, $difficulty, $intent, $keyword, $project->name, $classification['affiliate_priority']),
+        ])->save();
+
+        return $existing;
+    }
+
+    private function score(float $volume, float $difficulty, string $intent, string $keyword, string $brand, float $affiliatePriority = 0): float
     {
         $intentWeight = match (true) {
             preg_match('/transaction|commercial|achat|buy/iu', $intent) === 1 => 2.0,
@@ -99,7 +147,9 @@ class SemrushCsvImporter
         $relevance = stripos($keyword, $brand) !== false ? 1.5 : 1.0;
         $raw = ($volume + 10) * $intentWeight * $affiliate * $relevance / max($difficulty, 10);
 
-        return round(min(100, log10(max($raw, 1)) * 32), 2);
+        $seoScore = log10(max($raw, 1)) * 32;
+
+        return round(min(100, ($seoScore * .72) + ($affiliatePriority * .28)), 2);
     }
 
     private function cluster(string $keyword, string $intent): string
@@ -133,6 +183,10 @@ class SemrushCsvImporter
             'avg monthly searches' => 'search_volume',
             'average monthly searches' => 'search_volume',
             'recherches mensuelles moyennes' => 'search_volume',
+            'difficulty' => 'keyword_difficulty',
+            'difficulte' => 'keyword_difficulty',
+            'difficulte mot cle' => 'keyword_difficulty',
+            'difficulte du mot cle' => 'keyword_difficulty',
             'keyword difficulty' => 'keyword_difficulty',
             'kd' => 'keyword_difficulty',
             'competition indexed value' => 'keyword_difficulty',
@@ -191,6 +245,94 @@ class SemrushCsvImporter
     private function nullableNumber(mixed $value): ?float
     {
         return $value === null || trim((string) $value) === '' ? null : $this->number($value);
+    }
+
+    private function firstNullableNumber(mixed ...$values): ?float
+    {
+        foreach ($values as $value) {
+            $number = $this->nullableNumber($value);
+            if ($number !== null) {
+                return $number;
+            }
+        }
+
+        return null;
+    }
+
+    private function filledValue(mixed $candidate, mixed $fallback): mixed
+    {
+        return $candidate === null || trim((string) $candidate) === '' ? $fallback : $candidate;
+    }
+
+    private function backfillEquivalentMetrics(SeoProject $project): void
+    {
+        $keywords = $project->keywords()->get();
+        $measuredByKey = $keywords
+            ->filter(fn (Keyword $keyword): bool => $this->hasMetrics($keyword))
+            ->groupBy(fn (Keyword $keyword): string => $this->metricEquivalenceKey($keyword->keyword))
+            ->map(fn ($group): Keyword => $group->sortByDesc('search_volume')->first());
+
+        $keywords
+            ->reject(fn (Keyword $keyword): bool => $this->hasMetrics($keyword))
+            ->each(function (Keyword $keyword) use ($measuredByKey, $project): void {
+                $source = $measuredByKey->get($this->metricEquivalenceKey($keyword->keyword));
+                if (! $source || $source->id === $keyword->id) {
+                    return;
+                }
+
+                $intent = $keyword->intent ?: $source->intent ?: $this->intent($keyword->keyword, $project->name);
+                $classification = $this->affiliateIntent->classify(
+                    $keyword->keyword,
+                    $project->name,
+                    $intent,
+                    (float) $source->search_volume,
+                    (float) $source->keyword_difficulty,
+                    $source->cpc,
+                );
+                $keyword->update([
+                    'search_volume' => $source->search_volume,
+                    'keyword_difficulty' => $source->keyword_difficulty,
+                    'intent_type' => $classification['intent_type'],
+                    'cpc' => $source->cpc,
+                    'trend' => $keyword->trend ?: $source->trend,
+                    'country' => $keyword->country ?: $source->country,
+                    'serp_features' => $keyword->serp_features ?: $source->serp_features,
+                    'current_position' => $keyword->current_position ?? $source->current_position,
+                    'ranking_url' => $keyword->ranking_url ?: $source->ranking_url,
+                    'cluster' => $this->cluster($keyword->keyword, $intent),
+                    'affiliate_cluster' => $classification['affiliate_cluster'],
+                    'affiliate_priority' => $classification['affiliate_priority'],
+                    'user_moment' => $classification['user_moment'],
+                    'problem_label' => $classification['problem_label'],
+                    'solution_label' => $classification['solution_label'],
+                    'opportunity_score' => $this->score((float) $source->search_volume, (float) $source->keyword_difficulty, $intent, $keyword->keyword, $project->name, $classification['affiliate_priority']),
+                ]);
+            });
+    }
+
+    private function hasMetrics(Keyword $keyword): bool
+    {
+        return (float) $keyword->keyword_difficulty > 0
+            || (int) $keyword->search_volume > 0
+            || $keyword->cpc !== null;
+    }
+
+    private function metricEquivalenceKey(string $keyword): string
+    {
+        $tokens = preg_split('/\s+/u', $this->normalizedLabel($keyword)) ?: [];
+        $mapped = collect($tokens)
+            ->map(fn (string $token): string => match ($token) {
+                'facturation', 'facturations', 'factures' => 'facture',
+                'logiciels' => 'logiciel',
+                'de', 'du', 'des', 'et', 'pour', 'le', 'la', 'les', 'un', 'une' => '',
+                default => $token,
+            })
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
+
+        return $mapped->implode('-');
     }
 
     private function headers(array $values): array
@@ -268,7 +410,7 @@ class SemrushCsvImporter
             return $contents;
         }
         $headerWindow = $lines->slice((int) $headerIndex, 15)->map(fn (string $line) => $this->normalizedLabel($line));
-        if (! $headerWindow->contains('intention')
+        if (! $headerWindow->contains(fn (string $line) => in_array($line, ['intention', 'intent'], true))
             || ! $headerWindow->contains('volume')
             || ! $headerWindow->contains(fn (string $line) => $line === 'kd' || str_starts_with($line, 'kd '))) {
             return $contents;
@@ -277,53 +419,220 @@ class SemrushCsvImporter
         $dataStart = $lines->search(fn (string $line) => str_starts_with($this->normalizedLabel($line), 'selectionnes'));
         if ($dataStart === false) {
             $updatedAt = $lines->search(fn (string $line) => $this->normalizedLabel($line) === 'mise a jour');
-            $dataStart = $updatedAt === false ? (int) $headerIndex + $headerWindow->count() : (int) $updatedAt;
+            $dataStart = $updatedAt === false ? $this->flattenedHeaderEndIndex($lines, (int) $headerIndex) : (int) $updatedAt;
         }
-        $tokens = $lines->slice((int) $dataStart + 1)->values()->all();
-        $groups = [];
-        for ($index = 0; $index < count($tokens);) {
-            if (! $this->looksLikeKeywordToken($tokens[$index])) {
-                $index++;
-
-                continue;
-            }
-            $keyword = $tokens[$index++];
-            $metrics = [];
-            while ($index < count($tokens) && ! $this->looksLikeKeywordToken($tokens[$index])) {
-                $metrics[] = $tokens[$index++];
-            }
-            $groups[] = [$keyword, $metrics];
-        }
-
-        $rows = [];
-        foreach ($groups as [$keyword, $metrics]) {
-            $intent = [];
-            while ($metrics !== [] && preg_match('/^[ICTN](?:\s*[+,\/]?\s*[ICTN])*$/iu', $metrics[0]) === 1) {
-                $intent[] = array_shift($metrics);
-            }
-            $numeric = array_values(array_filter($metrics, fn (string $value) => $this->looksLikeNumericMetric($value)));
-            if ($numeric === []) {
-                continue;
-            }
-            $volume = array_shift($numeric);
-            while ($numeric !== [] && str_contains($numeric[0], '%')) {
-                array_shift($numeric);
-            }
-            $difficulty = array_shift($numeric);
-            if ($difficulty === null || $this->number($difficulty) < 0 || $this->number($difficulty) > 100) {
-                continue;
-            }
-            $cpc = $numeric[0] ?? '';
-            $rows[] = [$keyword, implode(' ', $intent), $volume, $difficulty, $cpc];
-        }
+        $rows = $this->flattenedSemrushRows($lines->slice((int) $dataStart + 1)->values()->all());
 
         if (count($rows) < 2) {
             throw new RuntimeException('Le tableau Semrush collé a perdu ses colonnes. Copiez la ligne d’en-tête et les lignes complètes du tableau.');
         }
 
-        return collect([['keyword', 'intent', 'search_volume', 'keyword_difficulty', 'cpc'], ...$rows])
+        return collect([['keyword', 'intent', 'search_volume', 'keyword_difficulty', 'cpc', 'competition', 'serp_features'], ...$rows])
             ->map(fn (array $row) => implode("\t", $row))
             ->implode("\n");
+    }
+
+    /**
+     * @param array<int, string> $tokens
+     * @return array<int, array{0:string,1:string,2:string,3:string,4:string,5:string,6:string}>
+     */
+    private function flattenedSemrushRows(array $tokens): array
+    {
+        $rows = [];
+        for ($index = 0; $index < count($tokens);) {
+            $parsed = $this->flattenedSemrushRowAt($tokens, $index);
+            if ($parsed === null) {
+                $index++;
+
+                continue;
+            }
+
+            $rows[] = $parsed['row'];
+            $index = $parsed['next'];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * @param array<int, string> $tokens
+     * @return array{row:array{0:string,1:string,2:string,3:string,4:string,5:string,6:string},next:int}|null
+     */
+    private function flattenedSemrushRowAt(array $tokens, int $start): ?array
+    {
+        $keyword = $tokens[$start] ?? null;
+        if (! is_string($keyword)
+            || ! $this->looksLikeKeywordToken($keyword)
+            || $this->looksLikeSerpFeatures($keyword)
+            || $this->looksLikeUpdatedMetric($keyword)) {
+            return null;
+        }
+
+        $index = $start + 1;
+        $intent = [];
+        while (isset($tokens[$index]) && $this->looksLikeIntentToken($tokens[$index])) {
+            $intent[] = $tokens[$index];
+            $index++;
+        }
+        if ($intent === [] || ! isset($tokens[$index]) || ! $this->looksLikeNumericMetric($tokens[$index])) {
+            return null;
+        }
+
+        $volume = $tokens[$index++];
+        if (isset($tokens[$index], $tokens[$index + 1])
+            && $this->looksLikeTrendMetric($tokens[$index])
+            && $this->looksLikeDifficultyOrUnavailableMetric($tokens[$index + 1])) {
+            $index++;
+        }
+        if (! isset($tokens[$index]) || ! $this->looksLikeDifficultyOrUnavailableMetric($tokens[$index])) {
+            return null;
+        }
+
+        $difficulty = $this->looksLikeUnavailableMetric($tokens[$index]) ? '0' : $tokens[$index];
+        $index++;
+        if (! isset($tokens[$index]) || ! $this->looksLikeNumericMetric($tokens[$index])) {
+            return null;
+        }
+
+        $cpc = $tokens[$index++];
+        $competition = '';
+        if (isset($tokens[$index]) && $this->looksLikeNumericMetric($tokens[$index])) {
+            $competition = $tokens[$index++];
+        }
+
+        $serpFeatures = '';
+        if (isset($tokens[$index]) && $this->looksLikeSerpFeatures($tokens[$index])) {
+            $serpFeatures = $tokens[$index++];
+        }
+
+        if (isset($tokens[$index]) && $this->looksLikeResultsMetric($tokens[$index])) {
+            $index++;
+        }
+        if (isset($tokens[$index]) && $this->looksLikeUpdatedMetric($tokens[$index])) {
+            $index++;
+        }
+
+        if ((float) $this->number($difficulty) < 0 || (float) $this->number($difficulty) > 100) {
+            return null;
+        }
+
+        return [
+            'row' => [$keyword, implode(' ', $intent), $volume, $difficulty, $cpc, $competition, $serpFeatures],
+            'next' => $index,
+        ];
+    }
+
+    private function flattenedHeaderEndIndex($lines, int $headerIndex): int
+    {
+        $lastHeader = $headerIndex;
+        for ($index = $headerIndex; $index < $lines->count(); $index++) {
+            $line = (string) $lines[$index];
+            if ($this->isFlattenedSemrushHeaderLabel($this->normalizedLabel($line))) {
+                $lastHeader = $index;
+
+                continue;
+            }
+            if ($index > $headerIndex && $this->looksLikeKeywordToken($line)) {
+                break;
+            }
+        }
+
+        return $lastHeader;
+    }
+
+    private function isFlattenedSemrushHeaderLabel(string $label): bool
+    {
+        return in_array($label, [
+            'mot cle', 'mots cles', 'keyword', 'keywords', 'intention', 'intent',
+            'volume', 'tendance', 'trend', 'kd', 'cpc', 'cpc eur', 'cpc usd',
+            'com', 'con', 'concurrence', 'serp features', 'fs', 'resultats',
+            'results', 'updated', 'mise a jour',
+        ], true)
+            || str_starts_with($label, 'kd ')
+            || str_starts_with($label, 'cpc ')
+            || str_starts_with($label, 'selected')
+            || str_starts_with($label, 'selectionnes');
+    }
+
+    /**
+     * Semrush can flatten the Trend column as "0" before the actual KD.
+     *
+     * @param array<int, string> $numeric
+     * @return array{0:?string,1:string}
+     */
+    private function difficultyAndCpcFromFlattenedMetrics(array $numeric): array
+    {
+        if ($numeric === []) {
+            return [null, ''];
+        }
+
+        if (count($numeric) >= 2
+            && $this->looksLikeTrendMetric($numeric[0])
+            && $this->looksLikeDifficultyMetric($numeric[1])) {
+            array_shift($numeric);
+        }
+
+        return [array_shift($numeric), $numeric[0] ?? ''];
+    }
+
+    private function looksLikeTrendMetric(string $value): bool
+    {
+        $trimmed = trim(str_replace(["\u{00A0}", ' ', '%'], '', $value));
+
+        return str_starts_with($trimmed, '+')
+            || str_starts_with($trimmed, '-')
+            || preg_match('/^0+(?:[,.]0+)?$/', $trimmed) === 1;
+    }
+
+    private function looksLikeDifficultyMetric(string $value): bool
+    {
+        $trimmed = trim(str_replace(["\u{00A0}", ' ', '%'], '', $value));
+
+        return preg_match('/^\d{1,3}$/', $trimmed) === 1
+            && $this->number($value) >= 0
+            && $this->number($value) <= 100;
+    }
+
+    private function looksLikeUnavailableMetric(string $value): bool
+    {
+        return in_array($this->normalizedLabel($value), ['n a', 'na', 'non disponible'], true);
+    }
+
+    private function looksLikeDifficultyOrUnavailableMetric(string $value): bool
+    {
+        return $this->looksLikeDifficultyMetric($value) || $this->looksLikeUnavailableMetric($value);
+    }
+
+    private function looksLikeIntentToken(string $value): bool
+    {
+        return preg_match('/^[ICTN](?:\s*[+,\/]?\s*[ICTN])*$/iu', trim($value)) === 1;
+    }
+
+    private function looksLikeSerpFeatures(string $value): bool
+    {
+        $label = $this->normalizedLabel($value);
+
+        return str_contains($label, 'people also ask')
+            || str_contains($label, 'featured snippet')
+            || str_contains($label, 'sitelinks')
+            || str_contains($label, 'reviews')
+            || str_contains($label, 'video')
+            || str_contains($label, 'image')
+            || str_contains($label, 'knowledge panel')
+            || str_contains($label, 'related searches')
+            || str_contains($label, 'ads top')
+            || str_contains($label, 'ads middle')
+            || str_contains($label, 'ads bottom');
+    }
+
+    private function looksLikeResultsMetric(string $value): bool
+    {
+        return preg_match('/^\d[\d\s.,]*(?:[KMB])?$/iu', trim(str_replace(["\u{00A0}", "\u{202F}"], ' ', $value))) === 1;
+    }
+
+    private function looksLikeUpdatedMetric(string $value): bool
+    {
+        return preg_match('/^\d+\s+(?:jours?|days?|semaines?|weeks?|mois|months?|ans?|years?)$/iu', trim($value)) === 1;
     }
 
     private function looksLikeKeywordToken(string $value): bool
@@ -333,7 +642,9 @@ class SemrushCsvImporter
             || preg_match('/^[ICTN](?:\s*[+,\/]?\s*[ICTN])*$/iu', $value) === 1
             || preg_match('/^[+\-]?\d[\d\s.,]*(?:[KMB])?%?$/iu', $value) === 1
             || preg_match('/^\d+\s+(?:jours?|semaines?|mois|ans?)$/iu', $value) === 1
-            || preg_match('/^(?:selectionnes|mise a jour|intention|volume|tendance|kd(?: |$)|cpc(?: |$)|con|fs|resultats)$/u', $label) === 1) {
+            || $this->looksLikeSerpFeatures($value)
+            || $this->looksLikeUpdatedMetric($value)
+            || preg_match('/^(?:all keywords|total volume|average kd|selected|selectionnes|updated|mise a jour|intention|intent|volume|tendance|trend|kd(?: |$)|cpc(?: |$)|com|con|fs|serp features|resultats|results)$/u', $label) === 1) {
             return false;
         }
 

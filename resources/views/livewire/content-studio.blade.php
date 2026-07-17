@@ -1,4 +1,4 @@
-<div class="dashboard-page os-page">
+<div class="dashboard-page os-page content-studio-page">
     <section class="page-heading"><div><span class="eyebrow dark">Génération assistée</span><h1>Studio de contenu</h1><p>Gemini transforme vos preuves en brouillons cités — jamais en promesses de classement.</p></div></section>
     @unless($hasApiKey)<a class="setup-banner" href="{{ route('admin.settings') }}" wire:navigate><span>✦</span><div><strong>Clé Gemini requise</strong><p>Configurez une clé API pour activer la génération.</p></div><b>Configurer →</b></a>@endunless
     @if($message)<div class="alert success">✓ {{ $message }}</div>@endif @if($error)<div class="alert danger">{{ $error }}</div>@endif
@@ -9,7 +9,7 @@
             <div class="structure-preview"><span>{{ $contentStructure['label'] }}</span><strong>{{ $contentStructure['target_min'] }}–{{ $contentStructure['target_max'] }} mots</strong><small>{{ count($contentStructure['sections']) }} sections obligatoires · tableau · FAQ · contrôle automatique</small></div>
             <div class="field"><label>Mot-clé principal</label><select wire:model="keywordId"><option value="">Sans mot-clé importé</option>@foreach($keywords as $keyword)<option value="{{ $keyword->id }}">{{ $keyword->keyword }} ({{ round($keyword->opportunity_score) }})</option>@endforeach</select></div>
             <div class="field"><label>Consignes éditoriales</label><textarea wire:model="instructions" rows="5" placeholder="Angle, audience, ton, éléments à traiter…"></textarea></div>
-            <div class="grounding-note"><span>✓</span><p><strong>Mode preuves uniquement</strong>Les faits non vérifiés seront marqués « non communiqué » et les citations [S1] seront obligatoires.</p></div>
+            <div class="grounding-note"><span>✓</span><p><strong>Mode preuves uniquement</strong>Les faits non vérifiés seront marqués « non communiqué » et les sources restent attachées en base, sans marqueurs visibles dans l’article.</p></div>
             <button class="primary-button form-submit" type="submit" @disabled(!$hasApiKey)><span wire:loading.remove wire:target="generate">✦ Générer avec Gemini</span><span wire:loading wire:target="generate">Génération en cours…</span></button>
         </form></aside>
         <article class="panel preview-panel"><div class="panel-head"><div><h2>Aperçu du brouillon</h2><p>Validation humaine obligatoire</p></div>@if($selectedArticle)<div class="preview-actions"><span class="state-badge review">{{ $selectedArticle->status }}</span>@if($selectedArticle->status !== 'published')<button class="small-primary" wire:click="publish({{ $selectedArticle->id }})" wire:confirm="Confirmer la relecture et publier cet article sur le blog ?">Publier</button>@else<a href="{{ route('blog.show',$selectedArticle->slug) }}" target="_blank">Voir ↗</a>@endif</div>@endif</div>

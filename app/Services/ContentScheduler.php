@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Article;
+use App\Models\ContentCluster;
 use App\Models\ContentRun;
 use App\Models\ContentSchedule;
 use App\Models\EditorialIdea;
@@ -24,6 +25,9 @@ final class ContentScheduler
         private readonly ContentRunWorkerLauncher $runWorkers,
         private readonly InternalLinkService $internalLinks,
         private readonly EditorialDuplicateDetector $duplicates,
+        private readonly SemanticKeywordClusterer $clusters,
+        private readonly SearchIndexingSubmissionLauncher $indexing,
+        private readonly PrePublishAuditService $audits,
     ) {}
 
     public function configure(int $projectId, ?int $userId, int $articlesPerWeek, bool $autoPublish, string $instructions = ''): ContentSchedule
@@ -67,20 +71,20 @@ final class ContentScheduler
             return null;
         }
 
-        $availableKeywords = $schedule->project->keywords()
-            ->whereDoesntHave('articles')
-            ->whereDoesntHave('scheduledTasks', fn ($query) => $query->whereNotIn('status', ['cancelled', 'failed']))
-            ->count();
-        if ($availableKeywords === 0) {
+        $availableClusters = $this->clusters->queueableClusters($schedule, max(150, $target));
+        if ($availableClusters->isEmpty()) {
             return null;
         }
 
-        $requested = min(30, $availableKeywords, $force ? $target : max(1, $target - $inventory));
+        $requested = min(30, $availableClusters->count(), $force ? $target : max(1, $target - $inventory));
+        $selectedClusters = $availableClusters->take($requested)->values();
         $plan = $this->plans->createPlan(
             $schedule->project,
             $schedule->user_id,
             $requested,
             (string) $schedule->instructions,
+            $selectedClusters->pluck('canonical_keyword_id')->filter()->map(fn ($id) => (int) $id)->all(),
+            $selectedClusters->pluck('id')->map(fn ($id) => (int) $id)->all(),
         );
         $plan->update(['content_schedule_id' => $schedule->id]);
         $this->planWorkers->launch($plan->id);
@@ -300,7 +304,7 @@ final class ContentScheduler
                     }))
                         ->orWhere(fn ($retry) => $retry->where('status', 'retrying')->where('retry_at', '<=', now()));
                 })
-                ->with(['schedule.project', 'editorialIdea.plan', 'keyword', 'run.items'])
+                ->with(['schedule.project', 'editorialIdea.plan', 'keyword', 'contentCluster', 'run.items'])
                 ->orderBy('priority')
                 ->orderBy('scheduled_for')
                 ->first();
@@ -317,8 +321,9 @@ final class ContentScheduler
             } catch (Throwable $exception) {
                 $message = $exception->getMessage();
                 $task->update($this->isTransient($message)
-                    ? ['status' => 'retrying', 'retry_at' => now()->addMinutes(5), 'error_message' => $message]
+                    ? ['status' => 'retrying', 'retry_at' => now()->addMinutes($this->retryDelayMinutes($task)), 'error_message' => $message]
                     : ['status' => 'failed', 'error_message' => $message, 'completed_at' => now()]);
+                $task->contentCluster?->update(['status' => $this->isTransient($message) ? 'retrying' : 'failed']);
             }
 
             return ['state' => $task->fresh()->status, 'message' => "Tâche #{$task->id} prise en charge."];
@@ -329,7 +334,7 @@ final class ContentScheduler
 
     private function synchronizeEditorialPlans(ContentSchedule $schedule): void
     {
-        $schedule->editorialPlans()->where('status', 'locked')->with(['ideas.keyword'])->each(
+        $schedule->editorialPlans()->where('status', 'locked')->with(['ideas.keyword.contentCluster', 'ideas.contentCluster'])->each(
             fn (EditorialPlan $plan) => $this->materializePlan($schedule, $plan),
         );
     }
@@ -339,25 +344,37 @@ final class ContentScheduler
         $ideas = $plan->ideas()
             ->where('status', 'accepted')
             ->whereDoesntHave('scheduledTasks', fn ($query) => $query->where('content_schedule_id', $schedule->id))
-            ->with('keyword')
+            ->with(['keyword.contentCluster', 'contentCluster'])
             ->orderBy('position')
             ->get();
         if ($ideas->isEmpty()) {
             return;
         }
 
+        $ideas = $this->factoryIdeaSequence($ideas);
         $slots = $this->availableSlots($schedule, $ideas->count());
         $basePriority = $schedule->tasks()->whereIn('status', ['queued', 'retrying'])->max('priority') ?? 99;
-        foreach ($ideas as $index => $idea) {
+        $created = 0;
+        foreach ($ideas as $idea) {
+            $clusterId = $idea->content_cluster_id ?: $idea->keyword?->content_cluster_id;
+            if ($clusterId && $this->clusterAlreadyQueued($schedule, (int) $clusterId)) {
+                continue;
+            }
+
             $schedule->tasks()->create([
                 'seo_project_id' => $schedule->seo_project_id,
                 'keyword_id' => $idea->keyword_id,
+                'content_cluster_id' => $clusterId,
                 'editorial_idea_id' => $idea->id,
                 'editorial_plan_id' => $plan->id,
                 'status' => 'queued',
-                'priority' => $basePriority + $index + 1,
-                'scheduled_for' => $slots[$index] ?? now()->addDays($index + 1)->setTime(8, 0),
+                'priority' => $basePriority + $created + 1,
+                'scheduled_for' => $slots[$created] ?? now()->addDays($created + 1)->setTime(8, 0),
             ]);
+            if ($clusterId) {
+                ContentCluster::query()->whereKey($clusterId)->update(['status' => 'scheduled']);
+            }
+            $created++;
         }
     }
 
@@ -380,11 +397,13 @@ final class ContentScheduler
     private function synchronizeActiveTasks(): void
     {
         ScheduledContentTask::query()->where('status', 'generating')->with([
-            'run.items.article', 'run.items.editorialIdea', 'schedule', 'editorialPlan',
+            'run.items.article', 'run.items.editorialIdea', 'schedule', 'editorialPlan', 'contentCluster',
         ])->each(function (ScheduledContentTask $task): void {
             $run = $task->run;
             if (! $run) {
                 $task->update(['status' => 'failed', 'error_message' => 'Campagne de génération introuvable.', 'completed_at' => now()]);
+
+                $task->contentCluster?->update(['status' => 'failed']);
 
                 return;
             }
@@ -409,9 +428,11 @@ final class ContentScheduler
 
             $error = (string) $run->items()->where('status', 'failed')->value('error_message');
             if ($this->isTransient($error)) {
-                $task->update(['status' => 'retrying', 'retry_at' => now()->addMinutes(5), 'error_message' => $error]);
+                $task->update(['status' => 'retrying', 'retry_at' => now()->addMinutes($this->retryDelayMinutes($task)), 'error_message' => $error]);
+                $task->contentCluster?->update(['status' => 'retrying']);
             } else {
                 $task->update(['status' => 'failed', 'error_message' => $error ?: 'La génération a échoué sans produire d’article.', 'completed_at' => now()]);
+                $task->contentCluster?->update(['status' => 'failed']);
                 $this->finalizePlanIfFinished($task->editorialPlan);
             }
         });
@@ -453,6 +474,7 @@ final class ContentScheduler
             'retry_at' => null,
             'error_message' => null,
         ]);
+        $task->contentCluster?->update(['status' => 'generating']);
         $task->schedule->update(['last_dispatched_at' => now()]);
         $this->runWorkers->launch($run->id);
     }
@@ -468,14 +490,44 @@ final class ContentScheduler
             $run->update(['status' => 'pending', 'failed_count' => 0, 'completed_at' => null]);
         });
         $task->update(['status' => 'generating', 'retry_at' => null, 'attempts' => $task->attempts + 1, 'error_message' => null]);
+        $task->contentCluster?->update(['status' => 'generating']);
         $this->runWorkers->launch($run->id);
     }
 
     private function completeTask(ScheduledContentTask $task, Article $article): void
     {
+        if ($task->content_cluster_id && ! $article->content_cluster_id) {
+            $article->update(['content_cluster_id' => $task->content_cluster_id]);
+        }
         if ($task->schedule->auto_publish) {
+            $audit = $this->audits->audit($article, ['auto_publish' => true]);
+            if ($audit->status === 'blocked') {
+                $article->update([
+                    'status' => 'review',
+                    'published_at' => null,
+                    'scheduled_at' => null,
+                    'refresh_status' => 'needs_review',
+                    'refresh_reason' => 'Auto-publication bloquée par l’audit pré-publication.',
+                ]);
+                $task->update([
+                    'article_id' => $article->id,
+                    'status' => 'review',
+                    'error_message' => 'Auto-publication bloquée : '.implode(' ', array_slice($audit->blocking_reasons ?? [], 0, 3)),
+                    'retry_at' => null,
+                    'completed_at' => now(),
+                ]);
+                $task->contentCluster?->update(['status' => 'review']);
+                $this->finalizePlanIfFinished($task->editorialPlan);
+
+                return;
+            }
             $article->update(['status' => 'published', 'published_at' => now(), 'scheduled_at' => null]);
             $this->internalLinks->refreshProject($article->seo_project_id);
+            try {
+                $this->indexing->launch($article->id);
+            } catch (Throwable $exception) {
+                report($exception);
+            }
             $status = 'published';
         } else {
             $status = 'review';
@@ -487,6 +539,7 @@ final class ContentScheduler
             'retry_at' => null,
             'completed_at' => now(),
         ]);
+        $task->contentCluster?->update(['status' => $status]);
         $this->finalizePlanIfFinished($task->editorialPlan);
     }
 
@@ -532,5 +585,55 @@ final class ContentScheduler
             || str_contains($message, 'timeout')
             || str_contains($message, 'timed out')
             || str_contains($message, 'curl error 28');
+    }
+
+    /** @param Collection<int, EditorialIdea> $ideas */
+    private function factoryIdeaSequence(Collection $ideas): Collection
+    {
+        $ranked = $ideas
+            ->sortByDesc(fn (EditorialIdea $idea): float => (float) $idea->seo_score + match ($idea->contentCluster?->type ?? $idea->keyword?->contentCluster?->type) {
+                'pillar' => 18,
+                'niche' => 12,
+                default => 0,
+            })
+            ->values();
+        $pillars = $ranked->filter(fn (EditorialIdea $idea): bool => ($idea->contentCluster?->type ?? $idea->keyword?->contentCluster?->type) === 'pillar')->values();
+        $niches = $ranked->filter(fn (EditorialIdea $idea): bool => ($idea->contentCluster?->type ?? $idea->keyword?->contentCluster?->type) === 'niche')->values();
+        $supporting = $ranked->reject(fn (EditorialIdea $idea): bool => in_array($idea->contentCluster?->type ?? $idea->keyword?->contentCluster?->type, ['pillar', 'niche'], true))->values();
+        $sequence = collect();
+
+        foreach ($pillars->take(2) as $pillar) {
+            $sequence->push($pillar);
+        }
+        $pillars = $pillars->slice(2)->values();
+
+        while ($pillars->isNotEmpty() || $niches->isNotEmpty() || $supporting->isNotEmpty()) {
+            if ($niches->isNotEmpty()) {
+                $sequence->push($niches->shift());
+            }
+            if ($pillars->isNotEmpty()) {
+                $sequence->push($pillars->shift());
+            }
+            if ($supporting->isNotEmpty()) {
+                $sequence->push($supporting->shift());
+            }
+        }
+
+        return $sequence->unique('id')->values();
+    }
+
+    private function clusterAlreadyQueued(ContentSchedule $schedule, int $clusterId): bool
+    {
+        return $schedule->tasks()
+            ->where('content_cluster_id', $clusterId)
+            ->whereNotIn('status', ['cancelled', 'failed'])
+            ->exists();
+    }
+
+    private function retryDelayMinutes(ScheduledContentTask $task): int
+    {
+        $attempt = max(1, (int) $task->attempts);
+
+        return min(240, 5 * (2 ** min(5, $attempt - 1)));
     }
 }

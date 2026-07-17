@@ -28,6 +28,11 @@ class EditorialIdea extends Model
         return $this->belongsTo(Keyword::class);
     }
 
+    public function contentCluster(): BelongsTo
+    {
+        return $this->belongsTo(ContentCluster::class);
+    }
+
     public function closestArticle(): BelongsTo
     {
         return $this->belongsTo(Article::class, 'closest_article_id');
@@ -55,6 +60,8 @@ class EditorialIdea extends Model
             'expected_outcome' => $this->expected_outcome,
             'funnel_stage' => $this->funnel_stage,
             'primary_keyword' => $this->primary_keyword,
+            'content_cluster_id' => $this->content_cluster_id,
+            'cluster_type' => $this->contentCluster?->type,
             'unique_promise' => $this->unique_promise,
             'excluded_topics' => $this->excluded_topics ?? [],
             'outline' => $this->outline ?? [],

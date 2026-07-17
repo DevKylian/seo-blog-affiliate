@@ -42,6 +42,7 @@ final class InternalLinkService
     {
         $source = new Article([
             'seo_project_id' => $project->id,
+            'content_cluster_id' => $blueprint['content_cluster_id'] ?? null,
             'type' => $contentType ?: (string) ($blueprint['content_type'] ?? 'informational'),
             'title' => (string) ($blueprint['title'] ?? $blueprint['unique_promise'] ?? $blueprint['primary_keyword'] ?? ''),
             'primary_keyword' => (string) ($blueprint['primary_keyword'] ?? ''),
@@ -120,12 +121,19 @@ final class InternalLinkService
     private function suggestions(Article $article, int $limit = 3): Collection
     {
         $sourceBlueprint = $this->blueprint($article);
+        $clusterTargets = $this->clusterTargets($article, $limit);
+        $excludedTargetIds = $clusterTargets
+            ->pluck('article.id')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->all();
 
         $candidates = Article::query()
             ->with('project')
             ->where('status', 'published')
             ->whereNull('canonical_article_id')
             ->when($article->exists, fn ($query) => $query->whereKeyNot($article->id))
+            ->when($excludedTargetIds !== [], fn ($query) => $query->whereNotIn('id', $excludedTargetIds))
             ->latest('published_at')
             ->get()
             ->map(function (Article $target) use ($article, $sourceBlueprint): ?array {
@@ -153,7 +161,51 @@ final class InternalLinkService
             ->sortByDesc('score')
             ->values();
 
-        return $this->prioritizeThree($candidates, $limit);
+        return $clusterTargets
+            ->concat($this->prioritizeThree($candidates, max(0, $limit - $clusterTargets->count())))
+            ->take($limit)
+            ->values();
+    }
+
+    /** @return Collection<int, array{article: Article, anchor: string, score: float, role: string}> */
+    private function clusterTargets(Article $article, int $limit): Collection
+    {
+        $cluster = $article->contentCluster;
+        if (! $cluster) {
+            return collect();
+        }
+
+        if ($cluster->type !== 'pillar' && $cluster->parent_id) {
+            $pillar = Article::query()
+                ->where('content_cluster_id', $cluster->parent_id)
+                ->where('status', 'published')
+                ->whereNull('canonical_article_id')
+                ->latest('published_at')
+                ->first();
+
+            return $pillar && (! $article->exists || ! $pillar->is($article))
+                ? collect([['article' => $pillar, 'anchor' => $this->naturalAnchor($pillar), 'score' => 999.0, 'role' => 'pillar']])
+                : collect();
+        }
+
+        if ($cluster->type !== 'pillar') {
+            return collect();
+        }
+
+        return Article::query()
+            ->whereHas('contentCluster', fn ($query) => $query->where('parent_id', $cluster->id))
+            ->where('status', 'published')
+            ->whereNull('canonical_article_id')
+            ->when($article->exists, fn ($query) => $query->whereKeyNot($article->id))
+            ->latest('published_at')
+            ->limit($limit)
+            ->get()
+            ->map(fn (Article $target): array => [
+                'article' => $target,
+                'anchor' => $this->naturalAnchor($target),
+                'score' => 980.0,
+                'role' => 'satellite',
+            ]);
     }
 
     /**

@@ -10,6 +10,8 @@ use App\Models\Tag;
 use App\Services\EditorialDuplicateDetector;
 use App\Services\GeneratedContentSanitizer;
 use App\Services\InternalLinkService;
+use App\Services\PrePublishAuditService;
+use App\Services\SearchIndexingSubmissionLauncher;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
@@ -79,6 +81,7 @@ class ArticleEditor extends Component
         foreach (['title', 'slug', 'excerpt', 'body', 'status', 'type'] as $field) {
             $this->{$field} = (string) $this->article->{$field};
         }
+        $this->body = app(GeneratedContentSanitizer::class)->stripSourceMarkers($this->body);
         $this->metaTitle = (string) $this->article->meta_title;
         $this->metaDescription = (string) $this->article->meta_description;
         $this->canonicalUrl = (string) $this->article->canonical_url;
@@ -102,14 +105,14 @@ class ArticleEditor extends Component
         }
     }
 
-    public function save(InternalLinkService $links, EditorialDuplicateDetector $duplicates, GeneratedContentSanitizer $sanitizer): void
+    public function save(InternalLinkService $links, EditorialDuplicateDetector $duplicates, GeneratedContentSanitizer $sanitizer, SearchIndexingSubmissionLauncher $indexing, PrePublishAuditService $audits): void
     {
         $this->body = $sanitizer->sanitize($this->body);
         $this->validate([
             'projectId' => ['required', 'exists:seo_projects,id'],
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['required', 'alpha_dash', 'max:255', Rule::unique('articles', 'slug')->ignore($this->article?->id), function ($attribute, $value, $fail): void {
-                if (preg_match('/-\d+$/', (string) $value) === 1) {
+                if ($this->looksLikeDuplicateNumericSlug((string) $value)) {
                     $fail('Les suffixes numériques sont interdits pour les slugs SEO. Différenciez l’angle éditorial.');
                 }
                 if (count(array_filter(explode('-', (string) $value))) > 5) {
@@ -203,8 +206,28 @@ class ArticleEditor extends Component
         })->all();
         $this->article->tags()->sync($tagIds);
         $this->article->tools()->sync(collect($this->toolIds)->mapWithKeys(fn ($id) => [$id => ['role' => ((int) $id === (int) $this->projectId ? 'featured' : 'compared')]])->all());
+        $audit = $audits->audit($this->article->fresh());
+        if (in_array($this->status, ['published', 'scheduled'], true) && $audit->status === 'blocked') {
+            $this->article->update([
+                'status' => 'review',
+                'published_at' => null,
+                'scheduled_at' => null,
+                'refresh_status' => 'needs_review',
+                'refresh_reason' => 'Publication bloquée par l’audit pré-publication.',
+            ]);
+            $this->status = 'review';
+            $this->message = 'Article enregistré, mais publication bloquée par l’audit : '.implode(' ', array_slice($audit->blocking_reasons ?? [], 0, 3));
+
+            return;
+        }
+
         if ($this->article->status === 'published') {
             $links->refreshProject($this->article->seo_project_id);
+            try {
+                $indexing->launch($this->article->id);
+            } catch (\Throwable $exception) {
+                report($exception);
+            }
         } else {
             $links->refresh($this->article);
         }
@@ -221,5 +244,22 @@ class ArticleEditor extends Component
             'projects' => SeoProject::query()->orderBy('name')->get(),
             'versions' => $this->article?->versions()->latest('version')->limit(10)->get() ?? collect(),
         ])->title($this->article ? 'Modifier l’article' : 'Nouvel article');
+    }
+
+    private function looksLikeDuplicateNumericSlug(string $slug): bool
+    {
+        if (preg_match('/-(\d{1,2})$/', $slug) !== 1) {
+            return false;
+        }
+
+        $base = preg_replace('/-\d{1,2}$/', '', $slug) ?: '';
+        if ($base === '') {
+            return false;
+        }
+
+        return Article::query()
+            ->where('slug', $base)
+            ->when($this->article?->id, fn ($query) => $query->whereKeyNot($this->article->id))
+            ->exists();
     }
 }

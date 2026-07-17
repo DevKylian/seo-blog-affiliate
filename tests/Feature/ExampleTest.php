@@ -11,6 +11,7 @@ use App\Livewire\Dashboard;
 use App\Livewire\Keywords as KeywordsTable;
 use App\Livewire\Projects as ProjectsTable;
 use App\Livewire\Research;
+use App\Exceptions\PlannedContentRejectedException;
 use App\Models\Article;
 use App\Models\ContentRun;
 use App\Models\EditorialIdea;
@@ -22,15 +23,19 @@ use App\Models\SeoProject;
 use App\Models\Setting;
 use App\Models\SourcePage;
 use App\Models\User;
+use App\Services\ArticleRegenerationWorkerLauncher;
+use App\Services\CompetitorCatalog;
 use App\Services\EditorialConsolidationService;
 use App\Services\EditorialDuplicateDetector;
 use App\Services\EditorialPlanBuilder;
 use App\Services\GeminiContentGenerator;
+use App\Services\GeneratedContentSanitizer;
 use App\Services\InternalLinkService;
 use App\Services\ProductKeywordMatcher;
 use App\Services\Scraping\BrowserHtmlFetcher;
 use App\Services\Scraping\StaticSiteScraper;
 use App\Services\SemrushCsvImporter;
+use App\Services\SeoContentStructure;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -117,13 +122,167 @@ class ExampleTest extends TestCase
         $this->assertNull($validComparison);
     }
 
+    public function test_editorial_planning_rejects_a_second_angle_on_the_same_semrush_keyword_before_generation(): void
+    {
+        $project = SeoProject::query()->create([
+            'name' => 'Indy',
+            'slug' => 'indy-plan-keyword-dedupe',
+            'website_url' => 'https://example.com',
+            'country' => 'FR',
+            'currency' => 'EUR',
+            'positioning' => 'Logiciel de facturation, devis et comptabilite pour independants.',
+        ]);
+        $source = SourcePage::query()->create([
+            'seo_project_id' => $project->id,
+            'url' => 'https://example.com/source',
+            'type' => 'features',
+            'title' => 'Facturation et devis',
+            'status' => 'verified',
+            'verified_at' => now(),
+        ]);
+        EvidenceChunk::query()->create([
+            'source_page_id' => $source->id,
+            'category' => 'feature',
+            'value' => 'Devis, factures, relances et suivi de tresorerie.',
+            'source_excerpt' => 'Indy documente la creation de devis, factures et relances de paiement.',
+            'confidence_score' => .95,
+            'verified_at' => now(),
+        ]);
+        $keyword = Keyword::query()->create([
+            'seo_project_id' => $project->id,
+            'keyword' => 'logiciel devis facture',
+            'intent' => 'Informationnelle',
+            'opportunity_score' => 80,
+        ]);
+        $firstIdea = new EditorialIdea([
+            'keyword_id' => $keyword->id,
+            'primary_keyword' => $keyword->keyword,
+            'title' => 'Logiciel Devis Facture : Creez des Documents Professionnels',
+            'entity_key' => 'indy',
+            'topic_key' => 'crm-facturation',
+            'intent' => 'informational',
+            'angle' => 'creation-documents-professionnels',
+            'audience' => 'freelances-tpe',
+            'problem' => 'Creer des documents commerciaux conformes.',
+            'expected_outcome' => 'produire des devis et factures fiables',
+            'funnel_stage' => 'consideration',
+            'unique_promise' => 'Creer des devis et factures professionnels sans multiplier les outils.',
+            'excluded_topics' => [],
+            'outline' => ['Contexte', 'Devis', 'Factures', 'Relances', 'FAQ'],
+            'fingerprint' => 'indy|crm-facturation|informational|creation-documents-professionnels|freelances-tpe|produire-des-devis-et-factures-fiables',
+            'content_type' => 'informational',
+        ]);
+        $blueprint = [
+            'title' => 'Logiciel Devis Facture : L outil indispensable',
+            'entity' => 'indy',
+            'topic' => 'crm-facturation',
+            'intent' => 'informational',
+            'angle' => 'cycle-commercial',
+            'audience' => 'freelances-tpe',
+            'problem' => 'Fluidifier le cycle commercial.',
+            'expected_outcome' => 'gerer le cycle commercial complet',
+            'funnel_stage' => 'consideration',
+            'primary_keyword' => $keyword->keyword,
+            'unique_promise' => 'Comprendre comment un outil devis facture fluidifie le cycle commercial sans cannibaliser le guide principal.',
+            'excluded_topics' => [],
+            'outline' => ['Diagnostic', 'Devis', 'Facturation', 'Relances', 'FAQ'],
+            'fingerprint' => 'indy|crm-facturation|informational|cycle-commercial|freelances-tpe|gerer-le-cycle-commercial-complet',
+            'content_type' => 'informational',
+        ];
+        $method = new \ReflectionMethod(EditorialPlanBuilder::class, 'validate');
+
+        $decision = $method->invoke(app(EditorialPlanBuilder::class), $project, $blueprint, collect([$firstIdea]), $keyword);
+
+        $this->assertFalse($decision['accepted']);
+        $this->assertSame('duplicate', $decision['category']);
+        $this->assertSame(100.0, $decision['similarity']);
+        $this->assertStringContainsString('Mot-cle deja retenu', $decision['reason']);
+    }
+
+    public function test_synthetic_competitors_are_rejected_before_editorial_planning_accepts_them(): void
+    {
+        $project = new SeoProject([
+            'name' => 'Indy',
+            'competitors' => ['Pennylane', 'Abby', 'Freebe', 'Henrri'],
+        ]);
+        $builder = app(EditorialPlanBuilder::class);
+        $method = new \ReflectionMethod(EditorialPlanBuilder::class, 'competitorIssue');
+
+        $issue = $method->invoke($builder, $project, [
+            'title' => 'InvoiceFlow Max : Tarifs et Fonctionnalites Expliques',
+            'primary_keyword' => 'logiciel facturation invoiceflow max tarif',
+            'content_type' => 'pricing',
+            'entity' => 'invoiceflow-max',
+            'topic' => 'tarifs-facturation',
+            'problem' => 'Comparer un logiciel de facturation invente.',
+            'expected_outcome' => 'Eviter une recommandation fondee sur une marque fictive.',
+            'unique_promise' => 'Verifier les vrais concurrents avant de produire un article de comparaison.',
+            'excluded_topics' => [],
+            'outline' => ['Contexte', 'Tarifs', 'Fonctionnalites', 'Limites', 'FAQ'],
+        ]);
+
+        $this->assertStringContainsString('Concurrent inconnu', $issue);
+    }
+
+    public function test_configured_real_competitors_allow_comparison_briefs(): void
+    {
+        $project = new SeoProject([
+            'name' => 'Indy',
+            'competitors' => ['Pennylane', 'Abby', 'Freebe', 'Henrri'],
+        ]);
+        $builder = app(EditorialPlanBuilder::class);
+        $method = new \ReflectionMethod(EditorialPlanBuilder::class, 'competitorIssue');
+
+        $issue = $method->invoke($builder, $project, [
+            'title' => 'Indy vs Pennylane : quel logiciel choisir ?',
+            'primary_keyword' => 'indy vs pennylane',
+            'content_type' => 'comparison',
+            'entity' => 'indy',
+            'topic' => 'comparatif-facturation',
+            'problem' => 'Comparer deux solutions reelles du marche.',
+            'expected_outcome' => 'Identifier le meilleur choix selon le profil.',
+            'unique_promise' => 'Comparer Indy et Pennylane sur des criteres concrets et sourcables.',
+            'excluded_topics' => [],
+            'outline' => ['Profils adaptes', 'Fonctionnalites Indy', 'Fonctionnalites Pennylane', 'Limites', 'FAQ'],
+        ]);
+
+        $this->assertNull($issue);
+    }
+
+    public function test_competitor_catalog_falls_back_to_real_billing_competitors_for_indy(): void
+    {
+        $project = new SeoProject(['name' => 'Indy']);
+        $competitors = app(CompetitorCatalog::class)->competitorsFor($project);
+
+        $this->assertContains('Pennylane', $competitors);
+        $this->assertContains('Abby', $competitors);
+        $this->assertNotContains('InvoiceFlow Max', $competitors);
+    }
+
+    public function test_compte_pro_generic_phrase_is_not_rejected_as_a_fake_competitor(): void
+    {
+        $project = new SeoProject([
+            'name' => 'Indy',
+            'competitors' => ['Pennylane', 'Abby', 'Freebe', 'Henrri'],
+        ]);
+        $catalog = app(CompetitorCatalog::class);
+
+        $this->assertSame([], $catalog->unknownCompetitorMentions($project, 'Ouvrir un Compte Pro et suivre ses factures.'));
+        $this->assertSame([], $catalog->unknownCompetitorMentions($project, 'Comprendre Chorus Pro et la facturation électronique.'));
+        $this->assertSame([], $catalog->unknownCompetitorMentions($project, 'Ensuite, comparez les limites de facturation.'));
+        $this->assertSame(['InvoiceFlow Max'], $catalog->unknownCompetitorMentions($project, 'Comparer Indy avec InvoiceFlow Max.'));
+        $this->assertSame(['Plomberie Pro'], $catalog->unknownCompetitorMentions($project, 'Cas pratique : Plomberie Pro facture ses chantiers.'));
+        $this->assertStringContainsString('jamais "Plomberie Pro"', $catalog->promptDirective($project));
+    }
+
     public function test_accounting_competitors_are_detected_during_multi_product_finalization(): void
     {
         $generator = app(GeminiContentGenerator::class);
         $method = new \ReflectionMethod(GeminiContentGenerator::class, 'extractComparedProducts');
+        $project = new SeoProject(['name' => 'Indy']);
         $products = $method->invoke(
             $generator,
-            'Indy',
+            $project,
             'Indy vs Odoo : quel logiciel choisir ?',
             '| Solution | Limites |\n|---|---|\n| Pennylane | Coût |\n| Shine | Fonctions bancaires |',
         );
@@ -132,6 +291,86 @@ class ExampleTest extends TestCase
         $this->assertContains('Odoo', $products);
         $this->assertContains('Pennylane', $products);
         $this->assertContains('Shine', $products);
+    }
+
+    public function test_explicit_competitor_config_limits_compared_products(): void
+    {
+        $generator = app(GeminiContentGenerator::class);
+        $method = new \ReflectionMethod(GeminiContentGenerator::class, 'extractComparedProducts');
+        $project = new SeoProject([
+            'name' => 'Indy',
+            'competitors' => ['Abby', 'Freebe', 'Pennylane'],
+        ]);
+
+        $products = $method->invoke(
+            $generator,
+            $project,
+            'Meilleur Logiciel de Facturation : Comparatif Indy vs Abby vs Freebe en 2026',
+            '| Solution | Limites |\n|---|---|\n| Zoho CRM | Hors sujet |\n| Facture.net | Hors config |\n| Freebe | Freemium |',
+        );
+
+        $this->assertContains('Indy', $products);
+        $this->assertContains('Abby', $products);
+        $this->assertContains('Freebe', $products);
+        $this->assertNotContains('Zoho CRM', $products);
+        $this->assertNotContains('Facture.net', $products);
+    }
+
+    public function test_stale_abby_pricing_claims_are_rejected_before_publication(): void
+    {
+        $generator = app(GeminiContentGenerator::class);
+        $method = new \ReflectionMethod(GeminiContentGenerator::class, 'assertStrategicFit');
+        $project = new SeoProject([
+            'name' => 'Indy',
+            'competitors' => ['Abby', 'Freebe', 'Pennylane'],
+        ]);
+        $data = [
+            'title' => 'Indy vs Abby vs Freebe',
+            'brief_title' => 'Indy vs Abby vs Freebe',
+            'body' => "Abby propose une offre Decouverte limitee a 3 factures ou devis par mois.",
+            'product_keyword_fit' => true,
+            'product_keyword_fit_reason' => 'ok',
+            'compared_products' => ['Indy', 'Abby', 'Freebe'],
+        ];
+
+        $this->expectException(PlannedContentRejectedException::class);
+        $this->expectExceptionMessage('Information tarifaire obsolete');
+
+        $method->invokeArgs($generator, [&$data, 'comparison', $project, null]);
+    }
+
+    public function test_generation_resolves_slug_collisions_with_descriptive_non_numeric_variants(): void
+    {
+        $project = SeoProject::query()->create(['name' => 'Indy', 'slug' => 'indy-slug-collision', 'website_url' => 'https://example.com', 'country' => 'FR', 'currency' => 'EUR']);
+        Article::query()->create([
+            'seo_project_id' => $project->id,
+            'title' => 'Logiciel devis facture',
+            'slug' => 'logiciel-devis-facture',
+            'body' => 'Contenu existant',
+            'status' => 'review',
+        ]);
+        $blueprint = [
+            'entity' => 'indy',
+            'topic' => 'logiciel-devis-facture',
+            'intent' => 'commercial',
+            'audience' => 'pme',
+            'angle' => 'facturation-gratuite',
+            'funnel_stage' => 'consideration',
+            'primary_keyword' => 'logiciel devis facture gratuit',
+            'unique_promise' => 'Comparer les options de facturation gratuites sans doublonner le guide principal.',
+            'problem' => 'Choisir une solution gratuite sans confusion.',
+            'expected_outcome' => 'identifier les limites gratuites',
+            'excluded_topics' => [],
+            'outline' => [],
+            'fingerprint' => 'indy|logiciel-devis-facture|commercial|facturation-gratuite|pme',
+        ];
+        $method = new \ReflectionMethod(GeminiContentGenerator::class, 'availableSlug');
+        $method->setAccessible(true);
+
+        $slug = $method->invoke(app(GeminiContentGenerator::class), $project, $blueprint, ['article' => null, 'decision' => 'allow', 'score' => 0], 'Logiciel devis facture');
+
+        $this->assertSame('logiciel-devis-facture-facturation-gratuite', $slug);
+        $this->assertDoesNotMatchRegularExpression('/-\d{1,2}$/', $slug);
     }
 
     public function test_guests_are_redirected_to_login(): void
@@ -202,6 +441,82 @@ class ExampleTest extends TestCase
             ->assertSee('Relances automatiques · Signature électronique')
             ->assertDontSee('Offre : Pro')
             ->assertDontSee('Variante / contexte');
+    }
+
+    public function test_public_comparison_pricing_block_renders_affiliate_and_competitor_prices(): void
+    {
+        $project = SeoProject::query()->create([
+            'name' => 'Indy',
+            'slug' => 'indy-comparison-pricing',
+            'website_url' => 'https://example.com',
+            'pricing_url' => 'https://example.com/indy-pricing',
+            'country' => 'FR',
+            'currency' => 'EUR',
+            'competitors' => ['Abby', 'Freebe', 'Pennylane'],
+            'competitor_pricing_urls' => [
+                'Abby' => 'https://example.com/abby-pricing',
+                'Freebe' => 'https://example.com/freebe-pricing',
+                'Pennylane' => 'https://example.com/pennylane-pricing',
+            ],
+        ]);
+        SourcePage::query()->create([
+            'seo_project_id' => $project->id,
+            'url' => 'https://example.com/abby-pricing',
+            'type' => 'pricing',
+            'competitor_name' => 'Abby',
+            'status' => 'verified',
+            'verified_at' => now(),
+        ]);
+        SourcePage::query()->create([
+            'seo_project_id' => $project->id,
+            'url' => 'https://example.com/freebe-pricing',
+            'type' => 'pricing',
+            'competitor_name' => 'Freebe',
+            'status' => 'verified',
+            'verified_at' => now(),
+        ]);
+        foreach ([
+            [null, 'Indy Facturation', 0, ['Factures illimitées', 'Suivi des paiements']],
+            ['Abby', 'Basique', 0, ['Certaines fonctions avancées réservées aux plans payants']],
+            ['Freebe', 'Solo', 11, ['Fonctions comptables selon abonnement']],
+        ] as [$competitorName, $name, $price, $features]) {
+            Plan::query()->create([
+                'seo_project_id' => $project->id,
+                'competitor_name' => $competitorName,
+                'name' => $name,
+                'monthly_price' => $price,
+                'currency' => 'EUR',
+                'features' => $features,
+                'is_active' => true,
+                'verified_at' => now(),
+            ]);
+        }
+        $article = Article::query()->create([
+            'seo_project_id' => $project->id,
+            'type' => 'comparison',
+            'title' => 'Indy vs Abby vs Freebe',
+            'slug' => 'indy-vs-abby-vs-freebe',
+            'status' => 'published',
+            'body' => 'Comparatif officiel.',
+            'content_blocks' => [['type' => 'markdown', 'content' => '## Comparatif'], ['type' => 'pricing_table', 'project_id' => $project->id]],
+            'published_at' => now(),
+        ]);
+
+        $this->get(route('comparisons.show', $article->slug))
+            ->assertOk()
+            ->assertSee('Tarifs comparés')
+            ->assertSee("Prix d'entrée", false)
+            ->assertSee('Offres relevées')
+            ->assertSee('Gratuit / essai')
+            ->assertSee('Indy')
+            ->assertSee('Abby')
+            ->assertSee('Freebe')
+            ->assertSee('Pennylane')
+            ->assertSee('Abby source')
+            ->assertSee('Freebe source')
+            ->assertSee('Prix non extrait')
+            ->assertSee('Certaines fonctions avancées réservées aux plans payants')
+            ->assertDontSee('comparison-pricing-grid', false);
     }
 
     public function test_public_articles_render_contextual_internal_links_inside_the_content(): void
@@ -453,6 +768,51 @@ class ExampleTest extends TestCase
         $this->assertSame(7.91, $artisan->cpc);
     }
 
+    public function test_a_poor_keyword_paste_does_not_erase_existing_semrush_metrics(): void
+    {
+        $project = SeoProject::query()->create(['name' => 'Indy', 'slug' => 'indy-preserve-kd', 'website_url' => 'https://example.com', 'country' => 'FR', 'currency' => 'EUR']);
+        Keyword::query()->create([
+            'seo_project_id' => $project->id,
+            'keyword' => 'logiciel de facturation',
+            'search_volume' => 2400,
+            'keyword_difficulty' => 54,
+            'intent' => 'Commerciale',
+            'cpc' => 6.02,
+        ]);
+
+        app(SemrushCsvImporter::class)->importText($project, implode("\n", [
+            "Keyword\tIntent",
+            "logiciel de facturation\tC",
+        ]));
+
+        $keyword = $project->keywords()->where('keyword', 'logiciel de facturation')->first();
+
+        $this->assertSame(2400, $keyword->search_volume);
+        $this->assertSame(54.0, $keyword->keyword_difficulty);
+        $this->assertSame(6.02, $keyword->cpc);
+    }
+
+    public function test_import_backfills_equivalent_unmeasured_keyword_variants(): void
+    {
+        $project = SeoProject::query()->create(['name' => 'Indy', 'slug' => 'indy-backfill-kd', 'website_url' => 'https://example.com', 'country' => 'FR', 'currency' => 'EUR']);
+        Keyword::query()->create([
+            'seo_project_id' => $project->id,
+            'keyword' => 'facture devis logiciel gratuit',
+            'intent' => 'Commerciale',
+        ]);
+
+        app(SemrushCsvImporter::class)->importText($project, implode("\n", [
+            "Keyword\tIntent\tAvg. monthly searches\tCompetition (indexed value)\tTop of page bid (high range)",
+            "logiciel devis facture gratuit\tC\t5000\t69\t11,62",
+        ]));
+
+        $keyword = $project->keywords()->where('keyword', 'facture devis logiciel gratuit')->first();
+
+        $this->assertSame(5000, $keyword->search_volume);
+        $this->assertSame(69.0, $keyword->keyword_difficulty);
+        $this->assertSame(11.62, $keyword->cpc);
+    }
+
     public function test_a_flattened_semrush_browser_copy_is_rebuilt_without_fake_kd_values_or_numeric_keywords(): void
     {
         $project = SeoProject::query()->create(['name' => 'Revolut', 'slug' => 'revolut-flat-keywords', 'website_url' => 'https://example.com', 'country' => 'FR', 'currency' => 'EUR']);
@@ -473,6 +833,96 @@ class ExampleTest extends TestCase
         ], $project->keywords()->orderBy('id')->get()->mapWithKeys(fn (Keyword $keyword) => [$keyword->keyword => $keyword->keyword_difficulty])->all());
         $this->assertDatabaseMissing('keywords', ['seo_project_id' => $project->id, 'keyword' => '0,78']);
         $this->assertDatabaseMissing('keywords', ['seo_project_id' => $project->id, 'keyword' => 'Intention']);
+    }
+
+    public function test_a_flattened_semrush_browser_copy_keeps_kd_after_a_zero_trend_column(): void
+    {
+        $project = SeoProject::query()->create(['name' => 'Indy', 'slug' => 'indy-flat-zero-trend', 'website_url' => 'https://example.com', 'country' => 'FR', 'currency' => 'EUR']);
+        $clipboard = implode("\n", [
+            'Mot cle', 'Intention', 'Volume', 'Tendance', 'KD %', 'CPC (EUR)', 'Con.', 'FS', 'Resultats', 'Mise a jour', 'Selectionnes:0',
+            'logiciel de facturation', 'C', '2 400', '0', '54', '6,02', '0,78', '63', '1 mois',
+            'logiciel facture gratuit', 'I', '210', '+12%', '19%', '4,46', '0,50', '51', '3 semaines',
+        ]);
+
+        $count = app(SemrushCsvImporter::class)->importText($project, $clipboard);
+
+        $this->assertSame(2, $count);
+        $this->assertDatabaseHas('keywords', [
+            'seo_project_id' => $project->id,
+            'keyword' => 'logiciel de facturation',
+            'search_volume' => 2400,
+            'keyword_difficulty' => 54,
+            'cpc' => 6.02,
+        ]);
+        $this->assertDatabaseHas('keywords', [
+            'seo_project_id' => $project->id,
+            'keyword' => 'logiciel facture gratuit',
+            'keyword_difficulty' => 19,
+            'cpc' => 4.46,
+        ]);
+    }
+
+    public function test_a_flattened_semrush_browser_copy_without_selection_marker_starts_after_the_header(): void
+    {
+        $project = SeoProject::query()->create(['name' => 'Indy', 'slug' => 'indy-flat-no-selection-marker', 'website_url' => 'https://example.com', 'country' => 'FR', 'currency' => 'EUR']);
+        $clipboard = implode("\n", [
+            'Mot cle', 'Intention', 'Volume', 'Tendance', 'KD %', 'CPC (EUR)',
+            'logiciel de facturation', 'C', '2 400', '0', '54', '6,02',
+            'logiciel devis facture', 'I C', '1 900', '0%', '42', '5,10',
+        ]);
+
+        $count = app(SemrushCsvImporter::class)->importText($project, $clipboard);
+
+        $this->assertSame(2, $count);
+        $this->assertDatabaseHas('keywords', [
+            'seo_project_id' => $project->id,
+            'keyword' => 'logiciel de facturation',
+            'keyword_difficulty' => 54,
+        ]);
+        $this->assertDatabaseHas('keywords', [
+            'seo_project_id' => $project->id,
+            'keyword' => 'logiciel devis facture',
+            'keyword_difficulty' => 42,
+        ]);
+    }
+
+    public function test_semrush_overview_clipboard_imports_only_real_keyword_rows(): void
+    {
+        $project = SeoProject::query()->create(['name' => 'Indy', 'slug' => 'indy-semrush-overview', 'website_url' => 'https://example.com', 'country' => 'FR', 'currency' => 'EUR']);
+        $clipboard = implode("\n", [
+            'All keywords:', '11,759', 'Total Volume:', '167,090', 'Average KD:', '37%',
+            'Keyword', 'Intent', 'Volume', 'Trend', 'KD %', 'CPC (EUR)', 'Com.', 'SERP Features', 'Results', 'Updated', 'Selected:0',
+            'logiciel de facturation', 'C', '4,400', '43', '3.50', '0.66', 'Sitelinks, Reviews, Image pack, Video, People also ask', '63', '4 weeks',
+            'logiciel de facturation gratuit', 'I', 'C', '2,400', '56', '2.87', '0.77', 'Featured snippet, Reviews, Video, People also ask, Related searches', '62', '4 weeks',
+            'quel logiciel facturation quickbill advanced choisir', 'I', '1,600', 'n/a', '0.00', '0.00', 'Video, Video carousel, People also ask, Related searches', '322', '1 month',
+            'logiciel devis facture batiment', 'I', '1,300', '34', '7.91', '0.95', 'Sitelinks, Image pack, Video, Video carousel, People also ask, Related searches', '68', '1 month',
+        ]);
+
+        $count = app(SemrushCsvImporter::class)->importText($project, $clipboard);
+
+        $this->assertSame(4, $count);
+        $this->assertSame(4, $project->keywords()->count());
+        $this->assertDatabaseHas('keywords', [
+            'seo_project_id' => $project->id,
+            'keyword' => 'logiciel de facturation',
+            'search_volume' => 4400,
+            'keyword_difficulty' => 43,
+            'cpc' => 3.5,
+        ]);
+        $this->assertDatabaseHas('keywords', [
+            'seo_project_id' => $project->id,
+            'keyword' => 'logiciel de facturation gratuit',
+            'intent' => 'Informationnelle, Commerciale',
+            'keyword_difficulty' => 56,
+        ]);
+        $this->assertDatabaseHas('keywords', [
+            'seo_project_id' => $project->id,
+            'keyword' => 'quel logiciel facturation quickbill advanced choisir',
+            'search_volume' => 1600,
+            'keyword_difficulty' => 0,
+        ]);
+        $this->assertDatabaseMissing('keywords', ['seo_project_id' => $project->id, 'keyword' => 'Sitelinks, Reviews, Image pack, Video, People also ask']);
+        $this->assertDatabaseMissing('keywords', ['seo_project_id' => $project->id, 'keyword' => 'Selected:0']);
     }
 
     public function test_editorial_ideas_keep_the_exact_semrush_keyword_id_and_difficulty(): void
@@ -610,6 +1060,23 @@ class ExampleTest extends TestCase
         $this->assertTrue($matcher->matches($project, $seoKeyword));
     }
 
+    public function test_product_keyword_matcher_rejects_synthetic_competitor_keywords(): void
+    {
+        $project = SeoProject::query()->create([
+            'name' => 'Indy',
+            'slug' => 'indy-synthetic-competitors',
+            'website_url' => 'https://example.com',
+            'country' => 'FR',
+            'currency' => 'EUR',
+            'positioning' => 'Logiciel de facturation et comptabilite pour independants.',
+            'competitors' => ['Pennylane', 'Abby', 'Freebe', 'Henrri'],
+        ]);
+        $matcher = app(ProductKeywordMatcher::class);
+
+        $this->assertFalse($matcher->matches($project, new Keyword(['keyword' => 'logiciel facturation invoiceflow max tarif'])));
+        $this->assertTrue($matcher->matches($project, new Keyword(['keyword' => 'logiciel facturation gratuit'])));
+    }
+
     public function test_scraper_rejects_private_network_targets(): void
     {
         $project = SeoProject::query()->create(['name' => 'Local', 'slug' => 'local', 'website_url' => 'http://127.0.0.1', 'country' => 'FR', 'currency' => 'EUR']);
@@ -689,6 +1156,105 @@ class ExampleTest extends TestCase
         $this->assertStringNotContainsString('2 750 €', $source->content);
     }
 
+    public function test_embedded_pricing_cards_are_enriched_with_visible_plan_features(): void
+    {
+        $project = SeoProject::query()->create(['name' => 'Indy', 'slug' => 'abby-pricing-enriched', 'website_url' => 'https://example.com', 'country' => 'FR', 'currency' => 'EUR']);
+        Http::fake([
+            'https://example.com/robots.txt' => Http::response('', 200, ['Content-Type' => 'text/plain']),
+            'https://example.com/abby-pricing' => Http::response('<html>Forbidden</html>', 403, ['Content-Type' => 'text/html']),
+        ]);
+        $renderedHtml = <<<'HTML'
+            <html><head><title>Abby tarifs</title>
+            <script id="__NEXT_DATA__" type="application/json">{
+              "props":{"pricing":{"items":[
+                {"title":"Basique","caption":"0 EUR / mois","description":"100% gratuit, sans engagement"},
+                {"title":"Start","caption":"5,85 EUR / mois HT","description":"14 jours offerts pour tester l'offre"},
+                {"title":"Pro","caption":"9,75 EUR / mois HT","description":"14 jours offerts pour tester l'offre"}
+              ]}}
+            }</script></head><body>
+              <section>
+                <article class="pricing-card"><h2>Basique</h2><p>0 EUR / mois</p><ul>
+                  <li>Facturation electronique</li>
+                  <li>Devis &amp; factures illimites</li>
+                  <li>Livre des recettes et achats</li>
+                  <li>Estimation cotisations Urssaf</li>
+                  <li>Alertes des seuils de TVA</li>
+                </ul></article>
+                <article class="pricing-card"><h2>Start</h2><p>5,85 EUR / mois HT</p><ul>
+                  <li>En plus de l'offre Basique</li>
+                  <li>Recevoir des paiements par CB</li>
+                  <li>Declaration Urssaf</li>
+                  <li>Envoi des factures par e-mail</li>
+                </ul></article>
+                <article class="pricing-card"><h2>Pro</h2><p>9,75 EUR / mois HT</p><ul>
+                  <li>En plus de l'offre Start</li>
+                  <li>Relances d'impayes</li>
+                  <li>Signature electronique en ligne</li>
+                  <li>Connexion au compte bancaire</li>
+                </ul></article>
+              </section>
+            </body></html>
+            HTML;
+        $this->mock(BrowserHtmlFetcher::class, function ($mock) use ($renderedHtml): void {
+            $mock->shouldReceive('fetchPricingData')->once()->andReturn([
+                'engine' => 'playwright',
+                'http_status' => 200,
+                'html_snapshots' => [$renderedHtml],
+                'json_payloads' => [],
+            ]);
+        });
+
+        $source = app(StaticSiteScraper::class)->scrape($project, 'https://example.com/abby-pricing', 'pricing', 'Abby');
+        $plans = $project->competitorPlans()->where('is_active', true)->orderBy('position')->get();
+
+        $this->assertSame(['Basique', 'Start', 'Pro'], $plans->pluck('name')->all());
+        $this->assertSame([
+            'Facturation electronique',
+            'Devis & factures illimites',
+            'Livre des recettes et achats',
+            'Estimation cotisations Urssaf',
+            'Alertes des seuils de TVA',
+        ], $plans->firstWhere('name', 'Basique')->features);
+        $this->assertNotContains("En plus de l'offre Basique", $plans->firstWhere('name', 'Start')->features);
+        $this->assertStringContainsString('Estimation cotisations Urssaf', $source->content);
+        $this->assertStringContainsString('Alertes des seuils de TVA', $source->content);
+    }
+
+    public function test_competitor_pricing_scraper_stores_competitor_plans_separately(): void
+    {
+        $project = SeoProject::query()->create(['name' => 'Indy', 'slug' => 'indy-competitor-pricing', 'website_url' => 'https://example.com', 'country' => 'FR', 'currency' => 'EUR']);
+        $html = <<<'HTML'
+            <html><head><title>Abby tarifs</title></head><body>
+                <section>
+                    <article class="pricing-card"><h2>Basique</h2><p>0 EUR / mois</p><ul><li>Creation de factures</li><li>Suivi des paiements</li></ul></article>
+                    <article class="pricing-card"><h2>Pro</h2><p>12 EUR / mois</p><ul><li>Declarations automatisees</li><li>Support prioritaire</li></ul></article>
+                </section>
+            </body></html>
+            HTML;
+        Http::fake([
+            'https://example.com/robots.txt' => Http::response('', 200, ['Content-Type' => 'text/plain']),
+            'https://example.com/abby-pricing' => Http::response($html, 200, ['Content-Type' => 'text/html']),
+        ]);
+        $this->mock(BrowserHtmlFetcher::class, function ($mock) use ($html): void {
+            $mock->shouldReceive('fetchPricingData')->once()->andReturn([
+                'engine' => 'playwright',
+                'http_status' => 200,
+                'html_snapshots' => [$html],
+                'json_payloads' => [],
+            ]);
+        });
+
+        $source = app(StaticSiteScraper::class)->scrape($project, 'https://example.com/abby-pricing', 'pricing', 'Abby');
+        $competitorPlans = $project->competitorPlans()->where('is_active', true)->orderBy('position')->get();
+
+        $this->assertSame('Abby', $source->competitor_name);
+        $this->assertSame(0, $project->plans()->where('is_active', true)->count());
+        $this->assertSame(['Basique', 'Pro'], $competitorPlans->pluck('name')->all());
+        $this->assertSame(['Abby'], $competitorPlans->pluck('competitor_name')->unique()->values()->all());
+        $this->assertDatabaseHas('source_pages', ['seo_project_id' => $project->id, 'url' => 'https://example.com/abby-pricing', 'competitor_name' => 'Abby']);
+        $this->assertDatabaseHas('plans', ['seo_project_id' => $project->id, 'name' => 'Basique', 'competitor_name' => 'Abby']);
+    }
+
     public function test_pricing_scraper_uses_card_titles_and_creates_one_plan_per_offer(): void
     {
         $project = SeoProject::query()->create(['name' => 'Pricing Tool', 'slug' => 'pricing-tool', 'website_url' => 'https://example.com', 'country' => 'FR', 'currency' => 'USD']);
@@ -754,7 +1320,7 @@ class ExampleTest extends TestCase
         $this->assertSame(9.0, (float) $plans[1]->annual_effective_monthly);
         $this->assertSame(108.0, (float) $plans[1]->annual_total);
         $this->assertCount(2, $plans[1]->price_variants);
-        $this->assertLessThanOrEqual(4, count($plans[1]->features));
+        $this->assertLessThanOrEqual(6, count($plans[1]->features));
         $this->assertStringNotContainsString('Démarrer', $source->content);
         $this->assertStringNotContainsString('FAQ polluante', $source->content);
         $this->assertStringNotContainsString('Fonctionnalité 40', $source->content);
@@ -871,6 +1437,61 @@ class ExampleTest extends TestCase
             ->assertSet('sourcesCollecting', false)
             ->assertSet('workspaceReady', true)
             ->assertSee('Dossier prêt : 2 sources et 1 mots-clés disponibles.');
+    }
+
+    public function test_automation_preparation_queues_competitor_pricing_urls(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $project = SeoProject::query()->create([
+            'name' => 'Indy',
+            'slug' => 'indy-automation-pricing',
+            'website_url' => 'https://example.com',
+            'pricing_url' => 'https://example.com/indy-pricing',
+            'country' => 'FR',
+            'currency' => 'EUR',
+        ]);
+        Keyword::query()->create(['seo_project_id' => $project->id, 'keyword' => 'logiciel de facturation']);
+
+        Livewire::actingAs($admin)->test(Automation::class)
+            ->set('mode', 'existing')
+            ->set('existingProjectId', $project->id)
+            ->set('competitorsText', "Abby\nFreebe")
+            ->set('competitorPricingUrlsText', "Abby | https://example.com/abby-pricing\nFreebe | https://example.com/freebe-pricing")
+            ->call('prepare')
+            ->assertSet('sourcesCollecting', true)
+            ->assertSet('workspaceReady', false)
+            ->assertSee('4 source(s) en cours de collecte');
+
+        $project->refresh();
+        $this->assertSame([
+            'Abby' => 'https://example.com/abby-pricing',
+            'Freebe' => 'https://example.com/freebe-pricing',
+        ], $project->competitor_pricing_urls);
+        $this->assertSame(4, $project->sourcePages()->where('status', 'processing')->count());
+        $this->assertDatabaseHas('source_pages', [
+            'seo_project_id' => $project->id,
+            'url' => 'https://example.com/abby-pricing',
+            'type' => 'pricing',
+            'competitor_name' => 'Abby',
+            'status' => 'processing',
+        ]);
+        $this->assertDatabaseHas('source_pages', [
+            'seo_project_id' => $project->id,
+            'url' => 'https://example.com/freebe-pricing',
+            'type' => 'pricing',
+            'competitor_name' => 'Freebe',
+            'status' => 'processing',
+        ]);
+    }
+
+    public function test_automation_prepare_displays_validation_feedback(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+
+        Livewire::actingAs($admin)->test(Automation::class)
+            ->call('prepare')
+            ->assertHasErrors(['name' => 'required', 'websiteUrl' => 'required'])
+            ->assertSee('Analyse bloquée');
     }
 
     public function test_automatic_flow_accepts_pasted_semrush_keywords_without_a_file(): void
@@ -996,6 +1617,329 @@ class ExampleTest extends TestCase
             ->get(route('admin.articles.preview', $article))
             ->assertOk()
             ->assertSee($article->title);
+    }
+
+    public function test_articles_table_can_regenerate_an_article_from_row_actions(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $project = SeoProject::query()->create([
+            'name' => 'Regen Tool', 'slug' => 'regen-tool', 'website_url' => 'https://example.com',
+            'country' => 'FR', 'currency' => 'EUR',
+        ]);
+        $article = Article::query()->create([
+            'seo_project_id' => $project->id,
+            'title' => 'Article a regenerer',
+            'slug' => 'article-a-regenerer',
+            'status' => 'review',
+            'type' => 'informational',
+            'body' => '## Ancien contenu',
+        ]);
+
+        $this->mock(ArticleRegenerationWorkerLauncher::class, function ($mock) use ($article): void {
+            $mock->shouldReceive('launch')
+                ->once()
+                ->with($article->id);
+        });
+
+        Livewire::actingAs($admin)->test(ArticlesTable::class)
+            ->assertSee('Régénérer')
+            ->call('regenerate', $article->id)
+            ->assertSee('Régénération lancée en arrière-plan');
+
+        $checks = $article->fresh()->quality_checks;
+        $this->assertSame('queued', $checks['regeneration_status']);
+        $this->assertSame($admin->id, $checks['regeneration_user_id']);
+    }
+
+    public function test_article_regeneration_worker_runs_regeneration_and_marks_completion(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $project = SeoProject::query()->create([
+            'name' => 'Worker Regen Tool', 'slug' => 'worker-regen-tool', 'website_url' => 'https://example.com',
+            'country' => 'FR', 'currency' => 'EUR',
+        ]);
+        $article = Article::query()->create([
+            'seo_project_id' => $project->id,
+            'title' => 'Article worker',
+            'slug' => 'article-worker',
+            'status' => 'review',
+            'type' => 'informational',
+            'body' => 'Ancien contenu.',
+            'quality_checks' => [
+                'regeneration_status' => 'queued',
+                'regeneration_user_id' => $admin->id,
+            ],
+        ]);
+
+        $this->mock(GeminiContentGenerator::class, function ($mock) use ($article): void {
+            $mock->shouldReceive('regenerateArticle')
+                ->once()
+                ->withArgs(fn (Article $passed, string $instructions): bool => $passed->is($article)
+                    && str_contains($instructions, 'Regeneration manuelle'))
+                ->andReturnUsing(function (Article $passed): Article {
+                    $passed->forceFill([
+                        'body' => 'Nouveau contenu via worker.',
+                        'quality_checks' => ['human_review_required' => true],
+                    ])->save();
+
+                    return $passed->fresh();
+                });
+        });
+
+        $this->artisan('article:regenerate-worker', ['articleId' => $article->id])
+            ->assertExitCode(0);
+
+        $article->refresh();
+        $this->assertSame('Nouveau contenu via worker.', $article->body);
+        $this->assertSame('completed', $article->quality_checks['regeneration_status']);
+        $this->assertTrue($article->quality_checks['human_review_required']);
+    }
+
+    public function test_regenerating_an_article_replaces_content_without_changing_slug_or_status(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $project = SeoProject::query()->create([
+            'name' => 'Stable Tool', 'slug' => 'stable-tool', 'website_url' => 'https://example.com',
+            'country' => 'FR', 'currency' => 'EUR',
+        ]);
+        $publishedAt = now()->subDay();
+        $article = Article::query()->create([
+            'seo_project_id' => $project->id,
+            'title' => 'Article stable',
+            'slug' => 'article-stable',
+            'status' => 'published',
+            'type' => 'informational',
+            'primary_keyword' => 'article stable',
+            'body' => 'Ancien contenu long.',
+            'content_blocks' => [['type' => 'markdown', 'content' => 'Ancien contenu long.']],
+            'published_at' => $publishedAt,
+        ]);
+        $generated = Article::query()->create([
+            'seo_project_id' => $project->id,
+            'title' => 'Article stable',
+            'slug' => 'article-stable-regenerated',
+            'status' => 'review',
+            'type' => 'informational',
+            'primary_keyword' => 'article stable',
+            'body' => 'Nouveau contenu regenere.',
+            'excerpt' => 'Nouveau resume.',
+            'content_blocks' => [['type' => 'markdown', 'content' => 'Nouveau contenu regenere.']],
+            'quality_checks' => ['human_review_required' => true],
+            'source_ids' => [],
+            'generated_by' => 'gemini-test',
+            'verified_at' => now(),
+        ]);
+
+        $generator = new class(
+            app(SeoContentStructure::class),
+            app(EditorialDuplicateDetector::class),
+            app(GeneratedContentSanitizer::class),
+            app(CompetitorCatalog::class),
+            $generated,
+        ) extends GeminiContentGenerator {
+            public array $call = [];
+
+            public function __construct(
+                SeoContentStructure $structures,
+                EditorialDuplicateDetector $duplicates,
+                GeneratedContentSanitizer $sanitizer,
+                CompetitorCatalog $competitors,
+                private readonly Article $generatedArticle,
+            ) {
+                parent::__construct($structures, $duplicates, $sanitizer, $competitors);
+            }
+
+            public function generate(SeoProject $project, string $type, ?Keyword $keyword, string $instructions = '', ?array $lockedBlueprint = null, ?string $lockedTitle = null, ?int $ignoreArticleId = null, ?string $model = null): Article
+            {
+                $this->call = compact('type', 'lockedTitle', 'ignoreArticleId');
+
+                return $this->generatedArticle;
+            }
+        };
+
+        $this->actingAs($admin);
+        $updated = $generator->regenerateArticle($article, 'Test regeneration');
+
+        $this->assertSame($article->id, $updated->id);
+        $this->assertSame('article-stable', $updated->slug);
+        $this->assertSame('published', $updated->status);
+        $this->assertSame($publishedAt->toDateTimeString(), $updated->published_at->toDateTimeString());
+        $this->assertSame('Nouveau contenu regenere.', $updated->body);
+        $this->assertSame('gemini-test', $updated->generated_by);
+        $this->assertDatabaseMissing('articles', ['id' => $generated->id]);
+        $this->assertDatabaseHas('article_versions', [
+            'article_id' => $article->id,
+            'title' => 'Article stable',
+            'body' => 'Ancien contenu long.',
+            'change_note' => 'Regeneration IA depuis la bibliotheque',
+        ]);
+        $this->assertSame([
+            'type' => 'informational',
+            'lockedTitle' => 'Article stable',
+            'ignoreArticleId' => $article->id,
+        ], $generator->call);
+    }
+
+    public function test_regenerating_an_article_retries_capacity_errors_and_switches_to_flash(): void
+    {
+        Setting::put('gemini_model', 'gemini-2.5-flash-lite');
+        $admin = User::factory()->create(['is_admin' => true]);
+        $project = SeoProject::query()->create([
+            'name' => 'Retry Regen Tool', 'slug' => 'retry-regen-tool', 'website_url' => 'https://example.com',
+            'country' => 'FR', 'currency' => 'EUR',
+        ]);
+        $article = Article::query()->create([
+            'seo_project_id' => $project->id,
+            'title' => 'Article retry',
+            'slug' => 'article-retry',
+            'status' => 'review',
+            'type' => 'informational',
+            'primary_keyword' => 'article retry',
+            'body' => 'Ancien contenu.',
+            'content_blocks' => [['type' => 'markdown', 'content' => 'Ancien contenu.']],
+        ]);
+        $generated = Article::query()->create([
+            'seo_project_id' => $project->id,
+            'title' => 'Article retry',
+            'slug' => 'article-retry-temp',
+            'status' => 'review',
+            'type' => 'informational',
+            'primary_keyword' => 'article retry',
+            'body' => 'Nouveau contenu apres retry.',
+            'content_blocks' => [['type' => 'markdown', 'content' => 'Nouveau contenu apres retry.']],
+            'source_ids' => [],
+            'quality_checks' => [],
+            'verified_at' => now(),
+        ]);
+
+        $generator = new class(
+            app(SeoContentStructure::class),
+            app(EditorialDuplicateDetector::class),
+            app(GeneratedContentSanitizer::class),
+            app(CompetitorCatalog::class),
+            $generated,
+        ) extends GeminiContentGenerator {
+            public int $attempts = 0;
+
+            public array $models = [];
+
+            public function __construct(
+                SeoContentStructure $structures,
+                EditorialDuplicateDetector $duplicates,
+                GeneratedContentSanitizer $sanitizer,
+                CompetitorCatalog $competitors,
+                private readonly Article $generatedArticle,
+            ) {
+                parent::__construct($structures, $duplicates, $sanitizer, $competitors);
+            }
+
+            public function generate(SeoProject $project, string $type, ?Keyword $keyword, string $instructions = '', ?array $lockedBlueprint = null, ?string $lockedTitle = null, ?int $ignoreArticleId = null, ?string $model = null): Article
+            {
+                $this->attempts++;
+                $this->models[] = $model;
+
+                if ($this->attempts <= 3) {
+                    throw new \RuntimeException('Gemini HTTP 503 : This model is currently experiencing high demand.');
+                }
+
+                return $this->generatedArticle;
+            }
+
+            protected function pauseBeforeRegenerationRetry(int $attempt): void
+            {
+            }
+        };
+
+        $this->actingAs($admin);
+        $updated = $generator->regenerateArticle($article, 'Test retry');
+
+        $this->assertSame('Nouveau contenu apres retry.', $updated->body);
+        $this->assertSame(4, $generator->attempts);
+        $this->assertSame([
+            'gemini-2.5-flash-lite',
+            'gemini-2.5-flash-lite',
+            'gemini-2.5-flash-lite',
+            'gemini-2.5-flash',
+        ], $generator->models);
+    }
+
+    public function test_regenerating_an_article_retries_quality_rejections_with_corrective_prompt(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $project = SeoProject::query()->create([
+            'name' => 'Indy', 'slug' => 'indy-quality-retry', 'website_url' => 'https://example.com',
+            'country' => 'FR', 'currency' => 'EUR',
+        ]);
+        $article = Article::query()->create([
+            'seo_project_id' => $project->id,
+            'title' => 'Logiciel Facturation BTP : Les Outils Indispensables pour Artisans et Entreprises',
+            'slug' => 'logiciel-facturation-btp-outils-indispensables',
+            'status' => 'review',
+            'type' => 'informational',
+            'primary_keyword' => 'logiciel facturation BTP',
+            'body' => 'Ancien contenu.',
+            'content_blocks' => [['type' => 'markdown', 'content' => 'Ancien contenu.']],
+        ]);
+        $generated = Article::query()->create([
+            'seo_project_id' => $project->id,
+            'title' => $article->title,
+            'slug' => 'logiciel-facturation-btp-temp',
+            'status' => 'review',
+            'type' => 'informational',
+            'primary_keyword' => 'logiciel facturation BTP',
+            'body' => 'Nouveau contenu BTP corrige.',
+            'content_blocks' => [['type' => 'markdown', 'content' => 'Nouveau contenu BTP corrige.']],
+            'source_ids' => [],
+            'quality_checks' => [],
+            'verified_at' => now(),
+        ]);
+
+        $generator = new class(
+            app(SeoContentStructure::class),
+            app(EditorialDuplicateDetector::class),
+            app(GeneratedContentSanitizer::class),
+            app(CompetitorCatalog::class),
+            $generated,
+        ) extends GeminiContentGenerator {
+            public int $attempts = 0;
+
+            public string $secondInstructions = '';
+
+            public function __construct(
+                SeoContentStructure $structures,
+                EditorialDuplicateDetector $duplicates,
+                GeneratedContentSanitizer $sanitizer,
+                CompetitorCatalog $competitors,
+                private readonly Article $generatedArticle,
+            ) {
+                parent::__construct($structures, $duplicates, $sanitizer, $competitors);
+            }
+
+            public function generate(SeoProject $project, string $type, ?Keyword $keyword, string $instructions = '', ?array $lockedBlueprint = null, ?string $lockedTitle = null, ?int $ignoreArticleId = null, ?string $model = null): Article
+            {
+                $this->attempts++;
+                if ($this->attempts === 1) {
+                    throw new PlannedContentRejectedException('Concurrent inconnu ou fictif detecte dans le brouillon : Plomberie Pro.');
+                }
+
+                $this->secondInstructions = $instructions;
+
+                return $this->generatedArticle;
+            }
+
+            protected function pauseBeforeRegenerationRetry(int $attempt): void
+            {
+            }
+        };
+
+        $this->actingAs($admin);
+        $updated = $generator->regenerateArticle($article, 'Test rejet qualite');
+
+        $this->assertSame('Nouveau contenu BTP corrige.', $updated->body);
+        $this->assertSame(2, $generator->attempts);
+        $this->assertStringContainsString('CORRECTION OBLIGATOIRE APRÈS REFUS QUALITÉ', $generator->secondInstructions);
+        $this->assertStringContainsString('Plomberie Pro', $generator->secondInstructions);
+        $this->assertStringContainsString('Entités autorisées uniquement', $generator->secondInstructions);
     }
 
     public function test_projects_table_can_bulk_delete_a_project_and_its_data(): void
@@ -1189,7 +2133,7 @@ MARKDOWN;
             && str_contains((string) data_get($request->data(), 'contents.0.parts.0.text'), 'H1 verrouillé')
             && str_contains((string) data_get($request->data(), 'contents.0.parts.0.text'), 'CURRENT_YEAR = '.now()->format('Y'))
             && str_contains((string) data_get($request->data(), 'contents.0.parts.0.text'), 'CURRENT_DATE est réservé au header et au footer')
-            && str_contains((string) data_get($request->data(), 'contents.0.parts.0.text'), 'Écris toujours les marques avec leur casse officielle')
+            && str_contains((string) data_get($request->data(), 'contents.0.parts.0.text'), 'Écris les marques autorisées avec leur casse officielle')
             && str_contains((string) data_get($request->data(), 'contents.0.parts.0.text'), 'Ne réutilise jamais mot pour mot une phrase')
             && $request['generationConfig']['stopSequences'] === ['Transparence affiliée', '© 2026 BlogSEO']);
     }
@@ -1534,10 +2478,13 @@ MARKDOWN;
         $first = Keyword::query()->create(['seo_project_id' => $project->id, 'keyword' => 'gestion de la relation client', 'intent' => 'Informationnelle', 'opportunity_score' => 95]);
         Keyword::query()->create(['seo_project_id' => $project->id, 'keyword' => 'logiciel de gestion relation client', 'intent' => 'Commerciale', 'opportunity_score' => 90]);
         $pipeline = Keyword::query()->create(['seo_project_id' => $project->id, 'keyword' => 'créer un pipeline commercial HubSpot', 'intent' => 'Informationnelle', 'opportunity_score' => 85]);
+        $relances = Keyword::query()->create(['seo_project_id' => $project->id, 'keyword' => 'automatiser les relances HubSpot', 'intent' => 'Informationnelle', 'opportunity_score' => 80]);
+        $reporting = Keyword::query()->create(['seo_project_id' => $project->id, 'keyword' => 'rapport commercial HubSpot', 'intent' => 'Informationnelle', 'opportunity_score' => 75]);
 
-        $idea = fn (string $title, string $topic, string $angle, string $outcome, array $outline, string $keyword): array => [
+        $idea = fn (string $title, string $topic, string $angle, string $outcome, array $outline, Keyword $keyword): array => [
+            'source_keyword_id' => $keyword->id,
             'title' => $title,
-            'primary_keyword' => $keyword,
+            'primary_keyword' => $keyword->keyword,
             'entity' => 'hubspot-crm',
             'topic' => $topic,
             'intent' => 'informational',
@@ -1552,11 +2499,11 @@ MARKDOWN;
             'content_type' => 'informational',
         ];
         $ideas = [
-            $idea('Centraliser les interactions clients dans HubSpot', 'gestion-clients', 'centraliser-interactions', 'Centraliser toutes les interactions clients et identifier le prochain suivi commercial.', ['Importer les contacts', 'Normaliser les propriétés', 'Associer les entreprises', 'Journaliser les échanges', 'Contrôler les doublons'], $first->keyword),
-            $idea('Optimiser la relation client dans HubSpot', 'gestion-relations-clients', 'centraliser-interactions', 'Centraliser toutes les interactions clients et identifier le prochain suivi commercial.', ['Importer les contacts', 'Normaliser les propriétés', 'Associer les entreprises', 'Journaliser les échanges', 'Contrôler les doublons'], $first->keyword),
-            $idea('Créer un pipeline commercial dans HubSpot', 'pipeline-commercial', 'configurer-etapes-vente', 'Créer un pipeline mesurable qui reflète les étapes réelles du cycle de vente.', ['Cartographier le cycle', 'Créer les étapes', 'Définir les règles', 'Automatiser les tâches', 'Mesurer les conversions'], $pipeline->keyword),
-            $idea('Automatiser les relances dans HubSpot', 'relances-prospects', 'relances-selon-maturite', 'Déclencher des relances adaptées au niveau de maturité de chaque prospect.', ['Segmenter les prospects', 'Définir les délais', 'Créer les workflows', 'Gérer les exceptions', 'Mesurer les réponses'], $pipeline->keyword),
-            $idea('Configurer les rapports commerciaux HubSpot', 'reporting-commercial', 'tableau-bord-direction', 'Construire un tableau de bord qui relie activité commerciale et conversion.', ['Choisir les indicateurs', 'Fiabiliser les propriétés', 'Créer les rapports', 'Assembler le tableau', 'Organiser la revue'], $pipeline->keyword),
+            $idea('Centraliser les interactions clients dans HubSpot', 'gestion-clients', 'centraliser-interactions', 'Centraliser toutes les interactions clients et identifier le prochain suivi commercial.', ['Importer les contacts', 'Normaliser les propriétés', 'Associer les entreprises', 'Journaliser les échanges', 'Contrôler les doublons'], $first),
+            $idea('Optimiser la relation client dans HubSpot', 'gestion-relations-clients', 'centraliser-interactions', 'Centraliser toutes les interactions clients et identifier le prochain suivi commercial.', ['Importer les contacts', 'Normaliser les propriétés', 'Associer les entreprises', 'Journaliser les échanges', 'Contrôler les doublons'], $first),
+            $idea('Créer un pipeline commercial dans HubSpot', 'pipeline-commercial', 'configurer-etapes-vente', 'Créer un pipeline mesurable qui reflète les étapes réelles du cycle de vente.', ['Cartographier le cycle', 'Créer les étapes', 'Définir les règles', 'Automatiser les tâches', 'Mesurer les conversions'], $pipeline),
+            $idea('Automatiser les relances dans HubSpot', 'relances-prospects', 'relances-selon-maturite', 'Déclencher des relances adaptées au niveau de maturité de chaque prospect.', ['Segmenter les prospects', 'Définir les délais', 'Créer les workflows', 'Gérer les exceptions', 'Mesurer les réponses'], $relances),
+            $idea('Configurer les rapports commerciaux HubSpot', 'reporting-commercial', 'tableau-bord-direction', 'Construire un tableau de bord qui relie activité commerciale et conversion.', ['Choisir les indicateurs', 'Fiabiliser les propriétés', 'Créer les rapports', 'Assembler le tableau', 'Organiser la revue'], $reporting),
         ];
         Http::fake(['generativelanguage.googleapis.com/*' => Http::response([
             'candidates' => [['content' => ['parts' => [['text' => json_encode(['ideas' => $ideas])]]]]],
@@ -1698,6 +2645,41 @@ MARKDOWN;
         $this->assertSame('published', $article->fresh()->status);
         $this->assertNotNull($article->fresh()->published_at);
         $this->assertContains($article->fresh()->duplicate_status, ['potential', 'needs_differentiation']);
+    }
+
+    public function test_article_editor_allows_year_slugs_but_blocks_real_duplicate_numeric_suffixes(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $project = SeoProject::query()->create(['name' => 'Indy', 'slug' => 'indy-year-slugs', 'website_url' => 'https://example.com', 'country' => 'FR', 'currency' => 'EUR']);
+        $body = "Introduction utile.\n\n## Analyse\n\n".str_repeat('Ce paragraphe donne assez de contexte pour valider un article de test. ', 4);
+
+        Livewire::actingAs($admin)->test(ArticleEditor::class)
+            ->set('projectId', $project->id)
+            ->set('title', 'Indy vs Abby Freebe 2026')
+            ->set('slug', 'indy-abby-freebe-2026')
+            ->set('body', $body)
+            ->set('type', 'comparison')
+            ->set('status', 'review')
+            ->call('save')
+            ->assertHasNoErrors(['slug']);
+
+        Article::query()->create([
+            'seo_project_id' => $project->id,
+            'title' => 'Indy Abby Freebe',
+            'slug' => 'indy-abby-freebe',
+            'body' => $body,
+            'status' => 'review',
+        ]);
+
+        Livewire::actingAs($admin)->test(ArticleEditor::class)
+            ->set('projectId', $project->id)
+            ->set('title', 'Indy Abby Freebe variante')
+            ->set('slug', 'indy-abby-freebe-2')
+            ->set('body', $body)
+            ->set('type', 'comparison')
+            ->set('status', 'review')
+            ->call('save')
+            ->assertHasErrors(['slug']);
     }
 
     public function test_merging_a_published_duplicate_archives_it_and_creates_a_redirect(): void

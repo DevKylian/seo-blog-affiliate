@@ -30,13 +30,22 @@ final class GeminiEditorialIdeaGenerator
             'volume' => $keyword->search_volume,
             'difficulty' => $keyword->keyword_difficulty,
             'intent' => $keyword->intent,
+            'intent_type' => $keyword->intent_type,
+            'affiliate_cluster' => $keyword->affiliate_cluster,
+            'affiliate_priority' => $keyword->affiliate_priority,
+            'user_moment' => $keyword->user_moment,
+            'problem' => $keyword->problem_label,
+            'solution' => $keyword->solution_label,
             'cluster' => $keyword->cluster,
+            'content_cluster_id' => $keyword->content_cluster_id,
+            'content_cluster_type' => $keyword->contentCluster?->type,
             'opportunity' => $keyword->opportunity_score,
             'strategy_tier' => $keyword->strategyTier(),
             'new_for_planning' => $keyword->isUnplanned(),
         ], fn ($value) => $value !== null && $value !== ''))->values()->all();
         $keywordsJson = json_encode($keywordData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         $excludedJson = json_encode(array_values(array_unique($excludedFingerprints)), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $competitorDirective = app(CompetitorCatalog::class)->promptDirective($project);
         $publishedPillars = $project->articles()
             ->where('status', 'published')
             ->with('keyword')
@@ -55,11 +64,20 @@ Variables système injectées par l’application : CURRENT_DATE = {$currentDate
 Consignes utilisateur : {$instructions}
 Stratégie de portefeuille : {$strategy}
 
+LANGUE FRANÇAISE
+- Rédige tous les champs visibles en français naturel avec les accents normaux de la langue française : é, è, ê, à, ç, ù, œ, apostrophes et ponctuation française quand elle est pertinente.
+- N'ASCIIse jamais les titres, angles, audiences, promesses, problèmes, résultats attendus, exclusions ou H2 : n'écris pas « donnees », « fonctionnalites », « facture electronique », « a verifier » ou « cout » si la forme française accentuée existe.
+- Les slugs restent gérés par l'application ; ne simplifie pas le français visible pour anticiper le slug.
+- Exception technique : primary_keyword recopie exactement le mot-clé Semrush fourni, même s'il manque des accents, afin de conserver le rattachement data.
+
+{$competitorDirective}
+
 Pour chaque idée, fournis un brief autonome : source_keyword_id, title, primary_keyword, entity, topic, intent, angle, audience, problem, expected_outcome, funnel_stage, unique_promise, excluded_topics, outline et content_type.
 
 RÈGLES BLOQUANTES
 - Une variante lexicale n’est pas une nouvelle idée. L’unité est sujet + intention + angle + audience + résultat.
 - source_keyword_id doit recopier exactement le keyword_id d’une ligne fournie. primary_keyword doit recopier exactement le keyword de cette même ligne, sans le reformuler. N’invente jamais un KD et ne rattache jamais une idée à un mot-clé seulement voisin.
+- Dans une même réponse, n'utilise jamais deux fois le même source_keyword_id. Un mot-clé Semrush = une seule idée maximum ; les variantes doivent venir d'autres mots-clés ou d'un vrai satellite distinct.
 - Regroupe les synonymes génériques (« logiciel devis facture », « logiciel facture devis », « logiciel pour devis et facture ») dans un seul pilier. Ne crée jamais une page par formulation.
 - strategy_tier pillar sert aux pages d’autorité larges et très complètes ; quick_win sert aux faibles KD précis ; niche sert aux métiers, plateformes ou profils spécifiques.
 - Un quick_win reste un contenu expert et complet. Faible difficulté ne signifie jamais contenu court, superficiel ou produit en série sans valeur.
@@ -70,6 +88,9 @@ RÈGLES BLOQUANTES
 - Le mini-plan est déjà un contrat de rédaction : chaque H2 répond à une question distincte, respecte la promesse du titre et évite les intitulés génériques (« Pourquoi c’est important », « Guide complet », « Tout savoir »).
 - La promesse, le problème et le résultat doivent être concrets et différents d’une idée à l’autre.
 - Respecte strictement le métier du produit et l’intention du mot-clé. Aucun sujet forcé.
+- intent_type pilote le format : information = guide pédagogique avec 1 CTA discret ; solution = page méthode/outils avec plusieurs comparaisons utiles ; money = avis/prix/alternative/comparaison proche conversion avec CTA forts.
+- Respecte la répartition business cible quand le lot le permet : environ 70 % information, 20 % solution, 10 % money. Ne force jamais 100 % money sur un site jeune.
+- affiliate_priority signale les sujets susceptibles de convertir ; priorise-les à score SEO comparable, surtout facturation, comptabilité, TVA, déclarations et logiciel devis/facture.
 - Mono-produit : utilise informational, tool_review ou pricing ; jamais comparison, alternatives ou best_tools, et jamais « comparatif » ou « meilleur » dans le titre.
 - Comparison : nomme explicitement les deux solutions dans le titre avec « X vs Y » et prévois au moins 2 solutions dans le plan.
 - Alternatives : le titre part explicitement du produit affilié sous la forme « Alternatives à {$project->name}… » et le plan confronte au moins 2 solutions nommées.

@@ -3,9 +3,12 @@
 namespace Tests\Unit;
 
 use App\Livewire\Automation;
+use App\Exceptions\PlannedContentRejectedException;
 use App\Models\ContentRun;
+use App\Models\Keyword;
 use App\Models\SeoProject;
 use App\Services\BackgroundArtisanLauncher;
+use App\Services\CompetitorCatalog;
 use App\Services\ContentRunWorkerLauncher;
 use App\Services\EditorialDuplicateDetector;
 use App\Services\GeminiContentGenerator;
@@ -24,6 +27,42 @@ class ExampleTest extends TestCase
     public function test_that_true_is_true(): void
     {
         $this->assertTrue(true);
+    }
+
+    public function test_source_markers_are_removed_from_generated_markdown(): void
+    {
+        $body = <<<'MD'
+## Comparatif
+
+Indy documente cette fonction [S1]. Abby confirme une limite [S2][S3]. Freebe ajoute une nuance [S2, S5].
+
+| Outil | Preuve |
+| --- | --- |
+| Indy | Fonction vérifiée [S1] |
+MD;
+
+        $clean = (new GeneratedContentSanitizer)->stripSourceMarkers($body);
+
+        $this->assertStringNotContainsString('[S1]', $clean);
+        $this->assertStringNotContainsString('[S2]', $clean);
+        $this->assertStringNotContainsString('[S3]', $clean);
+        $this->assertStringNotContainsString('[S2, S5]', $clean);
+        $this->assertStringContainsString('Indy documente cette fonction.', $clean);
+        $this->assertStringContainsString('| Indy | Fonction vérifiée |', $clean);
+    }
+
+    public function test_keyword_matching_accepts_normal_french_accents(): void
+    {
+        $body = <<<'MD'
+Réponse courte : la facture électronique aide les indépendants à fiabiliser leur gestion administrative dès la première émission.
+
+## Comprendre le besoin
+Ce contenu explique la méthode, les limites, les tarifs, les outils et les erreurs fréquentes avec une approche pédagogique.
+MD;
+
+        $audit = (new SeoContentStructure)->audit($body, 'informational', 'facture electronique', true);
+
+        $this->assertTrue($audit['checks']['keyword_in_opening']);
     }
 
     public function test_background_worker_resolves_the_cli_binary_when_http_runs_under_php_fpm(): void
@@ -57,9 +96,16 @@ class ExampleTest extends TestCase
             '/usr/bin/nohup',
         );
 
-        $this->assertStringStartsWith('start "" /B', $windows);
-        $this->assertStringContainsString('"C:\\Program Files\\PHP\\php.exe"', $windows);
-        $this->assertStringContainsString('< NUL', $windows);
+        $this->assertStringStartsWith('cmd /D /C start "" /B powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand ', $windows);
+        $this->assertStringEndsWith(' > NUL 2>&1', $windows);
+        preg_match('/-EncodedCommand ([A-Za-z0-9+\/=]+)/', $windows, $encodedCommand);
+        $windowsScript = mb_convert_encoding(base64_decode($encodedCommand[1]), 'UTF-8', 'UTF-16LE');
+        $this->assertStringContainsString('Start-Process', $windowsScript);
+        $this->assertStringContainsString("-WindowStyle Hidden", $windowsScript);
+        $this->assertStringContainsString("-FilePath 'C:\\Program Files\\PHP\\php.exe'", $windowsScript);
+        $this->assertStringContainsString("-ArgumentList '\"C:\\Sites\\Blog SEO\\artisan\" content:run-worker 42'", $windowsScript);
+        $this->assertStringContainsString("-RedirectStandardOutput 'C:\\Sites\\Blog SEO\\storage\\logs\\content.log'", $windowsScript);
+        $this->assertStringContainsString("-RedirectStandardError 'C:\\Sites\\Blog SEO\\storage\\logs\\content.err.log'", $windowsScript);
         $this->assertStringNotContainsString('/dev/null', $windows);
         $this->assertStringContainsString("'/usr/bin/nohup'", $unix);
         $this->assertStringContainsString("'/var/www/blog seo/artisan'", $unix);
@@ -425,6 +471,90 @@ MARKDOWN]);
         $this->assertTrue($withModel['checks']['vertical_custom_objects']);
     }
 
+    public function test_btp_software_audit_rejects_generalist_only_scope_and_unproved_chantier_claims(): void
+    {
+        $structure = new SeoContentStructure;
+        $body = <<<'MARKDOWN'
+Réponse courte : un logiciel facturation BTP doit couvrir les devis, les factures et les contraintes chantier avec des preuves.
+
+| Outil | Type | Gestion chantier intégrée | Limites |
+|---|---|---|---|
+| Indy | Généraliste | Oui | Frais cachés possibles |
+| Abby | Généraliste | Oui | À vérifier |
+| Freebe | Généraliste | Oui | À vérifier |
+| Pennylane | Généraliste | Oui | À vérifier |
+
+Les besoins BTP incluent acompte, situation de travaux, retenue de garantie, TVA bâtiment et suivi chantier.
+Cette page promet une economie annuelle de 6500 euros sans avertissement de simulation.
+MARKDOWN;
+
+        $audit = $structure->audit($body, 'best_tools', 'logiciel facturation BTP', true, 'Indy', true, 'Meilleur logiciel facturation BTP');
+
+        $this->assertFalse($audit['checks']['safe_cost_language']);
+        $this->assertFalse($audit['checks']['btp_specialized_scope']);
+        $this->assertFalse($audit['checks']['btp_no_unproved_chantier_claims']);
+        $this->assertFalse($audit['checks']['btp_simulation_disclaimer']);
+    }
+
+    public function test_btp_software_audit_accepts_specialists_and_prudent_generalist_labels(): void
+    {
+        $structure = new SeoContentStructure;
+        $body = <<<'MARKDOWN'
+Réponse courte : un logiciel facturation BTP doit être choisi selon les besoins chantier et les preuves disponibles.
+
+| Outil | Type | Idéal pour | Fonctions BTP clés | Limites |
+|---|---|---|---|---|
+| Obat | Spécialisé BTP | Artisans | Devis, situations de travaux, suivi chantier | Prix à vérifier |
+| Tolteck | Spécialisé BTP | Artisans bâtiment | Ouvrages, matériaux, factures | Moins complet qu'un ERP |
+| ProGBat | Spécialisé BTP | TPE bâtiment | Acompte, TVA bâtiment, devis | Limites à vérifier |
+| EBP Bâtiment | Spécialisé BTP | PME structurées | Retenue de garantie, métrés, rentabilité chantier | Plus lourd |
+| Indy | Généraliste adaptable | Indépendants | Facturation simple, pas un outil chantier dédié | Fonctions BTP avancées à vérifier |
+| Abby | Généraliste adaptable | Micro-entrepreneurs | Adaptable, mais pas spécialisé BTP | Fonctions chantier à vérifier |
+
+Simulation fictive à visée pédagogique : les chiffres suivants ne sont pas une promesse de résultat. Une entreprise peut simuler une économie annuelle de 6500 euros pour comparer le coût total.
+MARKDOWN;
+
+        $audit = $structure->audit($body, 'best_tools', 'logiciel devis facture batiment', true, 'Indy', true, 'Meilleur logiciel devis facture batiment');
+
+        $this->assertTrue($audit['checks']['safe_cost_language']);
+        $this->assertTrue($audit['checks']['btp_specialized_scope']);
+        $this->assertTrue($audit['checks']['btp_generalists_labeled_adaptable']);
+        $this->assertTrue($audit['checks']['btp_no_unproved_chantier_claims']);
+        $this->assertTrue($audit['checks']['btp_trade_criteria']);
+        $this->assertTrue($audit['checks']['btp_simulation_disclaimer']);
+    }
+
+    public function test_btp_generation_prompt_adds_vertical_guardrails_only_for_btp_queries(): void
+    {
+        $structure = new SeoContentStructure;
+
+        $this->assertStringContainsString('RÈGLE VERTICALE BTP', $structure->prompt('best_tools', 'Meilleur logiciel facturation BTP', 'logiciel facturation BTP'));
+        $this->assertStringNotContainsString('RÈGLE VERTICALE BTP', $structure->prompt('best_tools', 'Meilleur logiciel facturation gratuit', 'logiciel facturation gratuit'));
+    }
+
+    public function test_btp_generated_draft_is_rejected_before_article_creation_when_scope_is_generalist_only(): void
+    {
+        $generator = new GeminiContentGenerator(
+            new SeoContentStructure,
+            new EditorialDuplicateDetector(new TopicNormalizer, new SeoSlugGenerator),
+            new GeneratedContentSanitizer,
+            new CompetitorCatalog,
+        );
+        $method = new \ReflectionMethod(GeminiContentGenerator::class, 'assertBtpStrategicFit');
+        $project = new SeoProject(['name' => 'Indy']);
+        $keyword = new Keyword(['keyword' => 'logiciel facturation BTP']);
+        $data = [
+            'title' => 'Meilleur logiciel facturation BTP',
+            'brief_title' => 'Meilleur logiciel facturation BTP',
+            'compared_products' => ['Indy', 'Abby', 'Freebe', 'Pennylane'],
+            'body' => 'Indy propose une gestion de chantier intégrée. Abby et Freebe sont aussi adaptés. Les frais cachés doivent être surveillés.',
+        ];
+
+        $this->expectException(PlannedContentRejectedException::class);
+
+        $method->invoke($generator, $data, 'best_tools', $project, $keyword);
+    }
+
     public function test_footer_bloat_is_removed_from_the_conclusion(): void
     {
         $body = <<<'MARKDOWN'
@@ -457,6 +587,7 @@ MARKDOWN;
             new SeoContentStructure,
             new EditorialDuplicateDetector(new TopicNormalizer, new SeoSlugGenerator),
             new GeneratedContentSanitizer,
+            new CompetitorCatalog,
         );
         $method = new \ReflectionMethod($generator, 'faqOverlapsExisting');
         $body = "## FAQ\n\n### Comment préparer la migration des données vers HubSpot ?\n\nRéponse.";
@@ -471,6 +602,7 @@ MARKDOWN;
             new SeoContentStructure,
             new EditorialDuplicateDetector(new TopicNormalizer, new SeoSlugGenerator),
             new GeneratedContentSanitizer,
+            new CompetitorCatalog,
         );
         $method = new \ReflectionMethod($generator, 'assertGeneratedPart');
         $paragraph = 'Cette conclusion synthétise le choix technique et rappelle les limites vérifiées de la solution pour le profil étudié. ';

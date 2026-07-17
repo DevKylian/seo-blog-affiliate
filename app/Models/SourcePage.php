@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SourcePage extends Model
@@ -20,5 +21,12 @@ class SourcePage extends Model
     public function evidenceChunks(): HasMany
     {
         return $this->hasMany(EvidenceChunk::class);
+    }
+
+    public function articles(): BelongsToMany
+    {
+        return $this->belongsToMany(Article::class, 'article_sources')
+            ->withPivot('citation_label')
+            ->withTimestamps();
     }
 }

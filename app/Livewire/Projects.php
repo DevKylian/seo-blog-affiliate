@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Livewire\Concerns\WithBulkSelection;
 use App\Models\SeoProject;
+use App\Services\CompetitorPricingUrlParser;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
@@ -40,6 +41,10 @@ class Projects extends Component
 
     public string $bestForText = '';
 
+    public string $competitorsText = '';
+
+    public string $competitorPricingUrlsText = '';
+
     public string $message = '';
 
     public string $search = '';
@@ -58,7 +63,10 @@ class Projects extends Component
             'affiliateUrl' => ['nullable', 'url', 'max:2000'],
             'country' => ['required', 'string', 'size:2'],
             'currency' => ['required', 'string', 'size:3'],
+            'competitorsText' => ['nullable', 'string', 'max:5000'],
+            'competitorPricingUrlsText' => ['nullable', 'string', 'max:10000'],
         ]);
+        $competitorConfig = app(CompetitorPricingUrlParser::class)->parse($this->competitorsText, $this->competitorPricingUrlsText);
 
         $payload = [
             'name' => $data['name'],
@@ -73,15 +81,19 @@ class Projects extends Component
             'strengths' => $this->lines($this->strengthsText),
             'limitations' => $this->lines($this->limitationsText),
             'best_for' => $this->lines($this->bestForText),
+            'competitors' => $competitorConfig['competitors'],
+            'competitor_pricing_urls' => $competitorConfig['pricing_urls'],
         ];
 
         if ($this->editingId) {
-            SeoProject::query()->findOrFail($this->editingId)->update($payload);
+            $project = SeoProject::query()->findOrFail($this->editingId);
+            $project->update($payload);
         } else {
-            SeoProject::query()->create(['slug' => $this->uniqueSlug($data['name']), ...$payload]);
+            $project = SeoProject::query()->create(['slug' => $this->uniqueSlug($data['name']), ...$payload]);
         }
+        app(\App\Services\AffiliateSeoDefaults::class)->ensureForProject($project);
 
-        $this->reset(['editingId', 'name', 'websiteUrl', 'pricingUrl', 'affiliateUrl', 'description', 'positioning', 'featuresText', 'strengthsText', 'limitationsText', 'bestForText']);
+        $this->reset(['editingId', 'name', 'websiteUrl', 'pricingUrl', 'affiliateUrl', 'description', 'positioning', 'featuresText', 'strengthsText', 'limitationsText', 'bestForText', 'competitorsText', 'competitorPricingUrlsText']);
         $this->message = 'Le projet a été enregistré. Vous pouvez maintenant collecter ses sources.';
     }
 
@@ -101,6 +113,8 @@ class Projects extends Component
         $this->strengthsText = implode("\n", $project->strengths ?? []);
         $this->limitationsText = implode("\n", $project->limitations ?? []);
         $this->bestForText = implode("\n", $project->best_for ?? []);
+        $this->competitorsText = implode("\n", $project->competitors ?? []);
+        $this->competitorPricingUrlsText = app(CompetitorPricingUrlParser::class)->format($project->competitor_pricing_urls ?? []);
         $this->message = 'Projet chargé dans le formulaire.';
     }
 
@@ -110,7 +124,7 @@ class Projects extends Component
         $editingProjectDeleted = $this->editingId && in_array($this->editingId, $ids, true);
         $count = SeoProject::query()->whereIn('id', $ids)->delete();
         if ($editingProjectDeleted) {
-            $this->reset(['editingId', 'name', 'websiteUrl', 'pricingUrl', 'affiliateUrl', 'description', 'positioning', 'featuresText', 'strengthsText', 'limitationsText', 'bestForText']);
+            $this->reset(['editingId', 'name', 'websiteUrl', 'pricingUrl', 'affiliateUrl', 'description', 'positioning', 'featuresText', 'strengthsText', 'limitationsText', 'bestForText', 'competitorsText', 'competitorPricingUrlsText']);
         }
         $this->resetBulkSelection();
         $this->message = "{$count} projet(s) et toutes leurs données associées supprimés.";

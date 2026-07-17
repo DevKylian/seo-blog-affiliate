@@ -39,12 +39,17 @@ final class RunContentWorker extends Command
                     break;
                 }
 
-                sleep($result['state'] === 'retry' ? 5 : 1);
+                sleep($result['state'] === 'retry' ? $this->retryDelaySeconds((int) ($result['attempt'] ?? 1)) : 1);
             }
         } finally {
             $lock->release();
         }
 
         return self::SUCCESS;
+    }
+
+    private function retryDelaySeconds(int $attempt): int
+    {
+        return min(300, 5 * (2 ** min(6, max(0, $attempt - 1))));
     }
 }

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Plan extends Model
 {
@@ -105,15 +106,20 @@ class Plan extends Model
         $features = collect($this->features ?? [])
             ->filter(fn ($feature): bool => is_string($feature) && trim($feature) !== '')
             ->map(fn (string $feature): string => trim($feature, " \t\n\r\0\x0B.;"))
-            ->reject(fn (string $feature): bool => str_starts_with(mb_strtolower($feature), 'toutes les fonctionnalités'))
+            ->reject(function (string $feature): bool {
+                $normalized = Str::ascii(mb_strtolower($feature));
+
+                return str_starts_with($normalized, 'toutes les fonctionnalites')
+                    || preg_match('/\ben plus de l[\' ]offre\b/u', $normalized) === 1;
+            })
             ->unique()
-            ->take(2)
+            ->take(4)
             ->values();
 
         if ($features->isEmpty()) {
             return null;
         }
 
-        return mb_substr($features->implode(' · '), 0, 180);
+        return mb_substr($features->implode(' · '), 0, 260);
     }
 }

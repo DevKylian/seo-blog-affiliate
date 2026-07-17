@@ -16,6 +16,8 @@
     @if($error)<div class="alert danger">{{ $error }}</div>@endif
     @if(!$hasApiKey)<a class="setup-banner" href="{{ route('admin.settings') }}" wire:navigate><span>◇</span><div><strong>Clé Gemini requise</strong><p>Ajoutez votre clé avant d’activer la production autonome.</p></div><b>Configurer →</b></a>@endif
 
+    @if(!$hasSemrushKey)<a class="setup-banner" href="{{ route('admin.settings') }}" wire:navigate><span>API</span><div><strong>Cle Semrush optionnelle</strong><p>Ajoutez-la pour analyser automatiquement les keyword seeds du cluster Facturation.</p></div><b>Configurer</b></a>@endif
+
     <section class="factory-stats">
         <div><span class="factory-stat-icon queued">⌛</span><p><strong>{{ $stats['queued'] }}</strong><small>En file</small></p></div>
         <div><span class="factory-stat-icon active">✦</span><p><strong>{{ $stats['active'] }}</strong><small>En production</small></p></div>
@@ -48,6 +50,7 @@
             <form class="os-form one-column" wire:submit="saveFactory">
                 <div class="field"><label>Projet</label><select wire:model.live="projectId"><option value="">Sélectionner</option>@foreach($projects as $project)<option value="{{ $project->id }}">{{ $project->name }} · {{ number_format($project->keywords_count,0,',',' ') }} mots-clés</option>@endforeach</select>@error('projectId')<span class="field-error">{{ $message }}</span>@enderror</div>
                 <div class="field"><label>Liste Semrush à ajouter maintenant — facultatif</label><textarea wire:model="pastedKeywords" rows="7" placeholder="Mot clé&#9;Intention&#9;Volume&#9;KD %&#9;CPC (EUR)&#10;logiciel devis facture&#9;C&#9;2400&#9;54&#9;6,02"></textarea><p class="field-help">Collez la ligne d’en-tête et le tableau. Les doublons sont mis à jour et seuls les sujets encore inexploités sont programmés.</p>@error('pastedKeywords')<span class="field-error">{{ $message }}</span>@enderror</div>
+                <div class="field"><label>Export Semrush CSV à charger — facultatif</label><input wire:model="csv" type="file" accept=".csv,.txt,text/csv,text/tab-separated-values"><p class="field-help">Le fichier est fusionné avec la base existante, puis les clusters sont recalculés automatiquement.</p>@error('csv')<span class="field-error">{{ $message }}</span>@enderror</div>
                 <div class="factory-rate-row">
                     <div class="field"><label>Articles par semaine</label><input wire:model="articlesPerWeek" type="number" min="1" max="7"><p class="field-help">Un article maximum par jour, réparti du lundi au dimanche.</p></div>
                     <label class="factory-switch"><input wire:model="autoPublish" type="checkbox"><span></span><b>Publication automatique<small>Sinon, les articles arrivent en brouillon « À relire ».</small></b></label>
@@ -57,6 +60,7 @@
                     <button class="primary-button" type="submit"><span wire:loading.remove wire:target="saveFactory">Activer et remplir le calendrier</span><span wire:loading wire:target="saveFactory">Mise en place…</span></button>
                     @if($schedule)<button class="secondary-link button-link" type="button" wire:click="toggleFactory">{{ $schedule->is_active ? 'Mettre en pause' : 'Reprendre la production' }}</button>@endif
                 </div>
+                <button class="factory-batch-button" type="button" wire:click="expandFacturationSeeds" wire:confirm="Appeler Semrush pour enrichir le cluster Facturation ?"><span wire:loading.remove wire:target="expandFacturationSeeds">Analyser Facturation avec Semrush</span><span wire:loading wire:target="expandFacturationSeeds">Analyse Semrush...</span></button>
                 @if($schedule)<button class="factory-batch-button" type="button" wire:click="generateWeek"><span wire:loading.remove wire:target="generateWeek">⚡ Générer la semaine ({{ $schedule->articles_per_week }} contenus)</span><span wire:loading wire:target="generateWeek">Préparation du lot…</span></button>@endif
                 @if($schedule && $stats['queued'] > 0)<button class="factory-batch-button factory-generate-now" type="button" wire:click="generateAllNow" wire:confirm="Générer maintenant les {{ $stats['queued'] }} contenus actuellement prévus ?"><span wire:loading.remove wire:target="generateAllNow">▶ Générer maintenant les {{ $stats['queued'] }} contenus prévus</span><span wire:loading wire:target="generateAllNow">Lancement en arrière-plan…</span></button>@endif
             </form>

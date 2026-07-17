@@ -7,7 +7,10 @@ use App\Models\Keyword;
 use App\Models\SeoProject;
 use App\Models\Setting;
 use App\Services\GeminiContentGenerator;
+use App\Services\GeneratedContentSanitizer;
 use App\Services\InternalLinkService;
+use App\Services\PrePublishAuditService;
+use App\Services\SearchIndexingSubmissionLauncher;
 use App\Services\SeoContentStructure;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
@@ -70,7 +73,7 @@ class ContentStudio extends Component
         $this->selectedArticleId = $articleId;
     }
 
-    public function publish(int $articleId, InternalLinkService $links): void
+    public function publish(int $articleId, InternalLinkService $links, SearchIndexingSubmissionLauncher $indexing, PrePublishAuditService $audits): void
     {
         $article = Article::query()->findOrFail($articleId);
         if ($article->status === 'archived' || $article->duplicate_status === 'merged') {
@@ -78,15 +81,33 @@ class ContentStudio extends Component
 
             return;
         }
+        $audit = $audits->audit($article);
+        if ($audit->status === 'blocked') {
+            $this->error = 'Publication bloquée par l’audit pré-publication : '.implode(' ', array_slice($audit->blocking_reasons ?? [], 0, 3));
+
+            return;
+        }
+
         $article->update(['status' => 'published', 'published_at' => now()]);
         $links->refreshProject($article->seo_project_id);
+        try {
+            $indexing->launch($article->id);
+        } catch (Throwable $exception) {
+            report($exception);
+        }
         $this->selectedArticleId = $article->id;
-        $this->message = 'Article publié sur le blog Laravel.';
+        $this->message = 'Article publie sur le blog Laravel. Soumission Google/Bing lancee en arriere-plan.';
     }
 
     public function previewHtml(?Article $article): string
     {
-        return $article ? Str::markdown($article->body, ['html_input' => 'strip', 'allow_unsafe_links' => false]) : '';
+        if (! $article) {
+            return '';
+        }
+
+        $body = app(GeneratedContentSanitizer::class)->stripSourceMarkers($article->body);
+
+        return Str::markdown($body, ['html_input' => 'strip', 'allow_unsafe_links' => false]);
     }
 
     public function render()

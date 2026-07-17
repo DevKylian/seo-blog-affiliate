@@ -19,7 +19,7 @@
         <a href="{{ route('admin.projects') }}" wire:navigate><i>1</i><div><strong>Créer un projet</strong><span>Outil, tarifs, affiliation</span></div></a><b>→</b>
         <a href="{{ route('admin.research') }}" wire:navigate><i>2</i><div><strong>Collecter les preuves</strong><span>Sources, prix, limites</span></div></a><b>→</b>
         <a href="{{ route('admin.keywords') }}" wire:navigate><i>3</i><div><strong>Importer Semrush</strong><span>Intentions & opportunités</span></div></a><b>→</b>
-        <a href="{{ route('admin.content') }}" wire:navigate><i>4</i><div><strong>Générer & relire</strong><span>Gemini + citations</span></div></a>
+        <a href="{{ route('admin.content') }}" wire:navigate><i>4</i><div><strong>Générer & relire</strong><span>IA + preuves</span></div></a>
     </section>
 
     <section class="dashboard-grid wide-side">

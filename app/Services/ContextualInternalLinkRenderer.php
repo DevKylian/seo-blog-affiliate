@@ -15,6 +15,7 @@ final class ContextualInternalLinkRenderer
 {
     public function render(string $markdown, Article $article): string
     {
+        $markdown = app(GeneratedContentSanitizer::class)->stripSourceMarkers($markdown);
         $html = Str::markdown($markdown, ['html_input' => 'strip', 'allow_unsafe_links' => false]);
         $links = $article->internalLinks
             ->filter(fn (InternalLink $link): bool => $link->target?->status === 'published')

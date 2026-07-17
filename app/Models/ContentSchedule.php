@@ -35,4 +35,9 @@ final class ContentSchedule extends Model
     {
         return $this->hasMany(EditorialPlan::class);
     }
+
+    public function contentClusters(): HasMany
+    {
+        return $this->hasMany(ContentCluster::class, 'seo_project_id', 'seo_project_id');
+    }
 }

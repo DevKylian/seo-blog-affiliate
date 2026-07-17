@@ -9,6 +9,7 @@ final class GeneratedContentSanitizer
     public function sanitize(string $body): string
     {
         $body = str_replace(["\r\n", "\r"], "\n", $body);
+        $body = $this->stripSourceMarkers($body);
         $body = $this->stripSystemManagedAffiliateDisclosure($body);
         $body = $this->keepSingleScenario($body);
         $body = $this->keepSingleDecisionTable($body);
@@ -18,6 +19,21 @@ final class GeneratedContentSanitizer
         $body = $this->splitDenseParagraphs($body);
 
         return $this->removeExactDuplicateParagraphs($body);
+    }
+
+    public function stripSourceMarkers(string $body): string
+    {
+        $body = str_replace(["\r\n", "\r"], "\n", $body);
+        $body = preg_replace('/[ \t]*\[\s*(?:[Ss]\d+\s*(?:[,;]\s*)?)+\]/u', '', $body) ?: $body;
+        $body = preg_replace('/[ \t]+([,.;:!?])/u', '$1', $body) ?: $body;
+        $body = preg_replace('/[ \t]{2,}/u', ' ', $body) ?: $body;
+
+        return trim($body);
+    }
+
+    public function hasSourceMarkers(string $body): bool
+    {
+        return preg_match('/\[\s*(?:[Ss]\d+\s*(?:[,;]\s*)?)+\]/u', $body) === 1;
     }
 
     /**

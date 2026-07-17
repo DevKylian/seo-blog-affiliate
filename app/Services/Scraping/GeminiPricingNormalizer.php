@@ -14,12 +14,12 @@ final class GeminiPricingNormalizer
     /**
      * Effectue au maximum un appel Gemini pour toute la page. Les montants
      * numériques restent ceux calculés par PHP : l'IA ne peut modifier que les
-     * libellés, le contexte, le public et la sélection de quatre fonctions.
+     * libellés, le contexte, le public et la sélection de six fonctions.
      *
      * @param  array<int, array<string, mixed>>  $candidates
      * @return array<int, array<string, mixed>>
      */
-    public function normalize(SeoProject $project, string $url, array $candidates): array
+    public function normalize(SeoProject $project, string $url, array $candidates, ?string $productName = null): array
     {
         $key = Setting::value('gemini_api_key', config('services.gemini.key'));
         if (! is_string($key) || trim($key) === '' || $candidates === []) {
@@ -33,15 +33,20 @@ final class GeminiPricingNormalizer
             'audience' => $candidate['audience'] ?? '',
             'verified_price' => $candidate['raw'],
             'verified_variants' => $candidate['price_variants'] ?? [],
-            'features' => array_slice($candidate['features'] ?? [], 0, 4),
+            'features' => array_slice($candidate['features'] ?? [], 0, 6),
         ])->all();
         $inputJson = json_encode($input, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $productLabel = $productName ?: $project->name;
 
         $prompt = <<<PROMPT
 Tu es un assistant spécialisé dans la consolidation de données de tarification SaaS.
 
 Page officielle : {$url}
-Produit : {$project->name}
+Produit : {$productLabel}
+
+LANGUE FRANÇAISE
+- Rédige les champs visibles en français naturel avec les accents normaux de la langue française.
+- N'ASCIIse jamais name, variant, audience ou features : n'écris pas « fonctionnalites », « donnees », « a verifier » ou « cout » si la forme française accentuée existe.
 
 Le PHP a déjà supprimé menus, FAQ, témoignages, matrices détaillées et boutons. Il a aussi regroupé les onglets cachés et les bascules mensuel/annuel. Chaque candidate_id représente maintenant UNE formule commerciale principale ; verified_variants contient ses tarifs sourcés selon le profil ou les conditions.
 
@@ -53,7 +58,7 @@ Pour chaque entrée :
 - name : nom commercial propre et concis de l'offre, de 1 à 5 mots, sans prix et sans bouton ;
 - variant : résumé très court des facteurs qui font varier le tarif (statut, taille, volume, marché ou facturation), ou chaîne vide si aucune variation n'est prouvée ;
 - audience : public ou objectif en une phrase courte, uniquement d'après la source ;
-- features : 3 à 4 fonctionnalités clés maximum, exclusivement présentes dans la candidate source.
+- features : jusqu'a 6 fonctionnalites cles maximum, exclusivement presentes dans la candidate source.
 
 RÈGLES STRICTES
 - Ne calcule, ne corrige et n'invente aucun montant. Les champs de prix sont gérés par PHP et ne font pas partie de ta sortie.
@@ -196,8 +201,8 @@ PROMPT;
             // La formulation nettoyée par Gemini est conservée seulement si
             // elle correspond bien à une fonctionnalité présente dans le DOM.
             return $matched !== null ? $selectedFeature : null;
-        })->filter()->unique()->take(4)->values();
+        })->filter()->unique()->take(6)->values();
 
-        return ($verified->isNotEmpty() ? $verified : $source->take(4))->all();
+        return ($verified->isNotEmpty() ? $verified : $source->take(6))->all();
     }
 }

@@ -18,6 +18,8 @@ final class EditorialPlanBuilder
         private readonly GeminiEditorialIdeaGenerator $generator,
         private readonly EditorialDuplicateDetector $duplicates,
         private readonly ProductKeywordMatcher $matcher,
+        private readonly CompetitorCatalog $competitors,
+        private readonly SeoContentStructure $structures,
     ) {}
 
     public function build(SeoProject $project, ?int $userId, int $requestedCount, string $instructions = ''): EditorialPlan
@@ -38,7 +40,7 @@ final class EditorialPlanBuilder
         }
     }
 
-    public function createPlan(SeoProject $project, ?int $userId, int $requestedCount, string $instructions = '', array $keywordScope = []): EditorialPlan
+    public function createPlan(SeoProject $project, ?int $userId, int $requestedCount, string $instructions = '', array $keywordScope = [], array $clusterScope = []): EditorialPlan
     {
         return EditorialPlan::query()->create([
             'seo_project_id' => $project->id,
@@ -47,6 +49,7 @@ final class EditorialPlanBuilder
             'requested_count' => $requestedCount,
             'instructions' => $instructions ?: null,
             'keyword_scope' => array_values(array_unique(array_map('intval', $keywordScope))) ?: null,
+            'content_cluster_scope' => array_values(array_unique(array_map('intval', $clusterScope))) ?: null,
             'status' => 'planning',
         ]);
     }
@@ -82,15 +85,16 @@ final class EditorialPlanBuilder
         $valid = $plan->ideas()->where('status', 'candidate')->get();
         $reserveTarget = max(2, (int) ceil($plan->requested_count * .2));
         $target = $plan->requested_count + $reserveTarget;
-        if ($valid->count() >= $target) {
+        $maxAttempts = $this->maxAttempts($plan);
+        if ($valid->count() >= $target || ($plan->attempts > 0 && $valid->count() >= $plan->requested_count)) {
             return $this->lockPlan($plan, $valid);
         }
-        if ($plan->attempts >= 5) {
+        if ($plan->attempts >= $maxAttempts) {
             if ($valid->count() >= $plan->requested_count) {
                 return $this->lockPlan($plan, $valid);
             }
             $plan->update(['status' => 'failed']);
-            throw new RuntimeException("Seulement {$valid->count()} angles uniques ont été trouvés sur {$plan->requested_count} demandés après 5 étapes.");
+            throw new RuntimeException("Seulement {$valid->count()} angles uniques ont été trouvés sur {$plan->requested_count} demandés après {$maxAttempts} étapes.");
         }
 
         $priorIdeas = EditorialIdea::query()
@@ -105,7 +109,7 @@ final class EditorialPlanBuilder
         // propositions étaient valides. On couvre le manque et une petite marge
         // dans le même appel, sans surproduire des dizaines de briefs facturés.
         $missing = $target - $valid->count();
-        $desired = min(15, max(6, $missing + max(2, (int) ceil($missing * .35))));
+        $desired = min(8, max(4, $missing + max(2, (int) ceil($missing * .25))));
         $rawIdeas = $this->generator->generate(
             $project,
             $keywords,
@@ -138,11 +142,16 @@ final class EditorialPlanBuilder
         }
 
         $plan->refresh();
-        if ($valid->count() >= $target || ($plan->attempts >= 5 && $valid->count() >= $plan->requested_count)) {
+        if ($valid->count() >= $target || $valid->count() >= $plan->requested_count) {
             return $this->lockPlan($plan, $valid);
         }
 
         return $plan->fresh(['ideas' => fn ($query) => $query->orderByDesc('seo_score')]);
+    }
+
+    private function maxAttempts(EditorialPlan $plan): int
+    {
+        return $plan->requested_count >= 20 ? 8 : 5;
     }
 
     private function lockPlan(EditorialPlan $plan, Collection $valid): EditorialPlan
@@ -268,9 +277,17 @@ final class EditorialPlanBuilder
             return $this->reject('weak_angle', $formatIssue);
         }
 
+        if ($competitorIssue = $this->competitorIssue($project, $blueprint)) {
+            return $this->reject('weak_angle', $competitorIssue);
+        }
+
         $sourceCoverage = $this->sourceCoverage($project);
         if ($sourceCoverage < 40) {
             return $this->reject('source_gap', 'Les sources vérifiées ne couvrent pas suffisamment ce sujet.', $sourceCoverage);
+        }
+
+        if ($coverageIssue = $this->alreadyPlannedKeywordIssue($blueprint, $valid, $keyword)) {
+            return $this->reject('duplicate', $coverageIssue, $sourceCoverage, 100);
         }
 
         $representation = implode(' ', [
@@ -328,10 +345,106 @@ final class EditorialPlanBuilder
         return null;
     }
 
+    private function competitorIssue(SeoProject $project, array $blueprint): ?string
+    {
+        $type = (string) ($blueprint['content_type'] ?? 'informational');
+        $text = implode(' ', array_filter([
+            $blueprint['title'] ?? '',
+            $blueprint['primary_keyword'] ?? '',
+            $blueprint['entity'] ?? '',
+            $blueprint['topic'] ?? '',
+            $blueprint['problem'] ?? '',
+            $blueprint['expected_outcome'] ?? '',
+            $blueprint['unique_promise'] ?? '',
+            implode(' ', $blueprint['excluded_topics'] ?? []),
+            implode(' ', $blueprint['outline'] ?? []),
+        ]));
+
+        $unknown = $this->competitors->unknownCompetitorMentions($project, $text);
+        if ($unknown !== []) {
+            return 'Concurrent inconnu ou fictif detecte : '.implode(', ', $unknown).'. Configurez-le comme concurrent reel ou utilisez uniquement : '.implode(', ', $this->competitors->allowedEntities($project)).'.';
+        }
+
+        if (! in_array($type, ['comparison', 'alternatives', 'best_tools'], true)) {
+            return null;
+        }
+
+        if ($this->structures->isBtpSoftwareRequest($text)) {
+            $specialists = collect($this->structures->btpSpecialistTools())
+                ->filter(fn (string $name): bool => preg_match('/\b'.preg_quote($name, '/').'\b/iu', $text) === 1)
+                ->values();
+            if ($specialists->count() < 3) {
+                return 'Une page BTP comparative doit citer au moins 3 outils specialises BTP dans le titre ou le plan : '.implode(', ', $this->structures->btpSpecialistTools()).'. Les generalistes doivent rester classes comme adaptables.';
+            }
+        }
+
+        $mentioned = $this->competitors->mentionedCompetitors($project, $text);
+        if ($mentioned === []) {
+            $available = $this->competitors->competitorsFor($project);
+
+            return $available === []
+                ? 'Un comparatif exige au moins un concurrent reel configure sur le projet.'
+                : 'Un comparatif doit citer au moins un concurrent reel autorise dans le titre ou le plan : '.implode(', ', $available).'.';
+        }
+
+        return null;
+    }
+
+    private function alreadyPlannedKeywordIssue(array $blueprint, Collection $valid, ?Keyword $keyword): ?string
+    {
+        $keys = $this->planningKeywordKeys($keyword?->id, (string) ($keyword?->keyword ?: ($blueprint['primary_keyword'] ?? '')));
+        if ($keys === []) {
+            return null;
+        }
+
+        foreach ($valid as $accepted) {
+            if (! $accepted instanceof EditorialIdea) {
+                continue;
+            }
+
+            $acceptedKeys = $this->planningKeywordKeys($accepted->keyword_id, (string) $accepted->primary_keyword);
+            if (array_intersect($keys, $acceptedKeys) !== []) {
+                return 'Mot-cle deja retenu dans le plan : "'.$accepted->title.'". Un meme mot-cle Semrush ne doit produire qu un seul article ; choisissez un autre mot-cle ou un vrai satellite distinct.';
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Compare both the Semrush row id and the normalized keyword text so an
+     * imported duplicate row cannot slip through as a second editorial idea.
+     */
+    private function planningKeywordKeys(?int $keywordId, string $keyword): array
+    {
+        $keys = [];
+        if ($keywordId) {
+            $keys[] = 'id:'.$keywordId;
+        }
+
+        $normalized = $this->normalizePlanningKeyword($keyword);
+        if ($normalized !== '') {
+            $keys[] = 'text:'.$normalized;
+        }
+
+        return array_values(array_unique($keys));
+    }
+
+    private function normalizePlanningKeyword(string $keyword): string
+    {
+        $value = trim($keyword);
+        if ($value === '') {
+            return '';
+        }
+
+        return trim(preg_replace('/[^a-z0-9]+/u', '-', mb_strtolower(str($value)->ascii()->toString())) ?: '', '-');
+    }
+
     private function persistCandidate(EditorialPlan $plan, array $blueprint, array $raw, ?Keyword $keyword, array $decision): EditorialIdea
     {
         return $plan->ideas()->create([
             'keyword_id' => $keyword?->id,
+            'content_cluster_id' => $keyword?->content_cluster_id,
             'closest_article_id' => $decision['closest_article_id'] ?? null,
             'title' => mb_substr(trim((string) ($raw['title'] ?? $blueprint['unique_promise'])), 0, 255),
             'primary_keyword' => mb_substr((string) ($keyword?->keyword ?: $blueprint['primary_keyword']), 0, 255),
@@ -408,6 +521,7 @@ final class EditorialPlanBuilder
     {
         if ($keywordScope !== []) {
             return $project->keywords()
+                ->with('contentCluster')
                 ->withCount(['articles', 'editorialIdeas'])
                 ->whereIn('id', array_map('intval', $keywordScope))
                 ->get()
@@ -415,9 +529,9 @@ final class EditorialPlanBuilder
                 ->values();
         }
 
-        $top = $project->keywords()->withCount(['articles', 'editorialIdeas'])
+        $top = $project->keywords()->with('contentCluster')->withCount(['articles', 'editorialIdeas'])
             ->orderByDesc('opportunity_score')->limit(500)->get();
-        $recent = $project->keywords()->withCount(['articles', 'editorialIdeas'])
+        $recent = $project->keywords()->with('contentCluster')->withCount(['articles', 'editorialIdeas'])
             ->latest('created_at')->limit(200)->get();
         $all = $top->concat($recent)->unique('id')
             ->filter(fn (Keyword $keyword) => $this->matcher->matches($project, $keyword))
@@ -445,11 +559,12 @@ final class EditorialPlanBuilder
         $internalLinks = min(100, 45 + ($project->articles()->count() * 5));
         $difficultyPenalty = min(12, ((float) $keyword->keyword_difficulty) * .12);
         $newKeywordBonus = $keyword->isUnplanned() ? 8 : 0;
+        $affiliatePriority = min(100, max(0, (float) $keyword->affiliate_priority));
 
         return round(max(0,
             ($seoOpportunity * .25) + 15 + ($commercial * .15) + 15
             + ((100 - $similarity) * .15) + ($coverage * .10) + ($internalLinks * .05)
-            + $newKeywordBonus - $difficultyPenalty
+            + ($affiliatePriority * .12) + $newKeywordBonus - $difficultyPenalty
         ), 2);
     }
 

@@ -2,10 +2,46 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 final class SeoContentStructure
 {
+    private const BTP_SPECIALIST_TOOLS = [
+        'Obat',
+        'Tolteck',
+        'Costructor',
+        'ProGBat',
+        'EBP Bâtiment',
+        'Sage Batigest',
+        'Mediabat',
+        'Batappli',
+        'iXbat',
+    ];
+
+    private const BTP_GENERALIST_TOOLS = [
+        'Indy',
+        'Abby',
+        'Freebe',
+        'Pennylane',
+        'Henrri',
+        'Sinao',
+        'Evoliz',
+        'Facture.net',
+    ];
+
+    private const BTP_CRITERIA = [
+        'acompte',
+        'situation de travaux',
+        'retenue de garantie',
+        'TVA bâtiment',
+        'bibliothèque d’ouvrages',
+        'matériaux',
+        'métrés',
+        'suivi chantier',
+        'rentabilité chantier',
+    ];
+
     public function for(string $type): array
     {
         $structures = $this->structures();
@@ -17,7 +53,7 @@ final class SeoContentStructure
         return $structures[$type];
     }
 
-    public function prompt(string $type, ?string $title = null): string
+    public function prompt(string $type, ?string $title = null, ?string $keyword = null): string
     {
         $structure = $this->for($type);
         $sections = collect($this->sectionsFor($type, $title))
@@ -26,6 +62,7 @@ final class SeoContentStructure
         $listicleRule = $this->listiclePromise($title)
             ? "- Le titre promet une liste chiffrée : la section dédiée doit contenir exactement {$this->listiclePromise($title)['count']} items distincts, présentés en H3 ou dans une liste numérotée séquentielle."
             : '- Si un titre contient un nombre, respecte exactement ce nombre dans une section dédiée.';
+        $verticalDirective = $this->btpGenerationDirective(trim(($title ?? '').' '.($keyword ?? '')));
 
         return <<<TEXT
 STRUCTURE ÉDITORIALE OBLIGATOIRE — {$structure['label']}
@@ -56,6 +93,7 @@ RÈGLES DE PROFONDEUR
 - La conclusion répond clairement à la requête, distingue les profils adaptés et non adaptés, puis propose une prochaine étape raisonnable.
 - CONCLUSION STRICTE : le H2 final contient exactement 1 ou 2 paragraphes concis, sans H3, H4 ni liste. Arrête immédiatement le document après le deuxième paragraphe.
 - La longueur vient de la profondeur d'analyse et de l'aide à la décision. N'invente jamais pour atteindre la longueur cible.
+{$verticalDirective}
 TEXT;
     }
 
@@ -131,6 +169,51 @@ TEXT;
         ];
     }
 
+    public function isBtpSoftwareRequest(?string $context): bool
+    {
+        $text = $this->key((string) $context);
+
+        return preg_match('/\b(?:btp|batiment|chantier|chantiers|travaux|artisan(?:s)?\s+batiment|construction)\b/u', $text) === 1
+            && preg_match('/\b(?:logiciel|outils?|application|devis|factures?|facturation|comparatif|meilleurs?|solution)\b/u', $text) === 1;
+    }
+
+    /** @return string[] */
+    public function btpSpecialistTools(): array
+    {
+        return self::BTP_SPECIALIST_TOOLS;
+    }
+
+    /** @return string[] */
+    public function btpGeneralistTools(): array
+    {
+        return self::BTP_GENERALIST_TOOLS;
+    }
+
+    public function btpGenerationDirective(?string $context): string
+    {
+        if (! $this->isBtpSoftwareRequest($context)) {
+            return '';
+        }
+
+        $specialists = implode(', ', self::BTP_SPECIALIST_TOOLS);
+        $generalists = implode(', ', self::BTP_GENERALIST_TOOLS);
+        $criteria = implode(', ', self::BTP_CRITERIA);
+
+        return <<<TEXT
+
+RÈGLE VERTICALE BTP / BÂTIMENT — BLOQUANTE
+- Une page ciblant logiciel/facturation/devis BTP doit inclure au moins 3 outils spécialisés BTP sourcés parmi : {$specialists}.
+- Les outils généralistes ({$generalists}) peuvent être cités uniquement comme solutions adaptables ou généralistes, jamais comme logiciels de gestion de chantier dédiés.
+- Distingue explicitement « spécialisé BTP » et « adaptable au BTP » dans le tableau, le verdict et les recommandations.
+- Ne coche jamais « Oui » pour gestion de chantier, situations de travaux, retenues de garantie, acomptes, métrés, bibliothèque d'ouvrages ou rentabilité chantier sans preuve directe dans les sources.
+- Si la preuve manque, écris « À vérifier », « non spécialisé BTP » ou « adaptable, mais pas outil chantier dédié ».
+- La matrice doit couvrir les critères métier suivants quand ils sont pertinents : {$criteria}.
+- N'utilise pas « frais cachés » ou « coûts cachés » ; écris « frais additionnels éventuels », « modules payants », « options » ou « limites de plan ».
+- Toute simulation doit commencer par « Simulation fictive à visée pédagogique : les chiffres suivants ne sont pas une promesse de résultat. »
+- N'ajoute pas un bloc tarifaire détaillé pour le seul outil affilié sur une page comparative BTP : équilibre les prix avec les outils BTP sourcés ou renvoie vers une fiche dédiée.
+TEXT;
+    }
+
     public function audit(string $body, string $type, ?string $keyword, bool $hasSources, ?string $primaryProduct = null, bool $affiliateDisclosureInjected = false, ?string $title = null): array
     {
         $structure = $this->for($type);
@@ -147,6 +230,8 @@ TEXT;
 
         $normalizedBody = mb_strtolower($body);
         $first150Words = mb_strtolower(implode(' ', array_slice($words[0], 0, 150)));
+        $accentlessFirst150Words = Str::ascii($first150Words);
+        $accentlessKeyword = $keyword ? Str::ascii(mb_strtolower($keyword)) : null;
         $requiredTermGroups = collect($structure['required_terms']);
         if ($type === 'informational' && $this->isInformationalTofu($title, $keyword)) {
             $requiredTermGroups = $requiredTermGroups->reject(
@@ -157,6 +242,7 @@ TEXT;
             ->every(fn (array $terms) => collect($terms)->contains(fn (string $term) => str_contains($normalizedBody, $term)));
         $multiProduct = in_array($type, ['comparison', 'best_tools', 'alternatives'], true);
         $ecommerceRequest = $multiProduct && $this->isEcommerceRequest($keyword);
+        $btpRequest = $this->isBtpSoftwareRequest(trim(($title ?? '').' '.($keyword ?? '')));
 
         $checks = [
             'minimum_length' => count($words[0]) >= $structure['minimum_words'],
@@ -175,8 +261,8 @@ TEXT;
             'conclusion_present' => preg_match('/^##\s+.*(?:conclusion|verdict|à retenir)/imu', $body) === 1,
             'single_conclusion' => $conclusionCount === 1,
             'concise_conclusion' => $this->hasConciseConclusion($body),
-            'sources_cited' => $hasSources && preg_match('/\[S\d+\]/', $body) === 1,
-            'keyword_in_opening' => ! $keyword || str_contains($first150Words, mb_strtolower($keyword)),
+            'sources_attached' => $hasSources,
+            'keyword_in_opening' => ! $accentlessKeyword || str_contains($accentlessFirst150Words, $accentlessKeyword),
             'direct_answer_early' => count(array_slice($words[0], 0, 150)) >= 40
                 && preg_match('/réponse courte|en bref|permet|convient|consiste|désigne|recommand/iu', $first150Words) === 1,
             'realistic_weakness' => preg_match('/limite|inconvénient|point faible|désavantage|compromis/iu', $body) === 1,
@@ -194,6 +280,12 @@ TEXT;
             'pricing_model_explained' => preg_match('/facturation|abonnement|par (?:siège|utilisateur|volume)|à l’usage|coût total de possession|offre|formule/iu', $body) === 1,
             'fresh_verification_date' => $this->hasCurrentVerificationDates($body),
             'ecommerce_hybrid_scope' => ! $ecommerceRequest || $this->hasEcommerceHybridScope($body),
+            'safe_cost_language' => $this->hasSafeCostLanguage($body),
+            'btp_specialized_scope' => ! $btpRequest || $this->hasBtpSpecializedScope($body),
+            'btp_generalists_labeled_adaptable' => ! $btpRequest || $this->generalistBtpToolsAreLabeledAdaptable($body),
+            'btp_no_unproved_chantier_claims' => ! $btpRequest || ! $this->hasUnprovedBtpGeneralistClaims($body),
+            'btp_trade_criteria' => ! $btpRequest || $this->hasBtpTradeCriteria($body),
+            'btp_simulation_disclaimer' => ! $btpRequest || $this->hasBtpSimulationDisclaimer($body),
             'affiliate_disclosure' => $affiliateDisclosureInjected || preg_match('/affili/iu', $body) === 1,
             'single_affiliate_disclosure' => $affiliateDisclosureInjected ? $disclosureCount === 0 : $disclosureCount <= 1,
         ];
@@ -215,7 +307,7 @@ TEXT;
             'conclusion_present' => 'une conclusion ou un verdict',
             'single_conclusion' => 'une seule conclusion finale',
             'concise_conclusion' => 'une conclusion limitée à deux paragraphes, sans sous-titre ni liste',
-            'sources_cited' => 'des citations de sources',
+            'sources_attached' => 'des sources vérifiées attachées',
             'keyword_in_opening' => 'le mot-clé dans les 150 premiers mots',
             'direct_answer_early' => 'une réponse directe dans les 150 premiers mots',
             'realistic_weakness' => 'au moins une limite ou un inconvénient réaliste',
@@ -232,6 +324,12 @@ TEXT;
             'pricing_model_explained' => 'le modèle de facturation ou le coût total de possession',
             'fresh_verification_date' => 'aucune date de vérification antérieure à l’année système',
             'ecommerce_hybrid_scope' => 'un outil CRM/marketing automation e-commerce et un CRM commercial traditionnel',
+            'safe_cost_language' => 'un vocabulaire prix prudent, sans « frais cachés »',
+            'btp_specialized_scope' => 'au moins 3 outils spécialisés BTP sourcés ou analysés',
+            'btp_generalists_labeled_adaptable' => 'les outils généralistes BTP sont explicitement classés comme adaptables',
+            'btp_no_unproved_chantier_claims' => 'aucune fonction chantier avancée attribuée à un généraliste sans réserve',
+            'btp_trade_criteria' => 'les critères métier BTP obligatoires',
+            'btp_simulation_disclaimer' => 'les simulations BTP sont annoncées comme fictives avant les chiffres',
             'affiliate_disclosure' => 'la transparence affiliée',
             'single_affiliate_disclosure' => 'un seul encart affilié, injecté par le CMS',
         ];
@@ -266,7 +364,7 @@ TEXT;
             && ($checks['concise_conclusion'] ?? false)
             && ($checks['single_decision_table'] ?? false)
             && ($checks['single_affiliate_disclosure'] ?? false)
-            && ($checks['sources_cited'] ?? false)
+            && ($checks['sources_attached'] ?? false)
             && ($checks['realistic_weakness'] ?? false)
             && ($checks['implementation_advice'] ?? false)
             && ($checks['listicle_promise'] ?? false)
@@ -480,6 +578,141 @@ TEXT;
         $hasTraditionalCrm = preg_match('/\b(?:Salesforce|Zoho|Pipedrive|HubSpot)\b/iu', $body) === 1;
 
         return $hasHybrid && $hasTraditionalCrm;
+    }
+
+    private function hasSafeCostLanguage(string $body): bool
+    {
+        return preg_match('/\b(?:frais|couts?) caches\b/u', $this->key($body)) !== 1;
+    }
+
+    private function hasBtpSpecializedScope(string $body): bool
+    {
+        return count($this->mentionedNames($body, self::BTP_SPECIALIST_TOOLS)) >= 3;
+    }
+
+    private function generalistBtpToolsAreLabeledAdaptable(string $body): bool
+    {
+        $mentioned = $this->mentionedNames($body, self::BTP_GENERALIST_TOOLS);
+        if ($mentioned === []) {
+            return true;
+        }
+
+        $text = $this->key($body);
+        $hasClassification = preg_match('/\b(?:generaliste|adaptable|non specialise btp|pas specialise|pas un outil chantier dedie|outil chantier dedie)\b/u', $text) === 1;
+
+        return $hasClassification && collect($mentioned)->every(function (string $tool) use ($text): bool {
+            $toolKey = preg_quote($this->key($tool), '/');
+
+            return preg_match('/(?:'.$toolKey.'.{0,220}(?:generaliste|adaptable|non specialise|pas specialise|pas un outil chantier dedie)|(?:generaliste|adaptable|non specialise|pas specialise|pas un outil chantier dedie).{0,220}'.$toolKey.')/u', $text) === 1;
+        });
+    }
+
+    private function hasUnprovedBtpGeneralistClaims(string $body): bool
+    {
+        $text = $this->key($body);
+        $toolKeys = collect(self::BTP_GENERALIST_TOOLS)
+            ->map(fn (string $tool): string => $this->key($tool))
+            ->filter()
+            ->values();
+        $toolPattern = $toolKeys->map(fn (string $tool): string => preg_quote($tool, '/'))->implode('|');
+        if ($toolPattern === '') {
+            return false;
+        }
+
+        $claimPattern = '(?:gestion de chantier integree|gestion chantier integree|situations? de travaux|retenues? de garantie|bibliotheque d ouvrages|metres|rentabilite chantier|concu(?:e)? pour ces contraintes|specialise(?:e)? btp)';
+        $safePattern = '\b(?:a verifier|non specialise|adaptable|pas specialise|pas un outil chantier dedie|preuve insuffisante|selon les sources disponibles)\b';
+
+        $advancedTableClaim = false;
+        foreach (preg_split('/\R/u', $body) ?: [] as $line) {
+            $lineKey = $this->key($line);
+            if ($lineKey === '') {
+                continue;
+            }
+
+            $isTableLine = str_contains($line, '|');
+            $lineHasAdvancedClaim = preg_match('/'.$claimPattern.'/u', $lineKey) === 1;
+            $lineHasGeneralist = preg_match('/(?:'.$toolPattern.')/u', $lineKey) === 1;
+
+            if ($isTableLine && $lineHasAdvancedClaim && ! $lineHasGeneralist) {
+                $advancedTableClaim = true;
+                continue;
+            }
+            if (! $isTableLine) {
+                $advancedTableClaim = false;
+            }
+
+            if (! $lineHasGeneralist) {
+                continue;
+            }
+
+            $claimsAdvancedCapability = $lineHasAdvancedClaim
+                || ($advancedTableClaim && preg_match('/(?<![a-z0-9])(?:oui|inclus|incluse|integre|integree)(?![a-z0-9])/u', $lineKey) === 1);
+
+            if ($claimsAdvancedCapability && preg_match('/'.$safePattern.'/u', $lineKey) !== 1) {
+                return true;
+            }
+        }
+
+        preg_match_all('/(?:'.$toolPattern.').{0,180}'.$claimPattern.'|'.$claimPattern.'.{0,180}(?:'.$toolPattern.')/u', $text, $matches);
+
+        foreach ($matches[0] ?? [] as $claim) {
+            if (preg_match('/'.$safePattern.'/u', $claim) !== 1) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function hasBtpTradeCriteria(string $body): bool
+    {
+        $text = $this->key($body);
+        $groups = [
+            ['acompte', 'acomptes'],
+            ['situation de travaux', 'situations de travaux', 'facture de situation'],
+            ['retenue de garantie', 'retenues de garantie'],
+            ['tva batiment', 'tva btp'],
+            ['bibliotheque d ouvrages', 'ouvrages', 'materiaux', 'materiaux'],
+            ['metres', 'metre'],
+            ['suivi chantier', 'suivi de chantier', 'chantier'],
+            ['rentabilite chantier', 'rentabilite par chantier'],
+        ];
+
+        $covered = collect($groups)->filter(
+            fn (array $terms): bool => collect($terms)->contains(fn (string $term): bool => str_contains($text, $this->key($term)))
+        )->count();
+
+        return $covered >= 5;
+    }
+
+    private function hasBtpSimulationDisclaimer(string $body): bool
+    {
+        $text = $this->key($body);
+        if (preg_match('/\b(?:reduire.{0,80}moitie|economie annuelle|economiser.{0,80}(?:eur|euros)|gain.{0,80}\d)/u', $text) !== 1) {
+            return true;
+        }
+
+        return preg_match('/simulation fictive a visee pedagogique.{0,260}(?:reduire.{0,80}moitie|economie annuelle|economiser|gain|\d)/u', $text) === 1
+            || preg_match('/(?:hypothese de simulation|scenario illustratif).{0,260}(?:reduire.{0,80}moitie|economie annuelle|economiser|gain|\d)/u', $text) === 1;
+    }
+
+    /** @param string[] $names @return string[] */
+    private function mentionedNames(string $body, array $names): array
+    {
+        $text = ' '.$this->key($body).' ';
+
+        return collect($names)
+            ->filter(fn (string $name): bool => preg_match('/(?<![a-z0-9])'.preg_quote($this->key($name), '/').'(?![a-z0-9])/u', $text) === 1)
+            ->values()
+            ->all();
+    }
+
+    private function key(string $value): string
+    {
+        $value = Str::ascii(mb_strtolower($value));
+        $value = preg_replace('/[^a-z0-9]+/u', ' ', $value) ?: '';
+
+        return trim(preg_replace('/\s+/u', ' ', $value) ?: '');
     }
 
     private function structures(): array

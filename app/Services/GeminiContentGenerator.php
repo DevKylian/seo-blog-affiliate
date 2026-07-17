@@ -11,12 +11,15 @@ use App\Models\Keyword;
 use App\Models\SeoProject;
 use App\Models\Setting;
 use DateTimeInterface;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use RuntimeException;
+use Throwable;
 
 class GeminiContentGenerator
 {
@@ -24,18 +27,30 @@ class GeminiContentGenerator
         private readonly SeoContentStructure $structures,
         private readonly EditorialDuplicateDetector $duplicates,
         private readonly GeneratedContentSanitizer $sanitizer,
+        private readonly CompetitorCatalog $competitors,
     ) {}
 
-    public function generate(SeoProject $project, string $type, ?Keyword $keyword, string $instructions = '', ?array $lockedBlueprint = null, ?string $lockedTitle = null): Article
+    public function generate(SeoProject $project, string $type, ?Keyword $keyword, string $instructions = '', ?array $lockedBlueprint = null, ?string $lockedTitle = null, ?int $ignoreArticleId = null, ?string $model = null): Article
     {
         $this->allowLongGeneration();
         $preflight = $lockedBlueprint
             ? $this->duplicates->analyzeBlueprint($project, $lockedBlueprint, implode(' ', [
                 $lockedTitle, $lockedBlueprint['primary_keyword'] ?? '', $lockedBlueprint['unique_promise'] ?? '',
                 implode(' ', $lockedBlueprint['outline'] ?? []),
-            ]))
-            : $this->duplicates->analyzeBefore($project, $keyword, $type);
+            ]), $ignoreArticleId)
+            : $this->duplicates->analyzeBefore($project, $keyword, $type, $ignoreArticleId);
         $blueprint = $lockedBlueprint ? $this->duplicates->normalizeBlueprint($lockedBlueprint) : $preflight['blueprint'];
+        $unknownCompetitors = $this->competitors->unknownCompetitorMentions($project, implode(' ', [
+            $lockedTitle,
+            $keyword?->keyword,
+            $blueprint['primary_keyword'] ?? '',
+            $blueprint['topic'] ?? '',
+            $blueprint['unique_promise'] ?? '',
+            implode(' ', $blueprint['outline'] ?? []),
+        ]));
+        if ($unknownCompetitors !== []) {
+            throw new PlannedContentRejectedException('Génération refusée : concurrent inconnu ou fictif ('.implode(', ', $unknownCompetitors).').');
+        }
         if ($preflight['article'] && in_array($preflight['decision'], ['block', 'merge_or_reangle'], true)) {
             throw new DuplicateContentException($preflight['article'], $preflight['score'], $preflight['decision']);
         }
@@ -51,16 +66,17 @@ class GeminiContentGenerator
 
         $evidence = [];
         foreach ($sources as $sourceIndex => $source) {
-            $reference = 'S'.($sourceIndex + 1);
+            $reference = 'Source '.($sourceIndex + 1);
             $chunks = $source->evidenceChunks->pluck('source_excerpt')->take(40)->implode("\n- ");
-            $evidence[] = "[{$reference}] {$source->title}\nURL: {$source->url}\nVérifié: {$source->verified_at?->toDateString()}\n- {$chunks}";
+            $sourceProduct = $source->competitor_name ?: $project->name;
+            $evidence[] = "{$reference} - {$source->title}\nProduit source: {$sourceProduct}\nURL: {$source->url}\nVérifié: {$source->verified_at?->toDateString()}\n- {$chunks}";
         }
 
         $evidenceText = implode("\n\n", $evidence);
         $prompt = $this->prompt($project, $type, $keyword, $instructions, $evidenceText, $blueprint, $preflight, $lockedTitle);
-        $data = $this->generateData($prompt);
+        $data = $this->generateData($prompt, 0.35, null, 16384, $model);
 
-        return $this->persistGeneratedData($project, $type, $keyword, $data, $blueprint, $sources, $lockedTitle);
+        return $this->persistGeneratedData($project, $type, $keyword, $data, $blueprint, $sources, $lockedTitle, $ignoreArticleId);
     }
 
     public function partCount(
@@ -81,6 +97,8 @@ class GeminiContentGenerator
         if (! in_array($idea->status, ['accepted', 'generating'], true)) {
             throw new RuntimeException('Cette idée ne fait pas partie du plan éditorial verrouillé.');
         }
+
+        $this->assertIdeaCompetitorsAllowed($project, $idea);
 
         $structure = $this->structures->for($idea->content_type);
         $documentSections = $this->structures->sectionsFor(
@@ -134,7 +152,7 @@ class GeminiContentGenerator
             ->map(fn (string $section, int $index) => ($index + 1).'. '.$section)
             ->implode("\n");
         $blueprint = json_encode($idea->blueprint(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        $editorialDirectives = $this->bodyEditorialDirectives($idea->content_type, $project->name);
+        $editorialDirectives = $this->bodyEditorialDirectives($idea->content_type, $project->name, $project);
         $verticalCrmDirective = $this->verticalCrmDirective(implode(' ', [
             $idea->title,
             $idea->primary_keyword,
@@ -143,13 +161,23 @@ class GeminiContentGenerator
             $idea->audience,
             $idea->unique_promise,
         ]));
+        $btpDirective = $this->structures->btpGenerationDirective(implode(' ', [
+            $idea->title,
+            $idea->primary_keyword,
+            $idea->topic,
+            $idea->angle,
+            $idea->audience,
+            $idea->unique_promise,
+        ]));
         $continuity = $this->continuityContext($previousParts);
-        $entityExclusionRule = $this->mutualExclusionDirective($sections, $previousParts);
+        $entityExclusionRule = $this->mutualExclusionDirective($project, $sections, $previousParts);
         $internalLinkDirective = $this->internalLinkDirective($project, $idea->blueprint(), $idea->content_type, $step);
+        $factoryDirective = $this->factoryDirective($idea, $verificationDate);
+        $canonicalBrandDirective = $this->canonicalBrandDirective($project);
         $pricingFormattingRule = collect($sections)->contains(fn (string $section) => preg_match('/tarifs?|prix|coûts?|offres?|formules?/iu', $section) === 1)
             ? <<<'RULE'
 FORMATAGE TARIFAIRE STRICT
-- Présente les offres dans un tableau Markdown propre ou une liste structurée : nom, prix/période, public ou objectif, puis 3 à 4 fonctionnalités clés maximum.
+- Présente les offres dans un tableau Markdown propre ou une liste structurée : nom, prix/période, public ou objectif, puis jusqu'a 6 fonctionnalites cles maximum.
 - Ne concatène jamais le nom, le montant, la devise et la période. Chaque donnée possède sa colonne ou son libellé séparé.
 - N’écris jamais « Démarrer », « Comparer les offres », « Prendre rendez-vous », « En savoir plus » ou un autre texte de bouton.
 - N’invente aucun montant. Si la preuve structurée indique « Prix sur demande », conserve exactement cette formulation.
@@ -173,7 +201,7 @@ RULE
         $containsPromisedList = $listiclePromise && in_array($listiclePromise['heading'], $sections, true);
         $isLast = $partNumber === $partCount;
         $openingRule = $step === 0
-            ? "Dans les 150 premiers mots, écris « Réponse courte » et utilise exactement le mot-clé « {$idea->primary_keyword} »."
+            ? "Dans les 150 premiers mots, écris « Réponse courte » et utilise le mot-clé principal dans une formulation française naturelle, avec les accents normaux si la forme française les exige."
             : 'Commence directement par le premier H2 sans répéter la réponse courte ni les sections précédentes.';
         $faqRule = $containsFaq
             ? 'La FAQ contient au moins 5 questions distinctes en H3 avec une réponse utile pour chacune. '.$this->faqExclusionDirective($existingFaqQuestions)
@@ -203,6 +231,8 @@ Type : {$structure['label']}
 Longueur attendue : {$minimumPartWords} à {$maximumPartWords} mots utiles, jamais davantage.
 Consignes : {$instructions}
 
+{$this->frenchLanguageDirective()}
+
 EMPREINTE VERROUILLÉE
 {$blueprint}
 
@@ -214,9 +244,11 @@ CONTINUITÉ AVEC LES PARTIES DÉJÀ ENREGISTRÉES
 
 {$editorialDirectives}
 {$verticalCrmDirective}
+{$btpDirective}
 {$entityExclusionRule}
 {$pricingFormattingRule}
 {$internalLinkDirective}
+{$factoryDirective}
 
 Rédige uniquement ces H2, dans cet ordre exact :
 {$sectionList}
@@ -234,7 +266,7 @@ RÈGLES BLOQUANTES
 - Arrête la rédaction dès que les H2 demandés sont terminés. Ne dépasse jamais {$maximumPartWords} mots dans cette partie.
 - CURRENT_DATE est réservé au header et au footer injectés par le CMS. N’écris aucune date de vérification, formule « vérifié le », « en date du », « informations disponibles au » ou « mis à jour le » dans le body, la FAQ ou la conclusion.
 - Si le sujet ou un H2 exige une année d’actualité, utilise uniquement CURRENT_YEAR ({$currentYear}). N’utilise aucune année issue de ta mémoire ou de ta date de coupure de connaissances.
-- Écris toujours les marques avec leur casse officielle, sans espace interne parasite et sans lettre isolée ajoutée devant. N’écris jamais « Hu bspot », « Hub Spot », « H HubSpot » ou « Sales Force ». Formes canoniques : HubSpot, Salesforce, Odoo, Zoho CRM, Pipedrive, Brevo, Klaviyo, ActiveCampaign, Semrush et Ahrefs.
+- {$canonicalBrandDirective}
 - Chaque H2 doit être développé avec des paragraphes précis, des listes concrètes et des H3 lorsque pertinent.
 - Aucun paragraphe ne dépasse 90 mots ou 5 phrases. Insère une ligne vide entre les paragraphes.
 - Pour Checklist et Outils/Ressources : 1 à 2 phrases d’introduction maximum, puis directement des H3 ou une liste. Chaque puce contient UNE phrase impérative de 20 mots maximum. Aucun paragraphe explicatif, aucune justification et aucune répétition d’une section précédente.
@@ -242,7 +274,7 @@ RÈGLES BLOQUANTES
 - MARGE DE SORTIE : termine le dernier élément utile avant d’approcher la limite de sortie. Ne commence jamais une phrase, une puce ou un H3 que tu ne peux pas achever ; n’abrège jamais une phrase pour respecter la longueur maximale.
 - EXCLUSION MUTUELLE : n’annonce jamais la même marche à suivre chronologique dans deux H2. Si le plan contient une Checklist mais aucune Méthode, la procédure complète appartient uniquement à la Checklist.
 - COMPLÉTUDE CHRONOLOGIQUE : si un sous-chapitre commence par « Étape 1 », « La première étape consiste à » ou « Premièrement », rédige obligatoirement une Étape 2 puis une étape finale dans ce même H2. Interdiction d’abandonner une séquence commencée.
-- Toute affirmation factuelle sur le produit porte une citation [S1] ou [S2].
+- Toute affirmation factuelle sur le produit doit rester vérifiable dans les preuves fournies, sans afficher de marqueur de source dans le texte final.
 - Utilise exclusivement les preuves. N’invente ni prix, ni fonctionnalité, ni résultat observé.
 - Mentionne au moins une limite réaliste et un conseil de déploiement dans les sections pertinentes.
 - Pour un prix absent, explique le modèle vérifiable sans écrire « tarif non communiqué ».
@@ -273,9 +305,11 @@ PROMPT;
     /** @param string[] $parts */
     public function finalizeFromIdeaParts(SeoProject $project, EditorialIdea $idea, string $instructions, array $parts): Article
     {
+        $this->assertIdeaCompetitorsAllowed($project, $idea);
+
         [$sources] = $this->compactEvidence($project);
         $body = $this->sanitizer->sanitize(implode("\n\n", array_filter($parts)));
-        $comparedProducts = $this->extractComparedProducts($project->name, $idea->title, $body);
+        $comparedProducts = $this->extractComparedProducts($project, $idea->title, $body);
         $data = [
             'title' => $idea->title,
             'slug' => Str::slug($idea->title),
@@ -294,7 +328,217 @@ PROMPT;
         return $this->persistGeneratedData($project, $idea->content_type, $idea->keyword, $data, $idea->blueprint(), $sources, $idea->title);
     }
 
-    private function persistGeneratedData(SeoProject $project, string $type, ?Keyword $keyword, array $data, array $blueprint, $sources, ?string $lockedTitle): Article
+    public function regenerateArticle(Article $article, string $instructions = ''): Article
+    {
+        $article->loadMissing(['project', 'keyword', 'brief']);
+        $project = $article->project;
+        if (! $project) {
+            throw new RuntimeException('Projet introuvable pour cet article.');
+        }
+
+        $keyword = $article->keyword ?: ($article->primary_keyword
+            ? new Keyword(['keyword' => $article->primary_keyword, 'intent' => $article->search_intent])
+            : null);
+        $blueprint = $this->regenerationBlueprint($article, $project, $keyword);
+        $previousStatus = $article->status;
+        $previousPublishedAt = $article->published_at;
+        $previousScheduledAt = $article->scheduled_at;
+        $previousSlug = $article->slug;
+
+        $baseRegenerationInstructions = trim($instructions."\nRégénération admin : conserve le même angle SEO, le même titre et remplace le contenu par une version plus précise et vérifiée.");
+        $regenerationInstructions = $baseRegenerationInstructions;
+        $generated = null;
+        $maxAttempts = 7;
+        for ($attempt = 0; $attempt < $maxAttempts; $attempt++) {
+            try {
+                $generated = $this->generate(
+                    $project,
+                    $article->type,
+                    $keyword,
+                    $regenerationInstructions,
+                    $blueprint,
+                    $article->title,
+                    $article->id,
+                    $this->contentModelForAttempt($attempt),
+                );
+                break;
+            } catch (Throwable $exception) {
+                if (! $this->isRecoverableRegenerationError($exception)) {
+                    throw $exception;
+                }
+
+                if ($attempt === $maxAttempts - 1) {
+                    throw $this->finalRegenerationException($exception, $maxAttempts);
+                }
+
+                if ($exception instanceof PlannedContentRejectedException) {
+                    $regenerationInstructions = $baseRegenerationInstructions."\n\n".$this->regenerationRejectionCorrectionDirective($exception, $project);
+                }
+                $this->pauseBeforeRegenerationRetry($attempt);
+            }
+        }
+
+        if (! $generated instanceof Article) {
+            throw new RuntimeException('La régénération n’a pas produit d’article exploitable.');
+        }
+
+        return DB::transaction(function () use ($article, $generated, $previousStatus, $previousPublishedAt, $previousScheduledAt, $previousSlug): Article {
+            $article->refresh();
+            $generated->loadMissing('sources');
+
+            $article->versions()->create([
+                'user_id' => auth()->id(),
+                'version' => ($article->versions()->max('version') ?? 0) + 1,
+                'title' => $article->title,
+                'body' => $article->body,
+                'content_blocks' => $article->content_blocks,
+                'change_note' => 'Regeneration IA depuis la bibliotheque',
+            ]);
+
+            $article->update([
+                'content_brief_id' => $generated->content_brief_id,
+                'keyword_id' => $generated->keyword_id,
+                'content_cluster_id' => $generated->content_cluster_id,
+                'type' => $generated->type,
+                'intent_type' => $generated->intent_type ?: ($article->intent_type ?: 'information'),
+                'affiliate_priority' => $generated->affiliate_priority ?? $article->affiliate_priority ?? 0,
+                'title' => $generated->title,
+                'slug' => $previousSlug,
+                'status' => $previousStatus,
+                'primary_keyword' => $generated->primary_keyword,
+                'entity_key' => $generated->entity_key,
+                'topic_key' => $generated->topic_key,
+                'content_angle' => $generated->content_angle,
+                'editorial_audience' => $generated->editorial_audience,
+                'funnel_stage' => $generated->funnel_stage,
+                'topic_fingerprint' => $generated->topic_fingerprint,
+                'unique_promise' => $generated->unique_promise,
+                'editorial_problem' => $generated->editorial_problem,
+                'expected_outcome' => $generated->expected_outcome,
+                'excluded_topics' => $generated->excluded_topics,
+                'canonical_article_id' => $generated->canonical_article_id,
+                'duplicate_score' => $generated->duplicate_score,
+                'duplicate_status' => $generated->duplicate_status,
+                'meta_title' => $generated->meta_title,
+                'meta_description' => $generated->meta_description,
+                'body' => $generated->body,
+                'excerpt' => $generated->excerpt,
+                'search_intent' => $generated->search_intent,
+                'author_id' => auth()->id() ?: $article->author_id,
+                'content_blocks' => $generated->content_blocks,
+                'source_ids' => $generated->source_ids,
+                'quality_checks' => $generated->quality_checks,
+                'generated_by' => $generated->generated_by,
+                'verified_at' => $generated->verified_at,
+                'published_at' => $previousStatus === 'published' ? ($previousPublishedAt ?? now()) : null,
+                'scheduled_at' => $previousStatus === 'scheduled' ? $previousScheduledAt : null,
+            ]);
+
+            $article->sources()->sync($generated->sources->values()->mapWithKeys(fn ($source, $index) => [
+                $source->id => ['citation_label' => 'S'.($index + 1)],
+            ])->all());
+
+            $generated->delete();
+            $article->refresh();
+            if ($article->status === 'published') {
+                app(InternalLinkService::class)->refreshProject($article->seo_project_id);
+            } else {
+                app(InternalLinkService::class)->refresh($article);
+            }
+
+            return $article;
+        });
+    }
+
+    private function regenerationBlueprint(Article $article, SeoProject $project, ?Keyword $keyword): array
+    {
+        $brief = $article->brief;
+        $blueprint = [
+            'entity' => $article->entity_key ?: Str::slug($project->name),
+            'topic' => $article->topic_key ?: null,
+            'intent' => $article->search_intent ?: $brief?->search_intent,
+            'audience' => $article->editorial_audience ?: $brief?->audience ?: 'general',
+            'angle' => $article->content_angle ?: $brief?->angle ?: 'guide-pratique',
+            'funnel_stage' => $article->funnel_stage ?: $brief?->funnel_stage ?: 'consideration',
+            'primary_keyword' => $article->primary_keyword ?: $keyword?->keyword ?: $article->title,
+            'unique_promise' => $article->unique_promise ?: $brief?->unique_promise ?: $article->title,
+            'problem' => $article->editorial_problem ?: $brief?->editorial_problem ?: $article->title,
+            'expected_outcome' => $article->expected_outcome ?: $brief?->expected_outcome ?: 'produire une version plus précise et vérifiée',
+            'excluded_topics' => $article->excluded_topics ?: ($brief?->excluded_topics ?? []),
+            'outline' => $brief?->outline ?? [],
+        ];
+
+        if (! $blueprint['topic']) {
+            $base = $this->duplicates->blueprint($project, $keyword, $article->type);
+            $blueprint = array_merge($base, array_filter($blueprint, fn ($value): bool => $value !== null && $value !== ''));
+        }
+
+        return $this->duplicates->normalizeBlueprint($blueprint);
+    }
+
+    protected function pauseBeforeRegenerationRetry(int $attempt): void
+    {
+        usleep(min(8000, 1000 * (2 ** min(3, $attempt))) * 1000);
+    }
+
+    private function isRecoverableRegenerationError(Throwable $exception): bool
+    {
+        return $exception instanceof PlannedContentRejectedException
+            || $this->isCapacityError($exception)
+            || $this->isTimeoutError($exception);
+    }
+
+    private function finalRegenerationException(Throwable $exception, int $maxAttempts): RuntimeException
+    {
+        if ($exception instanceof PlannedContentRejectedException) {
+            return new RuntimeException('La régénération a été refusée après '.$maxAttempts.' essais automatiques : '.$exception->getMessage(), 0, $exception);
+        }
+
+        return new RuntimeException('Gemini est toujours saturé après '.$maxAttempts.' essais automatiques. Réessayez dans quelques minutes.', 0, $exception);
+    }
+
+    private function regenerationRejectionCorrectionDirective(PlannedContentRejectedException $exception, SeoProject $project): string
+    {
+        $allowed = implode(', ', $this->competitors->allowedEntities($project));
+
+        return <<<TEXT
+CORRECTION OBLIGATOIRE APRÈS REFUS QUALITÉ
+Le brouillon précédent a été refusé pour cette raison exacte : {$exception->getMessage()}
+- Réécris intégralement le brouillon en corrigeant cette raison, sans conserver la formulation fautive.
+- Entités autorisées uniquement : {$allowed}. Toute autre marque, société, artisan fictif, client fictif ou version logicielle inventée est interdite.
+- N'utilise aucun nom propre d'exemple comme "Plomberie Pro", "BatiMax", "Devis Express", "Facture Expert" ou équivalent. Utilise des formulations génériques : "une entreprise de plomberie", "un artisan couvreur", "une PME du bâtiment".
+- Pour une page BTP, distingue toujours les outils spécialisés BTP des généralistes adaptables, et n'attribue jamais une fonction chantier avancée sans preuve directe.
+- Remplace toute idée de "frais cachés" ou "coûts cachés" par "frais additionnels éventuels", "modules payants", "options" ou "limites de plan".
+- Avant de retourner le JSON, vérifie silencieusement que le texte ne contient aucun nom propre hors liste et aucune promesse chantier non prouvée.
+TEXT;
+    }
+
+    private function isCapacityError(Throwable $exception): bool
+    {
+        $message = mb_strtolower($exception->getMessage());
+
+        return str_contains($message, 'high demand')
+            || str_contains($message, 'high traffic')
+            || str_contains($message, 'too many requests')
+            || str_contains($message, 'resource exhausted')
+            || str_contains($message, 'rate limit')
+            || preg_match('/(?:gemini\s+)?http\s+(?:429|503)\b/u', $message) === 1
+            || preg_match('/statut http (?:429|503)\b/u', $message) === 1;
+    }
+
+    private function isTimeoutError(Throwable $exception): bool
+    {
+        $message = mb_strtolower($exception->getMessage());
+
+        return $exception instanceof ConnectionException
+            || str_contains($message, 'curl error 28')
+            || str_contains($message, 'timed out')
+            || str_contains($message, 'timeout')
+            || str_contains($message, 'délai d’attente')
+            || str_contains($message, 'connection reset');
+    }
+
+    private function persistGeneratedData(SeoProject $project, string $type, ?Keyword $keyword, array $data, array $blueprint, $sources, ?string $lockedTitle, ?int $ignoreArticleId = null): Article
     {
         $this->assertStrategicFit($data, $type, $project, $keyword);
         $verificationDate = now();
@@ -317,7 +561,7 @@ PROMPT;
         // H2, tableau, FAQ, scénario et promesse chiffrée) avant cet assemblage.
         // Seuls un hors-sujet stratégique ou un vrai doublon restent bloquants.
 
-        $postflight = $this->duplicates->analyzeGenerated($project, $keyword, $type, $data, (string) $data['body'], $blueprint);
+        $postflight = $this->duplicates->analyzeGenerated($project, $keyword, $type, $data, (string) $data['body'], $blueprint, $ignoreArticleId);
         if ($postflight['article'] && $postflight['decision'] === 'block') {
             throw new DuplicateContentException($postflight['article'], $postflight['score'], $postflight['decision']);
         }
@@ -328,7 +572,10 @@ PROMPT;
         $brief = ContentBrief::query()->create([
             'seo_project_id' => $project->id,
             'keyword_id' => $keyword?->id,
+            'content_cluster_id' => $keyword?->content_cluster_id,
             'type' => $type,
+            'intent_type' => $keyword?->intent_type ?: 'information',
+            'affiliate_priority' => (float) ($keyword?->affiliate_priority ?? 0),
             'entity_key' => $blueprint['entity'],
             'topic_key' => $blueprint['topic'],
             'content_angle' => $blueprint['angle'],
@@ -348,8 +595,11 @@ PROMPT;
         $article = Article::query()->create([
             'seo_project_id' => $project->id,
             'keyword_id' => $keyword?->id,
+            'content_cluster_id' => $keyword?->content_cluster_id,
             'content_brief_id' => $brief->id,
             'type' => $type,
+            'intent_type' => $keyword?->intent_type ?: 'information',
+            'affiliate_priority' => (float) ($keyword?->affiliate_priority ?? 0),
             'title' => mb_substr((string) $data['title'], 0, 255),
             'slug' => $slug,
             'status' => 'review',
@@ -368,7 +618,7 @@ PROMPT;
             'excerpt' => mb_substr((string) ($data['meta_description'] ?? ''), 0, 500),
             'search_intent' => $blueprint['intent'],
             'author_id' => auth()->id(),
-            'content_blocks' => $this->contentBlocks($project, (string) $data['body'], $verificationDate),
+            'content_blocks' => $this->contentBlocks($project, (string) $data['body'], $verificationDate, $type, $keyword),
             'source_ids' => $sourceIds,
             'quality_checks' => $checks,
             'generated_by' => $this->model(),
@@ -377,6 +627,7 @@ PROMPT;
         $article->sources()->sync($sources->values()->mapWithKeys(fn ($source, $index) => [$source->id => ['citation_label' => 'S'.($index + 1)]])->all());
         $article->tools()->sync([$project->id => ['role' => 'featured']]);
         app(InternalLinkService::class)->refresh($article);
+        app(PrePublishAuditService::class)->audit($article->fresh());
 
         return $article;
     }
@@ -386,6 +637,8 @@ PROMPT;
         if (! in_array($idea->status, ['accepted', 'generating'], true)) {
             throw new RuntimeException('Cette idée ne fait pas partie du plan éditorial verrouillé.');
         }
+
+        $this->assertIdeaCompetitorsAllowed($project, $idea);
 
         return $this->generate(
             $project,
@@ -477,8 +730,18 @@ PROMPT;
             $blueprint['audience'] ?? '',
             $blueprint['unique_promise'] ?? '',
         ]));
+        $btpDirective = $this->structures->btpGenerationDirective(implode(' ', [
+            $lockedTitle,
+            $keyword?->keyword,
+            $blueprint['topic'] ?? '',
+            $blueprint['angle'] ?? '',
+            $blueprint['audience'] ?? '',
+            $blueprint['unique_promise'] ?? '',
+        ]));
         $faqExclusionDirective = $this->faqExclusionDirective($this->existingFaqQuestions($project, $blueprint));
         $internalLinkDirective = $this->internalLinkDirective($project, $blueprint, $type);
+        $seoIntelligenceDirective = $this->seoIntelligenceDirective($project, $keyword, $blueprint);
+        $canonicalBrandDirective = $this->canonicalBrandDirective($project);
         $editorialBlueprint = json_encode($blueprint, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         $differentiation = $preflight['article']
             ? "Contenu existant le plus proche ({$preflight['score']} %) : « {$preflight['article']->title} ». Ne reprends ni sa promesse, ni son plan ; respecte strictement l’angle et les sujets exclus ci-dessous."
@@ -498,22 +761,26 @@ Type de contenu : {$type}
 Mot-clé principal : {$keyword?->keyword}
 Consignes éditoriales : {$instructions}
 
+{$this->frenchLanguageDirective()}
+
 EMPREINTE ÉDITORIALE UNIQUE
 {$editorialBlueprint}
 {$differentiation}
 
 Le titre, la promesse, le plan H2/H3 et la FAQ doivent servir précisément cette empreinte. Les sujets de excluded_topics ne doivent pas devenir des sections principales.
 
-{$this->structures->prompt($type, $lockedTitle)}
+{$this->structures->prompt($type, $lockedTitle, $keyword?->keyword)}
 
-{$this->affiliateDirectives($type, $project->name)}
+{$this->affiliateDirectives($type, $project->name, $project)}
 {$verticalCrmDirective}
+{$btpDirective}
 {$faqExclusionDirective}
 {$internalLinkDirective}
+{$seoIntelligenceDirective}
 
 RÈGLES ABSOLUES
 1. Utilise exclusivement les preuves ci-dessous pour toute affirmation factuelle sur le produit, ses prix, fonctions, limites et conditions.
-2. Chaque affirmation factuelle doit porter une citation [S1], [S2] correspondant à la source.
+2. Chaque affirmation factuelle doit être vérifiable dans les preuves fournies, mais le texte final ne doit jamais afficher de marqueur de source.
 3. Si une information non tarifaire n'est pas prouvée, écris « non communiqué » ; n'invente jamais. Pour les prix, n’écris jamais « tarif/prix non communiqué » : explique précisément ce que les sources permettent de confirmer sur le modèle d’abonnement et invite à vérifier la grille officielle.
 4. Ne promets jamais un classement Google/Bing et n'invente ni test, ni expérience d'équipe, ni capture d'écran.
 5. Signale clairement les liens commerciaux dans le fond, mais n’écris aucun encart de transparence affiliée dans body : le CMS l’injecte automatiquement une seule fois.
@@ -522,7 +789,7 @@ RÈGLES ABSOLUES
 8. Fournis aussi un brief éditorial : titre de brief, angle différenciant, audience et plan détaillé (outline).
 9. CURRENT_DATE est exclusivement réservé au header et au footer injectés par le CMS. N’écris aucune date de vérification ni formule de fraîcheur dans body, la FAQ ou la conclusion.
 10. Si le H1 nécessite une année d’actualité, utilise exclusivement CURRENT_YEAR ({$currentYear}) dans title, meta_title et slug. Toute année issue de ta mémoire ou de ta date de coupure de connaissances est interdite.
-11. Écris les marques avec leur casse officielle, sans espace parasite et sans lettre isolée ajoutée devant. N’écris jamais « Hu bspot », « Hub Spot », « H HubSpot » ou « Sales Force ». Formes canoniques : HubSpot, Salesforce, Odoo, Zoho CRM, Pipedrive, Brevo, Klaviyo, ActiveCampaign, Semrush et Ahrefs.
+11. {$canonicalBrandDirective}
 12. Ne réutilise jamais mot pour mot une phrase ou un conseil de déploiement dans deux sections. Si une recommandation est déjà donnée, omets-la ou apporte une recommandation réellement différente.
 
 PREUVES
@@ -591,6 +858,7 @@ PROMPT;
             return $source->evidenceChunks->values()->map(function ($chunk, int $chunkIndex) use ($source, $sourceIndex, $contextTokens): array {
                 $haystack = Str::ascii(mb_strtolower(implode(' ', [
                     $source->title,
+                    $source->competitor_name,
                     $chunk->category,
                     $chunk->value,
                     $chunk->source_excerpt,
@@ -606,8 +874,8 @@ PROMPT;
             });
         });
 
-        // Un extrait minimum par source conserve la couverture et les labels de
-        // citation. Les meilleures preuves restantes sont ensuite choisies selon
+        // Un extrait minimum par source conserve la couverture des preuves.
+        // Les meilleures preuves restantes sont ensuite choisies selon
         // le sujet et les H2 de la partie, dans une enveloppe globale maîtrisée.
         $selected = $rankedChunks
             ->groupBy('source_index')
@@ -621,7 +889,7 @@ PROMPT;
             $selected->put($entry['source_index'].'-'.$entry['chunk_index'], $entry);
         }
 
-        $evidence = $sources->values()->map(function ($source, int $index) use ($selected): string {
+        $evidence = $sources->values()->map(function ($source, int $index) use ($selected, $project): string {
             $chunks = $selected
                 ->where('source_index', $index)
                 ->sortByDesc('score')
@@ -629,8 +897,9 @@ PROMPT;
                 ->implode("\n");
 
             $verifiedAt = $source->verified_at?->locale('fr')->translatedFormat('j F Y') ?? $this->verificationDateLabel();
+            $sourceProduct = $source->competitor_name ?: $project->name;
 
-            return '[S'.($index + 1)."] {$source->title}\nURL: {$source->url}\nVérifié le : {$verifiedAt}\n{$chunks}";
+            return 'Source '.($index + 1)." - {$source->title}\nProduit source: {$sourceProduct}\nURL: {$source->url}\nVérifié le : {$verifiedAt}\n{$chunks}";
         })->implode("\n\n");
 
         return [$sources, $evidence];
@@ -754,7 +1023,16 @@ PROMPT;
     {
         $structure = $this->structures->for($type);
         $currentYear = now()->format('Y');
-        $affiliateDirectives = $this->affiliateDirectives($type, $project->name);
+        $affiliateDirectives = $this->affiliateDirectives($type, $project->name, $project);
+        $btpDirective = $this->structures->btpGenerationDirective(implode(' ', [
+            $keyword?->keyword,
+            $blueprint['topic'] ?? '',
+            $blueprint['angle'] ?? '',
+            $blueprint['audience'] ?? '',
+            $blueprint['unique_promise'] ?? '',
+        ]));
+        $seoIntelligenceDirective = $this->seoIntelligenceDirective($project, $keyword, $blueprint);
+        $canonicalBrandDirective = $this->canonicalBrandDirective($project);
         $editorialBlueprint = json_encode($blueprint, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         $groupCount = min(3, count($structure['sections']));
         $groups = array_chunk($structure['sections'], (int) ceil(count($structure['sections']) / $groupCount));
@@ -767,7 +1045,7 @@ PROMPT;
                 $structure['minimum_words'] * (count($sections) / count($structure['sections'])) + 180
             ));
             $openingRule = $number === 1
-                ? "Commence directement par le premier H2 demandé. Sa réponse doit contenir exactement et naturellement le mot-clé « {$keyword?->keyword} » dans les 150 premiers mots."
+                ? "Commence directement par le premier H2 demandé. Sa réponse doit contenir le mot-clé principal dans une formulation française naturelle dans les 150 premiers mots, avec les accents normaux si la forme française les exige."
                 : 'Ne répète pas l’introduction et commence directement par le premier H2 demandé.';
             $containsFaq = collect($sections)->contains(fn (string $section) => preg_match('/faq|questions fréquentes/iu', $section) === 1);
             $containsScenarioSection = collect($sections)->contains(fn (string $section) => preg_match('/exemples?|scénarios?|cas d’usage/iu', $section) === 1);
@@ -795,7 +1073,10 @@ Mot-clé principal : {$keyword?->keyword}
 Consignes : {$instructions}
 Longueur minimale de cette partie : {$minimumPartWords} mots utiles.
 
+{$this->frenchLanguageDirective()}
+
 {$affiliateDirectives}
+{$btpDirective}
 
 EMPREINTE À RESPECTER
 {$editorialBlueprint}
@@ -807,16 +1088,17 @@ Utilise exactement ces titres H2, dans cet ordre, et développe chacun avec plus
 {$scenarioRule}
 {$tableRule}
 {$internalLinkDirective}
+{$seoIntelligenceDirective}
 
 RÈGLES
 - Retourne uniquement un objet JSON avec la clé body contenant du Markdown, sans H1.
 - N’ajoute aucun autre H2 que ceux listés. Utilise uniquement des H3 à l’intérieur d’une section.
 - La date de vérification est réservée au header et au footer du CMS. N’écris aucune date de vérification ni formule de fraîcheur dans le body, la FAQ ou la conclusion.
 - Si une année d’actualité est indispensable au sujet, utilise uniquement l’année système {$currentYear}.
-- Écris les marques avec leur casse officielle, sans espace parasite et sans lettre isolée ajoutée devant. N’écris jamais « Hu bspot », « Hub Spot », « H HubSpot » ou « Sales Force ». Formes canoniques : HubSpot, Salesforce, Odoo, Zoho CRM, Pipedrive, Brevo, Klaviyo, ActiveCampaign, Semrush et Ahrefs.
+- {$canonicalBrandDirective}
 - Le document final contient un seul tableau décisionnel et une seule explication du modèle tarifaire. Ne répète jamais une note de prix dans deux sections.
 - Ne recommence jamais le plan, même pour atteindre la longueur minimale.
-- Toute affirmation factuelle porte une citation [S1], [S2].
+- Toute affirmation factuelle doit être vérifiable dans les preuves fournies, sans afficher de marqueur de source dans le texte final.
 - Utilise uniquement les preuves. Pour un prix absent, explique le modèle connu et la limite des sources sans écrire « tarif/prix non communiqué ».
 - N’invente ni test, ni expérience, ni prix, ni fonctionnalité.
 - Ne réutilise jamais mot pour mot une phrase ou un conseil de déploiement dans deux sections. Si l’idée est déjà traitée, omets-la ou apporte une recommandation réellement différente.
@@ -875,6 +1157,52 @@ MAILLAGE INTERNE CONTEXTUEL — {$expected} LIEN(S) À INSÉRER DANS CETTE RÉPO
 TEXT;
     }
 
+    private function seoIntelligenceDirective(SeoProject $project, ?Keyword $keyword, array $blueprint): string
+    {
+        try {
+            return app(SeoIntelligenceService::class)->generationDirective($project, $keyword, $blueprint);
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return '';
+        }
+    }
+
+    private function factoryDirective(EditorialIdea $idea, string $verificationDate): string
+    {
+        $clusterRole = match ($idea->contentCluster?->type) {
+            'pillar' => 'ARTICLE PILIER : couvre le sujet central sans multiplier les variantes lexicales. Prévois naturellement des portes de sortie vers les besoins satellites quand ils existent.',
+            'niche' => 'ARTICLE SATELLITE : répond à une longue traîne précise, sans refaire le guide pilier. Renvoie vers le pilier parent lorsque le maillage interne le fournit.',
+            default => 'ARTICLE SUPPORT : traite un angle précis sans cannibaliser les pages piliers ou satellites déjà prévues.',
+        };
+
+        return <<<TEXT
+MODE CONTENT FACTORY — TEMPLATE EXPERT OBLIGATOIRE
+- {$clusterRole}
+- Le body suit le contrat SEO : réponse courte avec hook, méthode ou critères E-E-A-T, tableau comparatif ou décisionnel, FAQ complète et conclusion courte.
+- Le bloc tarifaire normalisé v5.4 est injecté par le CMS via les données tarifaires vérifiées. N'écris pas un second encart tarifaire décoratif ; exploite uniquement les prix sourcés dans les sections demandées.
+- Les mentions de transparence affiliée et la date « données vérifiées le {$verificationDate} » sont injectées par le CMS. Ne les duplique pas dans le body.
+- La rédaction doit aider à la planification industrielle : un sujet = une intention = un article. Ne crée pas de sous-plan pour une variante de mot-clé qui appartient au même cluster.
+TEXT;
+    }
+
+    private function canonicalBrandDirective(SeoProject $project): string
+    {
+        $allowed = implode(', ', $this->competitors->allowedEntities($project));
+
+        return "Écris les marques autorisées avec leur casse officielle : {$allowed}. N'ajoute aucune autre marque, aucun CRM, aucun outil de facturation et aucune version logicielle hors liste, même en exemple.";
+    }
+
+    private function frenchLanguageDirective(): string
+    {
+        return <<<'TEXT'
+LANGUE FRANÇAISE
+- Rédige en français naturel avec les accents normaux de la langue française : é, è, ê, à, ç, ù, œ, apostrophes et ponctuation française quand elle est pertinente.
+- N'ASCIIse jamais le texte visible : n'écris pas « donnees », « fonctionnalites », « facture electronique », « a verifier » ou « cout » si la forme française accentuée existe.
+- Cette règle s'applique à tous les champs visibles : title, meta_title, meta_description, H2, H3, paragraphes, tableaux, FAQ, CTA textuels et listes.
+TEXT;
+    }
+
     private function bodySchema(): array
     {
         return [
@@ -882,7 +1210,7 @@ TEXT;
             'properties' => [
                 'body' => [
                     'type' => 'string',
-                    'description' => 'Markdown final de cette partie uniquement, avec exactement les H2 demandés, leurs H3, listes et citations.',
+                    'description' => 'Markdown final de cette partie uniquement, avec exactement les H2 demandés, leurs H3 et listes.',
                 ],
             ],
             'required' => ['body'],
@@ -912,14 +1240,16 @@ TEXT;
         ];
     }
 
-    private function affiliateDirectives(string $type, string $productName): string
+    private function affiliateDirectives(string $type, string $productName, ?SeoProject $project = null): string
     {
+        $competitorDirective = $project ? "\n".$this->competitors->promptDirective($project) : '';
         $formatRule = in_array($type, ['comparison', 'best_tools', 'alternatives'], true)
-            ? 'CAS B — MULTI-PRODUITS : compare au moins 2 solutions concurrentes distinctes, idéalement 3, disposant chacune de preuves. Confronte-les dans des sections dédiées et renseigne leurs noms dans compared_products. Si les preuves ne couvrent pas 2 solutions, fixe product_keyword_fit à false et ne simule jamais un comparatif.'
+            ? 'CAS B — MULTI-PRODUITS : compare au moins 2 solutions concurrentes distinctes, idéalement 3, choisies uniquement parmi les entités autorisées du projet et disposant chacune de preuves. Confronte-les dans des sections dédiées et renseigne leurs noms dans compared_products. Si les preuves ne couvrent pas 2 solutions autorisées, fixe product_keyword_fit à false et ne simule jamais un comparatif.'
             : "CAS A — MONO-PRODUIT : le H1 doit annoncer clairement {$productName} et prendre la forme d’un guide technique ou d’un cas d’usage (« Maîtriser {$productName} pour… »). Les mots « Comparatif » et « Meilleur » sont interdits dans le H1.";
 
         return <<<TEXT
 DIRECTIVES SEO & AFFILIATION BLOQUANTES
+{$competitorDirective}
 - ALIGNEMENT PRODUIT/REQUÊTE : vérifie que {$productName} répond directement et logiquement au mot-clé. Aucun shoehorning. Si ce n’est pas le cas, fixe product_keyword_fit à false et explique pourquoi dans product_keyword_fit_reason. Sinon, fixe-le à true.
 - CHAMP LEXICAL : reste strictement dans le vocabulaire métier de la requête. Un sujet CRM parle notamment de leads, pipeline, clients, adoption et chiffre d’affaires ; un sujet SEO peut parler de requêtes, SERP, contenu, backlinks et trafic organique. Ne mélange jamais ces univers sans justification factuelle.
 - {$formatRule}
@@ -927,32 +1257,36 @@ DIRECTIVES SEO & AFFILIATION BLOQUANTES
 - TERRAIN : ajoute des conseils opérationnels concrets sur le déploiement, la migration, la qualité des données, la formation ou l’adoption par les équipes. Ne prétends pas les avoir testés si ce n’est pas prouvé.
 - TABLEAUX : au moins 3 colonnes et 2 lignes de données, avec des différences utiles à la décision. Interdiction d’une grille remplie uniquement de « Oui ». Compare les versions (Starter/Premium), les modules (par exemple Sales Hub/Marketing Hub), les coûts, les limites, les profils ou les solutions.
 - PRIX : ne produis aucun bloc vide et n’écris jamais « tarif non communiqué » ou « prix non communiqué ». Affiche uniquement un prix d’entrée officiel présent dans les preuves. À défaut, explique le modèle d’abonnement vérifiable : facturation au siège, au volume ou à l’usage, engagements et composantes du coût total de possession. Renvoie vers la grille officielle sans inventer de montant.
+- DONNEES CONCURRENTES 2026 : n'utilise jamais une ancienne limite tarifaire si elle n'apparait pas dans les preuves. Exemple bloque : Abby Decouverte ou Abby limite a 3 factures/devis.
 - SCÉNARIOS CHIFFRÉS : dans « Exemples et scénarios concrets » ou la section de cas d’usage équivalente, ajoute une métrique plausible (taille d’équipe, durée, volume ou pourcentage). Étiquette obligatoirement le passage « Hypothèse de simulation » ou « Scénario illustratif ». Cette valeur sert uniquement à raisonner ; ne la présente jamais comme un gain observé, une promesse ou une donnée du produit.
 - FAQ CAS B : pour un comparatif, une sélection ou des alternatives, l’affilié principal ne doit jamais monopoliser la FAQ. Au moins 40 % des questions doivent être généralistes, traiter la migration globale, être centrées sur les alternatives citées ou comparer deux concurrents entre eux.
-- E-COMMERCE B2C : si la requête cible le pur e-commerce ou le B2C de masse, confronte au moins une solution hybride CRM/marketing automation sectorielle (Klaviyo, Brevo ou ActiveCampaign) à au moins un CRM commercial traditionnel (Salesforce, Zoho, Pipedrive ou HubSpot). Ne cite leurs capacités que si les preuves les documentent ; sinon fixe product_keyword_fit à false au lieu d’inventer.
+- E-COMMERCE B2C : si la requête cible le pur e-commerce ou le B2C de masse, compare uniquement les solutions autorisées par le projet et suffisamment prouvées ; sinon fixe product_keyword_fit à false au lieu d’inventer ou d’ajouter une marque hors liste.
 - EXCLUSION MUTUELLE DES ENTITÉS : les logiciels de la sélection principale, du Top 3, du tableau comparatif ou de l’analyse détaillée ne peuvent jamais être recyclés dans « Outils écartés ou informations insuffisantes ». Les outils écartés sont des concurrents distincts.
 - RÉPONSE IMMÉDIATE : donne une « Réponse courte » exploitable dans les 150 premiers mots.
 - LISIBILITÉ : H2/H3 descriptifs, listes à puces concrètes, phrases informatives et vérifiables. Supprime tout fluff marketing.
 TEXT;
     }
 
-    private function bodyEditorialDirectives(string $type, string $productName): string
+    private function bodyEditorialDirectives(string $type, string $productName, SeoProject $project): string
     {
+        $competitorDirective = $this->competitors->promptDirective($project);
         $formatRule = in_array($type, ['comparison', 'best_tools', 'alternatives'], true)
-            ? 'FORMAT MULTI-PRODUITS : confronte réellement au moins 2 solutions sourcées, idéalement 3. Chaque solution a un profil adapté, une limite et un compromis distincts ; aucun gagnant universel.'
+            ? 'FORMAT MULTI-PRODUITS : confronte réellement au moins 2 solutions autorisées et sourcées, idéalement 3. Chaque solution a un profil adapté, une limite et un compromis distincts ; aucun gagnant universel.'
             : "FORMAT MONO-PRODUIT : reste centré sur {$productName}, son cas d’usage précis et l’audience verrouillée. Ne transforme jamais la partie en comparatif ou en sélection générique.";
 
         return <<<TEXT
 DIRECTIVES SEO, UX & AFFILIATION — À APPLIQUER DANS CETTE PARTIE
+{$competitorDirective}
 - {$formatRule}
 - ALIGNEMENT : chaque paragraphe sert l’intention, l’angle, l’audience et la promesse verrouillés. Aucun sujet voisin ajouté pour remplir.
 - VOCABULAIRE MÉTIER : conserve le champ lexical exact de la requête. Pour un CRM : prospects, leads, pipeline, contacts, adoption, conversion et chiffre d’affaires ; aucun vocabulaire SEO hors sujet.
 - CRÉDIBILITÉ : expose au moins une limite réaliste pour chaque outil recommandé et un conseil terrain sur les données, la migration, le paramétrage, la formation ou l’adoption.
 - TABLEAU : une seule matrice dans la section dédiée, avec au moins 3 colonnes, 2 lignes, des différences décisionnelles et une colonne « Limites » en multi-produits. Jamais une grille « Oui/Oui ».
 - TARIFICATION : aucun prix inventé, aucun bloc vide et jamais « tarif non communiqué ». À défaut de montant prouvé, explique le modèle vérifiable et les composantes du coût total de possession, puis renvoie vers la grille officielle.
+- DONNEES CONCURRENTES 2026 : n'utilise jamais une ancienne limite tarifaire si elle n'apparait pas dans les preuves. Exemple bloque : Abby Decouverte ou Abby limite a 3 factures/devis.
 - SCÉNARIO : une seule hypothèse explicitement illustrative dans la section prévue ; la métrique n’est jamais présentée comme un résultat observé du produit.
 - FAQ MULTI-PRODUITS : au moins 40 % des questions sont généralistes, consacrées aux alternatives ou à la migration, sans monopolisation par {$productName}.
-- E-COMMERCE B2C : distingue les solutions hybrides CRM/marketing automation (Klaviyo, Brevo, ActiveCampaign) des CRM commerciaux traditionnels, uniquement lorsque les preuves permettent de les citer.
+- E-COMMERCE B2C : distingue les familles de solutions uniquement avec les marques autorisées par le projet et suffisamment prouvées.
 - EXCLUSION MUTUELLE DES ENTITÉS : tout outil retenu, recommandé ou analysé dans une partie précédente est formellement interdit dans « Outils écartés ou informations insuffisantes ». Choisis uniquement des concurrents distincts et vérifie les deux ensembles avant de répondre.
 - UX MOBILE : réponse immédiate, paragraphes courts, H3 descriptifs, listes directement exploitables. Une checklist, des étapes ou des outils ne sont jamais racontés en prose avant d’être listés.
 - CHECKLISTS ET RESSOURCES : chaque puce est une action impérative en une seule phrase de 20 mots maximum, sans justification ni répétition.
@@ -1090,8 +1424,17 @@ TEXT;
     }
 
     /** @param string[] $sections @param string[] $previousParts */
-    private function mutualExclusionDirective(array $sections, array $previousParts): string
+    private function mutualExclusionDirective(SeoProject|array $project, ?array $sections = null, ?array $previousParts = null): string
     {
+        if (is_array($project)) {
+            $previousParts = $sections ?? [];
+            $sections = $project;
+            $project = null;
+        }
+
+        $sections ??= [];
+        $previousParts ??= [];
+
         $writesRejectedTools = collect($sections)->contains(
             fn (string $section): bool => str_contains(mb_strtolower($section), 'outils écartés')
                 || str_contains(mb_strtolower($section), 'informations insuffisantes')
@@ -1114,24 +1457,91 @@ TEXT;
             })->map(fn (array $section): string => (string) ($section[2] ?? ''))->all();
         })->implode("\n");
 
-        $brands = ['HubSpot', 'Salesforce', 'Zoho CRM', 'Pipedrive', 'Odoo', 'Brevo', 'Klaviyo', 'ActiveCampaign', 'Monday.com CRM', 'Semrush', 'Ahrefs'];
-        $selected = collect($brands)->filter(
-            fn (string $brand): bool => str_contains(mb_strtolower($selectionText), mb_strtolower(str_replace(' CRM', '', $brand)))
-        )->values();
+        if ($project instanceof SeoProject) {
+            $selected = collect($this->competitors->mentionedAllowedEntities($project, $selectionText))->values();
+            $allowed = implode(', ', $this->competitors->allowedEntities($project));
+        } else {
+            $brands = ['HubSpot', 'Salesforce', 'Zoho CRM'];
+            $selected = collect($brands)
+                ->filter(fn (string $brand): bool => str_contains(mb_strtolower($selectionText), mb_strtolower(str_replace(' CRM', '', $brand))))
+                ->values();
+            $allowed = implode(', ', $brands);
+        }
         $forbidden = $selected->isEmpty() ? 'tous les outils de la sélection principale' : $selected->implode(', ');
 
-        return "GARDE-FOU OUTILS ÉCARTÉS — LISTE INTERDITE : {$forbidden}. Ne classe aucun de ces outils parmi les solutions écartées. Choisis des concurrents distincts et contrôle qu’aucune entité n’appartient aux deux ensembles.";
+        return "GARDE-FOU OUTILS ÉCARTÉS — LISTE INTERDITE : {$forbidden}. Ne classe aucun de ces outils parmi les solutions écartées. Si tu dois citer d'autres outils, reste strictement dans cette liste autorisée : {$allowed}. Contrôle qu’aucune entité n’appartient aux deux ensembles.";
+    }
+
+    private function assertIdeaCompetitorsAllowed(SeoProject $project, EditorialIdea $idea): void
+    {
+        $text = implode(' ', array_filter([
+            $idea->title,
+            $idea->primary_keyword,
+            $idea->entity_key,
+            $idea->topic_key,
+            $idea->problem,
+            $idea->expected_outcome,
+            $idea->unique_promise,
+            implode(' ', $idea->excluded_topics ?? []),
+            implode(' ', $idea->outline ?? []),
+        ]));
+
+        $unknown = $this->competitors->unknownCompetitorMentions($project, $text);
+        if ($unknown !== []) {
+            throw new PlannedContentRejectedException('Brief refuse avant generation : concurrent inconnu ou fictif ('.implode(', ', $unknown).').');
+        }
+
+        if (! in_array($idea->content_type, ['comparison', 'alternatives', 'best_tools'], true)) {
+            return;
+        }
+
+        if ($this->competitors->mentionedCompetitors($project, $text) === []) {
+            throw new PlannedContentRejectedException('Brief refuse avant generation : aucun concurrent reel autorise n est cite pour ce comparatif.');
+        }
     }
 
     private function assertStrategicFit(array &$data, string $type, SeoProject $project, ?Keyword $keyword): void
     {
+        $unknownMentions = $this->competitors->unknownCompetitorMentions($project, implode(' ', [
+            $data['title'] ?? '',
+            $data['brief_title'] ?? '',
+            $keyword?->keyword ?? '',
+            implode(' ', $data['compared_products'] ?? []),
+            $data['body'] ?? '',
+        ]));
+        if ($unknownMentions !== []) {
+            throw new PlannedContentRejectedException('Concurrent inconnu ou fictif detecte dans le brouillon : '.implode(', ', $unknownMentions).'.');
+        }
+
+        $stalePricingClaims = $this->staleCompetitorPricingClaims((string) ($data['body'] ?? ''));
+        if ($stalePricingClaims !== []) {
+            throw new PlannedContentRejectedException('Information tarifaire obsolete detectee : '.implode(' ', $stalePricingClaims));
+        }
+
+        $this->assertBtpStrategicFit($data, $type, $project, $keyword);
+
         if (($data['product_keyword_fit'] ?? true) !== true) {
             $reason = trim((string) ($data['product_keyword_fit_reason'] ?? 'Le produit ne répond pas directement à la requête.'));
             throw new PlannedContentRejectedException("Mot-clé hors sujet pour {$project->name} : {$reason}");
         }
 
         if (in_array($type, ['comparison', 'best_tools', 'alternatives'], true)) {
-            $products = collect($data['compared_products'] ?? [])->filter()->unique(fn ($name) => mb_strtolower((string) $name));
+            $products = collect($data['compared_products'] ?? [])
+                ->map(fn ($name): string => trim((string) $name))
+                ->filter()
+                ->unique(fn (string $name): string => mb_strtolower($name))
+                ->values();
+            $invalidProducts = $this->competitors->invalidComparedProducts($project, $products->all());
+            if ($invalidProducts !== [] && $products->count() > count($invalidProducts)) {
+                $products = $products
+                    ->reject(fn (string $name): bool => in_array($name, $invalidProducts, true))
+                    ->values();
+                $data['compared_products'] = $products->all();
+                $invalidProducts = [];
+            }
+            if ($invalidProducts !== []) {
+                throw new PlannedContentRejectedException('Comparatif refuse : concurrent non autorise ou non configure ('.implode(', ', $invalidProducts).').');
+            }
             if ($products->count() < 2) {
                 throw new PlannedContentRejectedException("Le format demandé pour « {$keyword?->keyword} » exige au moins deux solutions distinctes et sourcées.");
             }
@@ -1162,17 +1572,92 @@ TEXT;
         }
     }
 
+    private function assertBtpStrategicFit(array $data, string $type, SeoProject $project, ?Keyword $keyword): void
+    {
+        $context = implode(' ', [
+            $data['title'] ?? '',
+            $data['brief_title'] ?? '',
+            $keyword?->keyword ?? '',
+            implode(' ', $data['compared_products'] ?? []),
+            $data['body'] ?? '',
+        ]);
+        if (! $this->structures->isBtpSoftwareRequest($context)) {
+            return;
+        }
+
+        $audit = $this->structures->audit(
+            (string) ($data['body'] ?? ''),
+            $type,
+            $keyword?->keyword,
+            true,
+            $project->name,
+            true,
+            (string) ($data['title'] ?? ''),
+        );
+        $blocking = [
+            'safe_cost_language',
+            'btp_specialized_scope',
+            'btp_generalists_labeled_adaptable',
+            'btp_no_unproved_chantier_claims',
+            'btp_trade_criteria',
+            'btp_simulation_disclaimer',
+        ];
+        $failed = collect($blocking)
+            ->filter(fn (string $key): bool => ($audit['checks'][$key] ?? true) !== true)
+            ->values();
+
+        if ($failed->isNotEmpty()) {
+            $labels = [
+                'safe_cost_language' => 'remplacer frais/couts caches par frais additionnels eventuels ou limites de plan',
+                'btp_specialized_scope' => 'inclure au moins 3 outils specialises BTP sources',
+                'btp_generalists_labeled_adaptable' => 'classer les generalistes comme adaptables, pas specialises BTP',
+                'btp_no_unproved_chantier_claims' => 'ne pas attribuer de fonctions chantier avancees sans reserve',
+                'btp_trade_criteria' => 'couvrir les criteres metier BTP obligatoires',
+                'btp_simulation_disclaimer' => 'placer une mention de simulation fictive avant les chiffres',
+            ];
+
+            throw new PlannedContentRejectedException('Page BTP refusee : '.implode(' ; ', $failed->map(fn (string $key): string => $labels[$key])->all()).'.');
+        }
+    }
+
     private function isEcommerceRequest(?string $keyword): bool
     {
         return $keyword !== null
             && preg_match('/e[\s-]?commerce|boutique en ligne|vente en ligne|b2c/iu', $keyword) === 1;
     }
 
-    private function contentBlocks(SeoProject $project, string $body, ?DateTimeInterface $verifiedAt = null): array
+    /** @return string[] */
+    private function staleCompetitorPricingClaims(string $text): array
     {
-        $blocks = [['type' => 'markdown', 'content' => $body]];
-        if ($project->plans()->where('is_active', true)->exists()) {
-            $blocks[] = ['type' => 'pricing_table', 'project_id' => $project->id, 'display' => 'monthly_and_yearly'];
+        $normalized = Str::ascii(mb_strtolower($text));
+        $issues = [];
+
+        if (str_contains($normalized, 'abby')
+            && preg_match('/\bdecouverte\b|(?:limitee?|limite|limites?)\s+a\s+(?:3|trois).{0,80}\b(?:factures?|devis)\b|(?:3|trois)\s+(?:factures?|devis)\s+par\s+mois/u', $normalized) === 1) {
+            $issues[] = 'Abby 2026 ne doit pas être décrit avec Découverte/3 factures ; vérifiez le plan Basique 0 EUR et les preuves officielles avant publication.';
+        }
+
+        return $issues;
+    }
+
+    private function contentBlocks(SeoProject $project, string $body, ?DateTimeInterface $verifiedAt = null, string $type = 'informational', ?Keyword $keyword = null): array
+    {
+        $intentType = $keyword?->intent_type ?: (in_array($type, ['comparison', 'alternatives', 'best_tools', 'tool_review', 'pricing'], true) ? 'solution' : 'information');
+        if (in_array($type, ['comparison', 'alternatives', 'pricing'], true) || $intentType === 'money') {
+            $intentType = 'money';
+        }
+        $btpRequest = $this->structures->isBtpSoftwareRequest(trim(($keyword?->keyword ?? '').' '.$body));
+        $multiProductType = in_array($type, ['comparison', 'alternatives', 'best_tools'], true);
+        $hasCompetitorPricing = $project->competitorPlans()->where('is_active', true)->exists();
+
+        $blocks = [['type' => 'affiliate_cta', 'position' => 'after_intro']];
+        $blocks[] = ['type' => 'markdown', 'content' => $body];
+        if ($project->pricingPlans()->where('is_active', true)->exists()
+            && (! $btpRequest || ($multiProductType && $hasCompetitorPricing))) {
+            $blocks[] = ['type' => 'pricing_table', 'project_id' => $project->id, 'display' => 'monthly_and_yearly', 'version' => 'v5.4'];
+        }
+        if (in_array($intentType, ['solution', 'money'], true)) {
+            $blocks[] = ['type' => 'affiliate_cta', 'position' => 'final'];
         }
         $blocks[] = ['type' => 'affiliate_disclosure'];
         $blocks[] = ['type' => 'last_verified', 'date' => ($verifiedAt ? Carbon::instance($verifiedAt) : now())->toDateString()];
@@ -1188,8 +1673,8 @@ TEXT;
     private function qualityChecks(string $body, array $sourceIds, ?string $keyword, array $audit): array
     {
         return array_merge($audit['checks'], [
-            'has_sources' => $sourceIds !== [] && preg_match('/\[S\d+\]/', $body) === 1,
-            'keyword_aligned' => ! $keyword || str_contains(mb_strtolower($body), mb_strtolower($keyword)),
+            'has_sources' => $sourceIds !== [],
+            'keyword_aligned' => ! $keyword || str_contains(Str::ascii(mb_strtolower($body)), Str::ascii(mb_strtolower($keyword))),
             'affiliate_disclosure' => (bool) ($audit['checks']['affiliate_disclosure'] ?? false),
             'has_unknown_fallback' => str_contains(mb_strtolower($body), 'non communiqué'),
             'human_review_required' => true,
@@ -1199,30 +1684,141 @@ TEXT;
     private function availableSlug(SeoProject $project, array $blueprint, array $analysis, string $title): string
     {
         $slug = $this->duplicates->recommendedSlug($project, $blueprint, $title);
-        if (Article::query()->where('slug', $slug)->exists()) {
-            if ($analysis['article'] && $analysis['decision'] === 'block') {
-                throw new DuplicateContentException($analysis['article'], $analysis['score'], 'block');
+        foreach ($this->slugCandidates($project, $blueprint, $title, $slug) as $candidate) {
+            if (! Article::query()->where('slug', $candidate)->exists()) {
+                return $candidate;
             }
-
-            throw new PlannedContentRejectedException("Le slug SEO « {$slug} » existe déjà, mais aucun doublon éditorial n’a été confirmé. Le brief doit produire un slug descriptif propre à son angle ; aucun suffixe numérique ne sera créé.");
         }
 
-        return $slug;
+        if ($analysis['article'] && $analysis['decision'] === 'block') {
+            throw new DuplicateContentException($analysis['article'], $analysis['score'], 'block');
+        }
+
+        return $this->lastResortSlug($slug, $blueprint, $title);
     }
 
     /** @return string[] */
-    private function extractComparedProducts(string $projectName, string $title, string $body): array
+    private function slugCandidates(SeoProject $project, array $blueprint, string $title, string $base): array
     {
-        $catalog = [
-            'HubSpot', 'Salesforce', 'Zoho CRM', 'Pipedrive', 'Odoo', 'Monday.com CRM',
-            'Brevo', 'Klaviyo', 'ActiveCampaign', 'Semrush', 'Ahrefs',
-            'Indy', 'Pennylane', 'Shine', 'Abby', 'Freebe', 'Tiime', 'Henrri',
-            'Sage', 'QuickBooks', 'Cegid', 'EBP', 'Facture.net', 'Sellsy', 'Axonaut', 'Evoliz',
-            'Google Sheets', 'Microsoft Excel', 'Excel', 'Shopify', 'WooCommerce', 'PrestaShop',
-            'Stripe Invoicing', 'Stripe', 'PayPal',
+        $baseTokens = $this->slugTokens($base);
+        $candidates = [$this->composeSlug($baseTokens)];
+        $candidates[] = $this->composeSlug($this->slugTokens($title));
+
+        $sources = [
+            (string) ($blueprint['angle'] ?? ''),
+            (string) ($blueprint['audience'] ?? ''),
+            (string) ($blueprint['topic'] ?? ''),
+            (string) ($blueprint['primary_keyword'] ?? ''),
+            (string) ($blueprint['expected_outcome'] ?? ''),
+            (string) ($blueprint['unique_promise'] ?? ''),
+            $project->name,
         ];
+
+        foreach ($sources as $source) {
+            $tokens = $this->slugTokens($source);
+            if ($tokens === []) {
+                continue;
+            }
+            $candidates[] = $this->appendSlugDescriptor($baseTokens, $tokens);
+            $candidates[] = $this->composeSlug([...array_slice($this->slugTokens($title), 0, 3), ...array_slice($tokens, 0, 2)]);
+        }
+
+        return collect($candidates)
+            ->filter(fn (?string $candidate): bool => is_string($candidate) && $candidate !== '' && ! $this->hasDuplicateNumericSuffix($candidate))
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /** @param string[] $baseTokens @param string[] $descriptorTokens */
+    private function appendSlugDescriptor(array $baseTokens, array $descriptorTokens): string
+    {
+        $descriptor = collect($descriptorTokens)
+            ->reject(fn (string $token): bool => in_array($token, $baseTokens, true))
+            ->take(2)
+            ->values()
+            ->all();
+
+        if ($descriptor === []) {
+            return $this->composeSlug($baseTokens);
+        }
+
+        $baseLimit = max(1, 5 - count($descriptor));
+
+        return $this->composeSlug([...array_slice($baseTokens, 0, $baseLimit), ...$descriptor]);
+    }
+
+    private function lastResortSlug(string $base, array $blueprint, string $title): string
+    {
+        $seed = implode('|', [$base, $title, $blueprint['fingerprint'] ?? '', $blueprint['unique_promise'] ?? '']);
+        $baseTokens = $this->slugTokens($base);
+
+        for ($attempt = 0; $attempt < 80; $attempt++) {
+            $candidate = $this->appendSlugDescriptor($baseTokens, ['angle', $this->alphaSuffix($seed.'|'.$attempt)]);
+            if (! Article::query()->where('slug', $candidate)->exists()) {
+                return $candidate;
+            }
+        }
+
+        return $this->composeSlug([...array_slice($baseTokens, 0, 3), 'angle', $this->alphaSuffix($seed.'|final')]);
+    }
+
+    /** @return string[] */
+    private function slugTokens(string $value): array
+    {
+        return collect(preg_split('/-+/', Str::slug($value)) ?: [])
+            ->map(fn (string $token): string => trim($token))
+            ->filter(fn (string $token): bool => mb_strlen($token) >= 3
+                && ! in_array($token, $this->slugStopWords(), true)
+                && preg_match('/^\d{1,2}$/', $token) !== 1)
+            ->values()
+            ->all();
+    }
+
+    /** @param string[] $tokens */
+    private function composeSlug(array $tokens): string
+    {
+        $slug = collect($tokens)
+            ->filter()
+            ->unique()
+            ->take(5)
+            ->implode('-');
+
+        return Str::slug($slug) ?: 'article';
+    }
+
+    private function hasDuplicateNumericSuffix(string $slug): bool
+    {
+        return preg_match('/-\d{1,2}$/', $slug) === 1;
+    }
+
+    private function alphaSuffix(string $seed): string
+    {
+        $number = crc32($seed);
+        $letters = '';
+        for ($i = 0; $i < 5; $i++) {
+            $letters .= chr(97 + (($number >> ($i * 5)) & 25));
+        }
+
+        return $letters;
+    }
+
+    /** @return string[] */
+    private function slugStopWords(): array
+    {
+        return [
+            'avec', 'comment', 'dans', 'des', 'une', 'pour', 'selon', 'sur', 'les', 'aux', 'par',
+            'quel', 'quelle', 'quels', 'quelles', 'votre', 'vos', 'leur', 'leurs', 'guide',
+            'complet', 'complete', 'maitriser', 'optimiser', 'efficacement', 'solutions',
+        ];
+    }
+
+    /** @return string[] */
+    private function extractComparedProducts(SeoProject $project, string $title, string $body): array
+    {
+        $catalog = $this->competitors->allowedEntities($project);
         $haystack = $title."\n".$body;
-        $products = collect([$projectName]);
+        $products = collect([$project->name]);
 
         foreach ($catalog as $product) {
             if (preg_match('/(?<![\p{L}\p{N}])'.preg_quote($product, '/').'(?![\p{L}\p{N}])/iu', $haystack) === 1) {

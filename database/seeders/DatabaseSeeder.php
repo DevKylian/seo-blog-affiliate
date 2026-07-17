@@ -109,10 +109,10 @@ class DatabaseSeeder extends Seeder
             'type' => 'tool_review',
             'title' => 'MailPilot Démo : exemple de fiche affiliée sourcée',
             'slug' => 'mailpilot-demo-exemple-fiche-sourcee',
-            'excerpt' => 'Un article de démonstration montrant les blocs dynamiques et les citations.',
-            'body' => "## Une démonstration du système\n\nMailPilot est un produit fictif utilisé pour présenter le CMS. Le prix affiché provient du bloc tarifaire dynamique [S1].\n\n## Verdict\n\nRemplacez ce projet par un véritable outil et collectez ses pages officielles avant toute utilisation éditoriale.",
+            'excerpt' => 'Un article de démonstration montrant les blocs dynamiques et les preuves collectées.',
+            'body' => "## Une démonstration du système\n\nMailPilot est un produit fictif utilisé pour présenter le CMS. Le prix affiché provient du bloc tarifaire dynamique.\n\n## Verdict\n\nRemplacez ce projet par un véritable outil et collectez ses pages officielles avant toute utilisation éditoriale.",
             'content_blocks' => [
-                ['type' => 'markdown', 'content' => "## Une démonstration du système\n\nMailPilot est un produit fictif utilisé pour présenter le CMS. Le prix affiché provient du bloc tarifaire dynamique [S1].\n\n## Verdict\n\nRemplacez ce projet par un véritable outil et collectez ses pages officielles avant toute utilisation éditoriale."],
+                ['type' => 'markdown', 'content' => "## Une démonstration du système\n\nMailPilot est un produit fictif utilisé pour présenter le CMS. Le prix affiché provient du bloc tarifaire dynamique.\n\n## Verdict\n\nRemplacez ce projet par un véritable outil et collectez ses pages officielles avant toute utilisation éditoriale."],
                 ['type' => 'pricing_table', 'project_id' => $project->id, 'display' => 'monthly_and_yearly'],
                 ['type' => 'affiliate_disclosure'],
                 ['type' => 'last_verified', 'date' => now()->subDay()->toDateString()],

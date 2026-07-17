@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Article extends Model
 {
@@ -20,6 +21,9 @@ class Article extends Model
         'content_blocks' => 'array',
         'excluded_topics' => 'array',
         'duplicate_score' => 'float',
+        'affiliate_priority' => 'float',
+        'prepublish_score' => 'float',
+        'prepublish_audited_at' => 'datetime',
     ];
 
     public function project(): BelongsTo
@@ -30,6 +34,11 @@ class Article extends Model
     public function keyword(): BelongsTo
     {
         return $this->belongsTo(Keyword::class);
+    }
+
+    public function contentCluster(): BelongsTo
+    {
+        return $this->belongsTo(ContentCluster::class);
     }
 
     public function brief(): BelongsTo
@@ -65,6 +74,41 @@ class Article extends Model
     public function internalLinks(): HasMany
     {
         return $this->hasMany(InternalLink::class, 'source_article_id');
+    }
+
+    public function affiliateClicks(): HasMany
+    {
+        return $this->hasMany(AffiliateClick::class);
+    }
+
+    public function audits(): HasMany
+    {
+        return $this->hasMany(ArticleAudit::class);
+    }
+
+    public function latestAudit(): HasOne
+    {
+        return $this->hasOne(ArticleAudit::class)->latestOfMany('audited_at');
+    }
+
+    public function refreshTasks(): HasMany
+    {
+        return $this->hasMany(ContentRefreshTask::class);
+    }
+
+    public function searchPerformanceSnapshots(): HasMany
+    {
+        return $this->hasMany(SearchPerformanceSnapshot::class);
+    }
+
+    public function seoActionItems(): HasMany
+    {
+        return $this->hasMany(SeoActionItem::class);
+    }
+
+    public function differentiationBriefs(): HasMany
+    {
+        return $this->hasMany(SerpDifferentiationBrief::class);
     }
 
     public function canonicalArticle(): BelongsTo

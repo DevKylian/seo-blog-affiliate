@@ -34,7 +34,7 @@ final class RunSourceCrawlWorker extends Command
 
         try {
             $this->info("Collecte autonome de {$source->url}");
-            $scraper->scrape($source->project, $source->url, $source->type);
+            $scraper->scrape($source->project, $source->url, $source->type, $source->competitor_name);
             $this->info('Collecte terminée.');
 
             return self::SUCCESS;

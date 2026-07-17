@@ -16,11 +16,17 @@ class Keyword extends Model
         'cpc' => 'float',
         'current_position' => 'float',
         'opportunity_score' => 'float',
+        'affiliate_priority' => 'float',
     ];
 
     public function project(): BelongsTo
     {
         return $this->belongsTo(SeoProject::class, 'seo_project_id');
+    }
+
+    public function contentCluster(): BelongsTo
+    {
+        return $this->belongsTo(ContentCluster::class);
     }
 
     public function articles(): HasMany
