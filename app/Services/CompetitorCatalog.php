@@ -175,6 +175,10 @@ Concurrents autorises : {$list}
 - Les sections de type "outils ecartes", limites, alternatives ou FAQ restent elles aussi dans cette liste autorisee.
 - Si aucun concurrent autorise ne convient au mot-cle, choisis un format mono-produit ou informationnel plutot qu'un faux comparatif.
 - Ne transforme jamais un mot-cle contenant une marque inconnue en article tarifaire, avis ou comparatif.
+
+DONNEES FACTUELLES CONCURRENTIELLES (NE JAMAIS ECRIRE "Non specifie" POUR CES OUTILS)
+- Abby : Dispose d'un plan gratuit et d'une période d'essai limitée.
+- Pennylane : Propose un essai gratuit de 15 jours sans carte bancaire, mais aucun plan gratuit permanent pour la comptabilité globale.
 TEXT;
     }
 

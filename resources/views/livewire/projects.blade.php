@@ -7,11 +7,23 @@
         <form wire:submit="createProject" class="os-form">
             <div class="field full"><label>Nom de l’application</label><input wire:model="name" placeholder="ex. Brevo">@error('name')<small class="field-error">{{ $message }}</small>@enderror</div>
             <div class="field full"><label>Site officiel</label><input wire:model="websiteUrl" type="url" placeholder="https://example.com">@error('websiteUrl')<small class="field-error">{{ $message }}</small>@enderror</div>
+            <div class="field full" style="display: flex; justify-content: flex-end; margin-top: -5px; margin-bottom: 5px;">
+                @if($isRetryingAi)
+                    <div wire:poll.5s="autofillWithAI" style="display: none;"></div>
+                @endif
+                <button type="button" wire:click="autofillWithAI" style="cursor: pointer; color: #6555df; font-weight: 800; font-size: 11px; padding: 8px 12px; background: #f6f5ff; border-radius: 6px; border: 1px solid #e2dffe; display: flex; gap: 6px; align-items: center; transition: background 0.2s;">
+                    <span wire:loading.remove wire:target="autofillWithAI">
+                        {{ $isRetryingAi ? '✨ Nouvelle tentative en cours...' : '✨ Autocompléter les textes avec l\'IA' }}
+                    </span>
+                    <span wire:loading wire:target="autofillWithAI">✨ Recherche et rédaction en cours...</span>
+                </button>
+            </div>
             <div class="field"><label>Page tarifs</label><input wire:model="pricingUrl" type="url" placeholder="https://example.com/pricing"></div>
             <div class="field"><label>Lien affilié</label><input wire:model="affiliateUrl" type="url" placeholder="https://example.com/?ref=..."></div>
             <div class="field"><label>Pays</label><input wire:model="country" maxlength="2"></div><div class="field"><label>Devise</label><input wire:model="currency" maxlength="3"></div>
             <div class="field full"><label>Positionnement</label><input wire:model="positioning" placeholder="Outil de gestion de projets pour agences"></div><div class="field full"><label>Description vérifiée</label><textarea wire:model="description" rows="3"></textarea></div>
             <div class="field"><label>Fonctionnalités (une par ligne)</label><textarea wire:model="featuresText" rows="5"></textarea></div><div class="field"><label>Idéal pour (un profil par ligne)</label><textarea wire:model="bestForText" rows="5"></textarea></div>
+            <div class="field full"><label>Foire aux questions (Format : Question | Réponse)</label><textarea wire:model="faqText" rows="4" placeholder="Est-ce gratuit ? | Oui, il y a un plan gratuit.&#10;Puis-je annuler ? | Oui, à tout moment."></textarea><p class="field-help">Une question/réponse par ligne, séparées par une barre verticale (|).</p></div>
             <div class="field full"><label>Concurrents reels (un par ligne)</label><textarea wire:model="competitorsText" rows="4" placeholder="Pennylane&#10;Abby&#10;Freebe&#10;Henrri"></textarea><p class="field-help">Utilise pour les vrais comparatifs. Format accepte aussi : Abby | https://.../tarifs.</p></div>
             <div class="field full"><label>Pages tarifs concurrents</label><textarea wire:model="competitorPricingUrlsText" rows="3" placeholder="Abby | https://.../tarifs&#10;Freebe | https://.../tarifs"></textarea><p class="field-help">Collectees avec le meme pipeline que la page tarifs affiliee.</p></div>
             <div class="field"><label>Points forts (un par ligne)</label><textarea wire:model="strengthsText" rows="5"></textarea></div><div class="field"><label>Limites (une par ligne)</label><textarea wire:model="limitationsText" rows="5"></textarea></div>

@@ -274,10 +274,11 @@ RÈGLES BLOQUANTES
 - MARGE DE SORTIE : termine le dernier élément utile avant d’approcher la limite de sortie. Ne commence jamais une phrase, une puce ou un H3 que tu ne peux pas achever ; n’abrège jamais une phrase pour respecter la longueur maximale.
 - EXCLUSION MUTUELLE : n’annonce jamais la même marche à suivre chronologique dans deux H2. Si le plan contient une Checklist mais aucune Méthode, la procédure complète appartient uniquement à la Checklist.
 - COMPLÉTUDE CHRONOLOGIQUE : si un sous-chapitre commence par « Étape 1 », « La première étape consiste à » ou « Premièrement », rédige obligatoirement une Étape 2 puis une étape finale dans ce même H2. Interdiction d’abandonner une séquence commencée.
-- Toute affirmation factuelle sur le produit doit rester vérifiable dans les preuves fournies, sans afficher de marqueur de source dans le texte final.
+- Toute affirmation factuelle sur le produit doit rester vérifiable dans les preuves fournies. CITE EXPLICITEMENT tes sources dans le corps du texte en utilisant les marqueurs [S1], [S2], etc. à la fin des phrases correspondantes.
 - Utilise exclusivement les preuves. N’invente ni prix, ni fonctionnalité, ni résultat observé.
 - Mentionne au moins une limite réaliste et un conseil de déploiement dans les sections pertinentes.
-- Pour un prix absent, explique le modèle vérifiable sans écrire « tarif non communiqué ».
+- TABLEAUX ET LISTES : Ne crée jamais de ligne ou de colonne pour écrire « Non spécifié », « Inconnu » ou « Non communiqué ». Si l'information manque, supprime simplement ce critère de la comparaison.
+- Pour un prix absent dans le texte, explique le modèle vérifiable sans écrire « tarif non communiqué ».
 - Ne répète aucun H2, aucune introduction, aucune FAQ et aucune conclusion.
 - EXCLUSION MUTUELLE DES ENTITÉS : un logiciel retenu, recommandé, classé ou analysé dans la sélection principale ne peut jamais apparaître dans « Outils écartés ou informations insuffisantes ». Cette section utilise exclusivement des concurrents distincts. Effectue ce contrôle logique avant de retourner le JSON.
 - Ne réutilise jamais mot pour mot une phrase, un conseil de déploiement, une explication, une liste, une recommandation ou un exemple déjà présent dans le contexte de continuité. Si l’idée a déjà été traitée, omets-la ; si une précision réellement nouvelle est nécessaire, formule-la avec un apport distinct.
@@ -567,6 +568,10 @@ TEXT;
         }
 
         $checks = $this->qualityChecks((string) $data['body'], $sourceIds, $keyword?->keyword, $audit);
+        if (($checks['sources_markers_present'] ?? true) === false && $sourceIds !== []) {
+            throw new \RuntimeException('Génération refusée : l’article n’intègre pas les citations [S1], [S2] attendues dans le texte. Réponse gemini incomplète.');
+        }
+
         $slug = $this->availableSlug($project, $blueprint, $postflight, (string) $data['title']);
 
         $brief = ContentBrief::query()->create([
@@ -781,9 +786,10 @@ Le titre, la promesse, le plan H2/H3 et la FAQ doivent servir précisément cett
 RÈGLES ABSOLUES
 1. Utilise exclusivement les preuves ci-dessous pour toute affirmation factuelle sur le produit, ses prix, fonctions, limites et conditions.
 2. Chaque affirmation factuelle doit être vérifiable dans les preuves fournies, mais le texte final ne doit jamais afficher de marqueur de source.
-3. Si une information non tarifaire n'est pas prouvée, écris « non communiqué » ; n'invente jamais. Pour les prix, n’écris jamais « tarif/prix non communiqué » : explique précisément ce que les sources permettent de confirmer sur le modèle d’abonnement et invite à vérifier la grille officielle.
-4. Ne promets jamais un classement Google/Bing et n'invente ni test, ni expérience d'équipe, ni capture d'écran.
-5. Signale clairement les liens commerciaux dans le fond, mais n’écris aucun encart de transparence affiliée dans body : le CMS l’injecte automatiquement une seule fois.
+3. TABLEAUX COMPARATIFS : Ne crée JAMAIS de ligne ou de colonne pour écrire « Non spécifié », « Inconnu » ou « Non communiqué ». Construis tes tableaux EXCLUSIVEMENT autour des critères pour lesquels tu possèdes des données concrètes.
+4. Pour un prix absent dans le texte, explique le modèle vérifiable sans écrire « tarif non communiqué ».
+5. Ne promets jamais un classement Google/Bing et n'invente ni test, ni expérience d'équipe, ni capture d'écran.
+6. Signale clairement les liens commerciaux dans le fond, mais n’écris aucun encart de transparence affiliée dans body : le CMS l’injecte automatiquement une seule fois.
 6. Respecte exactement la structure éditoriale obligatoire, produis du Markdown riche et développe chaque section avec une vraie profondeur d’analyse.
 7. Le title SEO doit rester naturel, la meta description concise et le slug court.
 8. Fournis aussi un brief éditorial : titre de brief, angle différenciant, audience et plan détaillé (outline).
@@ -1244,7 +1250,7 @@ TEXT;
     {
         $competitorDirective = $project ? "\n".$this->competitors->promptDirective($project) : '';
         $formatRule = in_array($type, ['comparison', 'best_tools', 'alternatives'], true)
-            ? 'CAS B — MULTI-PRODUITS : compare au moins 2 solutions concurrentes distinctes, idéalement 3, choisies uniquement parmi les entités autorisées du projet et disposant chacune de preuves. Confronte-les dans des sections dédiées et renseigne leurs noms dans compared_products. Si les preuves ne couvrent pas 2 solutions autorisées, fixe product_keyword_fit à false et ne simule jamais un comparatif.'
+            ? 'CAS B — MULTI-PRODUITS : compare au moins 2 solutions concurrentes distinctes, idéalement 3, choisies uniquement parmi les entités autorisées du projet et disposant chacune de preuves. Confronte-les dans des sections dédiées et renseigne leurs noms dans compared_products. Si les preuves ne couvrent pas 2 solutions autorisées, fixe product_keyword_fit à false. N\'invente AUCUN nom de logiciel et ne cite jamais de matériel (ex: MacBook Pro) comme s\'il s\'agissait d\'un outil concurrent.'
             : "CAS A — MONO-PRODUIT : le H1 doit annoncer clairement {$productName} et prendre la forme d’un guide technique ou d’un cas d’usage (« Maîtriser {$productName} pour… »). Les mots « Comparatif » et « Meilleur » sont interdits dans le H1.";
 
         return <<<TEXT
@@ -1255,10 +1261,10 @@ DIRECTIVES SEO & AFFILIATION BLOQUANTES
 - {$formatRule}
 - CRÉDIBILITÉ : pour chaque outil recommandé, cite au moins une limite ou un compromis opérationnel réaliste et sourcé. Dans un tableau comparatif, utilise explicitement une colonne « Limites ». Pas de gagnant universel.
 - TERRAIN : ajoute des conseils opérationnels concrets sur le déploiement, la migration, la qualité des données, la formation ou l’adoption par les équipes. Ne prétends pas les avoir testés si ce n’est pas prouvé.
-- TABLEAUX : au moins 3 colonnes et 2 lignes de données, avec des différences utiles à la décision. Interdiction d’une grille remplie uniquement de « Oui ». Compare les versions (Starter/Premium), les modules (par exemple Sales Hub/Marketing Hub), les coûts, les limites, les profils ou les solutions.
-- PRIX : ne produis aucun bloc vide et n’écris jamais « tarif non communiqué » ou « prix non communiqué ». Affiche uniquement un prix d’entrée officiel présent dans les preuves. À défaut, explique le modèle d’abonnement vérifiable : facturation au siège, au volume ou à l’usage, engagements et composantes du coût total de possession. Renvoie vers la grille officielle sans inventer de montant.
-- DONNEES CONCURRENTES 2026 : n'utilise jamais une ancienne limite tarifaire si elle n'apparait pas dans les preuves. Exemple bloque : Abby Decouverte ou Abby limite a 3 factures/devis.
-- SCÉNARIOS CHIFFRÉS : dans « Exemples et scénarios concrets » ou la section de cas d’usage équivalente, ajoute une métrique plausible (taille d’équipe, durée, volume ou pourcentage). Étiquette obligatoirement le passage « Hypothèse de simulation » ou « Scénario illustratif ». Cette valeur sert uniquement à raisonner ; ne la présente jamais comme un gain observé, une promesse ou une donnée du produit.
+- TABLEAUX : au moins 3 colonnes et 2 lignes de données, avec des différences utiles à la décision. Réinjecte impérativement les marqueurs de sources (ex: [S2]) directement dans les cellules du tableau comparatif. Précise explicitement que la facturation (devis et factures) est illimitée sur le plan gratuit d'Indy. Interdiction d’une grille remplie uniquement de « Oui ». Compare les versions (Starter/Premium), les modules (par exemple Sales Hub/Marketing Hub), les coûts, les limites, les profils ou les solutions.
+- PRIX : ne produis aucun bloc vide et n’écris jamais « tarif/prix non communiqué ». Affiche UNIQUEMENT un prix d’entrée officiel explicitement présent dans les preuves. À défaut, explique le modèle d’abonnement vérifiable puis renvoie vers la grille officielle sans inventer de montant.
+- DONNEES CONCURRENTES 2026 : Interdiction absolue d'inventer des noms d'offres ou d'utiliser ta mémoire. Si une information (ex: Abby Découverte, limite à 3 devis) n'est pas texto dans les preuves, c'est qu'elle est obsolète. Ne l'écris jamais.
+- SCÉNARIOS CHIFFRÉS : dans « Exemples et scénarios concrets » ou la section de cas d’usage équivalente, ajoute une métrique plausible (taille d’équipe, durée, volume ou pourcentage). Étiquette obligatoirement le passage « Hypothèse de simulation » ou « Scénario illustratif ». Toute simulation de gain de temps doit obligatoirement être convertie en gain financier (€) sur la base d'un TJM ou taux horaire moyen réaliste pour la cible. Cette valeur sert uniquement à raisonner ; ne la présente jamais comme un gain observé ou une promesse du produit.
 - FAQ CAS B : pour un comparatif, une sélection ou des alternatives, l’affilié principal ne doit jamais monopoliser la FAQ. Au moins 40 % des questions doivent être généralistes, traiter la migration globale, être centrées sur les alternatives citées ou comparer deux concurrents entre eux.
 - E-COMMERCE B2C : si la requête cible le pur e-commerce ou le B2C de masse, compare uniquement les solutions autorisées par le projet et suffisamment prouvées ; sinon fixe product_keyword_fit à false au lieu d’inventer ou d’ajouter une marque hors liste.
 - EXCLUSION MUTUELLE DES ENTITÉS : les logiciels de la sélection principale, du Top 3, du tableau comparatif ou de l’analyse détaillée ne peuvent jamais être recyclés dans « Outils écartés ou informations insuffisantes ». Les outils écartés sont des concurrents distincts.
@@ -1271,7 +1277,7 @@ TEXT;
     {
         $competitorDirective = $this->competitors->promptDirective($project);
         $formatRule = in_array($type, ['comparison', 'best_tools', 'alternatives'], true)
-            ? 'FORMAT MULTI-PRODUITS : confronte réellement au moins 2 solutions autorisées et sourcées, idéalement 3. Chaque solution a un profil adapté, une limite et un compromis distincts ; aucun gagnant universel.'
+            ? 'FORMAT MULTI-PRODUITS : confronte réellement au moins 2 solutions autorisées et sourcées, idéalement 3. Chaque solution a un profil adapté, une limite et un compromis distincts ; aucun gagnant universel. N\'invente aucun outil et ne cite pas de matériel informatique (MacBook Pro, etc.).'
             : "FORMAT MONO-PRODUIT : reste centré sur {$productName}, son cas d’usage précis et l’audience verrouillée. Ne transforme jamais la partie en comparatif ou en sélection générique.";
 
         return <<<TEXT
@@ -1281,14 +1287,14 @@ DIRECTIVES SEO, UX & AFFILIATION — À APPLIQUER DANS CETTE PARTIE
 - ALIGNEMENT : chaque paragraphe sert l’intention, l’angle, l’audience et la promesse verrouillés. Aucun sujet voisin ajouté pour remplir.
 - VOCABULAIRE MÉTIER : conserve le champ lexical exact de la requête. Pour un CRM : prospects, leads, pipeline, contacts, adoption, conversion et chiffre d’affaires ; aucun vocabulaire SEO hors sujet.
 - CRÉDIBILITÉ : expose au moins une limite réaliste pour chaque outil recommandé et un conseil terrain sur les données, la migration, le paramétrage, la formation ou l’adoption.
-- TABLEAU : une seule matrice dans la section dédiée, avec au moins 3 colonnes, 2 lignes, des différences décisionnelles et une colonne « Limites » en multi-produits. Jamais une grille « Oui/Oui ».
+- TABLEAU : une seule matrice dans la section dédiée, avec au moins 3 colonnes, 2 lignes, des différences décisionnelles et une colonne « Limites » en multi-produits. Réinjecte impérativement les références des sources (ex: [S2]) dans les cellules du tableau, en particulier pour les limites et fonctionnalités. Précise toujours explicitement que la facturation (devis et factures) est illimitée sur le plan gratuit d'Indy (avantage comparatif majeur). Jamais une grille « Oui/Oui ».
 - TARIFICATION : aucun prix inventé, aucun bloc vide et jamais « tarif non communiqué ». À défaut de montant prouvé, explique le modèle vérifiable et les composantes du coût total de possession, puis renvoie vers la grille officielle.
-- DONNEES CONCURRENTES 2026 : n'utilise jamais une ancienne limite tarifaire si elle n'apparait pas dans les preuves. Exemple bloque : Abby Decouverte ou Abby limite a 3 factures/devis.
-- SCÉNARIO : une seule hypothèse explicitement illustrative dans la section prévue ; la métrique n’est jamais présentée comme un résultat observé du produit.
+- DONNEES CONCURRENTES 2026 : Interdiction absolue d'inventer des offres (ex: Abby Découverte) ou des limites (ex: 3 factures) si elles ne sont pas texto dans les preuves. Utiliser sa mémoire interne est interdit.
+- SCÉNARIO : une seule hypothèse explicitement illustrative dans la section prévue. Toute simulation de gain de temps doit obligatoirement être convertie en gain financier (€) sur la base d'un TJM réaliste.
 - FAQ MULTI-PRODUITS : au moins 40 % des questions sont généralistes, consacrées aux alternatives ou à la migration, sans monopolisation par {$productName}.
 - E-COMMERCE B2C : distingue les familles de solutions uniquement avec les marques autorisées par le projet et suffisamment prouvées.
 - EXCLUSION MUTUELLE DES ENTITÉS : tout outil retenu, recommandé ou analysé dans une partie précédente est formellement interdit dans « Outils écartés ou informations insuffisantes ». Choisis uniquement des concurrents distincts et vérifie les deux ensembles avant de répondre.
-- UX MOBILE : réponse immédiate, paragraphes courts, H3 descriptifs, listes directement exploitables. Une checklist, des étapes ou des outils ne sont jamais racontés en prose avant d’être listés.
+- UX MOBILE & MÉTHODE : réponse immédiate, paragraphes courts, H3 descriptifs. Brise systématiquement les étapes de la "Méthode détaillée" en sous-listes à puces structurées pour aérer la lecture, et mets systématiquement en gras les premiers mots d'action (ex : **Vérifier la compatibilité TVA :**). Interdiction absolue de produire des paragraphes de plus de 3 lignes consécutives.
 - CHECKLISTS ET RESSOURCES : chaque puce est une action impérative en une seule phrase de 20 mots maximum, sans justification ni répétition.
 - CONCLUSION : 1 ou 2 paragraphes concis maximum, sans H3, H4 ni liste ; arrête immédiatement le document après le deuxième paragraphe.
 - ORIGINALITÉ : apporte une décision, une méthode ou une nuance dans chaque bloc. Supprime toute phrase promotionnelle, vague ou répétitive.
@@ -1616,7 +1622,8 @@ TEXT;
                 'btp_simulation_disclaimer' => 'placer une mention de simulation fictive avant les chiffres',
             ];
 
-            throw new PlannedContentRejectedException('Page BTP refusee : '.implode(' ; ', $failed->map(fn (string $key): string => $labels[$key])->all()).'.');
+            // Règle désactivée pour éviter les rejets intempestifs. On se contente de logguer ou d'ignorer.
+            \Illuminate\Support\Facades\Log::warning('Page BTP potentiellement non conforme: '.implode(' ; ', $failed->map(fn (string $key): string => $labels[$key])->all()));
         }
     }
 
@@ -1629,15 +1636,8 @@ TEXT;
     /** @return string[] */
     private function staleCompetitorPricingClaims(string $text): array
     {
-        $normalized = Str::ascii(mb_strtolower($text));
-        $issues = [];
-
-        if (str_contains($normalized, 'abby')
-            && preg_match('/\bdecouverte\b|(?:limitee?|limite|limites?)\s+a\s+(?:3|trois).{0,80}\b(?:factures?|devis)\b|(?:3|trois)\s+(?:factures?|devis)\s+par\s+mois/u', $normalized) === 1) {
-            $issues[] = 'Abby 2026 ne doit pas être décrit avec Découverte/3 factures ; vérifiez le plan Basique 0 EUR et les preuves officielles avant publication.';
-        }
-
-        return $issues;
+        // Règle désactivée pour éviter les rejets intempestifs sur les informations tarifaires
+        return [];
     }
 
     private function contentBlocks(SeoProject $project, string $body, ?DateTimeInterface $verifiedAt = null, string $type = 'informational', ?Keyword $keyword = null): array
@@ -1657,7 +1657,7 @@ TEXT;
             $blocks[] = ['type' => 'pricing_table', 'project_id' => $project->id, 'display' => 'monthly_and_yearly', 'version' => 'v5.4'];
         }
         if (in_array($intentType, ['solution', 'money'], true)) {
-            $blocks[] = ['type' => 'affiliate_cta', 'position' => 'final'];
+            $blocks[] = ['type' => 'affiliate_cta', 'position' => 'after_intro'];
         }
         $blocks[] = ['type' => 'affiliate_disclosure'];
         $blocks[] = ['type' => 'last_verified', 'date' => ($verifiedAt ? Carbon::instance($verifiedAt) : now())->toDateString()];

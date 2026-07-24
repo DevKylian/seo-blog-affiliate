@@ -13,6 +13,7 @@ class EditorialIdea extends Model
     protected $casts = [
         'excluded_topics' => 'array',
         'outline' => 'array',
+        'brief_details' => 'array',
         'seo_score' => 'float',
         'similarity_score' => 'float',
         'source_coverage' => 'float',
@@ -65,6 +66,8 @@ class EditorialIdea extends Model
             'unique_promise' => $this->unique_promise,
             'excluded_topics' => $this->excluded_topics ?? [],
             'outline' => $this->outline ?? [],
+            'roadmap_level' => $this->roadmap_level,
+            'brief_details' => $this->brief_details ?? [],
             'fingerprint' => $this->fingerprint,
         ];
     }

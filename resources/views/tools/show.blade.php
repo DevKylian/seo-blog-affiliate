@@ -29,9 +29,20 @@
     <div class="tool-content-grid">
         <main>
             <section>
-                <h2>Ce qu'il faut vérifier</h2>
-                <p>{{ $tool->description ?: 'Cette fiche est alimentée par les pages officielles collectées. Les informations non vérifiées ne sont pas affichées comme des faits.' }}</p>
+                <h2>Présentation</h2>
+                <p style="white-space: pre-line;">{{ $tool->description ?: 'Cette fiche est alimentée par les pages officielles collectées. Les informations non vérifiées ne sont pas affichées comme des faits.' }}</p>
             </section>
+
+            @if(!empty($tool->best_for))
+            <section>
+                <h2>Idéal pour</h2>
+                <div class="feature-grid">
+                    @foreach($tool->best_for as $profile)
+                        <span>{{ $profile }}</span>
+                    @endforeach
+                </div>
+            </section>
+            @endif
 
             <section class="pros-cons">
                 <div>
@@ -66,17 +77,36 @@
                     @endforelse
                 </div>
             </section>
+
+            @if(!empty($tool->faq))
+            <section class="faq-section">
+                <h2>Foire aux questions</h2>
+                <div class="faq-accordion">
+                    @foreach($tool->faq as $item)
+                        <details>
+                            <summary>{{ $item['question'] }}</summary>
+                            <div class="faq-answer">
+                                <p>{{ $item['answer'] }}</p>
+                            </div>
+                        </details>
+                    @endforeach
+                </div>
+            </section>
+            @endif
         </main>
 
         <aside class="tool-side">
+            <a href="{{ $tool->affiliate_url ?: $tool->website_url }}" target="_blank" rel="sponsored noopener" style="display: block; text-align: center; background: #13221f; color: white; padding: 16px; border-radius: 12px; font-weight: 800; text-decoration: none; margin-bottom: 24px; font-size: 15px; transition: background 0.2s;" onmouseover="this.style.background='#1f6b55'" onmouseout="this.style.background='#13221f'">Découvrir {{ $tool->name }} →</a>
+
             <div class="price-summary">
                 <span>Tarif à partir de</span>
                 <strong>@php($min = $tool->plans->whereNotNull('monthly_price')->min('monthly_price')){{ $min !== null ? $min.' '.$tool->currency.'/mois' : 'Non communiqué' }}</strong>
                 <a href="{{ route('tools.pricing', $tool->slug) }}">Voir tous les tarifs</a>
             </div>
+            @php($officialSources = $tool->sourcePages->whereNull('competitor_name'))
             <div class="source-summary">
-                <strong>{{ $tool->sourcePages->count() }} sources vérifiées</strong>
-                @foreach($tool->sourcePages->take(5) as $source)
+                <strong>{{ $officialSources->count() }} sources officielles vérifiées</strong>
+                @foreach($officialSources->take(5) as $source)
                     <a href="{{ $source->url }}" target="_blank" rel="noopener">{{ Str::limit($source->title, 35) }}</a>
                 @endforeach
             </div>

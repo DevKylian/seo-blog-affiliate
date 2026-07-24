@@ -156,10 +156,24 @@ class ArticleEditor extends Component
             ]);
         }
 
-        $blocks = [['type' => 'markdown', 'content' => $this->body]];
+        $existingBlocks = $this->article?->content_blocks ?? [];
+        $ctaBlocks = collect($existingBlocks)->filter(fn($b) => ($b['type'] ?? '') === 'affiliate_cta')->values();
+        
+        $blocks = [];
+        if ($ctaBlocks->isNotEmpty()) {
+            $blocks[] = $ctaBlocks->first();
+        }
+        
+        $blocks[] = ['type' => 'markdown', 'content' => $this->body];
+        
         if ($this->includePricing) {
             $blocks[] = ['type' => 'pricing_table', 'project_id' => $this->projectId, 'display' => 'monthly_and_yearly'];
         }
+        
+        if ($ctaBlocks->count() > 1) {
+            $blocks[] = ['type' => 'affiliate_cta', 'position' => 'after_intro']; // Force bottom CTA to use after_intro style
+        }
+        
         $blocks[] = ['type' => 'affiliate_disclosure'];
         $blocks[] = ['type' => 'last_verified', 'date' => now()->toDateString()];
 
@@ -216,7 +230,7 @@ class ArticleEditor extends Component
                 'refresh_reason' => 'Publication bloquée par l’audit pré-publication.',
             ]);
             $this->status = 'review';
-            $this->message = 'Article enregistré, mais publication bloquée par l’audit : '.implode(' ', array_slice($audit->blocking_reasons ?? [], 0, 3));
+            $this->addError('status', 'Publication bloquée par l’audit : '.implode(' ', array_slice($audit->blocking_reasons ?? [], 0, 3)));
 
             return;
         }

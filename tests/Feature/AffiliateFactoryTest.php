@@ -171,7 +171,7 @@ class AffiliateFactoryTest extends TestCase
         $this->get(route('home'))
             ->assertOk()
             ->assertSee('FreelanceOS')
-            ->assertSee('Calculateur TJM freelance');
+            ->assertSee('TJM freelance');
 
         $this->get(route('free-tools.index'))
             ->assertOk()

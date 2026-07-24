@@ -18,6 +18,7 @@ class SeoProject extends Model
         'strengths' => 'array',
         'limitations' => 'array',
         'best_for' => 'array',
+        'faq' => 'array',
         'competitors' => 'array',
         'competitor_pricing_urls' => 'array',
     ];

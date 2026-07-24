@@ -14,6 +14,8 @@ final class ContentSchedule extends Model
         'auto_publish' => 'boolean',
         'is_active' => 'boolean',
         'last_dispatched_at' => 'datetime',
+        'start_date' => 'datetime',
+        'posts_per_interval' => 'integer',
     ];
 
     public function project(): BelongsTo

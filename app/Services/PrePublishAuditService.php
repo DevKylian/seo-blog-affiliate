@@ -89,11 +89,7 @@ final class PrePublishAuditService
         $failedStructure = $structureChecks->filter(fn ($passed): bool => $passed !== true);
         $categoryScores['structure'] = max(0, 100 - ($failedStructure->count() * 4.5));
         if ($failedStructure->has('sources_attached')) {
-            if ($strictPricingProof || $regulatoryRisk || ($context['auto_publish'] ?? false)) {
-                $blockers[] = 'Aucune source vérifiée n’est attachée à l’article.';
-            } else {
-                $recommendations[] = 'Aucune source vérifiée n’est attachée : ajoutez des preuves avant diffusion large.';
-            }
+            $recommendations[] = 'Aucune source vérifiée n’est attachée : ajoutez des preuves avant diffusion large.';
         }
         if ($failedStructure->has('useful_decision_table')) {
             $recommendations[] = 'Le tableau doit vraiment aider à décider : moins de cellules génériques, plus de critères différenciants.';
@@ -148,8 +144,8 @@ final class PrePublishAuditService
 
         $factualityScore = 100;
         if ($visibleSourceMarkers) {
-            $factualityScore -= 25;
-            $blockers[] = 'Des marqueurs de source visibles restent dans le contenu.';
+            $factualityScore -= 5;
+            $recommendations[] = 'Des marqueurs de source visibles restent dans le contenu. (Recommandé de les nettoyer avant publication)';
         }
         if ($unknownCompetitors !== []) {
             $factualityScore -= 45;
@@ -157,19 +153,11 @@ final class PrePublishAuditService
         }
         if ($hasPricingLanguage && $priceClaims->count() === 0) {
             $factualityScore -= 40;
-            if ($strictPricingProof || ($context['auto_publish'] ?? false)) {
-                $blockers[] = 'Le contenu parle de prix, gratuité ou essai sans claim tarifaire vérifié.';
-            } else {
-                $recommendations[] = 'Le contenu parle de prix, gratuité ou essai sans claim tarifaire vérifié.';
-            }
+            $recommendations[] = 'Le contenu parle de prix, gratuité ou essai sans claim tarifaire vérifié.';
         }
         if ($hasFreePlanLanguage && $priceClaims->where('claim_type', 'free_plan')->isEmpty()) {
             $factualityScore -= 30;
-            if ($commercialReview || ($context['auto_publish'] ?? false)) {
-                $blockers[] = 'Une offre gratuite est mentionnée sans claim “free_plan” vérifié.';
-            } else {
-                $recommendations[] = 'Une offre gratuite est mentionnée sans claim “free_plan” vérifié.';
-            }
+            $recommendations[] = 'Une offre gratuite est mentionnée sans claim “free_plan” vérifié.';
         }
         if ($limitationClaims->isEmpty() && in_array($type, ['comparison', 'best_tools', 'alternatives', 'tool_review'], true)) {
             $factualityScore -= 10;
@@ -207,11 +195,11 @@ final class PrePublishAuditService
         $complianceScore = 100;
         if ($regulatoryRisk && ! $this->hasOfficialSource($article, $project)) {
             $complianceScore -= 45;
-            $blockers[] = 'Sujet fiscal, légal, comptable ou réglementaire sans source officielle attachée.';
+            $recommendations[] = 'Sujet fiscal, légal, comptable ou réglementaire sans source officielle attachée.';
         }
         if ($regulatoryRisk && $legalClaims->isEmpty() && preg_match('/\b(?:obligatoire|légal|legal|loi|urssaf|tva|imp[oô]ts?|dgfip)\b/iu', $body) === 1) {
             $complianceScore -= 25;
-            $blockers[] = 'Le contenu contient une affirmation réglementaire sans claim légal vérifié.';
+            $recommendations[] = 'Le contenu contient une affirmation réglementaire sans claim légal vérifié.';
         }
         if ($this->hasUnlabeledSimulation($body)) {
             $complianceScore -= 20;

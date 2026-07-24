@@ -12,9 +12,23 @@ class BlogController extends Controller
 {
     public function home(): View
     {
+        // Détection de l'intention (CRO dynamique)
+        $referer = request()->headers->get('referer', '');
+        $utmCampaign = request('utm_campaign', '');
+        $intention = 'general';
+
+        if (str_contains(strtolower($referer . $utmCampaign), 'tva') || str_contains(strtolower($referer . $utmCampaign), 'sasu')) {
+            $intention = 'tva_sasu';
+        } elseif (str_contains(strtolower($referer . $utmCampaign), 'deduire')) {
+            $intention = 'deductions';
+        }
+
         return view('blog.home', [
+            'intention' => $intention,
             'latestArticles' => Article::query()->with(['project', 'categories'])->where('status', 'published')->latest('published_at')->limit(6)->get(),
             'categories' => Category::query()->withCount(['articles' => fn ($query) => $query->where('status', 'published')])->orderBy('name')->get(),
+            'freeTools' => $this->freeToolCatalog(),
+            'projects' => SeoProject::where('status', 'active')->get()
         ]);
     }
 

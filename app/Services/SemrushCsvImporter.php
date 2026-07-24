@@ -138,18 +138,18 @@ class SemrushCsvImporter
 
     private function score(float $volume, float $difficulty, string $intent, string $keyword, string $brand, float $affiliatePriority = 0): float
     {
-        $intentWeight = match (true) {
-            preg_match('/transaction|commercial|achat|buy/iu', $intent) === 1 => 2.0,
-            preg_match('/navigation|brand|marque/iu', $intent) === 1 => 1.7,
-            default => 1.0,
-        };
-        $affiliate = preg_match('/avis|prix|tarif|vs|alternative|meilleur|promo|essai/iu', $keyword) ? 1.8 : 1.0;
-        $relevance = stripos($keyword, $brand) !== false ? 1.5 : 1.0;
-        $raw = ($volume + 10) * $intentWeight * $affiliate * $relevance / max($difficulty, 10);
+        // On délègue au SemrushSmartScorer qui contient la formule du "SEO Strategist"
+        // On construit un mock de Keyword pour le passer au scorer
+        $mockKeyword = new Keyword([
+            'keyword' => $keyword,
+            'search_volume' => $volume,
+            'keyword_difficulty' => $difficulty,
+            'intent' => $intent
+        ]);
+        
+        $mockProject = new SeoProject(['name' => $brand]);
 
-        $seoScore = log10(max($raw, 1)) * 32;
-
-        return round(min(100, ($seoScore * .72) + ($affiliatePriority * .28)), 2);
+        return app(SemrushSmartScorer::class)->calculateScore($mockKeyword, $mockProject);
     }
 
     private function cluster(string $keyword, string $intent): string
@@ -353,16 +353,29 @@ class SemrushCsvImporter
     private function delimiter(string $contents): string
     {
         $lines = array_slice(preg_split('/\R/u', $contents) ?: [], 0, 20);
+        $lines = array_values(array_filter($lines, fn($l) => trim($l) !== ''));
+        if (count($lines) === 0) {
+            return "\t";
+        }
+
         $scores = ["\t" => 0, ';' => 0, ',' => 0];
-        foreach ($lines as $line) {
-            foreach (array_keys($scores) as $candidate) {
-                $scores[$candidate] = max($scores[$candidate], substr_count($line, $candidate));
+        foreach (array_keys($scores) as $candidate) {
+            if (substr_count($lines[0], $candidate) === 0) {
+                continue;
+            }
+            foreach ($lines as $line) {
+                $scores[$candidate] += substr_count($line, $candidate);
             }
         }
 
-        arsort($scores);
+        $validScores = array_filter($scores);
+        if (empty($validScores)) {
+            return "\t";
+        }
 
-        return (string) array_key_first($scores);
+        arsort($validScores);
+
+        return (string) array_key_first($validScores);
     }
 
     private function toUtf8(string $contents): string

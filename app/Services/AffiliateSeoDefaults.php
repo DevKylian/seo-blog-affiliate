@@ -51,7 +51,7 @@ final class AffiliateSeoDefaults
                 'position' => 'after_intro',
                 'title' => 'Créez vos factures freelance sans Excel',
                 'description' => "{$name} peut centraliser vos factures, le suivi administratif et les documents utiles quand la gestion manuelle devient chronophage.",
-                'cta' => 'Tester '.$name.' gratuitement',
+                'cta' => "🎁 Profiter de l'offre gratuite",
                 'style' => 'soft',
             ],
             [
@@ -60,7 +60,7 @@ final class AffiliateSeoDefaults
                 'position' => 'after_intro',
                 'title' => 'Automatiser devis et factures avec '.$name,
                 'description' => "{$name} aide les indépendants à créer leurs devis, envoyer leurs factures et suivre leur administratif sans empiler les fichiers.",
-                'cta' => 'Tester '.$name.' gratuitement',
+                'cta' => "🎁 Profiter de l'offre gratuite",
                 'style' => 'product',
             ],
             [
@@ -69,7 +69,7 @@ final class AffiliateSeoDefaults
                 'position' => 'after_intro',
                 'title' => 'Gérez votre comptabilité freelance simplement',
                 'description' => "{$name} aide les indépendants à suivre recettes, dépenses et obligations dans un seul espace.",
-                'cta' => 'Découvrir '.$name,
+                'cta' => "🎁 Profiter de l'offre gratuite",
                 'style' => 'soft',
             ],
             [
@@ -78,7 +78,7 @@ final class AffiliateSeoDefaults
                 'position' => 'after_intro',
                 'title' => 'Surveillez vos seuils et vos obligations',
                 'description' => "Quand la TVA devient un sujet, {$name} permet de garder un suivi clair de l'activité et des justificatifs.",
-                'cta' => 'Simplifier ma gestion',
+                'cta' => "🎁 Profiter de l'offre gratuite",
                 'style' => 'soft',
             ],
             [
@@ -87,7 +87,7 @@ final class AffiliateSeoDefaults
                 'position' => 'after_intro',
                 'title' => 'Notre recommandation pour les indépendants',
                 'description' => "{$name} réunit facturation, suivi des transactions et comptabilité simplifiée pour éviter de multiplier les outils.",
-                'cta' => 'Voir '.$name.' gratuitement',
+                'cta' => "🎁 Profiter de l'offre gratuite",
                 'style' => 'product',
             ],
             [
@@ -96,7 +96,7 @@ final class AffiliateSeoDefaults
                 'position' => 'final',
                 'title' => "Quand l'administratif prend trop de place",
                 'description' => "Si le guide vous a aidé à cadrer le problème, l'étape suivante consiste à centraliser factures, dépenses et rappels dans un outil vérifié.",
-                'cta' => "Voir l'outil recommandé",
+                'cta' => "🎁 Profiter de l'offre gratuite",
                 'style' => 'strong',
             ],
             [
@@ -105,7 +105,7 @@ final class AffiliateSeoDefaults
                 'position' => 'after_intro',
                 'title' => 'Prêt à essayer '.$name.' ?',
                 'description' => "Comparez les informations ci-dessous, puis vérifiez l'offre actuelle directement sur le site officiel.",
-                'cta' => 'Créer mon compte '.$name,
+                'cta' => "🎁 Profiter de l'offre gratuite",
                 'style' => 'strong',
             ],
             [
@@ -114,7 +114,7 @@ final class AffiliateSeoDefaults
                 'position' => 'final',
                 'title' => 'Vérifier si '.$name.' convient à votre profil',
                 'description' => "Le meilleur choix dépend de votre statut, de votre volume de factures et de vos obligations. Le site officiel permet de confirmer les conditions actuelles.",
-                'cta' => 'Tester '.$name.' gratuitement',
+                'cta' => "🎁 Profiter de l'offre gratuite",
                 'style' => 'strong',
             ],
         ];

@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"seeds\": [\"comptabilité en ligne\", \"logiciel facturation\", \"compte pro\", \"création entreprise\", \"logiciel gestion entreprise\", \"auto-entrepreneur\", \"déclaration TVA\", \"devis facture\", \"logiciel comptabilité\", \"facturation électronique\"]}"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "MAX_TOKENS",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 788,
+    "candidatesTokenCount": 60,
+    "totalTokenCount": 1795,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 788
+      }
+    ],
+    "thoughtsTokenCount": 947,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-2.5-flash",
+  "responseId": "jlNeaty1Baq1kdUPsqLNqAI"
+}

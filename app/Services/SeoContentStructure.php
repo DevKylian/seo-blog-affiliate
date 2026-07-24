@@ -75,13 +75,14 @@ Utilise ensuite ces sections H2 dans cet ordre. Les libellés peuvent être lég
 {$sections}
 
 RÈGLES DE PROFONDEUR
+- Les H2 fournis sont une base structurelle : transforme les H2 génériques ("Méthode détaillée étape par étape", "Exemples et scénarios concrets") en titres précis liés au sujet de l'article (ex: "Comment intégrer X dans votre processus de vente", "Cas d'usage : X pour une PME de 10 personnes").
 - Chaque H2 comporte une réponse développée, concrète et non redondante ; utilise des H3 pour les sous-parties.
 - Aucun paragraphe ne dépasse 90 mots ou 5 phrases. Sépare les idées par une ligne vide pour une lecture mobile fluide.
 - Dans les sections Checklist et Outils/Ressources : 1 à 2 phrases de transition maximum, puis directement des H3 ou une liste. Chaque puce contient une seule phrase d’action de 20 mots maximum. Aucune justification, théorie ou répétition d’une section précédente.
 - Chaque puce doit être une phrase grammaticale autonome et achevée. Elle ne se termine jamais par un mot coupé, une préposition, une conjonction ou un groupe nominal incomplet. Relis et réécris tout item incomplet avant de retourner le JSON.
 - Garde une marge de sortie suffisante : ne commence jamais une phrase, une puce, un H3 ou une séquence que tu ne peux pas terminer intégralement.
 - Une marche à suivre chronologique n’apparaît qu’à un seul endroit du document. Pour un article définitionnel/débutant, la Checklist remplace la section Méthode : ne recrée jamais une seconde procédure ailleurs.
-- Toute séquence commencée par « Étape 1 », « La première étape » ou « Premièrement » contient obligatoirement une Étape 2 et une étape finale dans le même H2. Aucune séquence ne reste avortée.
+- Toute séquence commencée par « Étape 1 », « La première étape » ou « Premièrement » contient obligatoirement une Étape 2 dans le même H2. Aucune séquence ne reste avortée.
 {$listicleRule}
 - Insère au moins un tableau Markdown de synthèse ou de décision avec des données exclusivement vérifiées.
 - Le tableau doit faire choisir : au moins deux lignes de données et trois colonnes utiles, avec des différences réelles. Interdiction des tableaux remplis de « Oui ».
@@ -203,12 +204,12 @@ TEXT;
 
 RÈGLE VERTICALE BTP / BÂTIMENT — BLOQUANTE
 - Une page ciblant logiciel/facturation/devis BTP doit inclure au moins 3 outils spécialisés BTP sourcés parmi : {$specialists}.
-- Les outils généralistes ({$generalists}) peuvent être cités uniquement comme solutions adaptables ou généralistes, jamais comme logiciels de gestion de chantier dédiés.
-- Distingue explicitement « spécialisé BTP » et « adaptable au BTP » dans le tableau, le verdict et les recommandations.
-- Ne coche jamais « Oui » pour gestion de chantier, situations de travaux, retenues de garantie, acomptes, métrés, bibliothèque d'ouvrages ou rentabilité chantier sans preuve directe dans les sources.
+- Les outils généralistes ({$generalists}) peuvent être cités UNIQUEMENT comme solutions de facturation adaptables. Interdiction formelle de leur attribuer des fonctionnalités de gestion de chantier (situations, retenues de garantie, suivi de rentabilité) sans preuve formelle. Précise toujours qu'ils sont limités pour le BTP de terrain.
+- Distingue explicitement « outil BTP de terrain » et « facturation classique » dans le tableau, le verdict et les recommandations.
+- Pour tout outil généraliste, ne coche JAMAIS « Oui » pour la gestion de chantier, situations de travaux, retenues de garantie, acomptes, métrés, ou bibliothèque d'ouvrages. Si la preuve manque formellement, écris obligatoirement « Non géré » ou « Limité ».
 - Si la preuve manque, écris « À vérifier », « non spécialisé BTP » ou « adaptable, mais pas outil chantier dédié ».
 - La matrice doit couvrir les critères métier suivants quand ils sont pertinents : {$criteria}.
-- N'utilise pas « frais cachés » ou « coûts cachés » ; écris « frais additionnels éventuels », « modules payants », « options » ou « limites de plan ».
+- N'utilise JAMAIS les termes « frais cachés » ou « coûts cachés » (ils provoquent un rejet direct de l'article). Écris obligatoirement « frais additionnels éventuels », « modules payants », « options » ou « limites de plan ».
 - Toute simulation doit commencer par « Simulation fictive à visée pédagogique : les chiffres suivants ne sont pas une promesse de résultat. »
 - N'ajoute pas un bloc tarifaire détaillé pour le seul outil affilié sur une page comparative BTP : équilibre les prix avec les outils BTP sourcés ou renvoie vers une fiche dédiée.
 TEXT;
@@ -262,6 +263,7 @@ TEXT;
             'single_conclusion' => $conclusionCount === 1,
             'concise_conclusion' => $this->hasConciseConclusion($body),
             'sources_attached' => $hasSources,
+            'sources_markers_present' => ! $hasSources || preg_match('/\[\s*(?:[Ss]\d+\s*(?:[,;]\s*)?)+\]/u', $body) === 1,
             'keyword_in_opening' => ! $accentlessKeyword || str_contains($accentlessFirst150Words, $accentlessKeyword),
             'direct_answer_early' => count(array_slice($words[0], 0, 150)) >= 40
                 && preg_match('/réponse courte|en bref|permet|convient|consiste|désigne|recommand/iu', $first150Words) === 1,
@@ -308,6 +310,7 @@ TEXT;
             'single_conclusion' => 'une seule conclusion finale',
             'concise_conclusion' => 'une conclusion limitée à deux paragraphes, sans sous-titre ni liste',
             'sources_attached' => 'des sources vérifiées attachées',
+            'sources_markers_present' => 'les balises de sources [S1], [S2] présentes dans le texte',
             'keyword_in_opening' => 'le mot-clé dans les 150 premiers mots',
             'direct_answer_early' => 'une réponse directe dans les 150 premiers mots',
             'realistic_weakness' => 'au moins une limite ou un inconvénient réaliste',
@@ -380,9 +383,8 @@ TEXT;
                 continue;
             }
 
-            $hasSecond = preg_match('/\b(?:étape\s*2|deuxième étape|seconde étape|deuxièmement)\b/iu', $section) === 1;
-            $hasFinal = preg_match('/\b(?:étape\s*(?:[3-9]|[1-9]\d+)|troisième étape|dernière étape|étape finale|finalement)\b/iu', $section) === 1;
-            if (! $hasSecond || ! $hasFinal) {
+            $hasSecond = preg_match('/\b(?:étape\s*2|deuxième étape|seconde étape|deuxièmement|ensuite|puis)\b/iu', $section) === 1;
+            if (! $hasSecond) {
                 return false;
             }
         }

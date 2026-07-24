@@ -75,7 +75,7 @@ final class AffiliateBlockService
             'description' => $strong
                 ? "{$projectName} permet de rapprocher facturation, dépenses et obligations dans un même outil."
                 : "Quand votre gestion devient répétitive, un outil comme {$projectName} peut vous aider à automatiser les tâches administratives.",
-            'cta' => $strong ? "Tester {$projectName} gratuitement" : "Découvrir {$projectName}",
+            'cta' => "🎁 Profiter de l'offre gratuite",
             'style' => $strong ? 'strong' : 'soft',
             'is_active' => true,
         ]);

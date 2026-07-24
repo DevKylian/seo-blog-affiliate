@@ -17,6 +17,7 @@ final class GeminiEditorialIdeaGenerator
     public function generate(
         SeoProject $project,
         Collection $keywords,
+        Collection $strategicSubjects,
         int $desiredCount,
         array $excludedFingerprints = [],
         string $instructions = '',
@@ -24,7 +25,7 @@ final class GeminiEditorialIdeaGenerator
     ): array {
         $currentDate = now()->locale('fr')->translatedFormat('j F Y');
         $currentYear = now()->format('Y');
-        $keywordData = $keywords->take(120)->map(fn (Keyword $keyword) => array_filter([
+        $keywordData = $keywords->take(120)->shuffle()->map(fn (Keyword $keyword) => array_filter([
             'keyword_id' => $keyword->id,
             'keyword' => $keyword->keyword,
             'volume' => $keyword->search_volume,
@@ -44,6 +45,7 @@ final class GeminiEditorialIdeaGenerator
             'new_for_planning' => $keyword->isUnplanned(),
         ], fn ($value) => $value !== null && $value !== ''))->values()->all();
         $keywordsJson = json_encode($keywordData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $strategicJson = json_encode($strategicSubjects->toArray(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         $excludedJson = json_encode(array_values(array_unique($excludedFingerprints)), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         $competitorDirective = app(CompetitorCatalog::class)->promptDirective($project);
         $publishedPillars = $project->articles()
@@ -53,59 +55,51 @@ final class GeminiEditorialIdeaGenerator
             ->filter(fn ($article) => $article->keyword?->strategyTier() === 'pillar')
             ->count();
         $strategy = $publishedPillars < 2
-            ? "PHASE FONDATIONS : {$publishedPillars}/2 pilier(s) publié(s). Propose d’abord jusqu’à 2 piliers génériques distincts, puis consacre les idées restantes aux quick_win et niches."
+            ? "PHASE FONDATIONS : {$publishedPillars}/2 pilier(s) publié(s). Propose d’abord jusqu’à 2 piliers génériques distincts ou de grands comparatifs, puis consacre les idées restantes aux quick_win et niches."
             : 'PHASE EXPANSION : les fondations existent. Au moins 60 % des idées doivent cibler strategy_tier quick_win ou niche, avec une intention et un angle réellement distincts.';
 
         $prompt = <<<PROMPT
-Tu es le moteur de planification éditoriale d’un site SEO affilié. Tu ne rédiges aucun article.
+Tu es le moteur de planification éditoriale d’un site SEO affilié de très haut niveau. Tu ne rédiges aucun article.
 
-Crée {$desiredCount} idées réellement distinctes pour {$project->name} à partir des mots-clés importés. C’est le cycle {$attempt}.
+Crée {$desiredCount} idées réellement distinctes pour {$project->name}. C’est le cycle {$attempt}.
 Variables système injectées par l’application : CURRENT_DATE = {$currentDate} ; CURRENT_YEAR = {$currentYear}.
 Consignes utilisateur : {$instructions}
 Stratégie de portefeuille : {$strategy}
 
+ATTENTION : Tu as deux sources pour générer tes idées :
+1. "Sujets Stratégiques (Knowledge Graph)" : Ce sont les idées fondatrices (Piliers, Comparatifs, Alternatives). Tu DOIS traiter en priorité ces sujets car ils ont une très haute valeur métier.
+2. "Mots-clés disponibles (Semrush)" : Ce sont les requêtes pour la longue traîne et le trafic de masse.
+
 LANGUE FRANÇAISE
-- Rédige tous les champs visibles en français naturel avec les accents normaux de la langue française : é, è, ê, à, ç, ù, œ, apostrophes et ponctuation française quand elle est pertinente.
-- N'ASCIIse jamais les titres, angles, audiences, promesses, problèmes, résultats attendus, exclusions ou H2 : n'écris pas « donnees », « fonctionnalites », « facture electronique », « a verifier » ou « cout » si la forme française accentuée existe.
-- Les slugs restent gérés par l'application ; ne simplifie pas le français visible pour anticiper le slug.
-- Exception technique : primary_keyword recopie exactement le mot-clé Semrush fourni, même s'il manque des accents, afin de conserver le rattachement data.
+- Rédige tous les champs visibles en français naturel avec les accents normaux de la langue française.
+- Les slugs restent gérés par l'application.
+- Exception technique : primary_keyword recopie le mot-clé Semrush, ou le titre du Sujet Stratégique s'il n'y a pas de mot-clé exact.
 
 {$competitorDirective}
 
-Pour chaque idée, fournis un brief autonome : source_keyword_id, title, primary_keyword, entity, topic, intent, angle, audience, problem, expected_outcome, funnel_stage, unique_promise, excluded_topics, outline et content_type.
+Pour chaque idée, fournis un brief autonome, classé par niveau de roadmap : source_keyword_id, title, primary_keyword, entity, topic, intent, angle, audience, problem, expected_outcome, funnel_stage, unique_promise, excluded_topics, outline, content_type, roadmap_level, call_to_action, lsi_keywords, people_also_ask, tone_of_voice, schema_org, internal_links_strategy.
 
-RÈGLES BLOQUANTES
-- Une variante lexicale n’est pas une nouvelle idée. L’unité est sujet + intention + angle + audience + résultat.
-- source_keyword_id doit recopier exactement le keyword_id d’une ligne fournie. primary_keyword doit recopier exactement le keyword de cette même ligne, sans le reformuler. N’invente jamais un KD et ne rattache jamais une idée à un mot-clé seulement voisin.
-- Dans une même réponse, n'utilise jamais deux fois le même source_keyword_id. Un mot-clé Semrush = une seule idée maximum ; les variantes doivent venir d'autres mots-clés ou d'un vrai satellite distinct.
-- Regroupe les synonymes génériques (« logiciel devis facture », « logiciel facture devis », « logiciel pour devis et facture ») dans un seul pilier. Ne crée jamais une page par formulation.
-- strategy_tier pillar sert aux pages d’autorité larges et très complètes ; quick_win sert aux faibles KD précis ; niche sert aux métiers, plateformes ou profils spécifiques.
-- Un quick_win reste un contenu expert et complet. Faible difficulté ne signifie jamais contenu court, superficiel ou produit en série sans valeur.
-- Analyse en priorité les mots-clés marqués new_for_planning=true : ils viennent d’être ajoutés et n’ont encore produit ni article ni idée éditoriale.
-- Un nouveau mot-clé n’impose pas automatiquement un nouvel article. S’il est synonyme d’un sujet déjà couvert, rattache-le au cluster existant et propose plutôt un angle réellement distinct parmi les autres nouveaux mots-clés.
-- L’angle décrit une opération ou une décision précise. Interdits : general, guide-pratique, guide-complet, presentation-generale, vue-ensemble.
-- Le mini-plan contient 5 à 8 H2 précis. Deux idées ne doivent pas partager plus de 3 H2.
-- Le mini-plan est déjà un contrat de rédaction : chaque H2 répond à une question distincte, respecte la promesse du titre et évite les intitulés génériques (« Pourquoi c’est important », « Guide complet », « Tout savoir »).
-- La promesse, le problème et le résultat doivent être concrets et différents d’une idée à l’autre.
-- Respecte strictement le métier du produit et l’intention du mot-clé. Aucun sujet forcé.
-- intent_type pilote le format : information = guide pédagogique avec 1 CTA discret ; solution = page méthode/outils avec plusieurs comparaisons utiles ; money = avis/prix/alternative/comparaison proche conversion avec CTA forts.
-- Respecte la répartition business cible quand le lot le permet : environ 70 % information, 20 % solution, 10 % money. Ne force jamais 100 % money sur un site jeune.
-- affiliate_priority signale les sujets susceptibles de convertir ; priorise-les à score SEO comparable, surtout facturation, comptabilité, TVA, déclarations et logiciel devis/facture.
-- Mono-produit : utilise informational, tool_review ou pricing ; jamais comparison, alternatives ou best_tools, et jamais « comparatif » ou « meilleur » dans le titre.
-- Comparison : nomme explicitement les deux solutions dans le titre avec « X vs Y » et prévois au moins 2 solutions dans le plan.
-- Alternatives : le titre part explicitement du produit affilié sous la forme « Alternatives à {$project->name}… » et le plan confronte au moins 2 solutions nommées.
-- Best_tools : le titre annonce un Top ou un nombre d’outils supérieur ou égal à 2 ; le plan prévoit une section distincte pour chaque logiciel retenu.
-- Les exclusions empêchent la future rédaction de dériver vers les autres idées du lot.
-- Ne retourne jamais body, introduction, paragraphes ou article complet.
-- Si un title promet un nombre (« Les 10… », « 5 étapes… »), outline contient exactement ce nombre d’items identifiables ou prévoit explicitement une section dédiée qui les portera.
-- Pour un article définitionnel/débutant (ToFu : « Qu’est-ce que… », « définition », « comprendre »), ne prévois jamais à la fois une méthode chronologique et une checklist du même processus. Conserve uniquement la checklist opérationnelle ; utilise les autres H2 pour la définition, les concepts, les exemples, les erreurs, les outils et la FAQ.
-- ANCRAGE TEMPOREL DES TITRES : si un H1 nécessite une année d’actualité, utilise exclusivement CURRENT_YEAR ({$currentYear}). Toute autre année d’actualité est interdite. Ne mentionne pas CURRENT_DATE dans le titre.
-- ORTHOGRAPHE DES MARQUES : recopie chaque nom sans espace parasite, sans lettre isolée ajoutée devant et avec sa casse officielle. N’écris jamais « Hu bspot », « Hub Spot », « H HubSpot » ou « Sales Force ». Formes canoniques : HubSpot, Salesforce, Odoo, Zoho CRM, Pipedrive, Brevo, Klaviyo, ActiveCampaign, Semrush et Ahrefs.
+RÈGLES BLOQUANTES DE STRUCTURATION
+- Une idée basée sur un Sujet Stratégique (Knowledge Graph) N'A PAS besoin d'un `source_keyword_id` valide, tu peux mettre null ou 0.
+- `roadmap_level` DOIT être l'un des choix de l'enum stricte (Level 1 - Pillar, Level 2 - Commercial, etc.) selon la hiérarchie sémantique.
+- Le brief doit être ULTRA-RICHE. Le rédacteur IA n'aura besoin d'aucune autre réflexion. Fournis des mots-clés LSI précis, des PAA réelles, une consigne de Tone of Voice spécifique, et la logique de maillage interne (ex: "Lien vers la page Level 1 Pillar").
+- strategy_tier pillar sert aux pages d’autorité larges et très complètes (guide ultime, gros comparatif).
+- Un quick_win reste un contenu expert et complet. Faible difficulté ne signifie jamais contenu court ou superficiel.
+- Le mini-plan (outline) doit être EXTRÊMEMENT structuré et professionnel. Il doit contenir 5 à 8 H2.
+- Interdiction absolue des H2 génériques type "Introduction", "Conclusion", "Pourquoi c'est important", "Guide complet". Les H2 doivent être des affirmations fortes ou des questions ultra-précises.
+- DIVERSITÉ THÉMATIQUE ET FORMATS : Tu dois IMPÉRATIVEMENT générer une variété de formats (content_type). Génère des comparatifs (comparison, alternatives, best_tools) en priorité si les Sujets Stratégiques le suggèrent.
+- Comparison : nomme explicitement les deux solutions dans le titre avec « X vs Y » et prévois au moins 2 solutions concurrentielles dans le plan.
+- Alternatives : le titre part explicitement du produit cible ou d'un concurrent sous la forme « Alternatives à X… » et le plan confronte au moins 2 solutions nommées.
+- Best_tools : le titre annonce un Top ou un nombre d’outils supérieur ou égal à 2.
+- Pour les articles de fond ou Piliers, n'hésite pas à ajouter des H3 profonds (bien que tu ne retournes que les grandes sections dans outline).
 
 Empreintes déjà couvertes ou refusées — ne pas les reformuler :
 {$excludedJson}
 
-Mots-clés disponibles :
+Sujets Stratégiques (Knowledge Graph - PRIORITÉ ABSOLUE) :
+{$strategicJson}
+
+Mots-clés disponibles (Semrush) :
 {$keywordsJson}
 PROMPT;
 
@@ -218,8 +212,21 @@ PROMPT;
                                 'items' => $string,
                             ],
                             'content_type' => ['type' => 'string', 'enum' => ['informational', 'tool_review', 'pricing', 'comparison', 'alternatives', 'best_tools']],
+                            'roadmap_level' => ['type' => 'string', 'enum' => ['Level 1 - Pillar', 'Level 2 - Commercial', 'Level 3 - Long Tail', 'Level 4 - FAQ', 'Level 5 - Comparatifs', 'Level 6 - Alternatives', 'Level 7 - Tutoriels']],
+                            'call_to_action' => $string,
+                            'lsi_keywords' => [
+                                'type' => 'array',
+                                'items' => $string,
+                            ],
+                            'people_also_ask' => [
+                                'type' => 'array',
+                                'items' => $string,
+                            ],
+                            'tone_of_voice' => $string,
+                            'schema_org' => $string,
+                            'internal_links_strategy' => $string,
                         ],
-                        'required' => ['source_keyword_id', 'title', 'primary_keyword', 'entity', 'topic', 'intent', 'angle', 'audience', 'problem', 'expected_outcome', 'funnel_stage', 'unique_promise', 'excluded_topics', 'outline', 'content_type'],
+                        'required' => ['source_keyword_id', 'title', 'primary_keyword', 'entity', 'topic', 'intent', 'angle', 'audience', 'problem', 'expected_outcome', 'funnel_stage', 'unique_promise', 'excluded_topics', 'outline', 'content_type', 'roadmap_level', 'call_to_action', 'lsi_keywords', 'people_also_ask', 'tone_of_voice', 'schema_org', 'internal_links_strategy'],
                         'additionalProperties' => false,
                     ],
                 ],

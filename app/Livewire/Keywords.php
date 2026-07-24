@@ -11,6 +11,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
+use App\Services\GeminiSeedKeywordGenerator;
 use Throwable;
 
 #[Layout('layouts.admin')]
@@ -23,6 +24,8 @@ class Keywords extends Component
     public $csv;
 
     public string $pastedKeywords = '';
+
+    public array $suggestedSeeds = [];
 
     public string $search = '';
 
@@ -76,6 +79,21 @@ class Keywords extends Component
             );
             $this->message = "{$count} mots-clés Semrush collés ont été importés ou mis à jour.";
             $this->reset('pastedKeywords');
+        } catch (Throwable $exception) {
+            $this->error = $exception->getMessage();
+        }
+    }
+
+    public function generateSeeds(GeminiSeedKeywordGenerator $generator): void
+    {
+        $this->validate(['projectId' => ['required', 'exists:seo_projects,id']]);
+        $this->message = '';
+        $this->error = '';
+        $this->suggestedSeeds = [];
+        try {
+            $project = SeoProject::query()->findOrFail($this->projectId);
+            $this->suggestedSeeds = $generator->generate($project);
+            $this->message = "L'IA a généré " . count($this->suggestedSeeds) . " mots-clés de base à rechercher sur Semrush.";
         } catch (Throwable $exception) {
             $this->error = $exception->getMessage();
         }

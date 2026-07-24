@@ -225,6 +225,7 @@ final class EditorialDuplicateDetector
 
         $bestArticle = null;
         $bestScore = 0.0;
+        $bestLexicalScore = 0.0;
         foreach ($articles as $article) {
             $articleBlueprint = $this->normalizeBlueprint($this->blueprintForArticle($article));
             $score = $this->blueprintScore($candidateBlueprint, $articleBlueprint);
@@ -242,12 +243,14 @@ final class EditorialDuplicateDetector
             if ($score > $bestScore) {
                 $bestArticle = $article;
                 $bestScore = $score;
+                $bestLexicalScore = $lexicalScore;
             }
         }
 
         return [
             'article' => $bestArticle,
             'score' => round($bestScore, 2),
+            'lexical_score' => round($bestLexicalScore * 100, 2),
             'decision' => $this->decision($bestScore),
         ];
     }

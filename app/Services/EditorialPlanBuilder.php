@@ -20,6 +20,7 @@ final class EditorialPlanBuilder
         private readonly ProductKeywordMatcher $matcher,
         private readonly CompetitorCatalog $competitors,
         private readonly SeoContentStructure $structures,
+        private readonly KnowledgeGraphStrategyBuilder $knowledgeGraph,
     ) {}
 
     public function build(SeoProject $project, ?int $userId, int $requestedCount, string $instructions = ''): EditorialPlan
@@ -93,8 +94,12 @@ final class EditorialPlanBuilder
             if ($valid->count() >= $plan->requested_count) {
                 return $this->lockPlan($plan, $valid);
             }
+            if ($valid->count() > 0) {
+                $plan->update(['requested_count' => $valid->count()]);
+                return $this->lockPlan($plan, $valid);
+            }
             $plan->update(['status' => 'failed']);
-            throw new RuntimeException("Seulement {$valid->count()} angles uniques ont été trouvés sur {$plan->requested_count} demandés après {$maxAttempts} étapes.");
+            throw new RuntimeException("Aucun angle unique n'a pu être validé après {$maxAttempts} étapes.");
         }
 
         $priorIdeas = EditorialIdea::query()
@@ -105,14 +110,24 @@ final class EditorialPlanBuilder
         $excluded = collect($this->existingFingerprints($project))
             ->merge($plan->ideas()->pluck('fingerprint'))
             ->filter()->unique()->values()->all();
-        // Six idées fixes imposaient plusieurs appels même quand toutes les
-        // propositions étaient valides. On couvre le manque et une petite marge
-        // dans le même appel, sans surproduire des dizaines de briefs facturés.
+        $usedPrimaryKeywords = $plan->ideas()->pluck('primary_keyword')->filter()->unique()->all();
+        $generationKeywords = $keywords->reject(fn (Keyword $k) => in_array($k->keyword, $usedPrimaryKeywords, true));
+        if ($generationKeywords->isEmpty()) {
+            $generationKeywords = $keywords;
+        }
+
+        // En raison de la structure ultra-riche (ProductProfile + RoadmapLevel),
+        // générer 8 idées dépasse facilement la limite de 8192 tokens en sortie.
+        // On limite à 3 par appel pour rester sécurisé et on itère plus souvent si besoin.
         $missing = $target - $valid->count();
-        $desired = min(8, max(4, $missing + max(2, (int) ceil($missing * .25))));
+        $desired = min(3, max(2, $missing));
+        
+        $strategicSubjects = $this->knowledgeGraph->generateSubjects($project);
+
         $rawIdeas = $this->generator->generate(
             $project,
-            $keywords,
+            $generationKeywords,
+            $strategicSubjects,
             $desired,
             $excluded,
             (string) $plan->instructions,
@@ -151,27 +166,28 @@ final class EditorialPlanBuilder
 
     private function maxAttempts(EditorialPlan $plan): int
     {
-        return $plan->requested_count >= 20 ? 8 : 5;
+        // En générant par batch de 3, un plan de 50 articles nécessite au moins 17 appels sans échec.
+        // On donne une marge très large.
+        return max(6, (int) ceil($plan->requested_count / 2) + 10);
     }
 
     private function lockPlan(EditorialPlan $plan, Collection $valid): EditorialPlan
     {
-        $ranked = $valid->unique('id')->sortByDesc('seo_score')->values();
-        $publishedPillars = $plan->project->articles()
-            ->where('status', 'published')
-            ->with('keyword')
-            ->get()
-            ->filter(fn ($article) => $article->keyword?->strategyTier() === 'pillar')
-            ->count();
-        if ($publishedPillars < 2) {
-            $needed = min(2 - $publishedPillars, $plan->requested_count);
-            $priority = $ranked->filter(fn (EditorialIdea $idea) => $idea->keyword?->strategyTier() === 'pillar')->take($needed);
-            $ranked = $priority->concat($ranked->reject(fn (EditorialIdea $idea) => $priority->contains('id', $idea->id)))->values();
-        } else {
-            $needed = min((int) ceil($plan->requested_count * .6), $plan->requested_count);
-            $priority = $ranked->filter(fn (EditorialIdea $idea) => in_array($idea->keyword?->strategyTier(), ['quick_win', 'niche'], true))->take($needed);
-            $ranked = $priority->concat($ranked->reject(fn (EditorialIdea $idea) => $priority->contains('id', $idea->id)))->values();
-        }
+        $priorityMap = [
+            'Page pilier' => 1,
+            'Page commerciale' => 2,
+            'Article comparatif' => 3,
+            'Tutoriel' => 4,
+            'FAQ' => 5,
+            'Article de blog (Longue traîne)' => 6,
+        ];
+
+        $ranked = $valid->unique('id')->sortBy(function ($idea) use ($priorityMap) {
+            $level = $idea->roadmap_level ?? '';
+            $priority = $priorityMap[$level] ?? 99;
+            return [$priority, -$idea->seo_score];
+        })->values();
+
         $plan->ideas()->whereIn('status', ['candidate', 'accepted', 'reserve'])->update([
             'status' => 'reserve',
             'position' => null,
@@ -220,11 +236,20 @@ final class EditorialPlanBuilder
         $comparisonPool = $plan->ideas()->whereIn('status', ['accepted', 'generating', 'generated', 'reserve'])->get();
         $excluded = $plan->ideas()->pluck('fingerprint')->filter()->unique()->values()->all();
 
+        $usedPrimaryKeywords = $plan->ideas()->pluck('primary_keyword')->filter()->unique()->all();
+        $generationKeywords = $keywords->reject(fn (Keyword $k) => in_array($k->keyword, $usedPrimaryKeywords, true));
+        if ($generationKeywords->isEmpty()) {
+            $generationKeywords = $keywords;
+        }
+
+        $strategicSubjects = $this->knowledgeGraph->generateSubjects($project);
+
         for ($attempt = 1; $attempt <= 1; $attempt++) {
             $rawIdeas = $this->generator->generate(
                 $project,
-                $keywords,
-                6,
+                $generationKeywords,
+                $strategicSubjects,
+                3,
                 $excluded,
                 (string) $plan->instructions,
                 $plan->attempts + $attempt,
@@ -296,9 +321,10 @@ final class EditorialPlanBuilder
         ]);
         $existing = $this->duplicates->analyzeBlueprint($project, $blueprint, $representation);
         $bestScore = (float) $existing['score'];
+        $lexicalScore = (float) ($existing['lexical_score'] ?? 0);
         $closestArticle = $existing['article'];
-        if ($bestScore >= 72) {
-            return $this->reject('duplicate', $bestScore >= 86 ? 'Sujet déjà couvert.' : 'Angle trop proche d’un contenu existant.', $sourceCoverage, $bestScore, $closestArticle?->id);
+        if ($bestScore >= 72 || $lexicalScore >= 65) {
+            return $this->reject('duplicate', $bestScore >= 86 || $lexicalScore >= 65 ? 'Sujet ou intention déjà couverts (anti-cannibalisation).' : 'Angle trop proche d’un contenu existant.', $sourceCoverage, max($bestScore, $lexicalScore), $closestArticle?->id);
         }
 
         foreach ($valid as $accepted) {
@@ -459,6 +485,15 @@ final class EditorialPlanBuilder
             'unique_promise' => $blueprint['unique_promise'],
             'excluded_topics' => $blueprint['excluded_topics'],
             'outline' => $blueprint['outline'],
+            'roadmap_level' => $raw['roadmap_level'] ?? null,
+            'brief_details' => [
+                'call_to_action' => $raw['call_to_action'] ?? null,
+                'lsi_keywords' => $raw['lsi_keywords'] ?? [],
+                'people_also_ask' => $raw['people_also_ask'] ?? [],
+                'tone_of_voice' => $raw['tone_of_voice'] ?? null,
+                'schema_org' => $raw['schema_org'] ?? null,
+                'internal_links_strategy' => $raw['internal_links_strategy'] ?? null,
+            ],
             'fingerprint' => $blueprint['fingerprint'],
             'content_type' => in_array($raw['content_type'] ?? '', ['informational', 'tool_review', 'pricing', 'comparison', 'alternatives', 'best_tools'], true) ? $raw['content_type'] : 'informational',
             'status' => $decision['accepted'] ? 'candidate' : 'rejected',
@@ -538,18 +573,42 @@ final class EditorialPlanBuilder
             ->values();
         $bucket = fn (string $tier) => $all->filter(fn (Keyword $keyword) => $keyword->strategyTier() === $tier);
         $newlyImported = $all->filter(fn (Keyword $keyword) => $keyword->isUnplanned())
-            ->sortByDesc('created_at')
-            ->take(45);
+            ->sortByDesc('created_at');
 
-        return $bucket('pillar')->sortByDesc('search_volume')->take(12)
-            ->concat($newlyImported)
-            ->concat($bucket('quick_win')->sortByDesc('opportunity_score')->take(45))
-            ->concat($bucket('niche')->sortByDesc('opportunity_score')->take(33))
-            ->concat($bucket('supporting')->sortByDesc('opportunity_score')->take(15))
-            ->concat($all)
+        return $this->pickDiverse($bucket('pillar')->sortByDesc('search_volume'), 12)
+            ->concat($this->pickDiverse($newlyImported, 45))
+            ->concat($this->pickDiverse($bucket('quick_win')->sortByDesc('opportunity_score'), 45))
+            ->concat($this->pickDiverse($bucket('niche')->sortByDesc('opportunity_score'), 33))
+            ->concat($this->pickDiverse($bucket('supporting')->sortByDesc('opportunity_score'), 15))
+            ->concat($this->pickDiverse($all, 150))
             ->unique('id')
             ->take(150)
             ->values();
+    }
+
+    private function pickDiverse(Collection $pool, int $limit): Collection
+    {
+        $grouped = $pool->groupBy(fn (Keyword $k) => $k->cluster ?: 'Général')
+            ->map(fn ($group) => $group->values());
+        
+        $selected = collect();
+        $index = 0;
+        
+        while ($selected->count() < $limit && $grouped->isNotEmpty()) {
+            $addedThisRound = 0;
+            foreach ($grouped as $cluster => $group) {
+                if (isset($group[$index])) {
+                    $selected->push($group[$index]);
+                    $addedThisRound++;
+                }
+            }
+            if ($addedThisRound === 0) {
+                break;
+            }
+            $index++;
+        }
+        
+        return $selected->take($limit)->values();
     }
 
     private function score(Keyword $keyword, array $blueprint, float $coverage, float $similarity, SeoProject $project): float
@@ -560,11 +619,13 @@ final class EditorialPlanBuilder
         $difficultyPenalty = min(12, ((float) $keyword->keyword_difficulty) * .12);
         $newKeywordBonus = $keyword->isUnplanned() ? 8 : 0;
         $affiliatePriority = min(100, max(0, (float) $keyword->affiliate_priority));
+        $businessScore = in_array($blueprint['content_type'] ?? '', ['best_tools', 'comparison', 'alternatives'], true) ? 45 : 0;
+        $targetAudienceBonus = preg_match('/indépendant|bnc|auto[\s-]?entrepreneur|micro[\s-]?entreprise|freelance|gratuit/iu', $keyword->keyword) ? 35 : 0;
 
         return round(max(0,
             ($seoOpportunity * .25) + 15 + ($commercial * .15) + 15
             + ((100 - $similarity) * .15) + ($coverage * .10) + ($internalLinks * .05)
-            + ($affiliatePriority * .12) + $newKeywordBonus - $difficultyPenalty
+            + ($affiliatePriority * .12) + $newKeywordBonus - $difficultyPenalty + $businessScore + $targetAudienceBonus
         ), 2);
     }
 

@@ -409,7 +409,7 @@ class Automation extends Component
                     $this->error = $exception->getMessage();
                 }
             }
-            $maxAttempts = $plan->requested_count >= 20 ? 8 : 5;
+            $maxAttempts = $plan->requested_count >= 20 ? 15 : ($plan->requested_count >= 10 ? 10 : 6);
             $this->message = "Planification en arrière-plan : {$plan->candidate_count} idées analysées, étape {$plan->attempts}/{$maxAttempts}.";
             $this->dispatch('planning-step-finished');
 
@@ -461,9 +461,32 @@ class Automation extends Component
         }
 
         $candidateCount = $plan->ideas()->where('status', 'candidate')->count();
-        $maxAttempts = $plan->requested_count >= 20 ? 8 : 5;
+        $maxAttempts = $plan->requested_count >= 20 ? 15 : ($plan->requested_count >= 10 ? 10 : 6);
         $this->message = "Planification en cours : {$candidateCount}/{$plan->requested_count} angles retenus après l’étape {$plan->attempts}/{$maxAttempts}.";
         $this->dispatch('planning-step-finished');
+    }
+
+    public function cancelPlan(): void
+    {
+        if (! $this->activePlanId) {
+            return;
+        }
+
+        $plan = EditorialPlan::query()->where('user_id', auth()->id())->find($this->activePlanId);
+        if (! $plan || $plan->status === 'generating' || $plan->runs()->exists()) {
+            $this->error = 'Impossible d’annuler ce plan car la production a déjà commencé.';
+            return;
+        }
+
+        DB::transaction(function () use ($plan) {
+            $plan->ideas()->delete();
+            $plan->delete();
+        });
+
+        $this->activePlanId = null;
+        $this->error = '';
+        $this->message = 'Le plan éditorial a été annulé et les angles proposés ont été supprimés. Vous pouvez relancer une nouvelle planification.';
+        $this->dispatch('planning-finished');
     }
 
     public function launchRun(ContentRunWorkerLauncher $worker): void

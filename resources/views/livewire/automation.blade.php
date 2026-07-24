@@ -49,10 +49,15 @@
                 @if($run && in_array($run->status,['pending','processing']))
                     <div class="launch-button"><span>↻</span><div><strong>Production automatique en cours</strong><small>{{ $run->items->sum('generation_step') }} partie(s) sauvegardée(s) · {{ $run->completed_count }} sur {{ $run->requested_count }} contenus validés.</small></div><b>…</b></div>
                 @elseif($plan && $plan->status === 'planning')
-                    <div class="run-progress" wire:poll.5s.keep-alive="processPlanningStep"><div><strong>{{ $plan->ideas->where('status','candidate')->count() }}/{{ $plan->requested_count }} angles retenus</strong><span>{{ $plan->candidate_count }} idées analysées · étape {{ $plan->attempts }}/5 · reprise automatique toutes les 5 secondes si Gemini est saturé</span></div></div>
+                    <div class="run-progress" wire:poll.5s.keep-alive="processPlanningStep"><div><strong>{{ $plan->ideas->where('status','candidate')->count() }}/{{ $plan->requested_count }} angles retenus</strong><span>{{ $plan->candidate_count }} idées analysées · étape {{ $plan->attempts }}/{{ $plan->requested_count >= 20 ? 15 : ($plan->requested_count >= 10 ? 10 : 6) }} · reprise automatique toutes les 5 secondes si Gemini est saturé</span></div></div>
                     <div class="launch-button"><span>⌁</span><div><strong>Gemini prépare le prochain lot…</strong><small>Aucune action requise : les timeouts et HTTP 503 sont réessayés automatiquement, même si l’onglet passe en arrière-plan.</small></div><b>…</b></div>
                 @elseif($plan && $plan->isReady())
-                    <div class="run-progress"><div><strong>{{ $plan->accepted_count }}/{{ $plan->requested_count }} angles validés</strong><span>{{ $plan->candidate_count }} idées analysées · {{ $plan->duplicate_count }} doublons · {{ $plan->weak_angle_count }} angles faibles · {{ $plan->ideas->where('status','reserve')->count() }} réserves</span></div></div>
+                    <div class="run-progress">
+                        <div><strong>{{ $plan->accepted_count }}/{{ $plan->requested_count }} angles validés</strong><span>{{ $plan->candidate_count }} idées analysées · {{ $plan->duplicate_count }} doublons · {{ $plan->weak_angle_count }} angles faibles · {{ $plan->ideas->where('status','reserve')->count() }} réserves</span></div>
+                        <div class="run-actions">
+                            <button class="danger" type="button" wire:click="cancelPlan" wire:loading.attr="disabled" wire:confirm="Annuler cette planification et supprimer ces angles ? Vous pourrez relancer une analyse avec d'autres consignes.">Annuler et recommencer</button>
+                        </div>
+                    </div>
                     <button class="launch-button" wire:click="launchRun" wire:loading.attr="disabled" type="button" @disabled($plan->accepted_count !== $plan->requested_count)><span>✦</span><div><strong>Générer les {{ $plan->requested_count }} articles</strong><small>La rédaction suit uniquement les briefs verrouillés ci-dessous.</small></div><b>→</b></button>
                 @else
                     <button class="launch-button" wire:click="startRun" wire:loading.attr="disabled" type="button" @disabled(!$workspaceReady || !$hasApiKey)><span>⌁</span><div><strong wire:loading.remove wire:target="startRun">Planifier {{ $contentCount }} contenus</strong><strong wire:loading wire:target="startRun">Analyse et déduplication des angles…</strong><small>Aucun article n’est rédigé pendant cette étape.</small></div><b>→</b></button>

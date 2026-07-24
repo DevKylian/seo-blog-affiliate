@@ -116,11 +116,14 @@ final class ContentRunProcessor
         } catch (Throwable $exception) {
             if ($this->isRecoverableGenerationError($exception)) {
                 $apiAttempts = min(255, (int) $item->api_attempts + 1);
+                $isMissingSources = str_contains($exception->getMessage(), '[S1]');
                 $item->update([
                     'status' => 'pending',
-                    'api_attempts' => $apiAttempts,
+                    'api_attempts' => $isMissingSources ? 0 : $apiAttempts,
                     'error_message' => mb_substr($exception->getMessage(), 0, 2000),
                     'started_at' => null,
+                    'generation_step' => $isMissingSources ? 0 : $item->generation_step,
+                    'generation_parts' => $isMissingSources ? [] : $item->generation_parts,
                 ]);
                 $run->update(['status' => 'pending']);
                 $reason = match (true) {

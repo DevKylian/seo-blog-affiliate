@@ -76,6 +76,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/articles/{article}/edit', ArticleEditor::class)->name('admin.articles.edit');
     Route::get('/settings', Settings::class)->name('admin.settings');
     Route::get('/access-logs', AccessLogs::class)->name('admin.logs');
+    Route::get('/seo-engine', \App\Livewire\SeoEngine\SeoAuthorityEngine::class)->name('admin.seo-engine');
     Route::post('/dev/stop-generations', function (DevGenerationCircuitBreaker $breaker) {
         abort_unless(app()->isLocal(), 404);
 
