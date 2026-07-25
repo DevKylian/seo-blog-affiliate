@@ -304,7 +304,7 @@
                 ];
             @endphp
             @foreach($categories->take(8) as $cat)
-            <a href="{{ route('blog.category', $cat->slug) }}" class="home-category-card" style="display:flex; flex-direction:column; align-items:center;">
+            <a href="{{ route('blog.show', $cat->slug) }}" class="home-category-card" style="display:flex; flex-direction:column; align-items:center;">
                 <div class="home-category-icon" style="background: rgba(37, 99, 235, 0.08); color: var(--home-accent);">{{ $categoryIcons[$cat->slug] ?? '📁' }}</div>
                 <div style="font-weight: 800;">{{ $cat->name }}</div>
                 <div style="font-size: 13px; color: var(--home-muted); margin-top: 4px; font-weight: 700;">→ {{ $cat->articles_count }} guides</div>
