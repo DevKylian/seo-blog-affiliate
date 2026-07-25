@@ -17,7 +17,7 @@ hr()   { echo -e "${BOLD}──────────────────�
 
 [[ $EUID -ne 0 ]] && fail "Lancer en root : sudo bash setup.sh"
 
-APP_DIR="/var/www/businesskit"
+APP_DIR="/var/www/businesskit.fr"
 LOG_DIR="/var/log/businesskit"
 BACKUP_DIR="/var/backups/businesskit"
 
@@ -58,7 +58,7 @@ fi
 
 # Sudoers
 cat > /etc/sudoers.d/deploy-businesskit << 'EOF'
-deploy ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart businesskit-queue*, /usr/bin/systemctl status businesskit-queue*, /usr/bin/systemctl restart businesskit-blog-worker, /usr/bin/systemctl status businesskit-blog-worker, /usr/bin/systemctl daemon-reload, /usr/bin/chown -R deploy\:www-data /var/www/businesskit, /usr/bin/rm -rf /var/www/businesskit/node_modules, /usr/bin/rm -rf /var/www/businesskit/public/build
+deploy ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart businesskit-queue*, /usr/bin/systemctl status businesskit-queue*, /usr/bin/systemctl restart businesskit-blog-worker, /usr/bin/systemctl status businesskit-blog-worker, /usr/bin/systemctl daemon-reload, /usr/bin/chown -R deploy\:www-data /var/www/businesskit.fr, /usr/bin/rm -rf /var/www/businesskit.fr/node_modules, /usr/bin/rm -rf /var/www/businesskit.fr/public/build
 EOF
 chmod 0440 /etc/sudoers.d/deploy-businesskit
 

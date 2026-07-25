@@ -4,7 +4,7 @@
 # =============================================================================
 set -euo pipefail
 
-APP_DIR="/var/www/businesskit"
+APP_DIR="/var/www/businesskit.fr"
 LOG_DIR="/var/log/businesskit"
 BACKUP_DIR="/var/backups/businesskit"
 PHP="php"
