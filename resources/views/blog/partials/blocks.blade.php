@@ -28,10 +28,31 @@
                     <a class="premium-cta-indy__button" href="{{ app(\App\Services\AffiliateBlockService::class)->trackedUrl($article, $affiliateBlock->exists ? $affiliateBlock : null, $position) }}" rel="sponsored nofollow">{{ $affiliateBlock->cta }}</a>
                 </aside>
             @else
+                @php
+                    $lines = array_filter(array_map('trim', explode("\n", $affiliateBlock->description)));
+                    $textLines = [];
+                    $bullets = [];
+                    foreach($lines as $line) {
+                        if(str_starts_with($line, '✅')) {
+                            $bullets[] = trim(mb_substr($line, 1));
+                        } else {
+                            $textLines[] = $line;
+                        }
+                    }
+                @endphp
                 <aside class="affiliate-cta {{ $positionClass }} {{ $affiliateBlock->style }}">
-                    <div class="affiliate-cta__copy">
-                        <strong>{{ $affiliateBlock->title }}</strong>
-                        <p>{!! nl2br(e($affiliateBlock->description)) !!}</p>
+                    <div class="affiliate-cta__content">
+                        <div class="affiliate-cta__text">
+                            <strong>{{ $affiliateBlock->title }}</strong>
+                            <p>{!! nl2br(e(implode("\n", $textLines))) !!}</p>
+                        </div>
+                        @if(count($bullets) > 0)
+                        <ul class="affiliate-cta__bullets">
+                            @foreach($bullets as $bullet)
+                                <li><i>✓</i> {{ $bullet }}</li>
+                            @endforeach
+                        </ul>
+                        @endif
                     </div>
                     <a class="affiliate-cta__button" href="{{ app(\App\Services\AffiliateBlockService::class)->trackedUrl($article, $affiliateBlock->exists ? $affiliateBlock : null, $position) }}" rel="sponsored nofollow">{{ $affiliateBlock->cta }}</a>
                 </aside>

@@ -3774,3 +3774,31 @@ button,a { -webkit-tap-highlight-color:transparent; }
     .premium-cta-indy__content { grid-template-columns: 1fr; gap: 24px; margin-top: 24px; }
     .premium-cta-indy__text strong { font-size: 20px; }
 }
+.affiliate-cta__bullets {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0 0;
+    display: grid;
+    gap: 8px;
+}
+.affiliate-cta__bullets li {
+    font-size: 13px;
+    color: #111827;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.affiliate-cta__bullets li i {
+    font-style: normal;
+    color: #fff;
+    background: #10b981;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 10px;
+    flex-shrink: 0;
+}
