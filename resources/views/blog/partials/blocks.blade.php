@@ -29,32 +29,50 @@
                 </aside>
             @else
                 @php
+                    $lowestPrice = null;
+                    $priceText = null;
+                    if ($affiliateBlock->project) {
+                        $lowestPrice = $affiliateBlock->project->plans()->min('monthly_price');
+                        if ($lowestPrice !== null) {
+                            if ((float) $lowestPrice === 0.0) {
+                                $priceText = '✅ Version gratuite disponible';
+                            } else {
+                                $priceText = '💳 À partir de ' . number_format($lowestPrice, 0, ',', ' ') . ' € / mois';
+                            }
+                        }
+                    }
+
                     $lines = array_filter(array_map('trim', explode("\n", $affiliateBlock->description)));
                     $textLines = [];
                     $bullets = [];
                     foreach($lines as $line) {
-                        if(str_starts_with($line, '✅')) {
+                        if(str_starts_with($line, '✅') || str_starts_with($line, '✓')) {
                             $bullets[] = trim(mb_substr($line, 1));
                         } else {
                             $textLines[] = $line;
                         }
                     }
                 @endphp
-                <aside class="affiliate-cta {{ $positionClass }} {{ $affiliateBlock->style }}">
-                    <div class="affiliate-cta__content">
-                        <div class="affiliate-cta__text">
+                <aside class="affiliate-cta-pro {{ $positionClass }}">
+                    <div class="affiliate-cta-pro__content">
+                        <div class="affiliate-cta-pro__text">
                             <strong>{{ $affiliateBlock->title }}</strong>
                             <p>{!! nl2br(e(implode("\n", $textLines))) !!}</p>
                         </div>
                         @if(count($bullets) > 0)
-                        <ul class="affiliate-cta__bullets">
+                        <ul class="affiliate-cta-pro__bullets">
                             @foreach($bullets as $bullet)
-                                <li><i>✓</i> {{ $bullet }}</li>
+                                <li><i><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg></i> {{ $bullet }}</li>
                             @endforeach
                         </ul>
                         @endif
                     </div>
-                    <a class="affiliate-cta__button" href="{{ app(\App\Services\AffiliateBlockService::class)->trackedUrl($article, $affiliateBlock->exists ? $affiliateBlock : null, $position) }}" rel="sponsored nofollow">{{ $affiliateBlock->cta }}</a>
+                    <div class="affiliate-cta-pro__action">
+                        @if($priceText)
+                            <div class="affiliate-cta-pro__price">{{ $priceText }}</div>
+                        @endif
+                        <a class="affiliate-cta-pro__button" href="{{ app(\App\Services\AffiliateBlockService::class)->trackedUrl($article, $affiliateBlock->exists ? $affiliateBlock : null, $position) }}" rel="sponsored nofollow">{{ $affiliateBlock->cta }}</a>
+                    </div>
                 </aside>
             @endif
         @endif
