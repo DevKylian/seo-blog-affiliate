@@ -73,7 +73,7 @@ final class AffiliateBlockService
             'position' => $position,
             'title' => 'Essayez Indy gratuitement',
             'description' => "Centralisez votre facturation, vos dépenses et votre comptabilité dans un seul outil pensé pour les indépendants. Gagnez du temps dès aujourd’hui avec une solution simple, rapide à prendre en main et disponible en version gratuite.\n\n✅ Pensé pour les indépendants\n✅ Prise en main immédiate\n✅ Support et assistance\n✅ Version gratuite disponible",
-            'cta' => "Créer mon compte gratuit",
+            'cta' => "🎁 Créer mon compte gratuit",
             'style' => $strong ? 'strong' : 'soft',
             'is_active' => true,
         ]);
