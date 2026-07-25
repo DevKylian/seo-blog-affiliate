@@ -658,8 +658,8 @@
     <!-- Newsletter -->
     <section class="hp-newsletter">
         <div style="font-size:48px; margin-bottom:16px;">📬</div>
-        <h2 style="font-size: 32px; margin-bottom: 16px; font-weight: 800;">Recevez les 3 erreurs administratives qui coûtent le plus cher aux freelances (et nos outils pour les éviter).</h2>
-        <p style="font-size: 18px; color: var(--home-muted);">1 e-mail par semaine, 0 spam.</p>
+        <h2 style="font-size: 32px; margin-bottom: 16px; font-weight: 800;">Évitez les 3 erreurs qui coûtent le plus cher aux freelances.</h2>
+        <p style="font-size: 18px; color: var(--home-muted);">Recevez nos outils et conseils. 1 e-mail par semaine, 0 spam.</p>
         <form action="#" class="hp-newsletter-form">
             <input type="email" class="hp-newsletter-input" placeholder="votre@email.com" required>
             <button type="submit" class="hp-newsletter-btn">M'inscrire gratuitement</button>
