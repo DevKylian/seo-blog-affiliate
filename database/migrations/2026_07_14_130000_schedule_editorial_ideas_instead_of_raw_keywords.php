@@ -19,7 +19,7 @@ return new class extends Migration
             $table->dropUnique(['content_schedule_id', 'keyword_id']);
             
             $table->foreignId('editorial_idea_id')->nullable()->after('keyword_id')->constrained()->nullOnDelete();
-            $table->unique(['content_schedule_id', 'editorial_idea_id']);
+            $table->unique(['content_schedule_id', 'editorial_idea_id'], 'sch_tasks_sch_id_idea_id_unique');
             
             // Re-add the foreign key
             $table->foreign('content_schedule_id')->references('id')->on('content_schedules')->cascadeOnDelete();
@@ -38,7 +38,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('scheduled_content_tasks', function (Blueprint $table) {
-            $table->dropUnique(['content_schedule_id', 'editorial_idea_id']);
+            $table->dropUnique('sch_tasks_sch_id_idea_id_unique');
             $table->dropConstrainedForeignId('editorial_idea_id');
             $table->unique(['content_schedule_id', 'keyword_id']);
         });
