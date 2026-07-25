@@ -3874,7 +3874,7 @@ button,a { -webkit-tap-highlight-color:transparent; }
     font-size: 13px;
     font-weight: 800;
     color: #ffffff;
-    text-transform: uppercase;
+    text-transform: none; font-weight: 600;
     letter-spacing: 0.5px;
 }
 .affiliate-cta-pro__button {

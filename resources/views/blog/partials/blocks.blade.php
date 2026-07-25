@@ -69,10 +69,10 @@
                         @endif
                     </div>
                     <div class="affiliate-cta-pro__action">
+                        <a class="affiliate-cta-pro__button" href="{{ app(\App\Services\AffiliateBlockService::class)->trackedUrl($article, $affiliateBlock->exists ? $affiliateBlock : null, $position) }}" rel="sponsored nofollow">{{ $affiliateBlock->cta }}</a>
                         @if($priceText)
                             <div class="affiliate-cta-pro__price">{{ $priceText }}</div>
                         @endif
-                        <a class="affiliate-cta-pro__button" href="{{ app(\App\Services\AffiliateBlockService::class)->trackedUrl($article, $affiliateBlock->exists ? $affiliateBlock : null, $position) }}" rel="sponsored nofollow">{{ $affiliateBlock->cta }}</a>
                     </div>
                 </aside>
             @endif
