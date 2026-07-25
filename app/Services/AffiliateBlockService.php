@@ -71,11 +71,9 @@ final class AffiliateBlockService
             'affiliate_cluster' => $cluster,
             'intent_type' => $intentType,
             'position' => $position,
-            'title' => $strong ? "Simplifier votre gestion avec {$projectName}" : 'Une prochaine étape possible',
-            'description' => $strong
-                ? "{$projectName} permet de rapprocher facturation, dépenses et obligations dans un même outil.\n\n✅ Centralisez vos outils\n✅ Automatisez vos relances\n✅ Gagnez du temps"
-                : "Quand votre gestion devient répétitive, un outil comme {$projectName} peut vous aider à automatiser les tâches administratives.\n\n✅ Pensé pour les indépendants\n✅ Prise en main immédiate\n✅ Support et assistance",
-            'cta' => "🎁 Profiter de l'offre gratuite",
+            'title' => 'Essayez Indy gratuitement',
+            'description' => "Centralisez votre facturation, vos dépenses et votre comptabilité dans un seul outil pensé pour les indépendants. Gagnez du temps dès aujourd’hui avec une solution simple, rapide à prendre en main et disponible en version gratuite.\n\n✅ Pensé pour les indépendants\n✅ Prise en main immédiate\n✅ Support et assistance\n✅ Version gratuite disponible",
+            'cta' => "Créer mon compte gratuit",
             'style' => $strong ? 'strong' : 'soft',
             'is_active' => true,
         ]);
