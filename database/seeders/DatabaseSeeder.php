@@ -31,8 +31,6 @@ class DatabaseSeeder extends Seeder
             ],
         );
 
-        User::factory(12)->create();
-
         $project = SeoProject::query()->create([
             'name' => 'MailPilot Démo',
             'slug' => 'mailpilot-demo',
