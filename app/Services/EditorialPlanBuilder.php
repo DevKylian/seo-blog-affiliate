@@ -139,7 +139,7 @@ final class EditorialPlanBuilder
             $plan->increment('candidate_count');
             $blueprint = $this->duplicates->normalizeBlueprint($rawIdea);
             $keyword = $this->sourceKeyword($keywords, $rawIdea, $blueprint);
-            $decision = $this->validate($project, $blueprint, $valid->concat($priorIdeas), $keyword);
+            $decision = $this->validate($plan, $blueprint, $valid->concat($priorIdeas), $keyword);
             $idea = $this->persistCandidate($plan, $blueprint, $rawIdea, $keyword, $decision);
 
             if ($decision['accepted']) {
@@ -260,7 +260,7 @@ final class EditorialPlanBuilder
                 $plan->increment('candidate_count');
                 $blueprint = $this->duplicates->normalizeBlueprint($rawIdea);
                 $keyword = $this->sourceKeyword($keywords, $rawIdea, $blueprint);
-                $decision = $this->validate($project, $blueprint, $comparisonPool, $keyword);
+                $decision = $this->validate($plan, $blueprint, $comparisonPool, $keyword);
                 $idea = $this->persistCandidate($plan, $blueprint, $rawIdea, $keyword, $decision);
                 $excluded[] = $blueprint['fingerprint'];
 
@@ -285,8 +285,10 @@ final class EditorialPlanBuilder
         }
     }
 
-    private function validate(SeoProject $project, array $blueprint, Collection $valid, ?Keyword $keyword): array
+    private function validate(EditorialPlan $plan, array $blueprint, Collection $valid, ?Keyword $keyword): array
     {
+        $project = $plan->project;
+        
         if (in_array($blueprint['angle'], self::FORBIDDEN_ANGLES, true)
             || mb_strlen($blueprint['unique_promise']) < 35
             || count($blueprint['outline']) < 5) {
@@ -294,7 +296,8 @@ final class EditorialPlanBuilder
         }
 
         $proposedKeyword = new Keyword(['keyword' => $blueprint['primary_keyword']]);
-        if (! $keyword || ! $this->matcher->matches($project, $keyword) || ! $this->matcher->matches($project, $proposedKeyword)) {
+        
+        if (! $keyword) {
             return $this->reject('off_topic', 'Le mot-clé ne correspond pas au produit.');
         }
 
@@ -560,27 +563,19 @@ final class EditorialPlanBuilder
                 ->withCount(['articles', 'editorialIdeas'])
                 ->whereIn('id', array_map('intval', $keywordScope))
                 ->get()
-                ->filter(fn (Keyword $keyword) => $this->matcher->matches($project, $keyword))
                 ->values();
         }
 
-        $top = $project->keywords()->with('contentCluster')->withCount(['articles', 'editorialIdeas'])
-            ->orderByDesc('opportunity_score')->limit(500)->get();
-        $recent = $project->keywords()->with('contentCluster')->withCount(['articles', 'editorialIdeas'])
-            ->latest('created_at')->limit(200)->get();
-        $all = $top->concat($recent)->unique('id')
-            ->filter(fn (Keyword $keyword) => $this->matcher->matches($project, $keyword))
-            ->values();
-        $bucket = fn (string $tier) => $all->filter(fn (Keyword $keyword) => $keyword->strategyTier() === $tier);
-        $newlyImported = $all->filter(fn (Keyword $keyword) => $keyword->isUnplanned())
-            ->sortByDesc('created_at');
+        $all = $project->keywords()->with('contentCluster')->withCount(['articles', 'editorialIdeas'])
+            ->orderByDesc('opportunity_score')->limit(600)->get();
+            
+        $unplanned = $all->filter(fn (Keyword $keyword) => $keyword->isUnplanned());
+        $bucket = fn (string $tier) => $unplanned->filter(fn (Keyword $keyword) => $keyword->strategyTier() === $tier);
 
-        return $this->pickDiverse($bucket('pillar')->sortByDesc('search_volume'), 12)
-            ->concat($this->pickDiverse($newlyImported, 45))
-            ->concat($this->pickDiverse($bucket('quick_win')->sortByDesc('opportunity_score'), 45))
-            ->concat($this->pickDiverse($bucket('niche')->sortByDesc('opportunity_score'), 33))
-            ->concat($this->pickDiverse($bucket('supporting')->sortByDesc('opportunity_score'), 15))
-            ->concat($this->pickDiverse($all, 150))
+        return $this->pickDiverse($bucket('pillar')->sortByDesc('opportunity_score'), 20)
+            ->concat($this->pickDiverse($bucket('quick_win')->sortByDesc('opportunity_score'), 60))
+            ->concat($this->pickDiverse($bucket('niche')->sortByDesc('opportunity_score'), 50))
+            ->concat($this->pickDiverse($bucket('supporting')->sortByDesc('opportunity_score'), 20))
             ->unique('id')
             ->take(150)
             ->values();
@@ -588,8 +583,22 @@ final class EditorialPlanBuilder
 
     private function pickDiverse(Collection $pool, int $limit): Collection
     {
-        $grouped = $pool->groupBy(fn (Keyword $k) => $k->cluster ?: 'Général')
-            ->map(fn ($group) => $group->values());
+        $grouped = $pool->groupBy(function (Keyword $k) {
+            $words = array_values(array_filter(explode(' ', mb_strtolower($k->keyword))));
+            $first = preg_replace('/[^a-z0-9]/i', '', $words[0] ?? '');
+            
+            // Ignorer les mots génériques pour grouper sur la vraie racine sémantique
+            $stopWords = ['le', 'la', 'les', 'un', 'une', 'de', 'des', 'logiciel', 'logiciels', 'application', 'app', 'comparatif', 'avis', 'prix', 'tarif', 'meilleur', 'quel', 'comment'];
+            if (in_array($first, $stopWords, true) && isset($words[1])) {
+                $first = preg_replace('/[^a-z0-9]/i', '', $words[1]);
+            }
+            if (in_array($first, $stopWords, true) && isset($words[2])) {
+                $first = preg_replace('/[^a-z0-9]/i', '', $words[2]);
+            }
+            
+            $cluster = $k->cluster ?: 'Général';
+            return $cluster . '-' . substr($first, 0, 5); // Grouper par les 5 premières lettres de la racine
+        })->map(fn ($group) => $group->values());
         
         $selected = collect();
         $index = 0;

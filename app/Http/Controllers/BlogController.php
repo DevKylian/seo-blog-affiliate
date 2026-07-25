@@ -32,6 +32,11 @@ class BlogController extends Controller
         ]);
     }
 
+    public function about(): View
+    {
+        return view('blog.author');
+    }
+
     public function index(): View
     {
         $cluster = request('cluster');
@@ -112,6 +117,16 @@ class BlogController extends Controller
         return $this->article($slug, 'best_tools');
     }
 
+    public function review(string $slug): View
+    {
+        return $this->article($slug, 'review');
+    }
+
+    public function guide(string $slug): View
+    {
+        return $this->article($slug, 'guide');
+    }
+
     public function tools(): View
     {
         return view('tools.index', ['tools' => SeoProject::query()->withCount(['plans', 'articles'])->where('status', 'active')->orderBy('name')->get()]);
@@ -156,25 +171,46 @@ class BlogController extends Controller
     {
         return [
             [
+                'slug' => 'calculateur-tva',
+                'title' => 'Calculateur de TVA en ligne (HT / TTC)',
+                'description' => 'Convertissez instantanément vos montants HT en TTC avec les taux de 20%, 10%, 5.5% ou 2.1%.',
+                'type' => 'calculateur-tva',
+                'cta' => 'Calculer ma TVA',
+            ],
+            [
                 'slug' => 'calculateur-tjm-freelance',
-                'title' => 'Calculateur TJM freelance',
-                'description' => 'Estimez le tarif journalier nécessaire pour atteindre votre objectif annuel.',
-                'type' => 'tjm',
-                'cta' => 'Recevoir mon résultat détaillé',
+                'title' => 'Calculateur de TJM Freelance',
+                'description' => 'Déterminez le taux journalier idéal pour atteindre votre objectif de salaire net.',
+                'type' => 'calculateur-tjm',
+                'cta' => 'Calculer mon TJM',
             ],
             [
-                'slug' => 'calculateur-revenu-freelance',
-                'title' => 'Calculateur revenu freelance',
-                'description' => 'Estimez ce qu’il reste après charges pour mieux piloter votre activité.',
-                'type' => 'revenu',
-                'cta' => 'Calculer mon revenu net',
+                'slug' => 'simulateur-cotisations-micro-entreprise',
+                'title' => 'Simulateur de charges Micro-entreprise',
+                'description' => 'Estimez vos cotisations URSSAF et votre impôt sur le revenu en fonction de votre Chiffre d\'Affaires.',
+                'type' => 'simulateur-micro',
+                'cta' => 'Simuler mes cotisations',
             ],
             [
-                'slug' => 'checklist-creation-micro-entreprise',
-                'title' => 'Checklist création micro-entreprise',
-                'description' => 'Les étapes à suivre après le SIRET pour éviter les oublis administratifs.',
-                'type' => 'checklist',
-                'cta' => 'Voir la checklist',
+                'slug' => 'seuil-tva-micro-entreprise',
+                'title' => 'Calculateur dépassement seuil TVA',
+                'description' => 'Vérifiez en 2 clics si vous devez facturer la TVA suite au dépassement des seuils de la franchise en base.',
+                'type' => 'seuil-tva',
+                'cta' => 'Vérifier mes seuils',
+            ],
+            [
+                'slug' => 'generateur-penalites-retard',
+                'title' => 'Générateur de pénalités de retard',
+                'description' => 'Calculez légalement les indemnités et pénalités de retard applicables sur une facture impayée.',
+                'type' => 'penalites-retard',
+                'cta' => 'Calculer les pénalités',
+            ],
+            [
+                'slug' => 'comparateur-micro-sasu',
+                'title' => 'Comparateur de revenus Micro vs SASU',
+                'description' => 'Pour 50 000€ facturés, découvrez le statut juridique qui vous laisse le plus d\'argent net dans la poche.',
+                'type' => 'comparateur-statuts',
+                'cta' => 'Comparer les statuts',
             ],
         ];
     }

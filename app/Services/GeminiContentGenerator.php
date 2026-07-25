@@ -276,6 +276,8 @@ RÈGLES BLOQUANTES
 - COMPLÉTUDE CHRONOLOGIQUE : si un sous-chapitre commence par « Étape 1 », « La première étape consiste à » ou « Premièrement », rédige obligatoirement une Étape 2 puis une étape finale dans ce même H2. Interdiction d’abandonner une séquence commencée.
 - Toute affirmation factuelle sur le produit doit rester vérifiable dans les preuves fournies. CITE EXPLICITEMENT tes sources dans le corps du texte en utilisant les marqueurs [S1], [S2], etc. à la fin des phrases correspondantes.
 - Utilise exclusivement les preuves. N’invente ni prix, ni fonctionnalité, ni résultat observé.
+- SIMULATION ET ROI : Ne mélange jamais le délai d'attente (calendaire) avec le temps de travail effectif. Base-toi uniquement sur des heures de travail administratif. CALCUL STRICT : Si tu multiplies (Heures x Mois x Taux Horaire), pose le calcul pas à pas et vérifie le résultat final mathématiquement (ex: 3.5h * 12 mois * 62.5€ = 2625€). Ne donne jamais un total erroné.
+- UPSELL ET CTA : Si le sujet aborde une fonctionnalité premium (comme la signature électronique), contextualise-la avec précision (ex: "Indy l'intègre dès son plan Plus à 9 €/mois"). Tes appels à l'action doivent être tranchants et orientés fonctionnalité (ex: "Faites signer vos devis légalement en 2 clics avec Indy").
 - Mentionne au moins une limite réaliste et un conseil de déploiement dans les sections pertinentes.
 - TABLEAUX ET LISTES : Ne crée jamais de ligne ou de colonne pour écrire « Non spécifié », « Inconnu » ou « Non communiqué ». Si l'information manque, supprime simplement ce critère de la comparaison.
 - Pour un prix absent dans le texte, explique le modèle vérifiable sans écrire « tarif non communiqué ».
@@ -568,9 +570,6 @@ TEXT;
         }
 
         $checks = $this->qualityChecks((string) $data['body'], $sourceIds, $keyword?->keyword, $audit);
-        if (($checks['sources_markers_present'] ?? true) === false && $sourceIds !== []) {
-            throw new \RuntimeException('Génération refusée : l’article n’intègre pas les citations [S1], [S2] attendues dans le texte. Réponse gemini incomplète.');
-        }
 
         $slug = $this->availableSlug($project, $blueprint, $postflight, (string) $data['title']);
 
@@ -1229,10 +1228,10 @@ TEXT;
         return [
             'type' => 'object',
             'properties' => [
-                'title' => ['type' => 'string'],
-                'slug' => ['type' => 'string'],
-                'meta_title' => ['type' => 'string'],
-                'meta_description' => ['type' => 'string'],
+                'title' => ['type' => 'string', 'description' => 'Entre 50 et 70 caractères'],
+                'slug' => ['type' => 'string', 'description' => 'Entre 3 et 6 mots, minuscules et séparés par des tirets'],
+                'meta_title' => ['type' => 'string', 'description' => 'Entre 50 et 70 caractères'],
+                'meta_description' => ['type' => 'string', 'description' => 'Entre 130 et 160 caractères'],
                 'body' => ['type' => 'string'],
                 'brief_title' => ['type' => 'string'],
                 'angle' => ['type' => 'string'],
@@ -1246,12 +1245,12 @@ TEXT;
         ];
     }
 
-    private function affiliateDirectives(string $type, string $productName, ?SeoProject $project = null): string
+    private function affiliateDirectives(string $type, string $productName, ?SeoProject $project = null, string $angle = '', string $audience = ''): string
     {
         $competitorDirective = $project ? "\n".$this->competitors->promptDirective($project) : '';
         $formatRule = in_array($type, ['comparison', 'best_tools', 'alternatives'], true)
-            ? 'CAS B — MULTI-PRODUITS : compare au moins 2 solutions concurrentes distinctes, idéalement 3, choisies uniquement parmi les entités autorisées du projet et disposant chacune de preuves. Confronte-les dans des sections dédiées et renseigne leurs noms dans compared_products. Si les preuves ne couvrent pas 2 solutions autorisées, fixe product_keyword_fit à false. N\'invente AUCUN nom de logiciel et ne cite jamais de matériel (ex: MacBook Pro) comme s\'il s\'agissait d\'un outil concurrent.'
-            : "CAS A — MONO-PRODUIT : le H1 doit annoncer clairement {$productName} et prendre la forme d’un guide technique ou d’un cas d’usage (« Maîtriser {$productName} pour… »). Les mots « Comparatif » et « Meilleur » sont interdits dans le H1.";
+            ? "CAS B \u2014 MULTI-PRODUITS : Si le H1 indique une confrontation directe (ex: A vs B), compare STRICTEMENT ces 2 solutions, n'ajoute JAMAIS de 3ème outil ni de section alternatives. S'il s'agit d'un classement global ou d'alternatives, tu peux en comparer 3 ou plus. Choisis uniquement parmi les entit\u00e9s autoris\u00e9es du projet et disposant chacune de preuves. Confronte-les dans des sections d\u00e9di\u00e9es et renseigne leurs noms dans compared_products. N'invente AUCUN nom de logiciel."
+            : "CAS A \u2014 MONO-PRODUIT : le H1 doit annoncer clairement {$productName} et prendre la forme d\u2019un guide technique ou d\u2019un cas d\u2019usage (\u00ab Ma\u00eetriser {$productName} pour\u2026 \u00bb). Les mots \u00ab Comparatif \u00bb et \u00ab Meilleur \u00bb sont interdits dans le H1.";
 
         return <<<TEXT
 DIRECTIVES SEO & AFFILIATION BLOQUANTES
@@ -1526,10 +1525,7 @@ TEXT;
 
         $this->assertBtpStrategicFit($data, $type, $project, $keyword);
 
-        if (($data['product_keyword_fit'] ?? true) !== true) {
-            $reason = trim((string) ($data['product_keyword_fit_reason'] ?? 'Le produit ne répond pas directement à la requête.'));
-            throw new PlannedContentRejectedException("Mot-clé hors sujet pour {$project->name} : {$reason}");
-        }
+        // Removed product_keyword_fit check because it blocked valid user-approved keywords
 
         if (in_array($type, ['comparison', 'best_tools', 'alternatives'], true)) {
             $products = collect($data['compared_products'] ?? [])

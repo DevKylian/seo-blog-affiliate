@@ -203,8 +203,13 @@ final class ContentSchedulerDashboard extends Component
         $this->month = Carbon::createFromFormat('Y-m', $this->month)->addMonth()->format('Y-m');
     }
 
-    public function moveTask(int $taskId, string $date, ContentScheduler $scheduler): void
+    public function moveTask(mixed $taskId, string $date, ContentScheduler $scheduler): void
     {
+        if (!is_numeric($taskId) || (int)$taskId <= 0) {
+            return;
+        }
+        $taskId = (int) $taskId;
+        
         try {
             $scheduler->moveTask($this->ownedTask($taskId), Carbon::createFromFormat('Y-m-d', $date));
             $this->message = 'Contenu déplacé au '.Carbon::parse($date)->translatedFormat('j F Y').'.';
@@ -281,6 +286,38 @@ final class ContentSchedulerDashboard extends Component
         $tasks = $schedule
             ? $schedule->tasks()->with(['keyword', 'contentCluster', 'editorialIdea', 'article'])->whereNotIn('status', ['cancelled'])->whereBetween('scheduled_for', [$calendarStart, $calendarEnd])->orderBy('scheduled_for')->get()
             : collect();
+
+        $taskArticleIds = $tasks->pluck('article_id')->filter()->all();
+        $massGeneratedArticles = \App\Models\Article::query()
+            ->with(['keyword', 'brief'])
+            ->where('seo_project_id', $this->projectId)
+            ->whereIn('status', ['scheduled', 'published'])
+            ->whereBetween('scheduled_at', [$calendarStart, $calendarEnd])
+            ->whereNotIn('id', $taskArticleIds)
+            ->get();
+
+        $calendarItems = collect();
+        foreach ($tasks as $t) {
+            $calendarItems->push((object)[
+                'id' => $t->id,
+                'status' => $t->status,
+                'scheduled_for' => $t->scheduled_for,
+                'keyword' => $t->keyword,
+                'editorialIdea' => $t->editorialIdea,
+                'article' => $t->article,
+            ]);
+        }
+        foreach ($massGeneratedArticles as $a) {
+            $calendarItems->push((object)[
+                'id' => 'article_'.$a->id,
+                'status' => $a->status,
+                'scheduled_for' => $a->scheduled_at,
+                'keyword' => $a->keyword,
+                'editorialIdea' => (object)['title' => $a->brief?->title ?: ($a->keyword?->keyword ?: 'Article généré en masse')],
+                'article' => $a,
+            ]);
+        }
+
         $latestPlan = $schedule?->editorialPlans()
             ->with(['ideas' => fn ($query) => $query->with(['keyword', 'contentCluster'])->whereNotIn('status', ['rejected'])->orderBy('position')->orderByDesc('seo_score')])
             ->latest('id')
@@ -290,7 +327,7 @@ final class ContentSchedulerDashboard extends Component
             'projects' => $projects,
             'schedule' => $schedule,
             'calendarTitle' => Carbon::createFromFormat('Y-m', $this->month)->translatedFormat('F Y'),
-            'days' => $this->calendarDays($calendarStart, $tasks),
+            'days' => $this->calendarDays($calendarStart, $calendarItems),
             'queue' => $schedule ? $schedule->tasks()->with(['keyword', 'contentCluster', 'editorialIdea', 'article'])->whereNotIn('status', ['cancelled'])->latest('updated_at')->limit(80)->get() : collect(),
             'latestPlan' => $latestPlan,
             'stats' => $this->stats($schedule),
@@ -327,9 +364,9 @@ final class ContentSchedulerDashboard extends Component
         $this->error = '';
     }
 
-    private function calendarDays(Carbon $start, Collection $tasks): Collection
+    private function calendarDays(Carbon $start, Collection $items): Collection
     {
-        return collect(range(0, 41))->map(function (int $offset) use ($start, $tasks): array {
+        return collect(range(0, 41))->map(function (int $offset) use ($start, $items): array {
             $date = $start->copy()->addDays($offset);
 
             return [
@@ -337,7 +374,7 @@ final class ContentSchedulerDashboard extends Component
                 'day' => $date->day,
                 'current' => $date->format('Y-m') === $this->month,
                 'today' => $date->isToday(),
-                'tasks' => $tasks->filter(fn (ScheduledContentTask $task) => $task->scheduled_for?->isSameDay($date))->values(),
+                'tasks' => $items->filter(fn ($item) => $item->scheduled_for ? $item->scheduled_for->copy()->startOfDay()->isSameDay($date) : false)->sortBy('scheduled_for')->values(),
             ];
         });
     }

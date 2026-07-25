@@ -42,6 +42,26 @@ final class SeoContentStructure
         'rentabilité chantier',
     ];
 
+    private const BANKING_TOOLS = [
+        'Qonto',
+        'Shine',
+        'Blank',
+        'Finom',
+        'Bourso Pro',
+        'Hello bank! Pro',
+        'Revolut Business',
+    ];
+
+    private const BANKING_CRITERIA = [
+        'IBAN français',
+        'cartes bancaires',
+        'virements et prélèvements',
+        'dépôt de capital',
+        'frais de tenue de compte',
+        'plafonds de paiement',
+        'support client',
+    ];
+
     public function for(string $type): array
     {
         $structures = $this->structures();
@@ -63,6 +83,7 @@ final class SeoContentStructure
             ? "- Le titre promet une liste chiffrée : la section dédiée doit contenir exactement {$this->listiclePromise($title)['count']} items distincts, présentés en H3 ou dans une liste numérotée séquentielle."
             : '- Si un titre contient un nombre, respecte exactement ce nombre dans une section dédiée.';
         $verticalDirective = $this->btpGenerationDirective(trim(($title ?? '').' '.($keyword ?? '')));
+        $bankingDirective = $this->bankingGenerationDirective(trim(($title ?? '').' '.($keyword ?? '')));
 
         return <<<TEXT
 STRUCTURE ÉDITORIALE OBLIGATOIRE — {$structure['label']}
@@ -80,6 +101,8 @@ RÈGLES DE PROFONDEUR
 - Aucun paragraphe ne dépasse 90 mots ou 5 phrases. Sépare les idées par une ligne vide pour une lecture mobile fluide.
 - Dans les sections Checklist et Outils/Ressources : 1 à 2 phrases de transition maximum, puis directement des H3 ou une liste. Chaque puce contient une seule phrase d’action de 20 mots maximum. Aucune justification, théorie ou répétition d’une section précédente.
 - Chaque puce doit être une phrase grammaticale autonome et achevée. Elle ne se termine jamais par un mot coupé, une préposition, une conjonction ou un groupe nominal incomplet. Relis et réécris tout item incomplet avant de retourner le JSON.
+- Dans la section "Pour qui / pas pour qui" (ou équivalent), utilise OBLIGATOIREMENT une structure à puces très visuelle (une puce par outil avec le nom de l'outil en gras), plutôt qu'un mur de texte dense.
+- MAILLAGE INTERNE : Dans les sections d'analyse détaillée d'un outil précis, insère systématiquement une incitation à lire le test individuel de ce logiciel (ex: "[Lire notre avis complet et détaillé sur NomDuLogiciel]").
 - Garde une marge de sortie suffisante : ne commence jamais une phrase, une puce, un H3 ou une séquence que tu ne peux pas terminer intégralement.
 - Une marche à suivre chronologique n’apparaît qu’à un seul endroit du document. Pour un article définitionnel/débutant, la Checklist remplace la section Méthode : ne recrée jamais une seconde procédure ailleurs.
 - Toute séquence commencée par « Étape 1 », « La première étape » ou « Premièrement » contient obligatoirement une Étape 2 dans le même H2. Aucune séquence ne reste avortée.
@@ -95,6 +118,7 @@ RÈGLES DE PROFONDEUR
 - CONCLUSION STRICTE : le H2 final contient exactement 1 ou 2 paragraphes concis, sans H3, H4 ni liste. Arrête immédiatement le document après le deuxième paragraphe.
 - La longueur vient de la profondeur d'analyse et de l'aide à la décision. N'invente jamais pour atteindre la longueur cible.
 {$verticalDirective}
+{$bankingDirective}
 TEXT;
     }
 
@@ -212,6 +236,33 @@ RÈGLE VERTICALE BTP / BÂTIMENT — BLOQUANTE
 - N'utilise JAMAIS les termes « frais cachés » ou « coûts cachés » (ils provoquent un rejet direct de l'article). Écris obligatoirement « frais additionnels éventuels », « modules payants », « options » ou « limites de plan ».
 - Toute simulation doit commencer par « Simulation fictive à visée pédagogique : les chiffres suivants ne sont pas une promesse de résultat. »
 - N'ajoute pas un bloc tarifaire détaillé pour le seul outil affilié sur une page comparative BTP : équilibre les prix avec les outils BTP sourcés ou renvoie vers une fiche dédiée.
+TEXT;
+    }
+
+    public function isBankingRequest(?string $context): bool
+    {
+        $text = $this->key((string) $context);
+
+        return preg_match('/\b(?:compte\s+pro|banque\s+pro|compte\s+bancaire|compte\s+societe|banque\s+en\s+ligne|neobanque)\b/u', $text) === 1;
+    }
+
+    public function bankingGenerationDirective(?string $context): string
+    {
+        if (! $this->isBankingRequest($context)) {
+            return '';
+        }
+
+        $banks = implode(', ', self::BANKING_TOOLS);
+        $criteria = implode(', ', self::BANKING_CRITERIA);
+
+        return <<<TEXT
+
+RÈGLE VERTICALE COMPTE PRO / BANQUE — BLOQUANTE
+- L'intention principale ici est BANCAIRE. Si tu dois comparer ou lister des outils, compare EXCLUSIVEMENT des vrais comptes pros ou néobanques (ex: {$banks}) en plus du compte pro d'Indy.
+- INTERDICTION FORMELLE d'inclure des logiciels purement de facturation (comme Freebe ou Abby) dans un comparatif "Compte Pro", car ils ne fournissent ni IBAN ni carte bancaire.
+- Le tableau comparatif et les sections d'analyse doivent impérativement couvrir ces critères bancaires : {$criteria}.
+- Si l'outil ne propose pas l'ouverture ou le dépôt de capital, écris "Non inclus".
+- Reste concentré sur les flux financiers, la gestion des cartes et les frais réels.
 TEXT;
     }
 
@@ -765,25 +816,22 @@ TEXT;
             ],
             'comparison' => [
                 'label' => 'Comparatif direct',
-                'objective' => 'Comparer critère par critère et désigner le meilleur choix pour plusieurs profils sans faux gagnant universel.',
-                'target_min' => 3200,
-                'target_max' => 4500,
-                'minimum_words' => 2500,
-                'minimum_h2' => 9,
+                'objective' => 'Comparer deux outils de manière tranchée pour répondre exactement à l\'intention "A vs B" sans s\'éparpiller.',
+                'target_min' => 1800,
+                'target_max' => 2500,
+                'minimum_words' => 1200,
+                'minimum_h2' => 7,
                 'sections' => [
                     'Verdict rapide : quel outil choisir ?',
                     'Tableau comparatif en un coup d’œil',
-                    'Positionnement et publics cibles',
-                    'Fonctionnalités comparées critère par critère',
+                    'Analyse détaillée de la première solution',
+                    'Analyse détaillée de la seconde solution',
+                    'Pour qui / pas pour qui : le match des profils',
                     'Tarifs et coût réel comparés',
-                    'Facilité d’utilisation et déploiement',
-                    'Intégrations, support et limites',
-                    'Quel outil gagne selon chaque cas d’usage ?',
-                    'Alternatives aux deux solutions',
+                    'Cas d’usage et décision finale',
                     'FAQ du comparatif',
-                    'Conclusion et méthodologie',
                 ],
-                'required_terms' => [['verdict'], ['comparatif', 'compar'], ['fonctionnalit'], ['tarif', 'prix', 'coût'], ['cas d’usage', 'profil'], ['alternative'], ['faq', 'questions fréquentes']],
+                'required_terms' => [['verdict'], ['comparatif', 'compar'], ['tarif', 'prix', 'coût'], ['cas d’usage', 'profil'], ['faq', 'questions fréquentes']],
             ],
             'best_tools' => [
                 'label' => 'Sélection des meilleurs outils',

@@ -43,8 +43,21 @@
             <header><i>2</i><div><h2>Planification éditoriale</h2><p>Les angles sont dédupliqués et verrouillés avant la rédaction.</p></div>@if($project)<span>{{ $project->keywords_count }} mots-clés</span>@endif</header>
             <div class="automation-goal">
                 @if($project)<div class="readiness-grid"><div><strong>{{ $project->source_pages_count }}</strong><span>Sources collectées</span></div><div><strong>{{ $project->keywords_count }}</strong><span>Mots-clés scorés</span></div><div><strong>{{ $project->name }}</strong><span>Projet sélectionné</span></div></div>@endif
-                <div class="count-picker"><label>Combien de contenus uniques voulez-vous obtenir ?</label><div><button type="button" wire:click="$set('contentCount', {{ max(1,$contentCount-1) }})">−</button><input wire:model="contentCount" type="number" min="1" max="30"><button type="button" wire:click="$set('contentCount', {{ min(30,$contentCount+1) }})">＋</button></div><small>Le compteur porte sur les articles validés, pas sur les brouillons techniques.</small></div>
-                <div class="field"><label>Consignes communes facultatives</label><textarea wire:model="instructions" rows="3" placeholder="Ton expert accessible, audience PME, longueur souhaitée…"></textarea></div>
+                <div class="automation-configuration-grid" style="display: flex; gap: 24px; margin-bottom: 24px;">
+                    <div class="count-picker"><label>Combien de contenus uniques voulez-vous obtenir ?</label><div><button type="button" wire:click="$set('contentCount', {{ max(1,$contentCount-1) }})">−</button><input wire:model="contentCount" type="number" min="1" max="30"><button type="button" wire:click="$set('contentCount', {{ min(30,$contentCount+1) }})">＋</button></div><small>Le compteur porte sur les articles validés, pas sur les brouillons techniques.</small></div>
+                    <div class="count-picker"><label>Étaler la publication sur (jours) ?</label><div><button type="button" wire:click="$set('publicationDays', {{ max(1,($publicationDays ?? 0)-1) }})">−</button><input wire:model="publicationDays" type="number" min="1" max="365" placeholder="Immédiat"><button type="button" wire:click="$set('publicationDays', {{ min(365,($publicationDays ?? 0)+1) }})">＋</button></div><small>Laissez vide pour publier le lot immédiatement.</small></div>
+                </div>
+                <div class="field">
+                    <label style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Consignes communes de la stratégie</span>
+                        <div class="presets-buttons" style="display: flex; gap: 8px;">
+                            <button type="button" wire:click="setPreset('pillar')" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;">Pages Mères (Pillars)</button>
+                            <button type="button" wire:click="setPreset('money')" style="background: #fce7f3; color: #db2777; border: 1px solid #fbcfe8; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;">Money Pages (Quick Wins)</button>
+                            <button type="button" wire:click="setPreset('interception')" style="background: #fef9c3; color: #ca8a04; border: 1px solid #fef08a; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;">Trafic de masse (Interception)</button>
+                        </div>
+                    </label>
+                    <textarea wire:model="instructions" rows="4" placeholder="Ton expert accessible, audience PME, longueur souhaitée…"></textarea>
+                </div>
                 <div class="auto-decisions"><strong>Décisions automatiques</strong><span>✓ 3× plus d’idées analysées que de contenus demandés</span><span>✓ Doublons existants et doublons internes éliminés avant rédaction</span><span>✓ Promesse, audience, exclusions et mini-plan H2 verrouillés</span><span>✓ Réserve activée automatiquement si un brouillon dérive</span></div>
                 @if($run && in_array($run->status,['pending','processing']))
                     <div class="launch-button"><span>↻</span><div><strong>Production automatique en cours</strong><small>{{ $run->items->sum('generation_step') }} partie(s) sauvegardée(s) · {{ $run->completed_count }} sur {{ $run->requested_count }} contenus validés.</small></div><b>…</b></div>

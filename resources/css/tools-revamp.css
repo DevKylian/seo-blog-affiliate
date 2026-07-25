@@ -1,0 +1,740 @@
+/* ==========================================================================
+   Tools & Comparison System Revamp (Premium, Data-Rich B2B Style)
+   ========================================================================== */
+
+/* --- Tool Variables --- */
+:root {
+    --tool-primary: #0f172a;
+    --tool-accent: #2563eb;
+    --tool-accent-hover: #1d4ed8;
+    --tool-surface: #ffffff;
+    --tool-bg: #f8fafc;
+    --tool-text: #1e293b;
+    --tool-muted: #64748b;
+    --tool-border: #e2e8f0;
+    --tool-green: #10b981;
+    --tool-red: #ef4444;
+    --tool-yellow: #f59e0b;
+}
+
+/* --- Layout --- */
+.tool-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 24px;
+}
+.tool-header-hero {
+    text-align: center;
+    margin-bottom: 60px;
+}
+.tool-header-hero h1 {
+    font-size: clamp(32px, 5vw, 48px);
+    font-weight: 800;
+    color: var(--tool-primary);
+    margin-bottom: 16px;
+    font-family: 'Manrope', sans-serif;
+}
+.tool-header-hero p {
+    font-size: 18px;
+    color: var(--tool-muted);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* --- Comparateur (Table) --- */
+.compare-table-wrapper {
+    overflow-x: auto;
+    background: var(--tool-surface);
+    border: 1px solid var(--tool-border);
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+    margin-bottom: 60px;
+}
+.compare-table {
+    width: 100%;
+    min-width: 800px;
+    border-collapse: collapse;
+}
+.compare-table th {
+    background: #f1f5f9;
+    padding: 24px 20px;
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--tool-primary);
+    text-align: left;
+    border-bottom: 2px solid var(--tool-border);
+}
+.compare-table td {
+    padding: 20px;
+    border-bottom: 1px solid var(--tool-border);
+    color: var(--tool-text);
+    font-size: 15px;
+    font-weight: 600;
+}
+.compare-table tr:last-child td {
+    border-bottom: none;
+}
+.compare-table td.check {
+    color: var(--tool-green);
+    font-size: 20px;
+    text-align: center;
+}
+.compare-table td.cross {
+    color: var(--tool-red);
+    font-size: 20px;
+    text-align: center;
+}
+.compare-table th.brand-col {
+    text-align: center;
+    width: 20%;
+}
+.compare-table td.brand-col {
+    text-align: center;
+}
+.compare-brand-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: white;
+    border: 1px solid var(--tool-border);
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--tool-primary);
+    margin-bottom: 8px;
+}
+
+/* --- Filtres (Sidebar ou Topbar) --- */
+.filters-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 32px;
+    padding: 16px;
+    background: var(--tool-surface);
+    border: 1px solid var(--tool-border);
+    border-radius: 12px;
+    align-items: center;
+}
+.filter-label {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--tool-muted);
+    margin-right: 12px;
+}
+.filter-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--tool-bg);
+    border: 1px solid var(--tool-border);
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--tool-text);
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s;
+}
+.filter-chip input {
+    accent-color: var(--tool-accent);
+}
+.filter-chip:hover {
+    border-color: var(--tool-accent);
+}
+.filter-chip.active {
+    background: #eff6ff;
+    border-color: var(--tool-accent);
+    color: var(--tool-accent);
+}
+
+/* --- Fiche Logiciel (Review Page) --- */
+.review-header {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 48px;
+    margin-bottom: 60px;
+}
+@media(max-width: 900px) {
+    .review-header {
+        grid-template-columns: 1fr;
+    }
+}
+.review-title-block {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+.review-logo {
+    width: 80px;
+    height: 80px;
+    background: white;
+    border: 1px solid var(--tool-border);
+    border-radius: 20px;
+    display: grid;
+    place-items: center;
+    font-size: 32px;
+    font-weight: 800;
+}
+.review-title {
+    font-size: 40px;
+    font-weight: 800;
+    font-family: 'Manrope', sans-serif;
+    color: var(--tool-primary);
+    margin-bottom: 4px;
+}
+.review-stars {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.review-stars-icons {
+    color: var(--tool-yellow);
+    font-size: 20px;
+    letter-spacing: 2px;
+}
+.review-stars-score {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--tool-primary);
+}
+.review-cta-card {
+    background: var(--tool-surface);
+    border: 2px solid var(--tool-accent);
+    border-radius: 16px;
+    padding: 32px;
+    text-align: center;
+    box-shadow: 0 10px 25px -5px rgba(37,99,235,0.1);
+}
+.review-cta-btn {
+    display: block;
+    width: 100%;
+    background: var(--tool-accent);
+    color: white;
+    padding: 16px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 18px;
+    text-decoration: none;
+    margin-bottom: 16px;
+    transition: background 0.2s;
+}
+.review-cta-btn:hover {
+    background: var(--tool-accent-hover);
+}
+.why-recommend {
+    text-align: left;
+    background: #eff6ff;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 14px;
+    color: #1e3a8a;
+    line-height: 1.5;
+}
+
+/* Scores détaillés */
+.review-scores-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    margin-bottom: 48px;
+    background: var(--tool-surface);
+    padding: 32px;
+    border: 1px solid var(--tool-border);
+    border-radius: 16px;
+}
+.score-item-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-weight: 700;
+    font-size: 15px;
+}
+.score-value {
+    color: var(--tool-primary);
+}
+.score-bar-bg {
+    height: 8px;
+    background: var(--tool-border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.score-bar-fill {
+    height: 100%;
+    background: var(--tool-green);
+    border-radius: 4px;
+}
+
+/* Media (Vidéo & Captures) */
+.review-media {
+    margin-bottom: 60px;
+}
+.review-video-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9 */
+    background: #1e293b;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    display: grid;
+    place-items: center;
+    color: white;
+    font-weight: 700;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+.review-video-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(4px);
+    cursor: pointer;
+}
+.play-btn {
+    width: 64px;
+    height: 64px;
+    background: var(--tool-accent);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    margin-bottom: 16px;
+    transition: transform 0.2s;
+}
+.review-video-overlay:hover .play-btn {
+    transform: scale(1.1);
+}
+
+/* Avantages / Inconvénients */
+.pros-cons-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-bottom: 60px;
+}
+@media(max-width: 768px) {
+    .pros-cons-grid {
+        grid-template-columns: 1fr;
+    }
+}
+.pros-box {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 16px;
+    padding: 32px;
+}
+.cons-box {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 16px;
+    padding: 32px;
+}
+.pros-cons-title {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.pros-box .pros-cons-title { color: #166534; }
+.cons-box .pros-cons-title { color: #991b1b; }
+
+.pros-list, .cons-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.pros-list li, .cons-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 15px;
+    line-height: 1.5;
+    font-weight: 600;
+}
+.pros-list li svg { color: var(--tool-green); flex-shrink: 0; width:20px; height:20px; margin-top:2px;}
+.cons-list li svg { color: var(--tool-red); flex-shrink: 0; width:20px; height:20px; margin-top:2px;}
+
+/* Pour qui ? (Target Audience) */
+.target-audience {
+    background: var(--tool-surface);
+    border: 1px solid var(--tool-border);
+    border-radius: 16px;
+    padding: 40px;
+    margin-bottom: 60px;
+}
+.target-audience-title {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 24px;
+}
+.target-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+}
+.target-card {
+    padding: 24px;
+    border-radius: 12px;
+    background: var(--tool-bg);
+}
+.target-card-good { border-left: 4px solid var(--tool-green); }
+.target-card-bad { border-left: 4px solid var(--tool-red); }
+.target-card h4 {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+/* Contenu SEO Dense */
+.review-content-section {
+    max-width: 800px;
+    margin: 0 auto 60px;
+}
+.review-content-section h2 {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 40px 0 20px;
+}
+.review-content-section h3 {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 32px 0 16px;
+}
+.review-content-section p {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--tool-text);
+    margin-bottom: 20px;
+}
+
+/* Verdict */
+.verdict-box {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: white;
+    padding: 48px;
+    border-radius: 16px;
+    text-align: center;
+    margin-bottom: 60px;
+}
+.verdict-box h2 {
+    font-size: 32px;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 24px;
+}
+.verdict-box p {
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    color: #cbd5e1;
+}
+
+/* --- Premium Calculators Custom Styles --- */
+.tool-calculator-layout {
+    max-width: 700px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.tool-inputs-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.tool-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tool-field-label {
+    font-weight: 700;
+    color: var(--tool-primary);
+    font-size: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tool-field-label span {
+    font-size: 13px;
+    color: var(--tool-muted);
+    font-weight: 500;
+}
+
+.tool-text-input {
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 1px solid var(--tool-border);
+    font-size: 16px;
+    width: 100%;
+    outline: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #f8fafc;
+    color: var(--tool-primary);
+    font-weight: 600;
+}
+
+.tool-text-input:focus {
+    border-color: var(--tool-accent);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.tool-select-input {
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 1px solid var(--tool-border);
+    font-size: 16px;
+    width: 100%;
+    outline: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #f8fafc;
+    color: var(--tool-primary);
+    font-weight: 600;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 20px center;
+    background-size: 16px;
+    padding-right: 48px;
+}
+
+.tool-select-input:focus {
+    border-color: var(--tool-accent);
+    background-color: white;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+/* Custom Interactive Checkbox/Toggle Cards */
+.tool-checkbox-card {
+    padding: 18px 24px;
+    background: #f8fafc;
+    border: 1px solid var(--tool-border);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+}
+
+.tool-checkbox-card:hover {
+    border-color: var(--tool-accent);
+    background: rgba(37, 99, 235, 0.01);
+}
+
+.tool-checkbox-card input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--tool-accent);
+    border-radius: 6px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.tool-checkbox-card-info {
+    font-weight: 700;
+    color: var(--tool-text);
+}
+
+.tool-checkbox-card-desc {
+    font-size: 12px;
+    color: var(--tool-muted);
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+/* Results panel block */
+.tool-results-panel {
+    background: radial-gradient(circle at top right, rgba(37, 99, 235, 0.03) 0%, rgba(248, 250, 252, 0) 60%), #f8fafc;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+    padding: 40px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    align-items: center;
+    text-align: center;
+}
+
+.tool-result-row {
+    width: 100%;
+}
+
+.tool-result-eyebrow {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--tool-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+}
+
+.tool-result-value {
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--tool-primary);
+    line-height: 1.1;
+}
+
+.tool-result-value.accent {
+    color: var(--tool-accent);
+}
+
+.tool-result-value.danger {
+    color: var(--tool-red);
+}
+
+.tool-result-card-highlight {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    box-shadow: 0 10px 30px -10px rgba(37, 99, 235, 0.1);
+    padding: 24px;
+    width: 100%;
+}
+
+.tool-result-card-highlight .tool-result-value {
+    font-size: 48px;
+}
+
+/* Custom stats and split-grids inside calculators */
+.tool-results-split {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+    width: 100%;
+}
+
+.tool-meta-note {
+    font-size: 13px;
+    color: var(--tool-muted);
+    line-height: 1.6;
+    text-align: center;
+}
+
+/* --- Free Tools Index Page --- */
+.free-tools-header {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 60px;
+  padding-top: 40px;
+}
+.free-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 32px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.free-tool-card {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  background: white;
+  border: 1px solid var(--tool-border);
+  border-radius: 20px;
+  padding: 36px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+}
+.free-tool-card:hover {
+  border-color: var(--tool-accent);
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px -15px rgba(37, 99, 235, 0.12);
+}
+.free-tool-card-icon {
+  font-size: 36px;
+  margin-bottom: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 70px;
+  height: 70px;
+  background: rgba(37, 99, 235, 0.06);
+  border-radius: 16px;
+}
+.free-tool-card-title {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--tool-primary);
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+.free-tool-card-desc {
+  font-size: 15px;
+  color: var(--tool-muted);
+  line-height: 1.6;
+  margin: 0 0 24px 0;
+  flex-grow: 1;
+}
+.free-tool-card-cta {
+  font-weight: 700;
+  color: var(--tool-accent);
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: gap 0.2s;
+}
+.free-tool-card:hover .free-tool-card-cta {
+  gap: 12px;
+}
+
+.free-tool-back-link {
+  color: var(--tool-muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+.free-tool-back-link:hover {
+  color: var(--tool-accent);
+  transform: translateX(-4px);
+}
+
+/* Custom status result boxes for seuil-tva */
+.tool-result-danger-box {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+.tool-result-warning-box {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #854d0e;
+}
+.tool-result-success-box {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #166534;
+}
+.tool-result-info-box {
+  background: #f8fafc;
+  border-color: var(--tool-border);
+  color: var(--tool-primary);
+}
+
+
+

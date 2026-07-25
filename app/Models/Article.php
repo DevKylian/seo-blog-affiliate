@@ -127,6 +127,8 @@ class Article extends Model
             'comparison' => route('comparisons.show', $this->slug),
             'alternatives' => route('alternatives.show', $this->slug),
             'best_tools' => route('best-tools.show', $this->slug),
+            'review' => route('reviews.show', $this->slug),
+            'guide' => route('guides.show', $this->slug),
             default => route('blog.show', $this->slug),
         };
     }

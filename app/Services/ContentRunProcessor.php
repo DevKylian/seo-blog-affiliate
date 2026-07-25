@@ -108,6 +108,27 @@ final class ContentRunProcessor
                 $article = $this->generator->generate($run->project, $item->content_type, $item->keyword, (string) $run->instructions);
             }
 
+            if ($run->publication_days > 0) {
+                $gapInMinutes = (int) round(($run->publication_days * 24 * 60) / max(1, $run->requested_count));
+                $latestDate = \App\Models\Article::query()
+                    ->where('seo_project_id', $run->seo_project_id)
+                    ->whereIn('status', ['published', 'scheduled'])
+                    ->max(DB::raw('COALESCE(scheduled_at, published_at)'));
+
+                $baseDate = $latestDate ? \Carbon\Carbon::parse($latestDate) : now();
+                $newDate = $baseDate->copy()->addMinutes($gapInMinutes);
+
+                $article->update([
+                    'status' => 'scheduled',
+                    'scheduled_at' => $newDate,
+                ]);
+            } else {
+                $article->update([
+                    'status' => 'published',
+                    'published_at' => now(),
+                ]);
+            }
+
             $item->update(['article_id' => $article->id, 'status' => 'completed', 'completed_at' => now(), 'started_at' => null]);
             $idea?->update(['status' => 'generated']);
             $run->increment('completed_count');

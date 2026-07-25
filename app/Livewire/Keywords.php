@@ -108,6 +108,45 @@ class Keywords extends Component
         $this->resetPage();
     }
 
+    public function exportCsv()
+    {
+        $keywords = $this->filteredQuery()->orderByDesc('opportunity_score')->get();
+
+        $headers = [
+            'Content-type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="opportunites-editoriales.csv"',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        $columns = ['Mot-clé', 'Stratégie', 'Cluster', 'Intention', 'Volume', 'KD', 'CPC', 'Score Opportunité', 'Date import'];
+
+        $callback = function () use ($keywords, $columns) {
+            $file = fopen('php://output', 'w');
+            // Ajout du BOM UTF-8 pour Excel
+            fputs($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+            fputcsv($file, $columns, ';');
+
+            foreach ($keywords as $keyword) {
+                fputcsv($file, [
+                    $keyword->keyword,
+                    $keyword->strategy_tier,
+                    $keyword->cluster,
+                    $keyword->intent,
+                    $keyword->search_volume,
+                    $keyword->keyword_difficulty,
+                    $keyword->cpc,
+                    round((float)$keyword->opportunity_score),
+                    $keyword->created_at?->format('d/m/Y'),
+                ], ';');
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
     protected function bulkSelectionIds(): array
     {
         return $this->filteredQuery()->pluck('id')->map(fn ($id) => (int) $id)->all();

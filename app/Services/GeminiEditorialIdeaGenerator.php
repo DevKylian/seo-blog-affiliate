@@ -88,6 +88,9 @@ RÈGLES BLOQUANTES DE STRUCTURATION
 - Le mini-plan (outline) doit être EXTRÊMEMENT structuré et professionnel. Il doit contenir 5 à 8 H2.
 - Interdiction absolue des H2 génériques type "Introduction", "Conclusion", "Pourquoi c'est important", "Guide complet". Les H2 doivent être des affirmations fortes ou des questions ultra-précises.
 - DIVERSITÉ THÉMATIQUE ET FORMATS : Tu dois IMPÉRATIVEMENT générer une variété de formats (content_type). Génère des comparatifs (comparison, alternatives, best_tools) en priorité si les Sujets Stratégiques le suggèrent.
+- NATURALITÉ DES TITRES (TRÈS IMPORTANT) : Rédige des titres sobres, naturels et alignés sur de vraies requêtes Google (ex: "Logiciel de comptabilité pour TPE et indépendants"). Interdiction des titres artificiels, clickbait ou trop promotionnels.
+- COHÉRENCE DES ENTITÉS : Respecte la nature réelle des outils. Par exemple, Indy et Freebe sont des logiciels de facturation/compta, ce ne sont PAS des "comptes pros" au sens bancaire. Si le sujet est "Compte Pro", ne cite pas Freebe.
+- SIMPLICITÉ ET CIBLAGE : Ne crée pas de sujets trop artificiels ou fusionnés (ex: "Signature Électronique avec FranceConnect"). Crée des silos étanches : une page pour la compta, une page pour la signature, une page pour l'automatisation.
 - Comparison : nomme explicitement les deux solutions dans le titre avec « X vs Y » et prévois au moins 2 solutions concurrentielles dans le plan.
 - Alternatives : le titre part explicitement du produit cible ou d'un concurrent sous la forme « Alternatives à X… » et le plan confronte au moins 2 solutions nommées.
 - Best_tools : le titre annonce un Top ou un nombre d’outils supérieur ou égal à 2.

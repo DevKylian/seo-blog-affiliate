@@ -64,7 +64,9 @@ class Automation extends Component
 
     public int $contentCount = 5;
 
-    public string $instructions = '';
+    public ?int $publicationDays = null;
+
+    public string $instructions = "Appliquer strictement la stratégie éditoriale BusinessKit :\n1. Pages business / conversion (forte intention)\n2. Pages informationnelles / autorité (guides experts)\n3. Pages comparatives / affiliation\n4. Pages outils / trafic récurrent\nGarantir une expertise de haut niveau (auteur: Créateur de BusinessKit).";
 
     public ?int $activeRunId = null;
 
@@ -168,6 +170,7 @@ class Automation extends Component
         } else {
             $rules['existingProjectId'] = ['required', 'exists:seo_projects,id'];
         }
+        $rules['publicationDays'] = ['nullable', 'integer', 'min:1', 'max:365'];
         $this->validate($rules, [], [
             'mode' => 'mode',
             'apiKey' => 'clé Gemini',
@@ -183,6 +186,7 @@ class Automation extends Component
             'country' => 'pays',
             'currency' => 'devise',
             'existingProjectId' => 'projet existant',
+            'publicationDays' => 'publication étalée sur (jours)',
         ]);
 
         $this->message = '';
@@ -365,7 +369,12 @@ class Automation extends Component
             return;
         }
 
-        $plan = $planner->createPlan($project, auth()->id(), $this->contentCount, $this->instructions);
+        $plan = $planner->createPlan(
+            $project, 
+            auth()->id(), 
+            $this->contentCount, 
+            $this->instructions
+        );
 
         $this->activePlanId = $plan->id;
         $this->activeRunId = null;
@@ -529,6 +538,7 @@ class Automation extends Component
                 'requested_count' => $plan->requested_count,
                 'status' => 'pending',
                 'instructions' => $plan->instructions,
+                'publication_days' => $this->publicationDays,
             ]);
             foreach ($ideas as $idea) {
                 $run->items()->create([
@@ -578,6 +588,19 @@ class Automation extends Component
         $this->launchWorker($run, $worker);
         $this->message = 'Génération automatique reprise au premier contenu interrompu.';
         $this->dispatch('batch-started');
+    }
+
+    public function setPreset(string $type): void
+    {
+        $diversity = "\n\nREGLE ABSOLUE : Tu dois OBLIGATOIREMENT diversifier les sujets. Interdiction totale de proposer plus d'UNE seule idée sur le même sous-sujet (ex: si tu proposes un article sur la signature électronique, les autres doivent porter sur la comptabilité, la facturation, etc.).";
+        
+        if ($type === 'pillar') {
+            $this->instructions = "Objectif : Construire les Pages Mères (Guides complets) pour asseoir l'autorité topique. Intention mixte (Informationnelle/Commerciale). Ne pas vendre agressivement. L'objectif est d'éduquer et de distribuer le jus interne vers les pages de conversion." . $diversity;
+        } elseif ($type === 'money') {
+            $this->instructions = "Objectif : Money Pages / Conversion. Requêtes ultra-spécifiques et transactionnelles. Inclure systématiquement des tableaux de prix, la mention d'un simulateur, et des appels à l'action (CTA) très agressifs pour générer des commissions." . $diversity;
+        } elseif ($type === 'interception') {
+            $this->instructions = "Objectif : Trafic de Masse & Interception. Ce sont des requêtes navigationnelles. L'angle de l'article doit être l'interception de trafic (ex: faire un avis détaillé, proposer des alternatives meilleures ou moins chères, décrypter l'offre). Le ton doit être analytique et comparatif." . $diversity;
+        }
     }
 
     public function stopRun(): void

@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [BlogController::class, 'home'])->name('home');
+Route::get('/auteurs/martin-trivianio', [BlogController::class, 'about'])->name('author.show');
 Route::redirect('/home', '/admin');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/outils-gratuits', [BlogController::class, 'freeTools'])->name('free-tools.index');
@@ -43,6 +44,8 @@ Route::get('/outils/{slug}', [BlogController::class, 'tool'])->name('tools.show'
 Route::get('/comparatifs/{slug}', [BlogController::class, 'comparison'])->name('comparisons.show');
 Route::get('/alternatives/{slug}', [BlogController::class, 'alternatives'])->name('alternatives.show');
 Route::get('/meilleurs-outils/{slug}', [BlogController::class, 'bestTools'])->name('best-tools.show');
+Route::get('/avis/{slug}', [BlogController::class, 'review'])->name('reviews.show');
+Route::get('/guides/{slug}', [BlogController::class, 'guide'])->name('guides.show');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/go/{project:slug}', AffiliateRedirectController::class)->name('affiliate.redirect');
 Route::get('/indexnow/{key}.txt', IndexNowKeyController::class)->where('key', '[A-Za-z0-9_-]{8,128}')->name('indexnow.key');

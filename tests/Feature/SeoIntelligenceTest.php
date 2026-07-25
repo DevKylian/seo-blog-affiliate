@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace Tests\Feature;
 
@@ -71,7 +71,7 @@ final class SeoIntelligenceTest extends TestCase
             'seo_project_id' => $project->id,
             'article_id' => $article->id,
             'provider' => 'google_search_console',
-            'site_url' => 'https://freelanceos.test',
+            'site_url' => 'https://BusinessKit.test',
             'page_url' => $article->public_url,
             'url_hash' => sha1($article->public_url),
             'query' => 'logiciel facture gratuit auto entrepreneur',
@@ -110,7 +110,7 @@ final class SeoIntelligenceTest extends TestCase
         SearchPerformanceSnapshot::query()->create([
             'seo_project_id' => $project->id,
             'provider' => 'google_search_console',
-            'site_url' => 'https://freelanceos.test',
+            'site_url' => 'https://BusinessKit.test',
             'url_hash' => sha1('site-wide'),
             'query' => 'logiciel facturation btp artisans',
             'query_hash' => sha1('logiciel facturation btp artisans'),

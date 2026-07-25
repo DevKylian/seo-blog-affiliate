@@ -1,4 +1,4 @@
-@extends('layouts.blog')
+﻿@extends('layouts.blog')
 
 @section('title', 'Guides freelance et comparatifs logiciels')
 @section('description', 'Guides, avis et comparatifs vérifiés pour gérer une activité freelance en France.')
@@ -6,7 +6,7 @@
 @section('content')
 <section class="pro-hero" style="padding: 100px 20px; background: linear-gradient(135deg, #020617, #0f172a, #1e1b4b); color: white;">
     <div class="pro-hero-inner">
-        <span class="pro-eyebrow">Bibliothèque FreelanceOS</span>
+        <span class="pro-eyebrow">Bibliothèque BusinessKit</span>
         <h1 style="color: white; background: none; -webkit-text-fill-color: white;">Des dossiers utiles, pas du contenu de remplissage.</h1>
         <p>Chaque guide part d'une intention claire : comprendre une obligation, choisir un outil, comparer un prix ou avancer sur une démarche précise.</p>
     </div>

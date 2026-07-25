@@ -1,4 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap');
+@import url('./home-revamp.css');
+@import url('./tools-revamp.css');
 
 :root { --ink:#17203a; --muted:#74809a; --line:#e8ebf2; --surface:#fff; --bg:#f7f8fc; --purple:#6d5dfc; --purple-dark:#5142df; }
 * { box-sizing:border-box; }
@@ -159,9 +161,9 @@ button,a { -webkit-tap-highlight-color:transparent; }
 .blog-card footer a { color:var(--pub-primary); text-decoration:none; font-weight:700; }
 .blog-empty { grid-column:1/-1; padding:70px; text-align:center; border:1px dashed var(--pub-border); border-radius:12px; }
 .blog-empty > span { color:var(--pub-primary); font-size:30px; }
-.blog-footer { display:flex; align-items:flex-end; justify-content:space-between; padding:50px max(24px, calc((100vw - 1132px)/2)); color:#94a3b8; background:#0f172a; }
-.blog-footer > div p { font-size:9px; }
-.blog-footer > p { font-size:8px; }
+.blog-footer { display:flex; flex-direction:column; gap:48px; padding:64px max(24px, calc((100vw - 1132px)/2)) 40px; color:#cbd5e1; background:#0f172a; border-top:1px solid #1e293b; }
+.blog-footer > div p { font-size:14px; line-height:1.6; }
+.blog-footer > p { font-size:13px; }
 .category-hero, .tools-hero { padding:75px 24px; background:#0f172a; color:white; text-align:center; border-bottom:1px solid #1e293b; }
 .category-hero h1, .tools-hero h1 { font-size:52px; margin:0; }
 .public-article, .tool-detail, .pricing-page { max-width:900px; margin:auto; padding:65px 24px 100px; }
@@ -1136,8 +1138,10 @@ button,a { -webkit-tap-highlight-color:transparent; }
     background:#f1f5f9;
 }
 .blog-footer{
-    align-items:flex-start;
-    gap:32px;
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    gap:48px;
     color:#cbd5e1;
     background:#0f172a;
 }
@@ -1145,14 +1149,14 @@ button,a { -webkit-tap-highlight-color:transparent; }
     color:#ffffff;
 }
 .blog-footer>div p{
-    max-width:360px;
+    max-width:420px;
     color:#cbd5e1;
-    font-size:12px;
+    font-size:14px;
     line-height:1.6;
 }
 .blog-footer>p{
     color:#94a3b8;
-    font-size:11px;
+    font-size:13px;
 }
 .footer-links{
     display:grid;

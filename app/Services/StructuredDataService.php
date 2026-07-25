@@ -87,7 +87,7 @@ final class StructuredDataService
         return [
             '@type' => 'Organization',
             '@id' => $this->organizationId(),
-            'name' => 'FreelanceOS',
+            'name' => 'BusinessKit',
             'url' => route('home'),
         ];
     }
@@ -98,7 +98,7 @@ final class StructuredDataService
         return [
             '@type' => 'WebSite',
             '@id' => $this->websiteId(),
-            'name' => 'FreelanceOS',
+            'name' => 'BusinessKit',
             'url' => route('home'),
             'publisher' => ['@id' => $this->organizationId()],
         ];

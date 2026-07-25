@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace Tests\Feature;
 
@@ -170,7 +170,7 @@ class AffiliateFactoryTest extends TestCase
 
         $this->get(route('home'))
             ->assertOk()
-            ->assertSee('FreelanceOS')
+            ->assertSee('BusinessKit')
             ->assertSee('TJM freelance');
 
         $this->get(route('free-tools.index'))
