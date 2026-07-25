@@ -16,16 +16,17 @@
                     <div class="premium-cta-indy__badge">🏆 Choix N°1 de la Rédaction</div>
                     <div class="premium-cta-indy__content">
                         <div class="premium-cta-indy__text">
-                            <strong>{{ $affiliateBlock->title }}</strong>
-                            <p>{!! nl2br(e($affiliateBlock->description)) !!}</p>
+                            <strong>Essayez Indy gratuitement</strong>
+                            <p>Centralisez votre facturation, vos dépenses et votre comptabilité dans un seul outil pensé pour les indépendants. Gagnez du temps dès aujourd’hui avec une solution simple, rapide à prendre en main et disponible en version gratuite.</p>
                         </div>
                         <ul class="premium-cta-indy__bullets">
-                            <li><i>✓</i> Comptabilité 100% automatisée en temps réel</li>
-                            <li><i>✓</i> Déclarations Urssaf & Liasses fiscales en 1 clic</li>
-                            <li><i>✓</i> Compte pro et outil de facturation inclus (Gratuit)</li>
+                            <li><i>✓</i> Pensé pour les indépendants</li>
+                            <li><i>✓</i> Prise en main immédiate</li>
+                            <li><i>✓</i> Support et assistance</li>
+                            <li><i>✓</i> Version gratuite disponible</li>
                         </ul>
                     </div>
-                    <a class="premium-cta-indy__button" href="{{ app(\App\Services\AffiliateBlockService::class)->trackedUrl($article, $affiliateBlock->exists ? $affiliateBlock : null, $position) }}" rel="sponsored nofollow">{{ $affiliateBlock->cta }}</a>
+                    <a class="premium-cta-indy__button" href="{{ app(\App\Services\AffiliateBlockService::class)->trackedUrl($article, $affiliateBlock->exists ? $affiliateBlock : null, $position) }}" rel="sponsored nofollow">Créer mon compte gratuit</a>
                 </aside>
             @else
                 @php
