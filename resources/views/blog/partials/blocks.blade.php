@@ -17,7 +17,7 @@
                     <div class="premium-cta-indy__content">
                         <div class="premium-cta-indy__text">
                             <strong>{{ $affiliateBlock->title }}</strong>
-                            <p>{{ $affiliateBlock->description }}</p>
+                            <p>{!! nl2br(e($affiliateBlock->description)) !!}</p>
                         </div>
                         <ul class="premium-cta-indy__bullets">
                             <li><i>✓</i> Comptabilité 100% automatisée en temps réel</li>
@@ -31,7 +31,7 @@
                 <aside class="affiliate-cta {{ $positionClass }} {{ $affiliateBlock->style }}">
                     <div class="affiliate-cta__copy">
                         <strong>{{ $affiliateBlock->title }}</strong>
-                        <p>{{ $affiliateBlock->description }}</p>
+                        <p>{!! nl2br(e($affiliateBlock->description)) !!}</p>
                     </div>
                     <a class="affiliate-cta__button" href="{{ app(\App\Services\AffiliateBlockService::class)->trackedUrl($article, $affiliateBlock->exists ? $affiliateBlock : null, $position) }}" rel="sponsored nofollow">{{ $affiliateBlock->cta }}</a>
                 </aside>

@@ -93,11 +93,11 @@ final class AffiliateBlockService
             'affiliate_cluster' => $cluster,
             'intent_type' => $intentType,
             'position' => $position,
-            'title' => $strong ? "Gagnez du temps avec {$projectName}" : 'Simplifiez votre administratif',
+            'title' => $strong ? "Simplifier votre gestion avec {$projectName}" : 'Une prochaine étape possible',
             'description' => $strong
-                ? "Découvrez comment {$projectName} automatise votre quotidien (facturation, devis, comptabilité) pour vous concentrer sur votre cœur de métier."
-                : "Ne perdez plus de temps sur les tâches chronophages. Un outil moderne comme {$projectName} est conçu pour vous faciliter la vie.",
-            'cta' => $strong ? "🚀 Essayer {$projectName} gratuitement" : "Découvrir {$projectName}",
+                ? "{$projectName} permet de rapprocher facturation, dépenses et obligations dans un même outil.\n\n✅ Centralisez vos outils\n✅ Automatisez vos relances et déclarations\n✅ Gagnez du temps sur l'administratif"
+                : "Quand votre gestion devient répétitive, un outil comme {$projectName} peut vous aider à automatiser les tâches administratives.\n\n✅ Pensé pour les indépendants\n✅ Prise en main immédiate\n✅ Sans engagement",
+            'cta' => "🎁 Profiter de l'offre gratuite",
             'style' => $strong ? 'strong' : 'soft',
             'is_active' => true,
         ]);
