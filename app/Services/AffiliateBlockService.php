@@ -48,6 +48,11 @@ final class AffiliateBlockService
 
     public function trackedUrl(Article $article, ?AffiliateBlock $block, string $position): string
     {
+        $nameLower = mb_strtolower($article->project->name);
+        if (str_contains($nameLower, 'blog') || str_contains($nameLower, 'guide')) {
+            return route('tools.index');
+        }
+
         return route('affiliate.redirect', [
             'project' => $article->project,
             'article' => $article->id,
@@ -64,18 +69,35 @@ final class AffiliateBlockService
     private function fallback(Article $article, string $position, ?string $cluster, string $intentType): AffiliateBlock
     {
         $projectName = $article->project->name;
+        $nameLower = mb_strtolower($projectName);
+        $isGeneric = str_contains($nameLower, 'blog') || str_contains($nameLower, 'guide');
+        
         $strong = in_array($intentType, ['solution', 'money'], true);
+
+        if ($isGeneric) {
+            return new AffiliateBlock([
+                'seo_project_id' => $article->seo_project_id,
+                'affiliate_cluster' => $cluster,
+                'intent_type' => $intentType,
+                'position' => $position,
+                'title' => 'Quel outil choisir pour votre activité ?',
+                'description' => 'Retrouvez notre comparatif indépendant des meilleurs logiciels pour freelances et indépendants.',
+                'cta' => '📊 Voir le comparatif complet',
+                'style' => 'soft',
+                'is_active' => true,
+            ]);
+        }
 
         return new AffiliateBlock([
             'seo_project_id' => $article->seo_project_id,
             'affiliate_cluster' => $cluster,
             'intent_type' => $intentType,
             'position' => $position,
-            'title' => $strong ? "Simplifier votre gestion avec {$projectName}" : 'Une prochaine étape possible',
+            'title' => $strong ? "Gagnez du temps avec {$projectName}" : 'Simplifiez votre administratif',
             'description' => $strong
-                ? "{$projectName} permet de rapprocher facturation, dépenses et obligations dans un même outil."
-                : "Quand votre gestion devient répétitive, un outil comme {$projectName} peut vous aider à automatiser les tâches administratives.",
-            'cta' => "🎁 Profiter de l'offre gratuite",
+                ? "Découvrez comment {$projectName} automatise votre quotidien (facturation, devis, comptabilité) pour vous concentrer sur votre cœur de métier."
+                : "Ne perdez plus de temps sur les tâches chronophages. Un outil moderne comme {$projectName} est conçu pour vous faciliter la vie.",
+            'cta' => $strong ? "🚀 Essayer {$projectName} gratuitement" : "Découvrir {$projectName}",
             'style' => $strong ? 'strong' : 'soft',
             'is_active' => true,
         ]);
