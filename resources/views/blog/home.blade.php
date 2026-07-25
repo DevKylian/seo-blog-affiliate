@@ -295,47 +295,21 @@
     <!-- Hubs (Recherches fréquentes) -->
     <section class="home-section">
         <h2 class="home-section-title">Les logiciels les plus recherchés</h2>
-        <div class="home-categories-grid">
-            <a href="/comptabilite" class="home-category-card" style="display:flex; flex-direction:column; align-items:center;">
-                <div class="home-category-icon" style="background: rgba(37, 99, 235, 0.08); color: var(--home-accent);">📊</div>
-                <div style="font-weight: 800;">Logiciel comptable</div>
-                <div style="font-size: 13px; color: var(--home-muted); margin-top: 4px; font-weight: 700;">→ 28 guides</div>
+                <div class="home-categories-grid">
+            @php 
+                $categoryIcons = [
+                    'comptabilite' => '📊', 'facturation' => '📄', 'banque-pro' => '💳',
+                    'compte-pro' => '💼', 'crm' => '🤝', 'signature-electronique' => '✍️',
+                    'notes-de-frais' => '🧾', 'paiement-en-ligne' => '💰'
+                ];
+            @endphp
+            @foreach($categories->take(8) as $cat)
+            <a href="{{ route('blog.category', $cat->slug) }}" class="home-category-card" style="display:flex; flex-direction:column; align-items:center;">
+                <div class="home-category-icon" style="background: rgba(37, 99, 235, 0.08); color: var(--home-accent);">{{ $categoryIcons[$cat->slug] ?? '📁' }}</div>
+                <div style="font-weight: 800;">{{ $cat->name }}</div>
+                <div style="font-size: 13px; color: var(--home-muted); margin-top: 4px; font-weight: 700;">→ {{ $cat->articles_count }} guides</div>
             </a>
-            <a href="/facturation" class="home-category-card" style="display:flex; flex-direction:column; align-items:center;">
-                <div class="home-category-icon" style="background: rgba(37, 99, 235, 0.08); color: var(--home-accent);">📄</div>
-                <div style="font-weight: 800;">Logiciel de facturation</div>
-                <div style="font-size: 13px; color: var(--home-muted); margin-top: 4px; font-weight: 700;">→ 35 guides</div>
-            </a>
-            <a href="/banque-pro" class="home-category-card" style="display:flex; flex-direction:column; align-items:center;">
-                <div class="home-category-icon" style="background: rgba(37, 99, 235, 0.08); color: var(--home-accent);">💳</div>
-                <div style="font-weight: 800;">Banque Pro</div>
-                <div style="font-size: 13px; color: var(--home-muted); margin-top: 4px; font-weight: 700;">→ 22 analyses</div>
-            </a>
-            <a href="/compte-pro" class="home-category-card" style="display:flex; flex-direction:column; align-items:center;">
-                <div class="home-category-icon" style="background: rgba(37, 99, 235, 0.08); color: var(--home-accent);">💼</div>
-                <div style="font-weight: 800;">Compte Pro</div>
-                <div style="font-size: 13px; color: var(--home-muted); margin-top: 4px; font-weight: 700;">→ 18 analyses</div>
-            </a>
-            <a href="/crm" class="home-category-card" style="display:flex; flex-direction:column; align-items:center;">
-                <div class="home-category-icon" style="background: rgba(37, 99, 235, 0.08); color: var(--home-accent);">🤝</div>
-                <div style="font-weight: 800;">CRM</div>
-                <div style="font-size: 13px; color: var(--home-muted); margin-top: 4px; font-weight: 700;">→ 14 comparatifs</div>
-            </a>
-            <a href="#" class="home-category-card" style="display:flex; flex-direction:column; align-items:center;">
-                <div class="home-category-icon" style="background: rgba(37, 99, 235, 0.08); color: var(--home-accent);">✍️</div>
-                <div style="font-weight: 800;">Signature électronique</div>
-                <div style="font-size: 13px; color: var(--home-muted); margin-top: 4px; font-weight: 700;">→ 9 guides</div>
-            </a>
-            <a href="#" class="home-category-card" style="display:flex; flex-direction:column; align-items:center;">
-                <div class="home-category-icon" style="background: rgba(37, 99, 235, 0.08); color: var(--home-accent);">🧾</div>
-                <div style="font-weight: 800;">Notes de frais</div>
-                <div style="font-size: 13px; color: var(--home-muted); margin-top: 4px; font-weight: 700;">→ 12 guides</div>
-            </a>
-            <a href="#" class="home-category-card" style="display:flex; flex-direction:column; align-items:center;">
-                <div class="home-category-icon" style="background: rgba(37, 99, 235, 0.08); color: var(--home-accent);">💰</div>
-                <div style="font-weight: 800;">Paiement en ligne</div>
-                <div style="font-size: 13px; color: var(--home-muted); margin-top: 4px; font-weight: 700;">→ 11 analyses</div>
-            </a>
+            @endforeach
         </div>
     </section>
 
@@ -593,31 +567,20 @@
             <li>✓ Mis à jour automatiquement</li>
             <li>✓ Conformes à la réglementation française</li>
         </ul>
-        <div class="hp-tools-mega-grid">
-            <a href="#" class="hp-tool-mega-card" style="display:flex; flex-direction:column; justify-content:space-between; height:100%;">
+                <div class="hp-tools-mega-grid">
+            @php 
+                $toolIcons = ['calculateur-tva' => '🧮', 'calculateur-tjm' => '💰', 'simulateur-micro' => '📈'];
+            @endphp
+            @foreach(collect($freeTools)->take(3) as $tool)
+            <a href="{{ route('free-tools.show', $tool['slug']) }}" class="hp-tool-mega-card" style="display:flex; flex-direction:column; justify-content:space-between; height:100%;">
                 <div>
-                    <div class="hp-tool-mega-card-icon" style="font-size:48px;">🧮</div>
-                    <div class="hp-tool-mega-card-title" style="font-size:20px;">Calculateur TVA</div>
-                    <div style="font-size:14px; color:#cbd5e1; margin-top:12px; line-height:1.5;">Convertissez HT en TTC instantanément avec tous les taux officiels.</div>
+                    <div class="hp-tool-mega-card-icon" style="font-size:48px;">{{ $toolIcons[$tool['type']] ?? '🛠️' }}</div>
+                    <div class="hp-tool-mega-card-title" style="font-size:20px;">{{ $tool['title'] }}</div>
+                    <div style="font-size:14px; color:#cbd5e1; margin-top:12px; line-height:1.5;">{{ $tool['description'] }}</div>
                 </div>
                 <div style="margin-top:24px; padding:10px; text-align:center; background:rgba(255,255,255,0.1); border-radius:8px; font-weight:700;">Utiliser l'outil</div>
             </a>
-            <a href="#" class="hp-tool-mega-card" style="display:flex; flex-direction:column; justify-content:space-between; height:100%;">
-                <div>
-                    <div class="hp-tool-mega-card-icon" style="font-size:48px;">💰</div>
-                    <div class="hp-tool-mega-card-title" style="font-size:20px;">Calculateur TJM</div>
-                    <div style="font-size:14px; color:#cbd5e1; margin-top:12px; line-height:1.5;">Déterminez votre Taux Journalier Moyen idéal selon votre salaire visé.</div>
-                </div>
-                <div style="margin-top:24px; padding:10px; text-align:center; background:rgba(255,255,255,0.1); border-radius:8px; font-weight:700;">Utiliser l'outil</div>
-            </a>
-            <a href="#" class="hp-tool-mega-card" style="display:flex; flex-direction:column; justify-content:space-between; height:100%;">
-                <div>
-                    <div class="hp-tool-mega-card-icon" style="font-size:48px;">📉</div>
-                    <div class="hp-tool-mega-card-title" style="font-size:20px;">Simulateur Micro</div>
-                    <div style="font-size:14px; color:#cbd5e1; margin-top:12px; line-height:1.5;">Calculez vos charges URSSAF et vos impôts en temps réel.</div>
-                </div>
-                <div style="margin-top:24px; padding:10px; text-align:center; background:rgba(255,255,255,0.1); border-radius:8px; font-weight:700;">Utiliser l'outil</div>
-            </a>
+            @endforeach
             <a href="{{ route('free-tools.index') }}" class="hp-tool-mega-card" style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; border: 2px dashed rgba(255,255,255,0.25); background: rgba(255,255,255,0.03); text-align: center; padding: 24px; transition: all 0.3s ease; border-radius: 16px; text-decoration: none;">
                 <div style="font-size:32px; margin-bottom:12px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));">🛠️</div>
                 <div style="font-weight:800; font-size: 18px; color: #ffffff; margin-bottom: 6px;">Voir les 6 outils gratuits</div>
@@ -629,19 +592,21 @@
     <!-- Comparatifs les plus lus -->
     <section class="home-section">
         <h2 class="home-section-title">Les comparatifs les plus lus</h2>
-        <div class="hp-grid-3">
-            <a href="#" class="hp-card">
-                <div class="hp-card-title">Indy vs Pennylane</div>
-                <div class="hp-card-desc">Lequel choisir pour votre facturation et comptabilité ?</div>
+                <div class="hp-grid-3">
+            @foreach($latestArticles->where('type', 'comparison')->take(3) as $article)
+            <a href="{{ $article->public_url }}" class="hp-card">
+                <div class="hp-card-title">{{ $article->title }}</div>
+                <div class="hp-card-desc">{{ Str::limit($article->excerpt ?? 'Découvrez notre comparatif complet.', 80) }}</div>
             </a>
-            <a href="#" class="hp-card">
-                <div class="hp-card-title">Indy vs Dougs</div>
-                <div class="hp-card-desc">Logiciel automatisé ou cabinet d'expertise comptable en ligne ?</div>
-            </a>
-            <a href="#" class="hp-card">
-                <div class="hp-card-title">Pennylane vs Abby</div>
-                <div class="hp-card-desc">Trouvez la meilleure solution selon la taille de votre entreprise.</div>
-            </a>
+            @endforeach
+            @if($latestArticles->where('type', 'comparison')->count() == 0)
+                @foreach($latestArticles->take(3) as $article)
+                <a href="{{ $article->public_url }}" class="hp-card">
+                    <div class="hp-card-title">{{ $article->title }}</div>
+                    <div class="hp-card-desc">{{ Str::limit($article->excerpt ?? 'Découvrez notre analyse détaillée.', 80) }}</div>
+                </a>
+                @endforeach
+            @endif
         </div>
     </section>
 
