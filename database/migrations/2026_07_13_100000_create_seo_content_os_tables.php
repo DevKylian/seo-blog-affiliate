@@ -33,7 +33,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('seo_project_id')->constrained()->cascadeOnDelete();
             $table->string('type')->default('other');
-            $table->text('url');
+            $table->string('url');
             $table->string('title')->nullable();
             $table->text('excerpt')->nullable();
             $table->longText('content')->nullable();
