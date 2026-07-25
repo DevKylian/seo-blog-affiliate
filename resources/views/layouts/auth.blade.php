@@ -11,7 +11,7 @@
         <section class="auth-intro">
             <a class="brand brand-light" href="/">
                 <span class="brand-mark">B</span>
-                <span>BlogSEO</span>
+                <span>BusinessKit</span>
             </a>
             <div class="auth-copy">
                 <span class="eyebrow">Espace de pilotage</span>

@@ -1,6 +1,6 @@
 <div class="login-card">
     <div class="login-heading">
-        <span class="mobile-brand"><span class="brand-mark">B</span> BlogSEO</span>
+        <span class="mobile-brand"><span class="brand-mark">B</span> BusinessKit</span>
         <span class="eyebrow dark">Administration</span>
         <h2>Heureux de vous revoir.</h2>
         <p>Connectez-vous pour accéder à votre espace.</p>

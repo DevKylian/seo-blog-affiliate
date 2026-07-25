@@ -1386,7 +1386,7 @@ class StaticSiteScraper
         $parts = parse_url($url);
         $robotsUrl = $parts['scheme'].'://'.$parts['host'].(isset($parts['port']) ? ':'.$parts['port'] : '').'/robots.txt';
         try {
-            $response = $this->http()->timeout(8)->withHeaders(['User-Agent' => 'BlogSEOResearchBot/1.0'])->get($robotsUrl);
+            $response = $this->http()->timeout(8)->withHeaders(['User-Agent' => 'BusinessKitResearchBot/1.0'])->get($robotsUrl);
             if (! $response->successful()) {
                 return;
             }
@@ -1396,7 +1396,7 @@ class StaticSiteScraper
                 $line = trim(preg_replace('/#.*$/', '', $line));
                 if (stripos($line, 'user-agent:') === 0) {
                     $agent = trim(substr($line, 11));
-                    $applies = $agent === '*' || stripos($agent, 'BlogSEOResearchBot') !== false;
+                    $applies = $agent === '*' || stripos($agent, 'BusinessKitResearchBot') !== false;
                 } elseif ($applies && stripos($line, 'disallow:') === 0) {
                     $rule = trim(substr($line, 9));
                     if ($rule !== '' && str_starts_with($path, $rule)) {

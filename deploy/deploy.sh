@@ -1,12 +1,12 @@
 #!/bin/bash
 # =============================================================================
-# BlogSEO — Script de déploiement (lancé par GitHub Actions)
+# BusinessKit — Script de déploiement (lancé par GitHub Actions)
 # =============================================================================
 set -euo pipefail
 
-APP_DIR="/var/www/blogseo"
-LOG_DIR="/var/log/blogseo"
-BACKUP_DIR="/var/backups/blogseo"
+APP_DIR="/var/www/businesskit"
+LOG_DIR="/var/log/businesskit"
+BACKUP_DIR="/var/backups/businesskit"
 PHP="php"
 GITHUB_REPO="DevKylian/seo-blog-affiliate"
 GITHUB_BRANCH="main"
@@ -121,17 +121,17 @@ $PHP artisan seo:submit-sitemap-to-google || log "Note: soumission sitemap Googl
 # --- Redémarrage queue workers -----------------------------------------------
 log "Redémarrage des ${QUEUE_WORKERS} workers queue..."
 $PHP artisan queue:restart || log "Note: Échec de queue:restart"
-if systemctl list-unit-files "blogseo-queue@.service" --no-legend 2>/dev/null | grep -q "blogseo-queue@"; then
+if systemctl list-unit-files "businesskit-queue@.service" --no-legend 2>/dev/null | grep -q "businesskit-queue@"; then
     for i in $(seq 1 ${QUEUE_WORKERS}); do
-        sudo systemctl restart "blogseo-queue@${i}" || log "Note: Échec restart worker ${i}"
+        sudo systemctl restart "businesskit-queue@${i}" || log "Note: Échec restart worker ${i}"
     done
     log "${QUEUE_WORKERS} workers redémarrés."
 else
-    sudo systemctl restart blogseo-queue || log "Note: Échec restart queue (single)"
+    sudo systemctl restart businesskit-queue || log "Note: Échec restart queue (single)"
 fi
 
 # Worker dédié blog IA
-sudo systemctl restart blogseo-blog-worker && log "Worker blog IA redémarré." \
+sudo systemctl restart businesskit-blog-worker && log "Worker blog IA redémarré." \
     || log "Note: Échec restart blog-worker (normal si pas encore configuré via setup.sh)"
 
 log "====== DÉPLOIEMENT TERMINÉ ======"

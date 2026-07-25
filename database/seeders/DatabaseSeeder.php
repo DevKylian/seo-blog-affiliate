@@ -38,7 +38,7 @@ class DatabaseSeeder extends Seeder
             'slug' => 'mailpilot-demo',
             'website_url' => 'https://example.com/mailpilot',
             'pricing_url' => 'https://example.com/mailpilot/pricing',
-            'affiliate_url' => 'https://example.com/mailpilot?ref=blogseo',
+            'affiliate_url' => 'https://example.com/mailpilot?ref=businesskit',
             'country' => 'FR',
             'currency' => 'EUR',
             'crawl_status' => 'completed',

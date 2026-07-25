@@ -17,9 +17,9 @@ use App\Services\RuntimeBinaryLocator;
 use App\Services\SeoContentStructure;
 use App\Services\SeoSlugGenerator;
 use App\Services\TopicNormalizer;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
-class ExampleTest extends TestCase
+final class ExampleTest extends TestCase
 {
     /**
      * A basic test example.

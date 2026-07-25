@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace Tests\Feature;
 
@@ -30,7 +30,7 @@ class AffiliateFactoryTest extends TestCase
             'name' => 'Indy',
             'slug' => 'indy-affiliate-defaults',
             'website_url' => 'https://www.indy.fr',
-            'affiliate_url' => 'https://www.indy.fr/?ref=blogseo',
+            'affiliate_url' => 'https://www.indy.fr/?ref=businesskit',
             'country' => 'FR',
             'currency' => 'EUR',
         ]);
@@ -51,7 +51,7 @@ class AffiliateFactoryTest extends TestCase
             'name' => 'Indy',
             'slug' => 'indy-affiliate-import',
             'website_url' => 'https://www.indy.fr',
-            'affiliate_url' => 'https://www.indy.fr/?ref=blogseo',
+            'affiliate_url' => 'https://www.indy.fr/?ref=businesskit',
             'country' => 'FR',
             'currency' => 'EUR',
         ]);
@@ -88,7 +88,7 @@ class AffiliateFactoryTest extends TestCase
             'name' => 'Indy',
             'slug' => 'indy-affiliate-render',
             'website_url' => 'https://www.indy.fr',
-            'affiliate_url' => 'https://www.indy.fr/?ref=blogseo',
+            'affiliate_url' => 'https://www.indy.fr/?ref=businesskit',
             'country' => 'FR',
             'currency' => 'EUR',
         ]);
@@ -136,7 +136,7 @@ class AffiliateFactoryTest extends TestCase
             'article' => $article->id,
             'block' => $block?->id,
             'position' => 'after_intro',
-        ]))->assertRedirect('https://www.indy.fr/?ref=blogseo');
+        ]))->assertRedirect('https://www.indy.fr/?ref=businesskit');
 
         $this->assertSame(1, AffiliateClick::query()->count());
         $this->assertDatabaseHas('affiliate_clicks', [

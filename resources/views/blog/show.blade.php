@@ -1,7 +1,7 @@
 @extends('layouts.blog')
 
 @section('title', $article->meta_title ?: $article->title)
-@section('description', $article->meta_description ?: $article->excerpt ?: 'Analyse logicielle vérifiée par BlogSEO.')
+@section('description', $article->meta_description ?: $article->excerpt ?: 'Analyse logicielle vérifiée par BusinessKit.')
 @section('canonical', $article->canonical_url ?: $article->public_url)
 
 @push('head')

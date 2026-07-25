@@ -12,7 +12,7 @@
         <aside class="sidebar" :class="{ 'is-open': sidebarOpen }">
             <div class="sidebar-head">
                 <a class="brand" href="{{ route('admin.dashboard') }}" wire:navigate>
-                    <span class="brand-mark">B</span><span>BlogSEO</span>
+                    <span class="brand-mark">B</span><span>BusinessKit</span>
                 </a>
                 <button class="icon-button sidebar-close" @click="sidebarOpen = false" aria-label="Fermer le menu">×</button>
             </div>

@@ -811,7 +811,7 @@ PROMPT;
                 'temperature' => $temperature,
                 'maxOutputTokens' => $maxOutputTokens,
                 'thinkingConfig' => ['thinkingBudget' => $thinkingBudget],
-                'stopSequences' => ['Transparence affiliée', '© 2026 BlogSEO'],
+                'stopSequences' => ['Transparence affiliée', '© 2026 BusinessKit'],
                 'responseMimeType' => 'application/json',
                 'responseJsonSchema' => $schema ?? $this->schema(),
             ],

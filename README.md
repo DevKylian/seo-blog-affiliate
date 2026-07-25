@@ -1,14 +1,14 @@
-# BlogSEO — SEO Affiliate Content OS
+# BusinessKit — SEO Affiliate Content OS
 
 CMS éditorial affilié natif construit avec Laravel 10, Livewire 3 et Blade. Aucun WordPress n’est utilisé : l’administration, le générateur et le blog public vivent dans la même application.
 
 ## Accès local
 
-- Site public : https://blogseo.test/blog
-- Outils : https://blogseo.test/outils
-- Administration : https://blogseo.test/admin
-- Flux automatique : https://blogseo.test/admin/automation
-- Content Factory : https://blogseo.test/admin/scheduler
+- Site public : https://businesskit.test/blog
+- Outils : https://businesskit.test/outils
+- Administration : https://businesskit.test/admin
+- Flux automatique : https://businesskit.test/admin/automation
+- Content Factory : https://businesskit.test/admin/scheduler
 - E-mail : `admin@example.com`
 - Mot de passe : `password`
 
@@ -143,7 +143,7 @@ php artisan schedule:work
 En production Linux, configurez le cron Laravel standard :
 
 ```cron
-* * * * * cd /chemin/vers/BlogSEO && php artisan schedule:run >> /dev/null 2>&1
+* * * * * cd /chemin/vers/BusinessKit && php artisan schedule:run >> /dev/null 2>&1
 ```
 
 Sous Windows, utilisez le Planificateur de tâches avec `php artisan schedule:run` toutes les minutes. Le verrou partagé empêche le cron, le worker local et un rafraîchissement manuel de lancer deux productions en parallèle.

@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# BlogSEO — Setup (Version SAFE pour TinyCP / Serveur Existant)
+# BusinessKit — Setup (Version SAFE pour TinyCP / Serveur Existant)
 # Usage : sudo bash setup.sh
 # =============================================================================
 set -euo pipefail
@@ -17,14 +17,14 @@ hr()   { echo -e "${BOLD}──────────────────�
 
 [[ $EUID -ne 0 ]] && fail "Lancer en root : sudo bash setup.sh"
 
-APP_DIR="/var/www/blogseo"
-LOG_DIR="/var/log/blogseo"
-BACKUP_DIR="/var/backups/blogseo"
+APP_DIR="/var/www/businesskit"
+LOG_DIR="/var/log/businesskit"
+BACKUP_DIR="/var/backups/businesskit"
 
-read -rp "  Nom de domaine (ex: blogseo.fr) : " DOMAIN
+read -rp "  Nom de domaine (ex: businesskit.fr) : " DOMAIN
 [[ -z "$DOMAIN" ]] && fail "Nom de domaine requis."
 
-read -rp "  Nom de la base de données (ex: blogseodb) : " DB_NAME
+read -rp "  Nom de la base de données (ex: businesskitdb) : " DB_NAME
 [[ -z "$DB_NAME" ]] && fail "Nom de la base requis."
 
 read -rp "  Utilisateur de la base de données : " DB_USER
@@ -35,7 +35,7 @@ echo ""
 [[ -z "$DB_PASS" ]] && fail "Mot de passe requis."
 
 hr
-echo -e "${BOLD}  BlogSEO — Setup Sécurisé (Spécial TinyCP)${NC}"
+echo -e "${BOLD}  BusinessKit — Setup Sécurisé (Spécial TinyCP)${NC}"
 hr
 
 # 1. UTILISATEUR DEPLOY
@@ -57,10 +57,10 @@ if [ ! -f "$SSH_KEY_FILE" ]; then
 fi
 
 # Sudoers
-cat > /etc/sudoers.d/deploy-blogseo << 'EOF'
-deploy ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart blogseo-queue*, /usr/bin/systemctl status blogseo-queue*, /usr/bin/systemctl restart blogseo-blog-worker, /usr/bin/systemctl status blogseo-blog-worker, /usr/bin/systemctl daemon-reload, /usr/bin/chown -R deploy\:www-data /var/www/blogseo, /usr/bin/rm -rf /var/www/blogseo/node_modules, /usr/bin/rm -rf /var/www/blogseo/public/build
+cat > /etc/sudoers.d/deploy-businesskit << 'EOF'
+deploy ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart businesskit-queue*, /usr/bin/systemctl status businesskit-queue*, /usr/bin/systemctl restart businesskit-blog-worker, /usr/bin/systemctl status businesskit-blog-worker, /usr/bin/systemctl daemon-reload, /usr/bin/chown -R deploy\:www-data /var/www/businesskit, /usr/bin/rm -rf /var/www/businesskit/node_modules, /usr/bin/rm -rf /var/www/businesskit/public/build
 EOF
-chmod 0440 /etc/sudoers.d/deploy-blogseo
+chmod 0440 /etc/sudoers.d/deploy-businesskit
 
 # MySQL credentials pour les backups
 cat > /home/deploy/.my.cnf << EOF
@@ -79,7 +79,7 @@ chown -R deploy:www-data "$APP_DIR" "$LOG_DIR" "$BACKUP_DIR"
 APP_KEY=$(openssl rand -base64 32)
 if [ ! -f "$APP_DIR/.env" ]; then
 cat > "$APP_DIR/.env" << EOF
-APP_NAME="BlogSEO"
+APP_NAME="BusinessKit"
 APP_ENV=production
 APP_KEY=base64:${APP_KEY}
 APP_DEBUG=false
@@ -116,7 +116,7 @@ MAIL_USERNAME=
 MAIL_PASSWORD=
 MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=hello@${DOMAIN}
-MAIL_FROM_NAME="BlogSEO"
+MAIL_FROM_NAME="BusinessKit"
 
 GEMINI_API_KEY=
 SEMRUSH_API_KEY=
@@ -138,16 +138,16 @@ fi
 # 3. SERVICES QUEUE WORKER
 info "3/4 — Services Queue Worker (Laravel) — ${QUEUE_WORKERS} workers + 1 worker blog IA"
 
-if systemctl list-unit-files blogseo-queue.service --no-legend 2>/dev/null | grep -q blogseo-queue.service; then
-    systemctl stop blogseo-queue 2>/dev/null || true
-    systemctl disable blogseo-queue --quiet 2>/dev/null || true
-    rm -f /etc/systemd/system/blogseo-queue.service
+if systemctl list-unit-files businesskit-queue.service --no-legend 2>/dev/null | grep -q businesskit-queue.service; then
+    systemctl stop businesskit-queue 2>/dev/null || true
+    systemctl disable businesskit-queue --quiet 2>/dev/null || true
+    rm -f /etc/systemd/system/businesskit-queue.service
     log "Ancien service single-instance supprimé."
 fi
 
-cat > "/etc/systemd/system/blogseo-queue@.service" << EOF
+cat > "/etc/systemd/system/businesskit-queue@.service" << EOF
 [Unit]
-Description=BlogSEO Queue Worker %i
+Description=BusinessKit Queue Worker %i
 After=network.target mysql.service
 
 [Service]
@@ -169,14 +169,14 @@ EOF
 
 systemctl daemon-reload
 for i in $(seq 1 ${QUEUE_WORKERS}); do
-    systemctl enable "blogseo-queue@${i}" --quiet
+    systemctl enable "businesskit-queue@${i}" --quiet
 done
 log "${QUEUE_WORKERS} workers queue configurés (seront démarrés au 1er déploiement)."
 
 # Worker dédié blog IA (timeout long pour les appels Gemini multi-agents)
-cat > "/etc/systemd/system/blogseo-blog-worker.service" << EOF
+cat > "/etc/systemd/system/businesskit-blog-worker.service" << EOF
 [Unit]
-Description=BlogSEO Blog AI Worker
+Description=BusinessKit Blog AI Worker
 After=network.target mysql.service
 
 [Service]
@@ -197,7 +197,7 @@ WantedBy=multi-user.target
 EOF
 
 systemctl daemon-reload
-systemctl enable blogseo-blog-worker --quiet
+systemctl enable businesskit-blog-worker --quiet
 log "Worker blog IA configuré (sera démarré au 1er déploiement)."
 
 # Crontab Laravel Scheduler (schedule:run toutes les minutes)
@@ -207,7 +207,7 @@ log "Crontab schedule:run ajouté pour l'utilisateur deploy."
 
 # 4. LOGROTATE
 info "4/4 — Logrotate"
-cat > "/etc/logrotate.d/blogseo" << EOF
+cat > "/etc/logrotate.d/businesskit" << EOF
 ${LOG_DIR}/*.log {
     daily
     missingok
@@ -218,7 +218,7 @@ ${LOG_DIR}/*.log {
     create 640 deploy www-data
     sharedscripts
     postrotate
-        for i in \$(seq 1 ${QUEUE_WORKERS}); do systemctl restart "blogseo-queue@\${i}" > /dev/null 2>&1 || true; done
+        for i in \$(seq 1 ${QUEUE_WORKERS}); do systemctl restart "businesskit-queue@\${i}" > /dev/null 2>&1 || true; done
     endscript
 }
 EOF

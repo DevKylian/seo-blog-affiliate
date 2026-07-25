@@ -28,13 +28,13 @@ final class ContextualInternalLinkRenderer
         $document = new DOMDocument('1.0', 'UTF-8');
         $previous = libxml_use_internal_errors(true);
         $document->loadHTML(
-            '<?xml encoding="UTF-8"><div id="blogseo-content">'.$html.'</div>',
+            '<?xml encoding="UTF-8"><div id="businesskit-content">'.$html.'</div>',
             LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
         );
         libxml_clear_errors();
         libxml_use_internal_errors($previous);
         $xpath = new DOMXPath($document);
-        $root = $document->getElementById('blogseo-content');
+        $root = $document->getElementById('businesskit-content');
         if (! $root) {
             return $html;
         }
@@ -66,7 +66,7 @@ final class ContextualInternalLinkRenderer
             return false;
         }
 
-        $anchors = $xpath->query('//*[@id="blogseo-content"]//a[@href]');
+        $anchors = $xpath->query('//*[@id="businesskit-content"]//a[@href]');
         foreach ($anchors ?: [] as $anchor) {
             if ($anchor instanceof DOMElement && rtrim($anchor->getAttribute('href'), '/') === rtrim($targetUrl, '/')) {
                 $anchor->setAttribute('class', trim($anchor->getAttribute('class').' contextual-internal-link'));
@@ -85,7 +85,7 @@ final class ContextualInternalLinkRenderer
             return false;
         }
 
-        $nodes = $xpath->query('//*[@id="blogseo-content"]//*[self::p or self::li]//text()[not(ancestor::a)]');
+        $nodes = $xpath->query('//*[@id="businesskit-content"]//*[self::p or self::li]//text()[not(ancestor::a)]');
         foreach ($nodes ?: [] as $node) {
             if (! $node instanceof DOMText) {
                 continue;
@@ -131,7 +131,7 @@ final class ContextualInternalLinkRenderer
         $targetTokens = $this->tokens($targetText);
         $best = null;
         $bestScore = -1;
-        $paragraphs = $xpath->query('//*[@id="blogseo-content"]//p[not(ancestor::blockquote)]');
+        $paragraphs = $xpath->query('//*[@id="businesskit-content"]//p[not(ancestor::blockquote)]');
         foreach ($paragraphs ?: [] as $paragraph) {
             if (! $paragraph instanceof DOMElement || in_array(spl_object_id($paragraph), $usedParagraphs, true)) {
                 continue;

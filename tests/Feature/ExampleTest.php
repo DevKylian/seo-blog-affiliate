@@ -2122,7 +2122,7 @@ MARKDOWN;
             $component->call('processNext')->assertDispatched('batch-item-finished');
         }
         $this->assertDatabaseHas('content_runs', ['seo_project_id' => $project->id, 'status' => 'completed', 'completed_count' => 1]);
-        $this->assertDatabaseHas('articles', ['seo_project_id' => $project->id, 'status' => 'review', 'title' => 'Maîtriser Tool Auto : évaluer son adoption en PME']);
+        $this->assertDatabaseHas('articles', ['seo_project_id' => $project->id, 'status' => 'published', 'title' => 'Maîtriser Tool Auto : évaluer son adoption en PME']);
         $this->assertDatabaseHas('content_briefs', ['seo_project_id' => $project->id, 'angle' => 'audit-adoption-pme']);
         $this->assertDatabaseHas('editorial_plans', ['seo_project_id' => $project->id, 'status' => 'completed', 'accepted_count' => 1]);
         Http::assertSentCount(4);
@@ -2135,7 +2135,7 @@ MARKDOWN;
             && str_contains((string) data_get($request->data(), 'contents.0.parts.0.text'), 'CURRENT_DATE est réservé au header et au footer')
             && str_contains((string) data_get($request->data(), 'contents.0.parts.0.text'), 'Écris les marques autorisées avec leur casse officielle')
             && str_contains((string) data_get($request->data(), 'contents.0.parts.0.text'), 'Ne réutilise jamais mot pour mot une phrase')
-            && $request['generationConfig']['stopSequences'] === ['Transparence affiliée', '© 2026 BlogSEO']);
+            && $request['generationConfig']['stopSequences'] === ['Transparence affiliée', '© 2026 BusinessKit']);
     }
 
     public function test_automation_displays_the_used_keyword_difficulty_next_to_generated_titles(): void

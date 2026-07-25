@@ -21,7 +21,7 @@ const browser = await chromium.launch({
 
 const context = await browser.newContext({
     locale: 'fr-FR',
-    userAgent: 'BlogSEOResearchBot/1.0 (+https://blogseo.test)',
+    userAgent: 'BusinessKitResearchBot/1.0 (+https://businesskit.test)',
 });
 const page = await context.newPage();
 const jsonPayloads = [];

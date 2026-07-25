@@ -8,15 +8,34 @@
             $position = $block['position'] ?? 'after_intro';
             $positionClass = 'affiliate-cta--'.preg_replace('/[^a-z0-9_-]+/', '-', mb_strtolower($position));
             $affiliateBlock = app(\App\Services\AffiliateBlockService::class)->resolveBlock($article, $position);
+            $isIndy = $affiliateBlock && $affiliateBlock->project && in_array(mb_strtolower($affiliateBlock->project->slug), ['indy', 'indy-1', 'indy-fr']);
         @endphp
         @if($affiliateBlock)
-            <aside class="affiliate-cta {{ $positionClass }} {{ $affiliateBlock->style }}">
-                <div class="affiliate-cta__copy">
-                    <strong>{{ $affiliateBlock->title }}</strong>
-                    <p>{{ $affiliateBlock->description }}</p>
-                </div>
-                <a class="affiliate-cta__button" href="{{ app(\App\Services\AffiliateBlockService::class)->trackedUrl($article, $affiliateBlock->exists ? $affiliateBlock : null, $position) }}" rel="sponsored nofollow">{{ $affiliateBlock->cta }}</a>
-            </aside>
+            @if($isIndy)
+                <aside class="premium-cta-indy {{ $positionClass }}">
+                    <div class="premium-cta-indy__badge">🏆 Choix N°1 de la Rédaction</div>
+                    <div class="premium-cta-indy__content">
+                        <div class="premium-cta-indy__text">
+                            <strong>{{ $affiliateBlock->title }}</strong>
+                            <p>{{ $affiliateBlock->description }}</p>
+                        </div>
+                        <ul class="premium-cta-indy__bullets">
+                            <li><i>✓</i> Comptabilité 100% automatisée en temps réel</li>
+                            <li><i>✓</i> Déclarations Urssaf & Liasses fiscales en 1 clic</li>
+                            <li><i>✓</i> Compte pro et outil de facturation inclus (Gratuit)</li>
+                        </ul>
+                    </div>
+                    <a class="premium-cta-indy__button" href="{{ app(\App\Services\AffiliateBlockService::class)->trackedUrl($article, $affiliateBlock->exists ? $affiliateBlock : null, $position) }}" rel="sponsored nofollow">{{ $affiliateBlock->cta }}</a>
+                </aside>
+            @else
+                <aside class="affiliate-cta {{ $positionClass }} {{ $affiliateBlock->style }}">
+                    <div class="affiliate-cta__copy">
+                        <strong>{{ $affiliateBlock->title }}</strong>
+                        <p>{{ $affiliateBlock->description }}</p>
+                    </div>
+                    <a class="affiliate-cta__button" href="{{ app(\App\Services\AffiliateBlockService::class)->trackedUrl($article, $affiliateBlock->exists ? $affiliateBlock : null, $position) }}" rel="sponsored nofollow">{{ $affiliateBlock->cta }}</a>
+                </aside>
+            @endif
         @endif
     @elseif($blockType === 'markdown')
         <div class="markdown-body public-markdown">{!! app(\App\Services\ContextualInternalLinkRenderer::class)->render($block['content'] ?? '', $article) !!}</div>
