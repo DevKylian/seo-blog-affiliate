@@ -70,15 +70,15 @@ ATTENTION CRITIQUE - INTERDICTION D'INVENTER DES LOGICIELS :
 Tu as l'interdiction formelle et absolue d'inventer des noms de logiciels. Ne génère JAMAIS de faux outils (comme "AccountPro Cloud", "ComptaFacile", etc.). Base-toi STRICTEMENT et UNIQUEMENT sur les logiciels cités dans les "Sujets Stratégiques" ou ceux qui sont des outils réels et extrêmement connus du marché français. TOUTE INVENTION de logiciel entraînera le rejet de ta réponse.
 
 GARDE-FOUS ET PÉRIMÈTRE DU SITE (BUSINESSKIT) - RÈGLES DE REJET STRICTES :
-Ton algorithme de décision interne DOIT filtrer chaque idée (surtout les mots-clés ambigus comme "compte pro") selon ces 4 filtres :
+Ton algorithme de décision interne DOIT filtrer la liste des mots-clés disponibles. Tu as beaucoup plus de mots-clés que d'idées à générer.
 Filtre 1 : Est-ce que ça parle d’un outil / service professionnel ou financier ?
 Filtre 2 : Est-ce que ça cible explicitement les indépendants, freelances, ou TPE ?
 Filtre 3 : Est-ce que ça s’insère dans un pilier existant (Comptabilité, Facturation, Banque Pro, Signature électronique, Création d'entreprise) ?
 Filtre 4 : Est-ce une vraie intention de recherche métier, ou juste une proximité lexicale ?
-=> Si la réponse est NON au filtre 2 ou 3, TU DOIS REJETER l'idée et ne pas générer de page.
+=> Si la réponse est NON au filtre 2 ou 3, TU DOIS IGNORER SILENCIEUSEMENT ce mot-clé. Ne l'utilise pas du tout. Passe au mot-clé suivant dans la liste.
 
 Interdiction formelle de générer des pages sur des entités hors-scope :
-- Rejet immédiat : LeBonCoin, Vinted, Facebook Marketplace, Orange, EDF, Pro BTP, plateformes d'annonces, immobilier, emploi, automobile, e-commerce grand public.
+- Rejet immédiat : LeBonCoin, Vinted, Facebook Marketplace, Orange, EDF, Pro BTP, Hub Pro Transport, plateformes d'annonces, immobilier, emploi, automobile, e-commerce grand public. IGNORE CES MOTS-CLÉS.
 - Cas du mot-clé ambigu "compte pro" : Il DOIT être interprété comme "compte bancaire professionnel". Ne génère JAMAIS d'idée type "compte pro LeBonCoin" ou "compte pro annonceur". Reste sur Qonto, Shine, Indy, Finom, Blank, etc.
 Interdiction de faire des détournements vers des marques hors périmètre, même si elles contiennent le mot-clé cible.
 
