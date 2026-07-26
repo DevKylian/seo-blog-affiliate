@@ -1273,23 +1273,33 @@ TEXT;
     private function affiliateDirectives(string $type, string $productName, ?SeoProject $project = null, string $angle = '', string $audience = ''): string
     {
         $competitorDirective = $project ? "\n".$this->competitors->promptDirective($project) : '';
+        $isGenericSite = preg_match('/blog|guide|portail|site|comparateur|annuaire/iu', $productName) === 1;
+
         $formatRule = in_array($type, ['comparison', 'best_tools', 'alternatives'], true)
             ? "CAS B — MULTI-PRODUITS : Si le H1 indique une confrontation directe (ex: A vs B), compare STRICTEMENT ces 2 solutions, n'ajoute JAMAIS de 3ème outil ni de section alternatives. S'il s'agit d'un classement global ou d'alternatives, tu peux en comparer 3 maximum. Choisis uniquement parmi les entités autorisées du projet et disposant chacune de preuves. Confronte-les dans des sections dédiées et renseigne leurs noms dans compared_products. N'invente AUCUN nom de logiciel."
-            : "CAS A — MONO-PRODUIT : le H1 doit annoncer clairement {$productName} et prendre la forme d’un guide technique ou d’un cas d’usage (« Maîtriser {$productName} pour… »). Les mots « Comparatif » et « Meilleur » sont interdits dans le H1.";
+            : ($isGenericSite 
+                ? "CAS A — MONO-PRODUIT : Rédige un guide ou cas d'usage technique centré uniquement sur la solution ou le concept visé par le mot-clé principal. Ne fais aucune mention de '{$productName}' comme s'il s'agissait d'un logiciel." 
+                : "CAS A — MONO-PRODUIT : le H1 doit annoncer clairement {$productName} et prendre la forme d’un guide technique ou d’un cas d’usage (« Maîtriser {$productName} pour… »). Les mots « Comparatif » et « Meilleur » sont interdits dans le H1.");
 
-        $genericNameRule = preg_match('/blog|guide/iu', $productName) ? "- NOM GÉNÉRIQUE : Le nom '{$productName}' désigne une catégorie, pas un logiciel. Ne dis jamais 'le logiciel {$productName}' ou 'l'outil {$productName}'." : '';
+        $genericNameRule = $isGenericSite
+            ? "- PERSPECTIVE ÉDITORIALE INDÉPENDANTE : Le nom '{$productName}' désigne le blog / site éditeur indépendant. Ne le présente JAMAIS comme un logiciel, un outil, une application ou un service de gestion/comptabilité/facturation. Rédige l'article du point de vue neutre d'un expert du blog, en analysant uniquement de vrais outils du marché français (Indy, Qonto, Pennylane, Abby, Freebe, Dougs, etc.), et n'écris jamais de phrase attribuant des fonctionnalités ou des services à '{$productName}'."
+            : '';
+
+        $alignRule = $isGenericSite
+            ? "- ALIGNEMENT PRODUIT/REQUÊTE : Reste centré sur la réponse éditoriale à la requête. Fixe toujours product_keyword_fit à true sans chercher à intégrer le nom '{$productName}' comme un produit."
+            : "- ALIGNEMENT PRODUIT/REQUÊTE : vérifie que {$productName} répond directement et logiquement au mot-clé. Aucun shoehorning. Si ce n’est pas le cas, fixe product_keyword_fit à false et explique pourquoi dans product_keyword_fit_reason. Sinon, fixe-le à true.";
 
         return <<<TEXT
 DIRECTIVES SEO & AFFILIATION BLOQUANTES
 {$competitorDirective}
-- ALIGNEMENT PRODUIT/REQUÊTE : vérifie que {$productName} répond directement et logiquement au mot-clé. Aucun shoehorning. Si ce n’est pas le cas, fixe product_keyword_fit à false et explique pourquoi dans product_keyword_fit_reason. Sinon, fixe-le à true.
+{$alignRule}
 - CHAMP LEXICAL : reste strictement dans le vocabulaire métier de la requête. Un sujet CRM parle notamment de leads, pipeline, clients, adoption et chiffre d’affaires ; un sujet SEO peut parler de requêtes, SERP, contenu, backlinks et trafic organique. Ne mélange jamais ces univers sans justification factuelle.
 - {$formatRule}
 {$genericNameRule}
 - CRÉDIBILITÉ : pour chaque outil recommandé, cite au moins une limite ou un compromis opérationnel réaliste et sourcé. Dans un tableau comparatif, utilise explicitement une colonne « Limites ». Pas de gagnant universel.
 - ANTI-HALLUCINATION : N'invente JAMAIS de nom de logiciel, module ou outil fictif (ex: "FinanceCore Module"). Ne cite que des outils réels existants sur le marché français (Indy, Qonto, Pennylane, Freebe, Abby, Shine, etc.) et pertinents pour le contexte.
 - TERRAIN : ajoute des conseils opérationnels concrets sur le déploiement, la migration, la qualité des données, la formation ou l’adoption par les équipes. Ne prétends pas les avoir testés si ce n’est pas prouvé.
-- TABLEAUX : au moins 3 colonnes et 2 lignes de données, avec des différences utiles à la décision. Réinjecte impérativement les marqueurs de sources (ex: [S2]) directement dans les cellules du tableau comparatif. Précise explicitement que la facturation (devis et factures) est illimitée sur le plan gratuit d'Indy. Interdiction d’une grille remplie uniquement de « Oui ». Compare les versions (Starter/Premium), les modules (par exemple Sales Hub/Marketing Hub), les coûts, les limites, les profils ou les solutions.
+- TABLEAUX : au moins 3 colonnes et 2 lignes de données, avec des différences utiles à la décision. Réinjecte impérativement les marqueurs de sources (ex: [S2]) directement dans les cellules du tableau comparatif. Précise explicitement que la facturation (devis et factures) is illimitée sur le plan gratuit d'Indy. Interdiction d’une grille remplie uniquement de « Oui ». Compare les versions (Starter/Premium), les modules (par exemple Sales Hub/Marketing Hub), les coûts, les limites, les profils ou les solutions.
 - PRIX : ne produis aucun bloc vide et n’écris jamais « tarif/prix non communiqué ». Affiche UNIQUEMENT un prix d’entrée officiel explicitement présent dans les preuves. À défaut, explique le modèle d’abonnement vérifiable puis renvoie vers la grille officielle sans inventer de montant. Utilise uniquement les tarifs fournis dans le contexte du logiciel cible. Ne jamais inventer de plans tarifaires.
 - DONNEES CONCURRENTES 2026 : Interdiction absolue d'inventer des noms d'offres ou d'utiliser ta mémoire. Si une information (ex: Abby Découverte, limite à 3 devis) n'est pas texto dans les preuves, c'est qu'elle est obsolète. Ne l'écris jamais.
 - SCÉNARIOS CHIFFRÉS : dans « Exemples et scénarios concrets » ou la section de cas d’usage équivalente, ajoute une métrique plausible (taille d’équipe, durée, volume ou pourcentage). Étiquette obligatoirement le passage « Hypothèse de simulation » ou « Scénario illustratif ». Toute simulation de gain de temps doit obligatoirement être convertie en gain financier (€) sur la base d'un TJM ou taux horaire moyen réaliste pour la cible. Cette valeur sert uniquement à raisonner ; ne la présente jamais comme un gain observé ou une promesse du produit.
@@ -1304,10 +1314,17 @@ TEXT;
     private function bodyEditorialDirectives(string $type, string $productName, SeoProject $project): string
     {
         $competitorDirective = $this->competitors->promptDirective($project);
+        $isGenericSite = preg_match('/blog|guide|portail|site|comparateur|annuaire/iu', $productName) === 1;
+
         $formatRule = in_array($type, ['comparison', 'best_tools', 'alternatives'], true)
             ? 'FORMAT MULTI-PRODUITS : confronte réellement au moins 2 solutions autorisées et sourcées, idéalement 3 maximum. Chaque solution a un profil adapté, une limite et un compromis distincts ; aucun gagnant universel. N\'invente aucun outil et ne cite pas de matériel informatique (MacBook Pro, etc.).'
-            : "FORMAT MONO-PRODUIT : reste centré sur {$productName}, son cas d’usage précis et l’audience verrouillée. Ne transforme jamais la partie en comparatif ou en sélection générique.";
-        $genericNameRule = preg_match('/blog|guide/iu', $productName) ? "- NOM GÉNÉRIQUE : Le nom '{$productName}' désigne une catégorie, pas un logiciel. Ne dis jamais 'le logiciel {$productName}' ou 'l'outil {$productName}'." : '';
+            : ($isGenericSite
+                ? "FORMAT MONO-PRODUIT : Reste concentré sur le sujet technique ou la solution visée par le mot-clé principal. Ne parle pas de '{$productName}' comme d'un produit."
+                : "FORMAT MONO-PRODUIT : reste centré sur {$productName}, son cas d’usage précis et l’audience verrouillée. Ne transforme jamais la partie en comparatif ou en sélection générique.");
+
+        $genericNameRule = $isGenericSite
+            ? "- PERSPECTIVE ÉDITORIALE INDÉPENDANTE : Le nom '{$productName}' désigne le blog / site éditeur indépendant. Ne le présente JAMAIS comme un logiciel, un outil, une application ou un service de gestion/comptabilité/facturation. Rédige l'article du point de vue neutre d'un expert du blog, en analysant uniquement de vrais outils du marché français (Indy, Qonto, Pennylane, Abby, Freebe, Dougs, etc.), et n'écris jamais de phrase attribuant des fonctionnalités ou des services à '{$productName}'."
+            : '';
 
         return <<<TEXT
 DIRECTIVES SEO, UX & AFFILIATION — À APPLIQUER DANS CETTE PARTIE

@@ -82,6 +82,8 @@ class BlogController extends Controller
             ->where('status', 'published')->where('slug', $slug)
             ->when($type, fn ($query) => $query->where('type', $type))->firstOrFail();
 
+        $article->increment('views');
+
         return view('blog.show', compact('article'));
     }
 

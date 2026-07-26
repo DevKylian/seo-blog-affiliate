@@ -29,6 +29,21 @@ class Articles extends Component
 
     public ?int $regeneratingArticleId = null;
 
+    public string $sortField = 'id';
+
+    public string $sortDirection = 'desc';
+
+    public function sortBy(string $field): void
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'desc';
+        }
+        $this->resetPage();
+    }
+
     public function updatedSearch(): void
     {
         $this->resetPage();
@@ -145,7 +160,8 @@ class Articles extends Component
     public function render()
     {
         $articles = $this->filteredQuery()->with(['project', 'keyword', 'categories', 'canonicalArticle', 'latestAudit'])
-            ->latest()->paginate(15);
+            ->orderBy($this->sortField, $this->sortDirection)
+            ->paginate(15);
 
         return view('livewire.articles', compact('articles'))->title('Articles');
     }
