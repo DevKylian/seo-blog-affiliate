@@ -666,6 +666,91 @@ h1, h2, h3, h4, .font-heading {
   line-height: 1.5;
 }
 
+/* --- Nouvelles cartes riches articles --- */
+.hp-article-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 28px;
+  background: var(--home-surface);
+  border: 1px solid var(--home-border);
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.02);
+  text-decoration: none;
+  overflow: hidden;
+}
+.hp-article-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 4px;
+  background: linear-gradient(90deg, #2563eb, #4f46e5, #F75A77);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.hp-article-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05), 0 10px 10px -5px rgba(0,0,0,0.02);
+  border-color: var(--home-border-hover);
+}
+.hp-article-card:hover::before {
+  opacity: 1;
+}
+.hp-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.hp-card-category {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #4f46e5;
+  background: #eef2ff;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+.hp-card-date {
+  font-size: 12px;
+  color: var(--home-muted);
+  font-weight: 600;
+}
+.hp-article-card .hp-card-title {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--home-primary);
+  line-height: 1.35;
+  margin-bottom: 12px;
+}
+.hp-article-card .hp-card-desc {
+  font-size: 14px;
+  color: var(--home-text);
+  line-height: 1.6;
+  margin-bottom: 24px;
+  flex-grow: 1;
+}
+.hp-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--home-accent);
+  transition: color 0.2s;
+  margin-top: auto;
+}
+.hp-card-footer svg {
+  transition: transform 0.2s;
+}
+.hp-article-card:hover .hp-card-footer {
+  color: #1d4ed8;
+}
+.hp-article-card:hover .hp-card-footer svg {
+  transform: translateX(4px);
+}
+
 /* --- Selection (Top 1) --- */
 .hp-selection-card {
   background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);

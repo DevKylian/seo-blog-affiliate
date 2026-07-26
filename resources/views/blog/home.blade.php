@@ -594,16 +594,30 @@
         <h2 class="home-section-title">Les comparatifs les plus lus</h2>
                 <div class="hp-grid-3">
             @foreach($latestArticles->where('type', 'comparison')->take(3) as $article)
-            <a href="{{ $article->public_url }}" class="hp-card">
+            <a href="{{ $article->public_url }}" class="hp-article-card">
+                <div class="hp-card-header">
+                    <span class="hp-card-category">{{ $article->categories->first()->name ?? 'Comparatif' }}</span>
+                    <span class="hp-card-date">{{ $article->updated_at->format('M Y') }}</span>
+                </div>
                 <div class="hp-card-title">{{ $article->title }}</div>
-                <div class="hp-card-desc">{{ Str::limit($article->excerpt ?? 'Découvrez notre comparatif complet.', 80) }}</div>
+                <div class="hp-card-desc">{{ Str::limit($article->excerpt ?? 'Découvrez notre analyse détaillée et notre classement pour choisir la meilleure solution adaptée à vos besoins.', 110) }}</div>
+                <div class="hp-card-footer">
+                    Lire l'article <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </div>
             </a>
             @endforeach
             @if($latestArticles->where('type', 'comparison')->count() == 0)
                 @foreach($latestArticles->take(3) as $article)
-                <a href="{{ $article->public_url }}" class="hp-card">
+                <a href="{{ $article->public_url }}" class="hp-article-card">
+                    <div class="hp-card-header">
+                        <span class="hp-card-category">{{ $article->categories->first()->name ?? 'Guide' }}</span>
+                        <span class="hp-card-date">{{ $article->updated_at->format('M Y') }}</span>
+                    </div>
                     <div class="hp-card-title">{{ $article->title }}</div>
-                    <div class="hp-card-desc">{{ Str::limit($article->excerpt ?? 'Découvrez notre analyse détaillée.', 80) }}</div>
+                    <div class="hp-card-desc">{{ Str::limit($article->excerpt ?? 'Découvrez notre analyse détaillée et nos conseils d\'experts.', 110) }}</div>
+                    <div class="hp-card-footer">
+                        Lire l'article <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </div>
                 </a>
                 @endforeach
             @endif
