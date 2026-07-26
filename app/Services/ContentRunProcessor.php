@@ -74,11 +74,17 @@ final class ContentRunProcessor
                     $idea->primary_keyword,
                     array_values($parts),
                 );
+
+                $instructions = (string) $run->instructions;
+                if ($item->error_message && !str_starts_with($item->error_message, 'Gemini') && !str_starts_with($item->error_message, 'La partie')) {
+                    $instructions .= "\n\nCORRECTION OBLIGATOIRE SUITE À REFUS PRÉCÉDENT :\nLe brouillon a été refusé pour cette raison : {$item->error_message}\n- Réécris intégralement le contenu en corrigeant cette erreur de manière stricte.\n- N'invente JAMAIS d'outil, de marque, ou de concurrent fictif.";
+                }
+
                 if ($step < $partCount) {
                     $parts[$step] = $this->generator->generatePartFromIdea(
                         $run->project,
                         $idea,
-                        (string) $run->instructions,
+                        $instructions,
                         $step,
                         (int) $item->api_attempts,
                         array_values($parts),
@@ -103,9 +109,13 @@ final class ContentRunProcessor
                     }
                 }
 
-                $article = $this->generator->finalizeFromIdeaParts($run->project, $idea, (string) $run->instructions, $parts);
+                $article = $this->generator->finalizeFromIdeaParts($run->project, $idea, $instructions, $parts);
             } else {
-                $article = $this->generator->generate($run->project, $item->content_type, $item->keyword, (string) $run->instructions);
+                $instructions = (string) $run->instructions;
+                if ($item->error_message && !str_starts_with($item->error_message, 'Gemini') && !str_starts_with($item->error_message, 'La partie')) {
+                    $instructions .= "\n\nCORRECTION OBLIGATOIRE SUITE À REFUS PRÉCÉDENT :\nLe brouillon a été refusé pour cette raison : {$item->error_message}\n- Réécris intégralement le contenu en corrigeant cette erreur de manière stricte.\n- N'invente JAMAIS d'outil, de marque, ou de concurrent fictif.";
+                }
+                $article = $this->generator->generate($run->project, $item->content_type, $item->keyword, $instructions);
             }
 
             if ($run->publication_days > 0) {
@@ -132,7 +142,25 @@ final class ContentRunProcessor
             $item->update(['article_id' => $article->id, 'status' => 'completed', 'completed_at' => now(), 'started_at' => null]);
             $idea?->update(['status' => 'generated']);
             $run->increment('completed_count');
-        } catch (DuplicateContentException|PlannedContentRejectedException $exception) {
+        } catch (DuplicateContentException $exception) {
+            $this->replaceRejectedItem($run, $item, $exception);
+        } catch (PlannedContentRejectedException $exception) {
+            if ($item->api_attempts < 3) {
+                $apiAttempts = (int) $item->api_attempts + 1;
+                $item->update([
+                    'status' => 'pending',
+                    'api_attempts' => $apiAttempts,
+                    'error_message' => mb_substr($exception->getMessage(), 0, 2000),
+                    'started_at' => null,
+                    'generation_step' => 0,
+                    'generation_parts' => [],
+                ]);
+                $run->update(['status' => 'pending']);
+                return [
+                    ...$this->result('retry', "Correction IA (tentative {$apiAttempts}) : {$exception->getMessage()}", '', $run->items()->where('status', 'pending')->count()),
+                    'attempt' => $apiAttempts,
+                ];
+            }
             $this->replaceRejectedItem($run, $item, $exception);
         } catch (Throwable $exception) {
             if ($this->isRecoverableGenerationError($exception)) {

@@ -620,7 +620,7 @@ class Automation extends Component
         $diversity = "\n\nREGLE ABSOLUE : Tu dois OBLIGATOIREMENT diversifier les sujets. Interdiction totale de proposer plus d'UNE seule idée sur le même sous-sujet (ex: si tu proposes un article sur la signature électronique, les autres doivent porter sur la comptabilité, la facturation, etc.).";
         
         if ($type === 'pillar') {
-            $this->instructions = "Objectif : Construire les Pages Mères (Guides complets) pour asseoir l'autorité topique. Intention mixte (Informationnelle/Commerciale). Ne pas vendre agressivement. L'objectif est d'éduquer et de distribuer le jus interne vers les pages de conversion." . $diversity;
+            $this->instructions = "Objectif : Construire les Pages Mères (Guides complets) pour asseoir l'autorité topique. \nCONTRAINTE STRICTE : Tu DOIS utiliser la valeur 'informational' pour le champ content_type. Ne crée JAMAIS de comparatif ou de liste d'outils ici. L'objectif est d'éduquer en profondeur sur des sujets métiers très distincts (la TVA, le statut juridique, les notes de frais, etc.) pour éviter les sujets génériques similaires." . $diversity;
         } elseif ($type === 'money') {
             $this->instructions = "Objectif : Money Pages / Conversion. Requêtes ultra-spécifiques et transactionnelles. Inclure systématiquement des tableaux de prix, la mention d'un simulateur, et des appels à l'action (CTA) très agressifs pour générer des commissions." . $diversity;
         } elseif ($type === 'interception') {
