@@ -123,7 +123,7 @@ class Automation extends Component
             return;
         }
 
-        $plan = EditorialPlan::query()->where('user_id', auth()->id())->whereIn('status', ['planning', 'locked'])->whereDoesntHave('runs')->latest('id')->first();
+        $plan = EditorialPlan::query()->where('user_id', auth()->id())->whereIn('status', ['planning', 'locked', 'failed'])->whereDoesntHave('runs')->latest('id')->first();
         if ($plan) {
             $this->activePlanId = $plan->id;
             $this->projectId = $plan->seo_project_id;
@@ -416,6 +416,53 @@ class Automation extends Component
             }
         }
         $this->dispatch('planning-started');
+    }
+
+    public function lockFailedPlan(EditorialPlanBuilder $planner): void
+    {
+        $plan = EditorialPlan::query()->where('user_id', auth()->id())->find($this->activePlanId);
+        if (! $plan || $plan->status !== 'failed') {
+            return;
+        }
+
+        $valid = $plan->ideas()->where('status', 'candidate')->get();
+        if ($valid->count() > 0) {
+            $plan->update(['requested_count' => $valid->count()]);
+            // Use reflection or update the plan directly since lockPlan is private
+            $priorityMap = [
+                'Level 1 - Pillar' => 1,
+                'Level 2 - Commercial' => 2,
+                'Level 5 - Comparatifs' => 2,
+                'Level 6 - Alternatives' => 2,
+                'Level 3 - Long Tail' => 3,
+                'Level 4 - FAQ' => 4,
+                'Level 7 - Tutoriels' => 5,
+            ];
+
+            $ranked = $valid->unique('id')->sortBy(function ($idea) use ($priorityMap) {
+                $level = $idea->roadmap_level ?? '';
+                $priority = $priorityMap[$level] ?? 99;
+                return [$priority, -$idea->seo_score];
+            })->values();
+
+            $plan->ideas()->whereIn('status', ['candidate', 'accepted', 'reserve'])->update([
+                'status' => 'reserve',
+                'position' => null,
+            ]);
+            foreach ($ranked as $index => $idea) {
+                $idea->update([
+                    'status' => $index < $plan->requested_count ? 'accepted' : 'reserve',
+                    'position' => $index + 1,
+                ]);
+            }
+            $plan->update([
+                'accepted_count' => $plan->ideas()->where('status', 'accepted')->count(),
+                'status' => 'locked',
+                'locked_at' => now(),
+            ]);
+            $this->error = '';
+            $this->message = 'Le plan a été validé avec les idées trouvées.';
+        }
     }
 
     public function processPlanningStep(EditorialPlanBuilder $planner, EditorialPlanWorkerLauncher $planningWorker): void

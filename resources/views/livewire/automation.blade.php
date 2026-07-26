@@ -82,6 +82,16 @@
                         </div>
                     </div>
                     <button class="launch-button" wire:click="launchRun" wire:loading.attr="disabled" type="button" @disabled($plan->accepted_count !== $plan->requested_count)><span>✦</span><div><strong>Générer les {{ $plan->requested_count }} articles</strong><small>La rédaction suit uniquement les briefs verrouillés ci-dessous.</small></div><b>→</b></button>
+                @elseif($plan && $plan->status === 'failed')
+                    <div class="run-progress">
+                        <div><strong>Planification interrompue (Erreur)</strong><span>{{ $plan->candidate_count }} idées analysées</span></div>
+                        <div class="run-actions">
+                            <button class="danger" type="button" wire:click="cancelPlan" wire:loading.attr="disabled">Annuler et recommencer</button>
+                            @if($plan->ideas->where('status', 'candidate')->count() > 0)
+                                <button type="button" wire:click="lockFailedPlan" wire:loading.attr="disabled">Valider les {{ $plan->ideas->where('status', 'candidate')->count() }} idées trouvées</button>
+                            @endif
+                        </div>
+                    </div>
                 @else
                     <button class="launch-button" wire:click="startRun" wire:loading.attr="disabled" type="button" @disabled(!$workspaceReady || !$hasApiKey)><span>⌁</span><div><strong wire:loading.remove wire:target="startRun">Planifier {{ $contentCount }} contenus</strong><strong wire:loading wire:target="startRun">Analyse et déduplication des angles…</strong><small>Aucun article n’est rédigé pendant cette étape.</small></div><b>→</b></button>
                 @endif
