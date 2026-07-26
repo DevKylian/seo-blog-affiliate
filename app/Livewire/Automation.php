@@ -628,6 +628,7 @@ class Automation extends Component
         $this->activeRunId = $run->id;
         $this->activePlanId = $plan->id;
         $this->error = '';
+        Cache::forget("content-run-worker:{$run->id}");
         $this->launchWorker($run, $worker);
         $this->message = "Génération automatique lancée pour {$run->requested_count} contenus.";
         $this->dispatch('batch-started');
@@ -657,6 +658,7 @@ class Automation extends Component
 
         $this->recoverInterruptedItems($run);
         $run->update(['status' => 'pending']);
+        Cache::forget("content-run-worker:{$run->id}");
         $this->launchWorker($run, $worker);
         $this->message = 'Génération automatique reprise au premier contenu interrompu.';
         $this->dispatch('batch-started');
