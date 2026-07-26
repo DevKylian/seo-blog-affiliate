@@ -120,7 +120,7 @@ final class EditorialPlanBuilder
         // générer 8 idées dépasse facilement la limite de 8192 tokens en sortie.
         // On limite à 3 par appel pour rester sécurisé et on itère plus souvent si besoin.
         $missing = $target - $valid->count();
-        $desired = min(3, max(2, $missing));
+        $desired = min(6, max(3, $missing));
         
         $strategicSubjects = $this->knowledgeGraph->generateSubjects($project);
 
@@ -166,9 +166,7 @@ final class EditorialPlanBuilder
 
     private function maxAttempts(EditorialPlan $plan): int
     {
-        // En générant par batch de 3, un plan de 50 articles nécessite au moins 17 appels sans échec.
-        // On donne une marge très large.
-        return max(6, (int) ceil($plan->requested_count / 2) + 10);
+        return max(15, (int) ceil($plan->requested_count * 2) + 5);
     }
 
     private function lockPlan(EditorialPlan $plan, Collection $valid): EditorialPlan
@@ -521,11 +519,11 @@ final class EditorialPlanBuilder
         }
 
         $closest = $keywords->sortByDesc(fn (Keyword $keyword) => $this->duplicates->similarity($keyword->keyword, $value))->first();
-        if (! $closest || $this->duplicates->similarity($closest->keyword, $value) < .45) {
-            return null;
+        if ($closest && $this->duplicates->similarity($closest->keyword, $value) >= .25) {
+            return $closest;
         }
 
-        return $closest;
+        return $keywords->first(fn (Keyword $k) => $k->isUnplanned()) ?? $closest ?? $keywords->first();
     }
 
     private function sourceKeyword(Collection $keywords, array $rawIdea, array $blueprint): ?Keyword
