@@ -19,7 +19,7 @@ final class ConfigSyncService
         'competitor_offers',
         'content_clusters',
         'keywords',
-        'collected_proofs'
+        'source_pages'
     ];
 
     public function export(): string
