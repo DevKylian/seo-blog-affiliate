@@ -4,9 +4,11 @@ namespace App\Livewire;
 
 use App\Models\SearchIndexingSubmission;
 use App\Models\Setting;
+use App\Services\ConfigSyncService;
 use App\Services\GeminiContentGenerator;
 use App\Services\SearchEngineIndexingService;
 use App\Services\SearchPerformanceImportService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -52,6 +54,12 @@ class Settings extends Component
     public bool $hasSavedGoogleServiceAccount = false;
 
     public bool $hasSavedBingWebmasterApiKey = false;
+
+    public bool $syncIsImporting = false;
+
+    public int $syncImportProgress = 0;
+
+    public string $syncMessage = '';
 
     public function mount(): void
     {
@@ -177,6 +185,39 @@ class Settings extends Component
             'searchPerformanceSummary' => app(SearchPerformanceImportService::class)->configuredSummary(),
             'recentIndexingSubmissions' => SearchIndexingSubmission::query()->with('article')->latest('submitted_at')->limit(8)->get(),
         ])->title('Reglages API');
+    }
+
+    public function exportConfig(ConfigSyncService $exporter)
+    {
+        $filename = 'config_export_' . date('Y_m_d_His') . '.json';
+        $content = $exporter->export();
+
+        return response()->streamDownload(function () use ($content) {
+            echo $content;
+        }, $filename, ['Content-Type' => 'application/json']);
+    }
+
+    public function receiveConfigChunk(string $uploadId, string $chunkData, bool $isLast, ConfigSyncService $importer): void
+    {
+        $this->syncIsImporting = true;
+        $this->syncMessage = '';
+
+        $cacheKey = "config_upload_{$uploadId}";
+        $currentData = Cache::get($cacheKey, '');
+        $currentData .= $chunkData;
+        Cache::put($cacheKey, $currentData, now()->addMinutes(10));
+
+        if ($isLast) {
+            try {
+                $importer->import($currentData);
+                $this->syncMessage = 'Configuration importée avec succès !';
+            } catch (\Exception $e) {
+                $this->error = 'Erreur lors de l\'import : ' . $e->getMessage();
+            }
+            Cache::forget($cacheKey);
+            $this->syncIsImporting = false;
+            $this->syncImportProgress = 100;
+        }
     }
 
     private function booleanSetting(string $key, bool $default): bool

@@ -15,63 +15,7 @@
         <article class="stat-card accent-green"><div class="stat-icon">✦</div><div><span>Contenus</span><strong>{{ $stats['articles'] }}</strong><small>Brouillons générés</small></div></article>
     </section>
 
-    <!-- ZONE DE SYNCHRONISATION CONFIGURATION -->
-    <section class="panel" style="margin-bottom: 24px; padding: 16px;">
-        <div style="display: flex; gap: 16px; align-items: center; width: 100%;">
-            <strong style="color: #0f172a; font-size: 14px;">Synchronisation Config (Dev → Prod) :</strong>
-            
-            <button type="button" wire:click="exportConfig" wire:loading.attr="disabled" style="font-size: 13px; padding: 6px 12px; border-radius: 4px; border: 1px solid #cbd5e1; background: white; cursor: pointer;">
-                <span wire:loading.remove wire:target="exportConfig">Exporter la config (.json)</span>
-                <span wire:loading wire:target="exportConfig">Création de l'archive...</span>
-            </button>
-            
-            <span style="color: #cbd5e1;">|</span>
-            
-            <input type="file" accept=".json" style="font-size: 13px;" onchange="uploadConfigInChunks(this)">
-            @if($isImporting)
-                <span style="font-size: 13px; color: #f59e0b; font-weight: 500;">
-                    Importation en cours... ({{ $importProgress }}%) Ne fermez pas la page.
-                </span>
-            @endif
-        </div>
-    </section>
 
-    <script>
-    async function uploadConfigInChunks(input) {
-        const file = input.files[0];
-        if (!file) return;
-
-        // 512KB chunks to bypass Nginx limits
-        const chunkSize = 512 * 1024;
-        const totalChunks = Math.ceil(file.size / chunkSize);
-        const uploadId = Date.now().toString();
-
-        @this.set('isImporting', true);
-        @this.set('importProgress', 0);
-
-        for (let i = 0; i < totalChunks; i++) {
-            const start = i * chunkSize;
-            const end = Math.min(start + chunkSize, file.size);
-            const chunk = file.slice(start, end);
-            
-            // Read chunk as text
-            const text = await chunk.text();
-            
-            const isLast = (i === totalChunks - 1);
-            
-            // Send chunk to Livewire
-            await @this.receiveConfigChunk(uploadId, text, isLast);
-            
-            // Update progress visually
-            let progress = Math.round(((i + 1) / totalChunks) * 100);
-            if (isLast) progress = 99; // 100 will be set by backend when done
-            @this.set('importProgress', progress);
-        }
-        
-        input.value = '';
-    }
-    </script>
-    <!-- FIN ZONE DE SYNCHRONISATION -->
 
     <section class="workflow-strip">
         <a href="{{ route('admin.projects') }}" wire:navigate><i>1</i><div><strong>Créer un projet</strong><span>Outil, tarifs, affiliation</span></div></a><b>→</b>

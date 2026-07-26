@@ -251,6 +251,74 @@
         </section>
     @endif
 
+    <section class="panel settings-panel">
+        <div class="settings-panel-head">
+            <span>04</span>
+            <div>
+                <h2>Synchronisation Dev → Prod</h2>
+                <p>Exportez votre configuration (projets, mots-clés, sources) depuis le Dev et importez-la en Prod. Les articles générés ne sont pas inclus.</p>
+            </div>
+        </div>
+
+        @if($syncMessage)
+            <div class="alert success">{{ $syncMessage }}</div>
+        @endif
+
+        <div class="settings-field-grid">
+            <div class="field">
+                <label>Exporter la configuration</label>
+                <button type="button" wire:click="exportConfig" wire:loading.attr="disabled" class="primary-button" style="width: auto; padding: 0 20px; height: 42px; font-size: 13px;">
+                    <span wire:loading.remove wire:target="exportConfig">↓ Télécharger config.json</span>
+                    <span wire:loading wire:target="exportConfig">Création de l'archive…</span>
+                </button>
+                <p class="field-help">Génère un fichier JSON contenant tous vos projets, mots-clés, clusters et sources vérifiées.</p>
+            </div>
+
+            <div class="field">
+                <label>Importer une configuration</label>
+                <label class="sync-file-label">
+                    <svg viewBox="0 0 24 24" style="width:15px;fill:currentColor;flex-shrink:0"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+                    <span>Choisir un fichier .json</span>
+                    <input type="file" accept=".json" style="display:none" onchange="settingsSyncUpload(this)">
+                </label>
+                <p class="field-help">Remplace la configuration actuelle par celle du fichier importé. Irréversible sans backup.</p>
+            </div>
+        </div>
+
+        @if($syncIsImporting)
+            <div class="sync-progress-wrap">
+                <div class="sync-progress-header">
+                    <span>Importation en cours — ne fermez pas la page</span>
+                    <strong>{{ $syncImportProgress }}%</strong>
+                </div>
+                <div class="sync-progress-track">
+                    <span style="width:{{ $syncImportProgress }}%"></span>
+                </div>
+            </div>
+        @endif
+    </section>
+
+    <script>
+    async function settingsSyncUpload(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const chunkSize = 512 * 1024;
+        const totalChunks = Math.ceil(file.size / chunkSize);
+        const uploadId = Date.now().toString();
+        @this.set('syncIsImporting', true);
+        @this.set('syncImportProgress', 0);
+        for (let i = 0; i < totalChunks; i++) {
+            const start = i * chunkSize;
+            const end = Math.min(start + chunkSize, file.size);
+            const text = await file.slice(start, end).text();
+            const isLast = (i === totalChunks - 1);
+            await @this.receiveConfigChunk(uploadId, text, isLast);
+            @this.set('syncImportProgress', Math.round(((i + 1) / totalChunks) * 100));
+        }
+        input.value = '';
+    }
+    </script>
+
     <section class="panel settings-guidance">
         <div>
             <span class="settings-kicker">Bonnes pratiques</span>
@@ -265,3 +333,4 @@
         <a href="https://ai.google.dev/gemini-api/docs/api-key" target="_blank" rel="noopener">Documentation API</a>
     </section>
 </div>
+

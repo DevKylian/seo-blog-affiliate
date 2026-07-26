@@ -84,7 +84,11 @@ class Automation extends Component
 
     public function mount(): void
     {
-        $active = ContentRun::query()->where('user_id', auth()->id())->whereIn('status', ['pending', 'processing'])->latest('id')->first();
+        $active = ContentRun::query()
+            ->where('user_id', auth()->id())
+            ->whereIn('status', ['pending', 'processing'])
+            ->latest('id')
+            ->first();
         if ($active) {
             $this->activeRunId = $active->id;
             $this->activePlanId = $active->editorial_plan_id;
@@ -92,6 +96,27 @@ class Automation extends Component
             $this->existingProjectId = $active->seo_project_id;
             $this->competitorsText = implode("\n", $active->project?->competitors ?? []);
             $this->competitorPricingUrlsText = app(CompetitorPricingUrlParser::class)->format($active->project?->competitor_pricing_urls ?? []);
+            $this->mode = 'existing';
+            $this->workspaceReady = true;
+
+            return;
+        }
+
+        // Recover runs interrupted in the last 24 hours (paused or partially failed)
+        $interrupted = ContentRun::query()
+            ->where('user_id', auth()->id())
+            ->whereIn('status', ['paused', 'completed_with_errors'])
+            ->where('updated_at', '>=', now()->subDay())
+            ->whereHas('items', fn ($q) => $q->where('status', 'pending'))
+            ->latest('id')
+            ->first();
+        if ($interrupted) {
+            $this->activeRunId = $interrupted->id;
+            $this->activePlanId = $interrupted->editorial_plan_id;
+            $this->projectId = $interrupted->seo_project_id;
+            $this->existingProjectId = $interrupted->seo_project_id;
+            $this->competitorsText = implode("\n", $interrupted->project?->competitors ?? []);
+            $this->competitorPricingUrlsText = app(CompetitorPricingUrlParser::class)->format($interrupted->project?->competitor_pricing_urls ?? []);
             $this->mode = 'existing';
             $this->workspaceReady = true;
 

@@ -61,6 +61,16 @@
                 <div class="auto-decisions"><strong>Décisions automatiques</strong><span>✓ 3× plus d’idées analysées que de contenus demandés</span><span>✓ Doublons existants et doublons internes éliminés avant rédaction</span><span>✓ Promesse, audience, exclusions et mini-plan H2 verrouillés</span><span>✓ Réserve activée automatiquement si un brouillon dérive</span></div>
                 @if($run && in_array($run->status,['pending','processing']))
                     <div class="launch-button"><span>↻</span><div><strong>Production automatique en cours</strong><small>{{ $run->items->sum('generation_step') }} partie(s) sauvegardée(s) · {{ $run->completed_count }} sur {{ $run->requested_count }} contenus validés.</small></div><b>…</b></div>
+                @elseif($run && in_array($run->status,['paused','completed_with_errors']) && $run->items->where('status','pending')->count() > 0)
+                    <button class="launch-button" wire:click="resumeRun" wire:loading.attr="disabled" type="button">
+                        <span>↻</span>
+                        <div>
+                            <strong wire:loading.remove wire:target="resumeRun">Continuer la génération ({{ $run->completed_count }}/{{ $run->requested_count }} validés)</strong>
+                            <strong wire:loading wire:target="resumeRun">Reprise en cours…</strong>
+                            <small>{{ $run->items->where('status','pending')->count() }} article(s) restant(s) — reprenez sans rien perdre.</small>
+                        </div>
+                        <b>→</b>
+                    </button>
                 @elseif($plan && $plan->status === 'planning')
                     <div class="run-progress" wire:poll.5s.keep-alive="processPlanningStep"><div><strong>{{ $plan->ideas->where('status','candidate')->count() }}/{{ $plan->requested_count }} angles retenus</strong><span>{{ $plan->candidate_count }} idées analysées · étape {{ $plan->attempts }}/{{ $plan->requested_count >= 20 ? 15 : ($plan->requested_count >= 10 ? 10 : 6) }} · reprise automatique toutes les 5 secondes si Gemini est saturé</span></div></div>
                     <div class="launch-button"><span>⌁</span><div><strong>Gemini prépare le prochain lot…</strong><small>Aucune action requise : les timeouts et HTTP 503 sont réessayés automatiquement, même si l’onglet passe en arrière-plan.</small></div><b>…</b></div>
