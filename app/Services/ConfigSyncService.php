@@ -17,6 +17,7 @@ final class ConfigSyncService
         'affiliate_offers',
         'competitor_tools',
         'competitor_offers',
+        'content_clusters',
         'keywords',
         'collected_proofs'
     ];
