@@ -162,6 +162,12 @@ final class ContentRunProcessor
             }
 
             report($exception);
+            if ($this->isFatalRunError($exception)) {
+                $this->stopRunAfterTechnicalError($run, $item, $exception);
+
+                return $this->result('stopped', '', 'Campagne stoppée automatiquement : '.$exception->getMessage(), 0);
+            }
+
             $this->markItemFailedAndContinue($run, $item, $exception);
 
             $remaining = $run->items()->where('status', 'pending')->count();
@@ -282,6 +288,46 @@ final class ContentRunProcessor
             || $this->isTimeoutError($exception)
             || str_contains($message, 'réponse gemini incomplète')
             || str_contains($message, 'contenu structuré exploitable');
+    }
+
+    private function isFatalRunError(Throwable $exception): bool
+    {
+        $message = mb_strtolower($exception->getMessage());
+
+        return str_contains($message, 'api key')
+            || str_contains($message, 'clé api')
+            || str_contains($message, 'unauthorized')
+            || str_contains($message, 'forbidden')
+            || str_contains($message, 'database');
+    }
+
+    private function stopRunAfterTechnicalError(ContentRun $run, ContentRunItem $failedItem, Throwable $exception): void
+    {
+        DB::transaction(function () use ($run, $failedItem, $exception): void {
+            $items = $run->items()->whereIn('status', ['pending', 'processing'])->with('editorialIdea')->get();
+            foreach ($items as $item) {
+                $message = $item->is($failedItem)
+                    ? $exception->getMessage()
+                    : 'Campagne stoppée automatiquement après une erreur technique sur un autre contenu.';
+                $item->update([
+                    'status' => 'failed',
+                    'error_message' => mb_substr($message, 0, 2000),
+                    'started_at' => null,
+                    'completed_at' => now(),
+                ]);
+                if ($item->editorialIdea?->status === 'generating') {
+                    $item->editorialIdea->update(['status' => 'accepted']);
+                }
+            }
+            $run->update([
+                'status' => 'completed_with_errors',
+                'failed_count' => $run->items()->where('status', 'failed')->count(),
+                'completed_at' => now(),
+            ]);
+            if ($run->editorialPlan && $run->editorialPlan->status === 'generating') {
+                $run->editorialPlan->update(['status' => 'locked']);
+            }
+        });
     }
 
     private function markItemFailedAndContinue(ContentRun $run, ContentRunItem $failedItem, Throwable $exception): void
