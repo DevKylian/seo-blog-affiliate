@@ -826,6 +826,7 @@ class Automation extends Component
         }
 
         try {
+            Cache::forget("content-run-worker:{$run->id}");
             $worker->launch($run->id);
             $this->error = '';
             $this->message = 'Génération démarrée.';
