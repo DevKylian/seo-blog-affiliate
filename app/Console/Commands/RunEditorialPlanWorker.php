@@ -81,6 +81,8 @@ final class RunEditorialPlanWorker extends Command
             || str_contains($message, 'timed out')
             || str_contains($message, 'timeout')
             || str_contains($message, 'limite de sortie')
+            || str_contains($message, 'structuré')
+            || str_contains($message, 'gemini http')
             || preg_match('/(?:gemini\s+)?http\s+(?:429|503)\b/u', $message) === 1;
     }
 }

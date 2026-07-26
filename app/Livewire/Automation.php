@@ -1094,6 +1094,9 @@ class Automation extends Component
             || str_contains($message, 'timed out')
             || str_contains($message, 'timeout')
             || str_contains($message, 'délai d’attente')
+            || str_contains($message, 'limite de sortie')
+            || str_contains($message, 'structuré')
+            || str_contains($message, 'gemini http')
             || str_contains($message, 'connection reset');
     }
 
