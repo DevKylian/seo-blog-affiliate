@@ -14,15 +14,17 @@ return new class extends Migration
         });
 
         Schema::table('scheduled_content_tasks', function (Blueprint $table) {
-            // Drop foreign key that relies on the unique index first
-            $table->dropForeign(['content_schedule_id']);
-            $table->dropUnique(['content_schedule_id', 'keyword_id']);
+            if (DB::getDriverName() !== 'sqlite') {
+                $table->dropForeign(['content_schedule_id']);
+                $table->dropUnique(['content_schedule_id', 'keyword_id']);
+            }
             
             $table->foreignId('editorial_idea_id')->nullable()->after('keyword_id')->constrained()->nullOnDelete();
-            $table->unique(['content_schedule_id', 'editorial_idea_id'], 'sch_tasks_sch_id_idea_id_unique');
             
-            // Re-add the foreign key
-            $table->foreign('content_schedule_id')->references('id')->on('content_schedules')->cascadeOnDelete();
+            if (DB::getDriverName() !== 'sqlite') {
+                $table->unique(['content_schedule_id', 'editorial_idea_id'], 'sch_tasks_sch_id_idea_id_unique');
+                $table->foreign('content_schedule_id')->references('id')->on('content_schedules')->cascadeOnDelete();
+            }
         });
 
         // La première version programmait directement les requêtes Semrush.

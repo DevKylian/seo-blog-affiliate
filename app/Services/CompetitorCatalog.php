@@ -83,7 +83,15 @@ final class CompetitorCatalog
     /** @return string[] */
     public function allowedEntities(SeoProject $project): array
     {
-        return $this->cleanNames([$project->name, ...$this->competitorsFor($project)]);
+        $explicit = $this->cleanNames($project->competitors ?? []);
+        $extracted = $this->extractBrandsFromKeywordsAndSources($project);
+
+        return $this->cleanNames([
+            $project->name,
+            ...$this->competitorsFor($project),
+            ...$explicit,
+            ...$extracted,
+        ]);
     }
 
     /** @return string[] */
@@ -112,7 +120,7 @@ final class CompetitorCatalog
         return collect($products)
             ->map(fn ($name): string => trim((string) $name))
             ->filter()
-            ->reject(fn (string $name): bool => $this->isAllowedName($name, $allowed))
+            ->reject(fn (string $name): bool => $this->isAllowedName($name, $allowed) || $this->isPlanTierPhrase($name, $allowed))
             ->unique(fn (string $name): string => $this->compactKey($name))
             ->values()
             ->all();
@@ -131,7 +139,7 @@ final class CompetitorCatalog
             }
         }
 
-        preg_match_all('/\b[A-Z][A-Za-z0-9]{2,}(?:\s+(?:[A-Z][A-Za-z0-9]{2,}|Max|Advanced|Evolution|Builder|Enterprise|Suite|Pro)){0,3}\b/u', $text, $matches);
+        preg_match_all('/\b[A-Z][A-Za-z0-9]{2,}(?:\s+(?:[A-Z][A-Za-z0-9]{2,}|Max|Advanced|Evolution|Builder|Enterprise|Suite|Pro|Business|Plus|Premium|Starter|Standard)){0,3}\b/u', $text, $matches);
         foreach ($matches[0] ?? [] as $candidate) {
             $candidate = trim($candidate);
             if (
@@ -139,6 +147,7 @@ final class CompetitorCatalog
                 || $this->isAllowedName($candidate, $allowed)
                 || $this->isKnownNonCompetitorPhrase($candidate)
                 || $this->isCommonTitlePhrase($candidate)
+                || $this->isPlanTierPhrase($candidate, $allowed)
             ) {
                 continue;
             }
@@ -350,5 +359,89 @@ TEXT;
         ];
 
         return $words !== [] && count(array_diff($words, $common)) === 0;
+    }
+
+    /** @param string[] $allowed */
+    private function isPlanTierPhrase(string $candidate, array $allowed): bool
+    {
+        $words = preg_split('/\s+/u', $this->key($candidate)) ?: [];
+        if ($words === []) {
+            return true;
+        }
+
+        $planModifiers = [
+            'pro', 'plus', 'business', 'premium', 'starter', 'standard', 'enterprise',
+            'evolution', 'advanced', 'max', 'suite', 'lite', 'basic', 'flex', 'one',
+            'essential', 'essentiel', 'expert', 'cloud', 'online', 'express', 'mini',
+            'offre', 'offres', 'plan', 'plans', 'formule', 'formules', 'tarif', 'tarifs',
+            'pack', 'packs', 'version', 'versions', 'option', 'options', 'gratuit', 'gratuite',
+            'module', 'modules', 'logiciel', 'solution', 'outil', 'plateforme',
+        ];
+
+        $remainingWords = array_values(array_diff($words, $planModifiers));
+
+        // If removing plan modifiers leaves nothing (e.g. "Plan Plus", "Offre Pro", "Formule Premium"), it's not a competitor brand
+        if ($remainingWords === []) {
+            return true;
+        }
+
+        // If remaining words match an allowed entity (e.g. "Pennylane" from "Pennylane Plus"), it's an allowed plan tier
+        $remainingCandidate = implode(' ', $remainingWords);
+
+        return $this->isAllowedName($remainingCandidate, $allowed);
+    }
+
+    /** @return string[] */
+    private function extractBrandsFromKeywordsAndSources(SeoProject $project): array
+    {
+        if (! $project->exists) {
+            return [];
+        }
+
+        $entities = [];
+
+        $keywords = $project->keywords()->latest('id')->limit(200)->pluck('keyword')->all();
+        foreach ($keywords as $kw) {
+            preg_match_all('/\b[A-Z][A-Za-z0-9]{1,}\b|\b(?:ebp|indy|qonto|shine|blank|dougs|tiime|cegid|sage|pennylane|axonaut|sellsy|henrri|freebe|sinao|evoliz|quickbooks|hubspot|salesforce|pipedrive|zoho|brevo|mailchimp|trello|monday|asana|notion|clickup|jira|obat|tolteck|costructor|progbat|mediabat|batappli|easycompta|financecore|accountpro)\b/iu', $kw, $matches);
+            foreach ($matches[0] ?? [] as $m) {
+                $clean = trim($m);
+                if (mb_strlen($clean) >= 2 && ! $this->isCommonWord(mb_strtolower($clean))) {
+                    $entities[] = $clean;
+                }
+            }
+        }
+
+        $sourcePages = $project->sourcePages()->where('status', 'verified')->get(['title', 'competitor_name']);
+        foreach ($sourcePages as $page) {
+            if ($page->competitor_name) {
+                $entities[] = $page->competitor_name;
+            }
+            if ($page->title) {
+                preg_match_all('/\b[A-Z][A-Za-z0-9]{1,}\b/u', $page->title, $matches);
+                foreach ($matches[0] ?? [] as $m) {
+                    $clean = trim($m);
+                    if (mb_strlen($clean) >= 2 && ! $this->isCommonWord(mb_strtolower($clean))) {
+                        $entities[] = $clean;
+                    }
+                }
+            }
+        }
+
+        return $entities;
+    }
+
+    private function isCommonWord(string $word): bool
+    {
+        $common = [
+            'logiciel', 'logiciels', 'comptabilite', 'comptable', 'facturation', 'facture', 'factures',
+            'devis', 'gestion', 'gratuit', 'gratuite', 'en', 'ligne', 'pour', 'les', 'des', 'une', 'qui',
+            'est', 'sur', 'avec', 'sans', 'dans', 'par', 'pas', 'avis', 'tarif', 'tarifs', 'prix',
+            'comparatif', 'alternative', 'alternatives', 'meilleur', 'meilleurs', 'meilleure', 'guide',
+            'ultime', 'complet', 'auto', 'entrepreneur', 'independant', 'freelance', 'pme', 'tpe',
+            'btp', 'batiment', 'micro', 'entreprise', 'societe', 'assujetti', 'tva', 'code', 'naf',
+            'siret', 'siren', 'choisir', 'analyse', 'application', 'plateforme', 'solution', 'outil',
+        ];
+
+        return in_array(mb_strtolower($word), $common, true);
     }
 }

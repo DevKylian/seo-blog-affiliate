@@ -162,9 +162,14 @@ final class ContentRunProcessor
             }
 
             report($exception);
-            $this->stopRunAfterTechnicalError($run, $item, $exception);
+            $this->markItemFailedAndContinue($run, $item, $exception);
 
-            return $this->result('stopped', '', 'Campagne stoppée automatiquement : '.$exception->getMessage(), 0);
+            $remaining = $run->items()->where('status', 'pending')->count();
+            if ($remaining === 0) {
+                return $this->completeRun($run->fresh());
+            }
+
+            return $this->result('progressed', 'Échec technique sur un contenu. La production continue automatiquement sur les suivants.', '', $remaining);
         }
 
         $remaining = $run->items()->where('status', 'pending')->count();
@@ -279,32 +284,19 @@ final class ContentRunProcessor
             || str_contains($message, 'contenu structuré exploitable');
     }
 
-    private function stopRunAfterTechnicalError(ContentRun $run, ContentRunItem $failedItem, Throwable $exception): void
+    private function markItemFailedAndContinue(ContentRun $run, ContentRunItem $failedItem, Throwable $exception): void
     {
         DB::transaction(function () use ($run, $failedItem, $exception): void {
-            $items = $run->items()->whereIn('status', ['pending', 'processing'])->with('editorialIdea')->get();
-            foreach ($items as $item) {
-                $message = $item->is($failedItem)
-                    ? $exception->getMessage()
-                    : 'Campagne stoppée automatiquement après une erreur technique sur un autre contenu.';
-                $item->update([
-                    'status' => 'failed',
-                    'error_message' => mb_substr($message, 0, 2000),
-                    'started_at' => null,
-                    'completed_at' => now(),
-                ]);
-                if ($item->editorialIdea?->status === 'generating') {
-                    $item->editorialIdea->update(['status' => 'accepted']);
-                }
-            }
-            $run->update([
-                'status' => 'completed_with_errors',
-                'failed_count' => $run->items()->where('status', 'failed')->count(),
+            $failedItem->update([
+                'status' => 'failed',
+                'error_message' => mb_substr($exception->getMessage(), 0, 2000),
+                'started_at' => null,
                 'completed_at' => now(),
             ]);
-            if ($run->editorialPlan && $run->editorialPlan->status === 'generating') {
-                $run->editorialPlan->update(['status' => 'locked']);
+            if ($failedItem->editorialIdea?->status === 'generating') {
+                $failedItem->editorialIdea->update(['status' => 'accepted']);
             }
+            $run->increment('failed_count');
         });
     }
 
