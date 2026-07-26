@@ -69,6 +69,7 @@
                     <span>{{ $article->sources->count() }} références</span>
                 </div>
             </div>
+            @if(!preg_match('/blog|guide/i', $article->project->name))
             <div class="meta-item">
                 <span class="meta-icon">🎯</span>
                 <div>
@@ -76,6 +77,7 @@
                     <span>{{ $article->project->name }}</span>
                 </div>
             </div>
+            @endif
         </div>
     </div>
 </div>

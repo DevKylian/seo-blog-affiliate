@@ -267,6 +267,7 @@ RÈGLES BLOQUANTES
 - CURRENT_DATE est réservé au header et au footer injectés par le CMS. N’écris aucune date de vérification, formule « vérifié le », « en date du », « informations disponibles au » ou « mis à jour le » dans le body, la FAQ ou la conclusion.
 - Si le sujet ou un H2 exige une année d’actualité, utilise uniquement CURRENT_YEAR ({$currentYear}). N’utilise aucune année issue de ta mémoire ou de ta date de coupure de connaissances.
 - {$canonicalBrandDirective}
+- INTÉGRATION NATURELLE DES MOTS-CLÉS : N'insère jamais un mot-clé de force s'il casse la syntaxe. Adapte la grammaire, sépare les mots, ou ajoute des prépositions pour garder un ton 100% humain et fluide (ex: évite "Si vous cherchez un logiciel interpréteur comptable"). Ne fais jamais de phrases bidons de remplissage SEO.
 - Chaque H2 doit être développé avec des paragraphes précis, des listes concrètes et des H3 lorsque pertinent.
 - Aucun paragraphe ne dépasse 90 mots ou 5 phrases. Insère une ligne vide entre les paragraphes.
 - Pour Checklist et Outils/Ressources : 1 à 2 phrases d’introduction maximum, puis directement des H3 ou une liste. Chaque puce contient UNE phrase impérative de 20 mots maximum. Aucun paragraphe explicatif, aucune justification et aucune répétition d’une section précédente.
@@ -569,7 +570,7 @@ TEXT;
             throw new DuplicateContentException($postflight['article'], $postflight['score'], $postflight['decision']);
         }
 
-        $checks = $this->qualityChecks((string) $data['body'], $sourceIds, $keyword?->keyword, $audit);
+        $checks = $this->qualityChecks((string) $data['body'], $sourceIds, $keyword?->keyword, $audit, $project->name);
 
         $slug = $this->availableSlug($project, $blueprint, $postflight, (string) $data['title']);
 
@@ -630,10 +631,31 @@ TEXT;
         ]);
         $article->sources()->sync($sources->values()->mapWithKeys(fn ($source, $index) => [$source->id => ['citation_label' => 'S'.($index + 1)]])->all());
         $article->tools()->sync([$project->id => ['role' => 'featured']]);
+        $this->autoCategorizeArticle($article);
         app(InternalLinkService::class)->refresh($article);
         app(PrePublishAuditService::class)->audit($article->fresh());
 
         return $article;
+    }
+
+    private function autoCategorizeArticle(Article $article): void
+    {
+        $categoryIds = [];
+        
+        if ($article->type === 'tool_review') $categoryIds[] = 5;
+        elseif ($article->type === 'tool_comparison') $categoryIds[] = 6;
+        elseif ($article->type === 'best_tools') $categoryIds[] = 7;
+        else $categoryIds[] = 8;
+        
+        $text = strtolower($article->title . ' ' . $article->primary_keyword);
+        if (preg_match('/compta|indy|pennylane|dougs/', $text)) $categoryIds[] = 2;
+        if (preg_match('/facture|devis|tiime/', $text)) $categoryIds[] = 3;
+        if (preg_match('/banque|qonto|shine|blank|finom/', $text)) $categoryIds[] = 4;
+        if (preg_match('/email|newsletter|brevo|mailchimp|mailpilot/', $text)) $categoryIds[] = 1;
+        
+        if (!empty($categoryIds)) {
+            $article->categories()->syncWithoutDetaching($categoryIds);
+        }
     }
 
     public function generateFromIdea(SeoProject $project, EditorialIdea $idea, string $instructions = ''): Article
@@ -753,6 +775,9 @@ TEXT;
 
         return <<<PROMPT
 Tu es un éditeur SEO affilié exigeant. Génère un brouillon en français, utile, précis et destiné à une validation humaine.
+
+ATTENTION CRITIQUE - INTERDICTION D'INVENTER DES LOGICIELS : 
+Tu as l'interdiction formelle et absolue d'inventer des noms de logiciels. Ne génère JAMAIS de faux outils (comme "AccountPro Cloud", "ComptaFacile", etc.). Base-toi STRICTEMENT et UNIQUEMENT sur les logiciels cités dans les PREUVES. S'il s'agit de concurrents non fournis, utilise uniquement des logiciels existants, réels et très connus en France. TOUTE INVENTION de nom de logiciel est inacceptable.
 
 VARIABLES SYSTÈME RÉSERVÉES AUX MÉTADONNÉES : CURRENT_DATE = {$verificationDate} ; CURRENT_YEAR = {$currentYear}.
 
@@ -1249,8 +1274,10 @@ TEXT;
     {
         $competitorDirective = $project ? "\n".$this->competitors->promptDirective($project) : '';
         $formatRule = in_array($type, ['comparison', 'best_tools', 'alternatives'], true)
-            ? "CAS B \u2014 MULTI-PRODUITS : Si le H1 indique une confrontation directe (ex: A vs B), compare STRICTEMENT ces 2 solutions, n'ajoute JAMAIS de 3ème outil ni de section alternatives. S'il s'agit d'un classement global ou d'alternatives, tu peux en comparer 3 ou plus. Choisis uniquement parmi les entit\u00e9s autoris\u00e9es du projet et disposant chacune de preuves. Confronte-les dans des sections d\u00e9di\u00e9es et renseigne leurs noms dans compared_products. N'invente AUCUN nom de logiciel."
-            : "CAS A \u2014 MONO-PRODUIT : le H1 doit annoncer clairement {$productName} et prendre la forme d\u2019un guide technique ou d\u2019un cas d\u2019usage (\u00ab Ma\u00eetriser {$productName} pour\u2026 \u00bb). Les mots \u00ab Comparatif \u00bb et \u00ab Meilleur \u00bb sont interdits dans le H1.";
+            ? "CAS B — MULTI-PRODUITS : Si le H1 indique une confrontation directe (ex: A vs B), compare STRICTEMENT ces 2 solutions, n'ajoute JAMAIS de 3ème outil ni de section alternatives. S'il s'agit d'un classement global ou d'alternatives, tu peux en comparer 3 maximum. Choisis uniquement parmi les entités autorisées du projet et disposant chacune de preuves. Confronte-les dans des sections dédiées et renseigne leurs noms dans compared_products. N'invente AUCUN nom de logiciel."
+            : "CAS A — MONO-PRODUIT : le H1 doit annoncer clairement {$productName} et prendre la forme d’un guide technique ou d’un cas d’usage (« Maîtriser {$productName} pour… »). Les mots « Comparatif » et « Meilleur » sont interdits dans le H1.";
+
+        $genericNameRule = preg_match('/blog|guide/iu', $productName) ? "- NOM GÉNÉRIQUE : Le nom '{$productName}' désigne une catégorie, pas un logiciel. Ne dis jamais 'le logiciel {$productName}' ou 'l'outil {$productName}'." : '';
 
         return <<<TEXT
 DIRECTIVES SEO & AFFILIATION BLOQUANTES
@@ -1258,10 +1285,12 @@ DIRECTIVES SEO & AFFILIATION BLOQUANTES
 - ALIGNEMENT PRODUIT/REQUÊTE : vérifie que {$productName} répond directement et logiquement au mot-clé. Aucun shoehorning. Si ce n’est pas le cas, fixe product_keyword_fit à false et explique pourquoi dans product_keyword_fit_reason. Sinon, fixe-le à true.
 - CHAMP LEXICAL : reste strictement dans le vocabulaire métier de la requête. Un sujet CRM parle notamment de leads, pipeline, clients, adoption et chiffre d’affaires ; un sujet SEO peut parler de requêtes, SERP, contenu, backlinks et trafic organique. Ne mélange jamais ces univers sans justification factuelle.
 - {$formatRule}
+{$genericNameRule}
 - CRÉDIBILITÉ : pour chaque outil recommandé, cite au moins une limite ou un compromis opérationnel réaliste et sourcé. Dans un tableau comparatif, utilise explicitement une colonne « Limites ». Pas de gagnant universel.
+- ANTI-HALLUCINATION : N'invente JAMAIS de nom de logiciel, module ou outil fictif (ex: "FinanceCore Module"). Ne cite que des outils réels existants sur le marché français (Indy, Qonto, Pennylane, Freebe, Abby, Shine, etc.) et pertinents pour le contexte.
 - TERRAIN : ajoute des conseils opérationnels concrets sur le déploiement, la migration, la qualité des données, la formation ou l’adoption par les équipes. Ne prétends pas les avoir testés si ce n’est pas prouvé.
 - TABLEAUX : au moins 3 colonnes et 2 lignes de données, avec des différences utiles à la décision. Réinjecte impérativement les marqueurs de sources (ex: [S2]) directement dans les cellules du tableau comparatif. Précise explicitement que la facturation (devis et factures) est illimitée sur le plan gratuit d'Indy. Interdiction d’une grille remplie uniquement de « Oui ». Compare les versions (Starter/Premium), les modules (par exemple Sales Hub/Marketing Hub), les coûts, les limites, les profils ou les solutions.
-- PRIX : ne produis aucun bloc vide et n’écris jamais « tarif/prix non communiqué ». Affiche UNIQUEMENT un prix d’entrée officiel explicitement présent dans les preuves. À défaut, explique le modèle d’abonnement vérifiable puis renvoie vers la grille officielle sans inventer de montant.
+- PRIX : ne produis aucun bloc vide et n’écris jamais « tarif/prix non communiqué ». Affiche UNIQUEMENT un prix d’entrée officiel explicitement présent dans les preuves. À défaut, explique le modèle d’abonnement vérifiable puis renvoie vers la grille officielle sans inventer de montant. Utilise uniquement les tarifs fournis dans le contexte du logiciel cible. Ne jamais inventer de plans tarifaires.
 - DONNEES CONCURRENTES 2026 : Interdiction absolue d'inventer des noms d'offres ou d'utiliser ta mémoire. Si une information (ex: Abby Découverte, limite à 3 devis) n'est pas texto dans les preuves, c'est qu'elle est obsolète. Ne l'écris jamais.
 - SCÉNARIOS CHIFFRÉS : dans « Exemples et scénarios concrets » ou la section de cas d’usage équivalente, ajoute une métrique plausible (taille d’équipe, durée, volume ou pourcentage). Étiquette obligatoirement le passage « Hypothèse de simulation » ou « Scénario illustratif ». Toute simulation de gain de temps doit obligatoirement être convertie en gain financier (€) sur la base d'un TJM ou taux horaire moyen réaliste pour la cible. Cette valeur sert uniquement à raisonner ; ne la présente jamais comme un gain observé ou une promesse du produit.
 - FAQ CAS B : pour un comparatif, une sélection ou des alternatives, l’affilié principal ne doit jamais monopoliser la FAQ. Au moins 40 % des questions doivent être généralistes, traiter la migration globale, être centrées sur les alternatives citées ou comparer deux concurrents entre eux.
@@ -1276,18 +1305,21 @@ TEXT;
     {
         $competitorDirective = $this->competitors->promptDirective($project);
         $formatRule = in_array($type, ['comparison', 'best_tools', 'alternatives'], true)
-            ? 'FORMAT MULTI-PRODUITS : confronte réellement au moins 2 solutions autorisées et sourcées, idéalement 3. Chaque solution a un profil adapté, une limite et un compromis distincts ; aucun gagnant universel. N\'invente aucun outil et ne cite pas de matériel informatique (MacBook Pro, etc.).'
+            ? 'FORMAT MULTI-PRODUITS : confronte réellement au moins 2 solutions autorisées et sourcées, idéalement 3 maximum. Chaque solution a un profil adapté, une limite et un compromis distincts ; aucun gagnant universel. N\'invente aucun outil et ne cite pas de matériel informatique (MacBook Pro, etc.).'
             : "FORMAT MONO-PRODUIT : reste centré sur {$productName}, son cas d’usage précis et l’audience verrouillée. Ne transforme jamais la partie en comparatif ou en sélection générique.";
+        $genericNameRule = preg_match('/blog|guide/iu', $productName) ? "- NOM GÉNÉRIQUE : Le nom '{$productName}' désigne une catégorie, pas un logiciel. Ne dis jamais 'le logiciel {$productName}' ou 'l'outil {$productName}'." : '';
 
         return <<<TEXT
 DIRECTIVES SEO, UX & AFFILIATION — À APPLIQUER DANS CETTE PARTIE
 {$competitorDirective}
 - {$formatRule}
+{$genericNameRule}
 - ALIGNEMENT : chaque paragraphe sert l’intention, l’angle, l’audience et la promesse verrouillés. Aucun sujet voisin ajouté pour remplir.
+- ANTI-HALLUCINATION : N'invente JAMAIS de nom de logiciel, module ou outil fictif (ex: "FinanceCore Module"). Cite exclusivement des outils réels (Indy, Abby, Pennylane, Qonto, etc.).
 - VOCABULAIRE MÉTIER : conserve le champ lexical exact de la requête. Pour un CRM : prospects, leads, pipeline, contacts, adoption, conversion et chiffre d’affaires ; aucun vocabulaire SEO hors sujet.
 - CRÉDIBILITÉ : expose au moins une limite réaliste pour chaque outil recommandé et un conseil terrain sur les données, la migration, le paramétrage, la formation ou l’adoption.
 - TABLEAU : une seule matrice dans la section dédiée, avec au moins 3 colonnes, 2 lignes, des différences décisionnelles et une colonne « Limites » en multi-produits. Réinjecte impérativement les références des sources (ex: [S2]) dans les cellules du tableau, en particulier pour les limites et fonctionnalités. Précise toujours explicitement que la facturation (devis et factures) est illimitée sur le plan gratuit d'Indy (avantage comparatif majeur). Jamais une grille « Oui/Oui ».
-- TARIFICATION : aucun prix inventé, aucun bloc vide et jamais « tarif non communiqué ». À défaut de montant prouvé, explique le modèle vérifiable et les composantes du coût total de possession, puis renvoie vers la grille officielle.
+- TARIFICATION : aucun prix inventé, aucun bloc vide et jamais « tarif non communiqué ». À défaut de montant prouvé, explique le modèle vérifiable et les composantes du coût total de possession, puis renvoie vers la grille officielle. Utilise uniquement les tarifs fournis dans le contexte du logiciel cible. Ne jamais inventer de plans tarifaires.
 - DONNEES CONCURRENTES 2026 : Interdiction absolue d'inventer des offres (ex: Abby Découverte) ou des limites (ex: 3 factures) si elles ne sont pas texto dans les preuves. Utiliser sa mémoire interne est interdit.
 - SCÉNARIO : une seule hypothèse explicitement illustrative dans la section prévue. Toute simulation de gain de temps doit obligatoirement être convertie en gain financier (€) sur la base d'un TJM réaliste.
 - FAQ MULTI-PRODUITS : au moins 40 % des questions sont généralistes, consacrées aux alternatives ou à la migration, sans monopolisation par {$productName}.
@@ -1666,13 +1698,14 @@ TEXT;
         return now()->locale('fr')->translatedFormat('j F Y');
     }
 
-    private function qualityChecks(string $body, array $sourceIds, ?string $keyword, array $audit): array
+    private function qualityChecks(string $body, array $sourceIds, ?string $keyword, array $audit, string $projectName = ''): array
     {
         return array_merge($audit['checks'], [
             'has_sources' => $sourceIds !== [],
             'keyword_aligned' => ! $keyword || str_contains(Str::ascii(mb_strtolower($body)), Str::ascii(mb_strtolower($keyword))),
             'affiliate_disclosure' => (bool) ($audit['checks']['affiliate_disclosure'] ?? false),
             'has_unknown_fallback' => str_contains(mb_strtolower($body), 'non communiqué'),
+            'generic_software_name_flag' => preg_match('/blog|guide/iu', $projectName) === 1 ? false : true,
             'human_review_required' => true,
         ]);
     }

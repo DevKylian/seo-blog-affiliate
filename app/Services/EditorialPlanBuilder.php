@@ -174,12 +174,13 @@ final class EditorialPlanBuilder
     private function lockPlan(EditorialPlan $plan, Collection $valid): EditorialPlan
     {
         $priorityMap = [
-            'Page pilier' => 1,
-            'Page commerciale' => 2,
-            'Article comparatif' => 3,
-            'Tutoriel' => 4,
-            'FAQ' => 5,
-            'Article de blog (Longue traîne)' => 6,
+            'Level 1 - Pillar' => 1,
+            'Level 2 - Commercial' => 2,
+            'Level 5 - Comparatifs' => 2,
+            'Level 6 - Alternatives' => 2,
+            'Level 3 - Long Tail' => 3,
+            'Level 4 - FAQ' => 4,
+            'Level 7 - Tutoriels' => 5,
         ];
 
         $ranked = $valid->unique('id')->sortBy(function ($idea) use ($priorityMap) {
@@ -560,13 +561,17 @@ final class EditorialPlanBuilder
         if ($keywordScope !== []) {
             return $project->keywords()
                 ->with('contentCluster')
-                ->withCount(['articles', 'editorialIdeas'])
+                ->withCount(['articles', 'editorialIdeas' => function ($query) {
+                    $query->where('status', '!=', 'rejected');
+                }])
                 ->whereIn('id', array_map('intval', $keywordScope))
                 ->get()
                 ->values();
         }
 
-        $all = $project->keywords()->with('contentCluster')->withCount(['articles', 'editorialIdeas'])
+        $all = $project->keywords()->with('contentCluster')->withCount(['articles', 'editorialIdeas' => function ($query) {
+            $query->where('status', '!=', 'rejected');
+        }])
             ->orderByDesc('opportunity_score')->limit(600)->get();
             
         $unplanned = $all->filter(fn (Keyword $keyword) => $keyword->isUnplanned());
@@ -623,19 +628,32 @@ final class EditorialPlanBuilder
     private function score(Keyword $keyword, array $blueprint, float $coverage, float $similarity, SeoProject $project): float
     {
         $seoOpportunity = min(100, max(0, (float) $keyword->opportunity_score));
-        $commercial = in_array($blueprint['intent'], ['commercial', 'transactional'], true) ? 95 : 65;
+        $commercial = in_array($blueprint['intent'], ['commercial', 'transactional'], true) ? 100 : 50;
         $internalLinks = min(100, 45 + ($project->articles()->count() * 5));
-        $difficultyPenalty = min(12, ((float) $keyword->keyword_difficulty) * .12);
-        $newKeywordBonus = $keyword->isUnplanned() ? 8 : 0;
         $affiliatePriority = min(100, max(0, (float) $keyword->affiliate_priority));
-        $businessScore = in_array($blueprint['content_type'] ?? '', ['best_tools', 'comparison', 'alternatives'], true) ? 45 : 0;
-        $targetAudienceBonus = preg_match('/indépendant|bnc|auto[\s-]?entrepreneur|micro[\s-]?entreprise|freelance|gratuit/iu', $keyword->keyword) ? 35 : 0;
+        $businessScore = in_array($blueprint['content_type'] ?? '', ['best_tools', 'comparison', 'alternatives'], true) ? 30 : 0;
+        $targetAudienceBonus = preg_match('/indépendant|bnc|auto[\s-]?entrepreneur|micro[\s-]?entreprise|freelance|gratuit/iu', $keyword->keyword) ? 20 : 0;
+        $newKeywordBonus = $keyword->isUnplanned() ? 10 : 0;
 
-        return round(max(0,
-            ($seoOpportunity * .25) + 15 + ($commercial * .15) + 15
-            + ((100 - $similarity) * .15) + ($coverage * .10) + ($internalLinks * .05)
-            + ($affiliatePriority * .12) + $newKeywordBonus - $difficultyPenalty + $businessScore + $targetAudienceBonus
-        ), 2);
+        // Autorité thématique : 40 %
+        $autorite = min(100, ($seoOpportunity * 0.5) + ($coverage * 0.3) + ($internalLinks * 0.2));
+        
+        // Potentiel business : 30 %
+        $potentiel = min(100, ($commercial * 0.4) + ($affiliatePriority * 0.4) + $businessScore + $targetAudienceBonus);
+        
+        // Faible cannibalisation : 20 %
+        $cannibalisation = max(0, 100 - $similarity);
+        
+        // Facilité de production : 10 %
+        $facilite = min(100, max(0, 100 - ((float) $keyword->keyword_difficulty)) + $newKeywordBonus);
+
+        return round(
+            ($autorite * 0.40) +
+            ($potentiel * 0.30) +
+            ($cannibalisation * 0.20) +
+            ($facilite * 0.10),
+            2
+        );
     }
 
     private function existingFingerprints(SeoProject $project): array

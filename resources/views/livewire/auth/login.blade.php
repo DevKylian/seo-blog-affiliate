@@ -2,13 +2,13 @@
     <form wire:submit="authenticate" class="login-form">
         <label for="email">Adresse e-mail</label>
         <div class="input-wrap">
-            <input wire:model="email" id="email" type="email" autocomplete="email" placeholder="admin@example.com" autofocus>
+            <input wire:model="email" id="email" type="email" autocomplete="email" autofocus>
         </div>
         @error('email') <span class="field-error">{{ $message }}</span> @enderror
 
         <label for="password">Mot de passe</label>
         <div class="input-wrap">
-            <input wire:model="password" id="password" type="password" autocomplete="current-password" placeholder="••••••••">
+            <input wire:model="password" id="password" type="password" autocomplete="current-password">
         </div>
         @error('password') <span class="field-error">{{ $message }}</span> @enderror
 

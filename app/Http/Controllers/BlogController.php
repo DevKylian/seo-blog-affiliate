@@ -163,8 +163,10 @@ class BlogController extends Controller
     {
         $articles = Article::query()->where('status', 'published')->get(['slug', 'type', 'updated_at']);
         $tools = SeoProject::query()->where('status', 'active')->get(['slug', 'updated_at']);
+        $categories = Category::query()->get(['slug', 'updated_at']);
+        $freeTools = $this->freeToolCatalog();
 
-        return response()->view('blog.sitemap', compact('articles', 'tools'))->header('Content-Type', 'application/xml');
+        return response()->view('blog.sitemap', compact('articles', 'tools', 'categories', 'freeTools'))->header('Content-Type', 'application/xml');
     }
 
     private function freeToolCatalog(): array

@@ -27,24 +27,65 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('head')
+    <style>
+        .mobile-menu-btn { display: none; }
+        .main-nav { display: flex; align-items: center; gap: 32px; }
+        .main-nav a.nav-link { color: #475569; font-weight: 700; font-size: 14px; text-decoration: none; transition: color 0.2s; }
+        .main-nav a.nav-cta { background: #F75A77; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 800; font-size: 14px; text-decoration: none; box-shadow: 0 4px 6px rgba(247,90,119,0.2); transition: all 0.2s; }
+        
+        @media (max-width: 900px) {
+            .mobile-menu-btn { display: block !important; }
+            .main-nav { display: none !important; }
+            .main-nav.mobile-open { 
+                display: flex !important; 
+                flex-direction: column !important; 
+                width: 100% !important; 
+                padding-top: 24px !important; 
+                margin-top: 16px !important; 
+                border-top: 1px solid rgba(226, 232, 240, 0.8) !important;
+                gap: 16px !important;
+                align-items: flex-start !important;
+            }
+            .main-nav.mobile-open a.nav-link { font-size: 18px !important; color: #0f172a !important; font-weight: 800 !important; width: 100%; }
+            .main-nav.mobile-open a.nav-cta { font-size: 16px !important; text-align: center !important; width: 100%; margin-top: 8px !important; }
+            
+            /* Footer mobile */
+            .blog-footer { padding: 40px 24px 32px !important; }
+            .footer-wrapper { flex-direction: column !important; gap: 40px !important; }
+            .footer-links { flex-direction: column !important; gap: 32px !important; align-items: flex-start !important; }
+            .footer-bottom { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+        }
+    </style>
 </head>
 <body class="blog-body">
-    <header class="blog-header" style="position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(226, 232, 240, 0.8);">
-        <a class="brand public-brand" href="{{ route('home') }}" style="text-decoration: none;">
-            <span class="brand-mark" style="background: linear-gradient(135deg, #2563eb, #4f46e5); box-shadow: 0 4px 12px rgba(37,99,235,0.3);">B</span>
-            <span style="font-weight: 800; font-size: 20px; color: #0f172a;">BusinessKit</span>
-        </a>
-        <nav aria-label="Navigation publique" style="display: flex; align-items: center; gap: 32px;">
-            <a href="{{ route('home') }}" style="color: #475569; font-weight: 700; font-size: 14px; text-decoration: none; transition: color 0.2s;">Accueil</a>
-            <a href="{{ route('blog.index') }}" style="color: #475569; font-weight: 700; font-size: 14px; text-decoration: none; transition: color 0.2s;">Guides</a>
-            <a href="{{ route('free-tools.index') }}" style="color: #475569; font-weight: 700; font-size: 14px; text-decoration: none; transition: color 0.2s;">Outils gratuits</a>
-            <a href="{{ route('tools.index') }}" style="color: #475569; font-weight: 700; font-size: 14px; text-decoration: none; transition: color 0.2s;">Logiciels</a>
-            <a href="{{ route('affiliate.redirect', 'indy') }}" style="background: #F75A77; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 800; font-size: 14px; text-decoration: none; box-shadow: 0 4px 6px rgba(247,90,119,0.2); transition: all 0.2s;" target="_blank" rel="sponsored nofollow">Essayer Indy</a>
-        </nav>
-    </header>
+    <div style="position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(226, 232, 240, 0.8); width: 100%;">
+        <header x-data="{ mobileMenuOpen: false }" style="display: flex; align-items: center; justify-content: space-between; max-width: 1050px; margin: 0 auto; flex-wrap: wrap; height: auto; min-height: 78px; padding: 16px 24px;">
+            
+            <!-- LOGO -->
+            <a class="brand public-brand" href="{{ route('home') }}" style="text-decoration: none; display: flex; align-items: center; gap: 11px;">
+                <span class="brand-mark" style="background: linear-gradient(135deg, #2563eb, #4f46e5); box-shadow: 0 4px 12px rgba(37,99,235,0.3);">B</span>
+                <span style="font-weight: 800; font-size: 20px; color: #0f172a;">BusinessKit</span>
+            </a>
+            
+            <!-- BURGER BTN (MOBILE) -->
+            <button type="button" @click="mobileMenuOpen = !mobileMenuOpen" class="mobile-menu-btn" aria-label="Menu" style="background: none; border: none; cursor: pointer; color: #0f172a; padding: 4px; margin: 0;">
+                <svg x-show="!mobileMenuOpen" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                <svg x-show="mobileMenuOpen" x-cloak width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+
+            <!-- UNIFIED NAV -->
+            <nav class="main-nav" :class="{ 'mobile-open': mobileMenuOpen }" aria-label="Navigation publique">
+                <a href="{{ route('home') }}" class="nav-link">Accueil</a>
+                <a href="{{ route('blog.index') }}" class="nav-link">Guides</a>
+                <a href="{{ route('free-tools.index') }}" class="nav-link">Outils gratuits</a>
+                <a href="{{ route('tools.index') }}" class="nav-link">Comparateur</a>
+                <a href="{{ route('affiliate.redirect', 'indy') }}" class="nav-cta" target="_blank" rel="sponsored nofollow">Essayer Indy</a>
+            </nav>
+        </header>
+    </div>
     <main>@yield('content')</main>
     <footer class="blog-footer">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 48px; width: 100%;">
+        <div class="footer-wrapper" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 48px; width: 100%; margin-bottom: 48px;">
             <div style="max-width: 380px;">
                 <a class="brand brand-light public-brand" href="{{ route('home') }}" style="text-decoration: none; display: inline-flex; align-items: center; gap: 12px; margin-bottom: 16px;">
                     <span class="brand-mark" style="background: linear-gradient(135deg, #2563eb, #4f46e5); box-shadow: 0 4px 12px rgba(37,99,235,0.4); border-radius: 10px; width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; color: white;">B</span>
@@ -65,20 +106,20 @@
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 12px;">
                     <h4 style="color: white; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Transparence</h4>
-                    <a href="#" style="color: #cbd5e1; text-decoration: none; font-size: 14px; transition: color 0.2s;">Nos critères de sélection</a>
-                    <a href="#" style="color: #cbd5e1; text-decoration: none; font-size: 14px; transition: color 0.2s;">Nos sources</a>
-                    <a href="#" style="color: #cbd5e1; text-decoration: none; font-size: 14px; transition: color 0.2s;">Nos tests logiciels</a>
+                    <a href="{{ route('criteres') }}" style="color: #cbd5e1; text-decoration: none; font-size: 14px; transition: color 0.2s;">Nos critères de sélection</a>
+                    <a href="{{ route('sources') }}" style="color: #cbd5e1; text-decoration: none; font-size: 14px; transition: color 0.2s;">Nos sources</a>
+                    <a href="{{ route('tests') }}" style="color: #cbd5e1; text-decoration: none; font-size: 14px; transition: color 0.2s;">Nos tests logiciels</a>
                     <a href="{{ route('author.show') }}" style="color: #cbd5e1; text-decoration: none; font-size: 14px; transition: color 0.2s;">Notre auteur</a>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 12px;">
                     <h4 style="color: white; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Légal</h4>
-                    <a href="#" style="color: #cbd5e1; text-decoration: none; font-size: 14px; transition: color 0.2s;">Mentions légales</a>
-                    <a href="#" style="color: #cbd5e1; text-decoration: none; font-size: 14px; transition: color 0.2s;">Politique de confidentialité</a>
-                    <a href="#" style="color: #cbd5e1; text-decoration: none; font-size: 14px; transition: color 0.2s;">Plan du site</a>
+                    <a href="{{ route('mentions-legales') }}" style="color: #cbd5e1; text-decoration: none; font-size: 14px; transition: color 0.2s;">Mentions légales</a>
+                    <a href="{{ route('politique-confidentialite') }}" style="color: #cbd5e1; text-decoration: none; font-size: 14px; transition: color 0.2s;">Politique de confidentialité</a>
+                    <a href="{{ route('sitemap') }}" style="color: #cbd5e1; text-decoration: none; font-size: 14px; transition: color 0.2s;">Plan du site</a>
                 </div>
             </div>
         </div>
-        <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; width: 100%; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div class="footer-bottom" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; width: 100%; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
             <p style="margin: 0; color: #64748b; font-size: 13px;">© {{ now()->year }} BusinessKit · Tous droits réservés. Certains liens peuvent être affiliés.</p>
             <span style="color: #64748b; font-size: 13px; font-weight: 500;">Conçu pour les freelances en France 🇫🇷</span>
         </div>

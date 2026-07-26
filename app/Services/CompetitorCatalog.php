@@ -40,6 +40,8 @@ final class CompetitorCatalog
         'legalinvoice' => 'LegalInvoice',
         'invoicemaster' => 'InvoiceMaster',
         'quotepro' => 'QuotePro',
+        'easycompta' => 'EasyCompta',
+        'financecore' => 'FinanceCore',
     ];
 
     private const KNOWN_NON_COMPETITOR_PHRASES = [
@@ -142,8 +144,8 @@ final class CompetitorCatalog
             }
 
             $compact = $this->compactKey($candidate);
-            $looksSynthetic = preg_match('/(?:invoice|bill|quote|legal|flow|master|builder)/u', $compact) === 1
-                || preg_match('/(?:max|advanced|evolution|builder|enterprise|suite|pro)$/u', $compact) === 1;
+            $looksSynthetic = preg_match('/(?:invoice|bill|quote|legal|flow|master|builder|compta|finance|core)/u', $compact) === 1
+                || preg_match('/(?:max|advanced|evolution|builder|enterprise|suite|pro|business|plus)$/u', $compact) === 1;
 
             if ($looksSynthetic) {
                 $unknown[] = $candidate;
@@ -341,7 +343,10 @@ TEXT;
             'choisir', 'gestion', 'gratuit', 'gratuite', 'auto', 'entrepreneur',
             'pme', 'tpe', 'btp', 'batiment', 'presentation', 'processus',
             'compte', 'comptes', 'pro', 'professionnel', 'professionnels',
-            'ensuite',
+            'ensuite', 'comptable', 'comptabilite', 'entreprise', 'entreprises',
+            'pour', 'une', 'optimale', 'licence', 'alternatives', 'ligne', 'avis',
+            'plan', 'offre', 'offres', 'plus', 'premium', 'starter', 'standard', 
+            'basic', 'abonnement', 'abonnements',
         ];
 
         return $words !== [] && count(array_diff($words, $common)) === 0;

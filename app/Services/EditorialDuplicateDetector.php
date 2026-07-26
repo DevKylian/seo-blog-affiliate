@@ -71,6 +71,14 @@ final class EditorialDuplicateDetector
     {
         $candidate = $this->normalizeBlueprint($candidate);
         $existing = $this->normalizeBlueprint($existing);
+        
+        $titleSimilarity = $this->similarity((string) ($candidate['title'] ?? ''), (string) ($existing['title'] ?? ''));
+        $keywordSimilarity = $this->similarity((string) ($candidate['primary_keyword'] ?? ''), (string) ($existing['primary_keyword'] ?? ''));
+        
+        if ($titleSimilarity >= 0.80 || $keywordSimilarity >= 0.80) {
+            return 100.0;
+        }
+
         $score = $this->blueprintScore($candidate, $existing);
         $semantic = $this->similarity($this->blueprintRepresentation($candidate), $this->blueprintRepresentation($existing));
         $outline = $this->compareOutlines($candidate['outline'], $existing['outline']);
@@ -424,7 +432,7 @@ final class EditorialDuplicateDetector
     private function blueprintRepresentation(array $blueprint): string
     {
         return implode(' ', [
-            $blueprint['entity'], $blueprint['topic'], $blueprint['intent'], $blueprint['audience'],
+            $blueprint['title'] ?? '', $blueprint['entity'], $blueprint['topic'], $blueprint['intent'], $blueprint['audience'],
             $blueprint['angle'], $blueprint['primary_keyword'], $blueprint['unique_promise'],
             $blueprint['problem'] ?? '', $blueprint['expected_outcome'] ?? '', implode(' ', $blueprint['outline'] ?? []),
         ]);

@@ -660,10 +660,7 @@
         <div style="font-size:48px; margin-bottom:16px;">📬</div>
         <h2 style="font-size: 32px; margin-bottom: 16px; font-weight: 800;">Évitez les 3 erreurs qui coûtent le plus cher aux freelances.</h2>
         <p style="font-size: 18px; color: var(--home-muted);">Recevez nos outils et conseils. 1 e-mail par semaine, 0 spam.</p>
-        <form action="#" class="hp-newsletter-form">
-            <input type="email" class="hp-newsletter-input" placeholder="votre@email.com" required>
-            <button type="submit" class="hp-newsletter-btn">M'inscrire gratuitement</button>
-        </form>
+        @livewire('frontend.newsletter-form')
     </section>
 
 </main>

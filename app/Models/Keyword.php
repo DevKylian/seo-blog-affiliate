@@ -90,7 +90,7 @@ class Keyword extends Model
             : $this->articles()->count();
         $ideasCount = array_key_exists('editorial_ideas_count', $this->attributes)
             ? (int) $this->attributes['editorial_ideas_count']
-            : $this->editorialIdeas()->count();
+            : $this->editorialIdeas()->where('status', '!=', 'rejected')->count();
 
         return $articlesCount === 0 && $ideasCount === 0;
     }

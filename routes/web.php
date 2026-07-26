@@ -33,7 +33,12 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [BlogController::class, 'home'])->name('home');
-Route::get('/auteurs/martin-trivianio', [BlogController::class, 'about'])->name('author.show');
+Route::get('/auteurs/kylian-dev', [BlogController::class, 'about'])->name('author.show');
+Route::view('/mentions-legales', 'pages.mentions-legales')->name('mentions-legales');
+Route::view('/politique-confidentialite', 'pages.politique-confidentialite')->name('politique-confidentialite');
+Route::view('/criteres-selection', 'pages.criteres')->name('criteres');
+Route::view('/sources', 'pages.sources')->name('sources');
+Route::view('/tests-logiciels', 'pages.tests')->name('tests');
 Route::redirect('/home', '/admin');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/outils-gratuits', [BlogController::class, 'freeTools'])->name('free-tools.index');
@@ -73,6 +78,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/content', ContentStudio::class)->name('admin.content');
     Route::get('/audits', PrePublishAudits::class)->name('admin.audits');
     Route::get('/seo-intelligence', SeoIntelligence::class)->name('admin.seo-intelligence');
+    Route::get('/newsletter', \App\Livewire\Admin\NewsletterSubscribers::class)->name('admin.newsletter');
     Route::get('/articles', Articles::class)->name('admin.articles');
     Route::get('/articles/create', ArticleEditor::class)->name('admin.articles.create');
     Route::get('/articles/{article}/preview', [BlogController::class, 'preview'])->name('admin.articles.preview');
