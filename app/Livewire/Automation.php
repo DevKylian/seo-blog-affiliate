@@ -21,6 +21,7 @@ use App\Services\SemrushCsvImporter;
 use App\Services\SourceCrawlWorkerLauncher;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
