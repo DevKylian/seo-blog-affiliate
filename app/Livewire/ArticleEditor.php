@@ -125,8 +125,8 @@ class ArticleEditor extends Component
             'scheduledAt' => ['nullable', 'date'],
             'toolIds' => ['array'],
             'toolIds.*' => ['exists:seo_projects,id'],
-            'contentAngle' => ['nullable', 'string', 'max:150'],
-            'editorialAudience' => ['nullable', 'string', 'max:150'],
+            'contentAngle' => ['nullable', 'string', 'max:1000'],
+            'editorialAudience' => ['nullable', 'string', 'max:1000'],
             'uniquePromise' => ['nullable', 'string', 'max:1000'],
             'excludedTopicsText' => ['nullable', 'string', 'max:3000'],
         ]);
