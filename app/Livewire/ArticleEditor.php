@@ -252,6 +252,14 @@ class ArticleEditor extends Component
         $this->message = $action.' et version archivée.'.$warning;
     }
 
+    public function regenerateThumbnail(\App\Services\BlogThumbnailService $thumbnailService)
+    {
+        if ($this->article) {
+            $thumbnailService->ensureForArticle($this->article, true);
+            $this->message = "Miniature régénérée avec succès !";
+        }
+    }
+
     public function render()
     {
         return view('livewire.article-editor', [
