@@ -221,7 +221,7 @@ h1, h2, h3, h4, .font-heading {
 }
 .home-software-card {
   display: grid;
-  grid-template-columns: 48px 1fr auto;
+  grid-template-columns: 1fr auto;
   align-items: center;
   gap: 24px;
   background: var(--home-surface);

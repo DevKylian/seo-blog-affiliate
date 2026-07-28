@@ -69,18 +69,17 @@ Stratégie de portefeuille : {$strategy}
 ATTENTION CRITIQUE - INTERDICTION D'INVENTER DES LOGICIELS : 
 Tu as l'interdiction formelle et absolue d'inventer des noms de logiciels. Ne génère JAMAIS de faux outils (comme "AccountPro Cloud", "ComptaFacile", etc.). Base-toi STRICTEMENT et UNIQUEMENT sur les logiciels cités dans les "Sujets Stratégiques" ou ceux qui sont des outils réels et extrêmement connus du marché français. TOUTE INVENTION de logiciel entraînera le rejet de ta réponse.
 
-GARDE-FOUS ET PÉRIMÈTRE DU SITE (BUSINESSKIT) - RÈGLES DE REJET STRICTES :
-Ton algorithme de décision interne DOIT filtrer la liste des mots-clés disponibles. Tu as beaucoup plus de mots-clés que d'idées à générer.
-Filtre 1 : Est-ce que ça parle d’un outil / service professionnel ou financier ?
-Filtre 2 : Est-ce que ça cible explicitement les indépendants, freelances, ou TPE ?
-Filtre 3 : Est-ce que ça s’insère dans un pilier existant (Comptabilité, Facturation, Banque Pro, Signature électronique, Création d'entreprise) ?
-Filtre 4 : Est-ce une vraie intention de recherche métier, ou juste une proximité lexicale ?
-=> Si la réponse est NON au filtre 2 ou 3, TU DOIS IGNORER SILENCIEUSEMENT ce mot-clé. Ne l'utilise pas du tout. Passe au mot-clé suivant dans la liste.
+GARDE-FOUS ET PÉRIMÈTRE DU SITE (BUSINESSKIT) - RÈGLES DE REJET STRICTES (LISTE BLANCHE UNIQUEMENT) :
+Ton algorithme de décision interne DOIT IMPÉRATIVEMENT filtrer la liste des mots-clés disponibles selon cette liste blanche stricte.
+Le sujet du mot-clé DOIT obligatoirement faire partie d'une de ces catégories (niche Indy) :
+1. Comptabilité & Liasse Fiscale
+2. Facturation & Devis
+3. Création d'entreprise & Statuts juridiques
+4. Compte Bancaire Professionnel (exclusivité bancaire)
 
-Interdiction formelle de générer des pages sur des entités hors-scope :
-- Rejet immédiat : LeBonCoin, Vinted, Facebook Marketplace, Orange, EDF, Pro BTP, Hub Pro Transport, plateformes d'annonces, immobilier, emploi, automobile, e-commerce grand public. IGNORE CES MOTS-CLÉS.
-- Cas du mot-clé ambigu "compte pro" : Il DOIT être interprété comme "compte bancaire professionnel". Ne génère JAMAIS d'idée type "compte pro LeBonCoin" ou "compte pro annonceur". Reste sur Qonto, Shine, Indy, Finom, Blank, etc.
-Interdiction de faire des détournements vers des marques hors périmètre, même si elles contiennent le mot-clé cible.
+=> Si un mot-clé (même s'il contient le mot "pro" ou "entreprise") traite d'un autre sujet technique, commercial, énergétique, transport, emploi ou métier qui ne rentre pas dans ces 4 catégories, TU DOIS LE REJETER.
+Tu as le droit (et même l'obligation) de générer MOINS d'idées que les {$desiredCount} demandées si les mots-clés restants sont hors-sujet. Il vaut mieux 3 excellentes idées parfaitement ciblées que 10 idées hors-sujet. Ne force jamais la génération.
+Le mot "compte pro" doit TOUJOURS désigner un compte bancaire (ex: Qonto, Shine, Indy), jamais un compte client sur une plateforme tierce.
 
 ATTENTION : Tu as deux sources pour générer tes idées :
 1. "Sujets Stratégiques (Knowledge Graph)" : Ce sont les idées fondatrices (Piliers, Comparatifs, Alternatives). Tu DOIS traiter en priorité ces sujets car ils ont une très haute valeur métier.
@@ -93,7 +92,7 @@ LANGUE FRANÇAISE
 
 {$competitorDirective}
 
-Pour chaque idée, fournis un brief autonome, classé par niveau de roadmap : source_keyword_id, title, primary_keyword, entity, topic, intent, angle, audience, problem, expected_outcome, funnel_stage, unique_promise, excluded_topics, outline, content_type, roadmap_level, call_to_action, lsi_keywords, people_also_ask, tone_of_voice, schema_org, internal_links_strategy.
+Pour chaque idée, fournis un brief autonome, classé par niveau de roadmap : source_keyword_id, title, primary_keyword, entity, topic, intent, angle, audience, problem, expected_outcome, funnel_stage, unique_promise, excluded_topics, outline, content_type, roadmap_level, call_to_action, conversion_goal, lsi_keywords, people_also_ask, tone_of_voice, schema_org, internal_links_strategy.
 
 ORDRE DE PRIORITÉ ABSOLU ET RÈGLES DE SILOING
 1. Piliers d'abord : Priorise TOUJOURS les pages piliers (Level 1 - Pillar) avant les contenus secondaires. Ce sont les fondations du site.
@@ -121,6 +120,13 @@ RÈGLES BLOQUANTES DE STRUCTURATION
 - COHÉRENCE DES ENTITÉS : Respecte la nature réelle des outils. Par exemple, Indy et Freebe sont des logiciels de facturation/compta, ce ne sont PAS des "comptes pros" au sens bancaire.
 - SIMPLICITÉ ET CIBLAGE : Ne crée pas de sujets trop artificiels. Crée des silos étanches : une page pour la compta, une page pour la signature, etc.
 - ANTI-HALLUCINATION STRICTE : N'invente JAMAIS de nom de logiciel, module ou outil fictif (ex: "FinanceCore Module"). Si tu dois citer un outil, utilise EXCLUSIVEMENT des logiciels réels et connus (ex: Indy, Qonto, Pennylane, Freebe, Abby, Shine). Toute invention de marque est formellement interdite.
+- OBJECTIF DE CONVERSION (conversion_goal) : Tu dois OBLIGATOIREMENT définir le but commercial de la page. Les seules valeurs possibles sont :
+  * 'create_company' : Pour les requêtes liées à la création d'entreprise (SASU, micro-entreprise, etc).
+  * 'invoice' : Pour la facturation, les devis, la relance d'impayés.
+  * 'account' : Pour le choix d'un compte bancaire professionnel.
+  * 'accounting' : Pour la gestion de la comptabilité, déclaration TVA, liasse fiscale.
+  * 'plus', 'micro' : Pour les plans spécifiques d'Indy.
+  * 'general' : Pour tout ce qui ne rentre pas dans les cases ci-dessus (marketing, productivité, etc).
 - Comparison : nomme explicitement les deux solutions dans le titre avec « X vs Y » et prévois au moins 2 solutions concurrentielles dans le plan.
 - Alternatives : le titre part explicitement du produit cible ou d'un concurrent sous la forme « Alternatives à X… ».
 
@@ -245,6 +251,7 @@ PROMPT;
                             'content_type' => ['type' => 'string', 'enum' => ['informational', 'tool_review', 'pricing', 'comparison', 'alternatives', 'best_tools']],
                             'roadmap_level' => ['type' => 'string', 'enum' => ['Level 1 - Pillar', 'Level 2 - Commercial', 'Level 3 - Long Tail', 'Level 4 - FAQ', 'Level 5 - Comparatifs', 'Level 6 - Alternatives', 'Level 7 - Tutoriels']],
                             'call_to_action' => $string,
+                            'conversion_goal' => ['type' => 'string', 'enum' => ['create_company', 'invoice', 'account', 'accounting', 'plus', 'micro', 'general']],
                             'lsi_keywords' => [
                                 'type' => 'array',
                                 'items' => $string,
@@ -257,7 +264,7 @@ PROMPT;
                             'schema_org' => $string,
                             'internal_links_strategy' => $string,
                         ],
-                        'required' => ['source_keyword_id', 'title', 'primary_keyword', 'entity', 'topic', 'intent', 'angle', 'audience', 'problem', 'expected_outcome', 'funnel_stage', 'unique_promise', 'excluded_topics', 'outline', 'content_type', 'roadmap_level', 'call_to_action', 'lsi_keywords', 'people_also_ask', 'tone_of_voice', 'schema_org', 'internal_links_strategy'],
+                        'required' => ['source_keyword_id', 'title', 'primary_keyword', 'entity', 'topic', 'intent', 'angle', 'audience', 'problem', 'expected_outcome', 'funnel_stage', 'unique_promise', 'excluded_topics', 'outline', 'content_type', 'roadmap_level', 'call_to_action', 'conversion_goal', 'lsi_keywords', 'people_also_ask', 'tone_of_voice', 'schema_org', 'internal_links_strategy'],
                         'additionalProperties' => false,
                     ],
                 ],

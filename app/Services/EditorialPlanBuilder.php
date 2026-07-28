@@ -488,6 +488,7 @@ final class EditorialPlanBuilder
             'excluded_topics' => $blueprint['excluded_topics'],
             'outline' => $blueprint['outline'],
             'roadmap_level' => $raw['roadmap_level'] ?? null,
+            'conversion_goal' => $raw['conversion_goal'] ?? 'general',
             'brief_details' => [
                 'call_to_action' => $raw['call_to_action'] ?? null,
                 'lsi_keywords' => $raw['lsi_keywords'] ?? [],

@@ -33,6 +33,10 @@ class Keywords extends Component
 
     public string $error = '';
 
+    public array $rejectedKeywords = [];
+
+    public bool $showCleaningConfirmation = false;
+
     public function mount(): void
     {
         $this->projectId = SeoProject::query()->value('id');
@@ -97,6 +101,65 @@ class Keywords extends Component
         } catch (Throwable $exception) {
             $this->error = $exception->getMessage();
         }
+    }
+
+    public function analyzeForCleaning(\App\Services\GeminiKeywordSanitizer $sanitizer): void
+    {
+        set_time_limit(180);
+        $this->message = '';
+        $this->error = '';
+        $this->rejectedKeywords = [];
+        
+        $ids = array_intersect($this->normalizedSelectedIds(), $this->bulkSelectionIds());
+        if (empty($ids)) {
+            $ids = $this->bulkSelectionIds();
+        }
+
+        if (empty($ids)) {
+            $this->error = 'Aucun mot-clé à analyser.';
+            return;
+        }
+
+        $keywords = Keyword::query()->whereIn('id', $ids)->get();
+        $keywordStrings = $keywords->pluck('keyword')->all();
+
+        try {
+            $approved = $sanitizer->sanitize($keywordStrings);
+            $approvedSet = array_flip($approved);
+            
+            foreach ($keywords as $kw) {
+                if (!isset($approvedSet[$kw->keyword])) {
+                    $this->rejectedKeywords[] = ['id' => $kw->id, 'keyword' => $kw->keyword];
+                }
+            }
+
+            if (empty($this->rejectedKeywords)) {
+                $this->message = 'L\'IA a analysé les mots-clés et n\'a trouvé aucun hors-sujet !';
+            } else {
+                $this->showCleaningConfirmation = true;
+            }
+        } catch (Throwable $exception) {
+            $this->error = $exception->getMessage();
+        }
+    }
+
+    public function confirmCleaning(): void
+    {
+        $ids = array_column($this->rejectedKeywords, 'id');
+        if (!empty($ids)) {
+            $count = Keyword::query()->whereIn('id', $ids)->delete();
+            $this->message = "{$count} mot(s)-clé(s) hors-sujet supprimé(s) avec succès.";
+        }
+        
+        $this->resetBulkSelection();
+        $this->cancelCleaning();
+        $this->resetPage();
+    }
+
+    public function cancelCleaning(): void
+    {
+        $this->showCleaningConfirmation = false;
+        $this->rejectedKeywords = [];
     }
 
     public function deleteSelected(): void

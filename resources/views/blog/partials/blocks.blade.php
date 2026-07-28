@@ -26,7 +26,7 @@
                             <li><i>✓</i> Version gratuite disponible</li>
                         </ul>
                     </div>
-                    <a class="premium-cta-indy__button" href="{{ app(\App\Services\AffiliateBlockService::class)->trackedUrl($article, $affiliateBlock->exists ? $affiliateBlock : null, $position) }}" rel="sponsored nofollow">🎁 Créer mon compte gratuit</a>
+                    <x-dynamic-cta :goal="$article->conversion_goal" class="premium-cta-indy__button" />
                 </aside>
             @else
                 @php

@@ -67,7 +67,7 @@ final class InternalLinkService
 
         return $suggestions
             ->concat($this->youngBlogFallbacks($project))
-            ->unique(fn (array $target) => $target['url'] ?? $target['article']?->public_url)
+            ->unique(fn (array $target) => $target['url'] ?? $target['article']?->public_path)
             ->take($limit)
             ->values();
     }
@@ -84,7 +84,7 @@ final class InternalLinkService
                 'article' => null,
                 'anchor' => 'nos guides '.mb_strtolower($category->name),
                 'title' => 'Guides '.$category->name,
-                'url' => route('blog.show', $category->slug),
+                'url' => route('blog.show', $category->slug, false),
                 'score' => 0.0,
                 'role' => 'contextual',
             ]);
@@ -94,7 +94,7 @@ final class InternalLinkService
                 'article' => null,
                 'anchor' => 'les derniers guides du blog',
                 'title' => 'Blog et guides pratiques',
-                'url' => route('blog.index'),
+                'url' => route('blog.index', [], false),
                 'score' => 0.0,
                 'role' => 'pillar',
             ],
@@ -102,7 +102,7 @@ final class InternalLinkService
                 'article' => null,
                 'anchor' => 'la fiche complète de '.$project->name,
                 'title' => 'Présentation de '.$project->name,
-                'url' => route('tools.show', $project->slug),
+                'url' => route('tools.show', $project->slug, false),
                 'score' => 0.0,
                 'role' => 'conversion',
             ],
@@ -110,7 +110,7 @@ final class InternalLinkService
                 'article' => null,
                 'anchor' => 'le catalogue des logiciels analysés',
                 'title' => 'Tous les outils analysés',
-                'url' => route('tools.index'),
+                'url' => route('tools.index', [], false),
                 'score' => 0.0,
                 'role' => 'complementary',
             ],

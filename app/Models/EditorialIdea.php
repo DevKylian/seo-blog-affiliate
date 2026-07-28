@@ -69,6 +69,7 @@ class EditorialIdea extends Model
             'roadmap_level' => $this->roadmap_level,
             'brief_details' => $this->brief_details ?? [],
             'fingerprint' => $this->fingerprint,
+            'conversion_goal' => $this->conversion_goal ?? 'general',
         ];
     }
 }

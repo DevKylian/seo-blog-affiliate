@@ -9,13 +9,10 @@ use App\Livewire\Articles;
 use App\Livewire\Auth\Login;
 use App\Livewire\Automation;
 use App\Livewire\ContentSchedulerDashboard;
-use App\Livewire\ContentStudio;
 use App\Livewire\Dashboard;
 use App\Livewire\Keywords;
-use App\Livewire\PrePublishAudits;
 use App\Livewire\Projects;
 use App\Livewire\Research;
-use App\Livewire\SeoIntelligence;
 use App\Livewire\Settings;
 use App\Services\DevGenerationCircuitBreaker;
 use Illuminate\Support\Facades\Auth;
@@ -55,6 +52,9 @@ Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/go/{project:slug}', AffiliateRedirectController::class)->name('affiliate.redirect');
 Route::get('/indexnow/{key}.txt', IndexNowKeyController::class)->where('key', '[A-Za-z0-9_-]{8,128}')->name('indexnow.key');
 Route::get('/sitemap.xml', [BlogController::class, 'sitemap'])->name('sitemap');
+Route::get('/sitemap{any}.xml', function () {
+    return redirect()->route('sitemap', [], 301);
+})->where('any', '.*');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', Login::class)->name('login');
@@ -75,9 +75,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/projects', Projects::class)->name('admin.projects');
     Route::get('/research', Research::class)->name('admin.research');
     Route::get('/keywords', Keywords::class)->name('admin.keywords');
-    Route::get('/content', ContentStudio::class)->name('admin.content');
-    Route::get('/audits', PrePublishAudits::class)->name('admin.audits');
-    Route::get('/seo-intelligence', SeoIntelligence::class)->name('admin.seo-intelligence');
     Route::get('/newsletter', \App\Livewire\Admin\NewsletterSubscribers::class)->name('admin.newsletter');
     Route::get('/articles', Articles::class)->name('admin.articles');
     Route::get('/articles/create', ArticleEditor::class)->name('admin.articles.create');
@@ -85,7 +82,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/articles/{article}/edit', ArticleEditor::class)->name('admin.articles.edit');
     Route::get('/settings', Settings::class)->name('admin.settings');
     Route::get('/access-logs', AccessLogs::class)->name('admin.logs');
-    Route::get('/seo-engine', \App\Livewire\SeoEngine\SeoAuthorityEngine::class)->name('admin.seo-engine');
     Route::post('/dev/stop-generations', function (DevGenerationCircuitBreaker $breaker) {
         abort_unless(app()->isLocal(), 404);
 

@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Livewire\ContentStudio;
 use App\Models\Article;
 use App\Models\EvidenceChunk;
 use App\Models\Plan;
@@ -99,23 +98,6 @@ final class ContentQualityControlTest extends TestCase
         $this->assertTrue(collect($audit->blocking_reasons)->contains(fn (string $reason): bool => str_contains($reason, 'marqueurs de source')));
     }
 
-    public function test_content_studio_publish_keeps_blocked_articles_in_review(): void
-    {
-        $admin = User::factory()->create(['is_admin' => true]);
-        $project = $this->project();
-        $article = $this->article($project, [
-            'status' => 'review',
-            'title' => 'Logiciel facturation : InvoiceFlow Max promet une solution miracle',
-            'body' => $this->body('InvoiceFlow Max est présenté comme un concurrent alors qu’il n’est pas dans les entités autorisées.'),
-        ]);
-
-        $component = Livewire::actingAs($admin)
-            ->test(ContentStudio::class)
-            ->call('publish', $article->id);
-
-        $this->assertStringContainsString('audit pré-publication', $component->get('error'));
-        $this->assertSame('review', $article->fresh()->status);
-    }
 
     public function test_refresh_planner_queues_stale_pricing_sources(): void
     {

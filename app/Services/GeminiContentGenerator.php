@@ -622,6 +622,7 @@ TEXT;
             'body' => (string) $data['body'],
             'excerpt' => mb_substr((string) ($data['meta_description'] ?? ''), 0, 500),
             'search_intent' => $blueprint['intent'],
+            'conversion_goal' => $blueprint['conversion_goal'] ?? 'general',
             'author_id' => auth()->id(),
             'content_blocks' => $this->contentBlocks($project, (string) $data['body'], $verificationDate, $type, $keyword),
             'source_ids' => $sourceIds,
@@ -1170,7 +1171,7 @@ PROMPT;
                 $index + 1,
                 $role,
                 $suggestion['title'] ?? $target?->title,
-                $suggestion['url'] ?? $target?->public_url,
+                $suggestion['url'] ?? $target?->public_path,
             );
         })->implode("\n");
         $expected = $suggestions->count();

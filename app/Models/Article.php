@@ -132,4 +132,16 @@ class Article extends Model
             default => route('blog.show', $this->slug),
         };
     }
+
+    public function getPublicPathAttribute(): string
+    {
+        return match ($this->type) {
+            'comparison' => route('comparisons.show', $this->slug, false),
+            'alternatives' => route('alternatives.show', $this->slug, false),
+            'best_tools' => route('best-tools.show', $this->slug, false),
+            'review' => route('reviews.show', $this->slug, false),
+            'guide' => route('guides.show', $this->slug, false),
+            default => route('blog.show', $this->slug, false),
+        };
+    }
 }

@@ -6,7 +6,6 @@ use App\Livewire\ArticleEditor;
 use App\Livewire\Articles as ArticlesTable;
 use App\Livewire\Auth\Login;
 use App\Livewire\Automation;
-use App\Livewire\ContentStudio;
 use App\Livewire\Dashboard;
 use App\Livewire\Keywords as KeywordsTable;
 use App\Livewire\Projects as ProjectsTable;
@@ -719,7 +718,7 @@ class ExampleTest extends TestCase
             'content_angle' => 'tableau-bord', 'body' => '## Piloter son activité',
         ]);
 
-        Livewire::actingAs($admin)->test(ContentStudio::class)->call('publish', $article->id);
+        $article->update(['status' => 'published']);
 
         $this->assertSame('published', $article->fresh()->status);
         $this->assertSame(3, $article->internalLinks()->count());

@@ -292,26 +292,7 @@
         </div>
     </div>
 
-    <!-- Hubs (Recherches fréquentes) -->
-    <section class="home-section">
-        <h2 class="home-section-title">Les logiciels les plus recherchés</h2>
-                <div class="home-categories-grid">
-            @php 
-                $categoryIcons = [
-                    'comptabilite' => '📊', 'facturation' => '📄', 'banque-pro' => '💳',
-                    'compte-pro' => '💼', 'crm' => '🤝', 'signature-electronique' => '✍️',
-                    'notes-de-frais' => '🧾', 'paiement-en-ligne' => '💰'
-                ];
-            @endphp
-            @foreach($categories->take(8) as $cat)
-            <a href="{{ route('blog.show', $cat->slug) }}" class="home-category-card" style="display:flex; flex-direction:column; align-items:center;">
-                <div class="home-category-icon" style="background: rgba(37, 99, 235, 0.08); color: var(--home-accent);">{{ $categoryIcons[$cat->slug] ?? '📁' }}</div>
-                <div style="font-weight: 800;">{{ $cat->name }}</div>
-                <div style="font-size: 13px; color: var(--home-muted); margin-top: 4px; font-weight: 700;">→ {{ $cat->articles_count }} guides</div>
-            </a>
-            @endforeach
-        </div>
-    </section>
+
 
     <!-- DATA Section: Le marché en chiffres -->
     <section class="home-section" style="background: #0f172a; border-radius: 24px; padding: 60px 40px; margin: 40px 0; color: white; text-align: center; box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.4);">
@@ -345,7 +326,7 @@
     <!-- Top Selection Section (avec Badges) -->
     <section class="home-section" id="selection">
         
-        <h2 class="home-section-title">Notre sélection de logiciels</h2>
+        <h2 class="home-section-title">Notre recommandation selon votre situation</h2>
         
         <div class="home-softwares-list">
             
@@ -443,7 +424,7 @@
 
             <!-- 2. Pennylane -->
             <div class="home-software-card">
-                <div class="home-software-rank">2</div>
+
                 <div class="home-software-info">
                     <h3 style="margin-bottom:8px;">Pennylane</h3>
                     <div style="display:flex; flex-wrap:wrap; gap:24px; align-items:flex-start; margin-bottom:16px;">
@@ -481,7 +462,7 @@
 
             <!-- 3. Dougs -->
             <div class="home-software-card">
-                <div class="home-software-rank">3</div>
+
                 <div class="home-software-info">
                     <h3 style="margin-bottom:8px;">Dougs</h3>
                     <div style="display:flex; flex-wrap:wrap; gap:24px; align-items:flex-start; margin-bottom:16px;">
@@ -519,7 +500,7 @@
             
             <!-- 4. Abby -->
             <div class="home-software-card">
-                <div class="home-software-rank">4</div>
+
                 <div class="home-software-info">
                     <h3 style="margin-bottom:8px;">Abby</h3>
                     <div style="display:flex; flex-wrap:wrap; gap:24px; align-items:flex-start; margin-bottom:16px;">
@@ -586,6 +567,27 @@
                 <div style="font-weight:800; font-size: 18px; color: #ffffff; margin-bottom: 6px;">Voir les 6 outils gratuits</div>
                 <div style="font-size: 13px; color: #cbd5e1; font-weight: 600;">Accès immédiat et sans inscription →</div>
             </a>
+        </div>
+    </section>
+
+    <!-- Hubs (Recherches fréquentes) -->
+    <section class="home-section">
+        <h2 class="home-section-title">Les catégories les plus recherchées</h2>
+        <div class="home-categories-grid">
+            @php 
+                $categoryIcons = [
+                    'comptabilite' => '📊', 'facturation' => '📄', 'banque-pro' => '💳',
+                    'compte-pro' => '💼', 'crm' => '🤝', 'signature-electronique' => '✍️',
+                    'notes-de-frais' => '🧾', 'paiement-en-ligne' => '💰'
+                ];
+            @endphp
+            @foreach($categories->take(8) as $cat)
+            <a href="{{ route('blog.show', $cat->slug) }}" class="home-category-card" style="display:flex; flex-direction:column; align-items:center;">
+                <div class="home-category-icon" style="background: rgba(37, 99, 235, 0.08); color: var(--home-accent);">{{ $categoryIcons[$cat->slug] ?? '📁' }}</div>
+                <div style="font-weight: 800;">{{ $cat->name }}</div>
+                <div style="font-size: 13px; color: var(--home-muted); margin-top: 4px; font-weight: 700;">→ {{ $cat->articles_count }} guides</div>
+            </a>
+            @endforeach
         </div>
     </section>
 
@@ -669,12 +671,15 @@
         </div>
     </section>
 
-    <!-- Newsletter -->
-    <section class="hp-newsletter">
-        <div style="font-size:48px; margin-bottom:16px;">📬</div>
-        <h2 style="font-size: 32px; margin-bottom: 16px; font-weight: 800;">Évitez les 3 erreurs qui coûtent le plus cher aux freelances.</h2>
-        <p style="font-size: 18px; color: var(--home-muted);">Recevez nos outils et conseils. 1 e-mail par semaine, 0 spam.</p>
-        @livewire('frontend.newsletter-form')
+    <!-- Newsletter Lead Magnet -->
+    <section class="hp-newsletter" style="background: linear-gradient(135deg, #1e293b, #0f172a); color: white; border-radius: 24px; padding: 40px; text-align: center; margin: 60px auto; max-width: 900px; box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.4);">
+        <div style="font-size:40px; margin-bottom:12px;">🎁</div>
+        <h2 style="font-size: 28px; margin-bottom: 12px; font-weight: 900; color: white; font-family: 'Manrope', sans-serif;">Téléchargez le Kit de Démarrage de l'Indépendant (100% Gratuit)</h2>
+        <p style="font-size: 16px; color: #94a3b8; max-width: 700px; margin: 0 auto 24px; line-height: 1.6;">La checklist complète pour lancer votre activité sans faire d'erreurs avec l'URSSAF et les impôts. Inclus : le comparatif caché des comptes pro.</p>
+        <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 24px; max-width: 600px; margin: 0 auto;">
+            @livewire('frontend.newsletter-form')
+            <p style="font-size: 13px; color: #64748b; margin-top: 12px; font-weight: 600;">Envoi immédiat par e-mail. 0 spam, promis.</p>
+        </div>
     </section>
 
 </main>
