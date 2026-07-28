@@ -3,12 +3,16 @@
 @section('title', $article->meta_title ?: $article->title)
 @section('description', $article->meta_description ?: $article->excerpt ?: 'Analyse logicielle vérifiée par BusinessKit.')
 @section('canonical', $article->canonical_url ?: $article->public_url)
+@section('og_image', route('og-image', $article->id))
 
 @push('head')
 <script type="application/ld+json">{!! json_encode(app(\App\Services\StructuredDataService::class)->article($article), JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) !!}</script>
 @endpush
 
 @section('content')
+<div class="article-hero" style="margin-bottom: 2rem;">
+    <img src="{{ route('og-image', $article->id) }}" alt="{{ $article->title }}" style="width: 100%; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: block;" loading="eager">
+</div>
 @php
     $articleBlocks = collect($article->content_blocks ?: [['type' => 'markdown', 'content' => $article->body]]);
 

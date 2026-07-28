@@ -50,6 +50,7 @@ Route::get('/avis/{slug}', [BlogController::class, 'review'])->name('reviews.sho
 Route::get('/guides/{slug}', [BlogController::class, 'guide'])->name('guides.show');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/go/{project:slug}', AffiliateRedirectController::class)->name('affiliate.redirect');
+Route::get('/og-image/{article}.png', [\App\Http\Controllers\OgImageController::class, 'show'])->name('og-image');
 Route::get('/indexnow/{key}.txt', IndexNowKeyController::class)->where('key', '[A-Za-z0-9_-]{8,128}')->name('indexnow.key');
 Route::get('/sitemap.xml', [BlogController::class, 'sitemap'])->name('sitemap');
 Route::get('/sitemap{any}.xml', function () {
