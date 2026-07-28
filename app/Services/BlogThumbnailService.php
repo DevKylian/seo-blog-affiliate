@@ -15,7 +15,7 @@ class BlogThumbnailService
 
     public function directory(): string
     {
-        return public_path('blog-thumbnails');
+        return storage_path('app/public/blog-thumbnails');
     }
 
     public function absolutePath(string $slug): string
@@ -32,7 +32,7 @@ class BlogThumbnailService
     {
         $path = $this->absolutePath($slug);
         if (is_file($path) && filesize($path) > 100) {
-            return asset('blog-thumbnails/' . $slug . '.png');
+            return asset('storage/blog-thumbnails/' . $slug . '.png');
         }
 
         return route('og-image', ['article' => $slug]);
