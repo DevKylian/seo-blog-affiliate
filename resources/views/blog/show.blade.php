@@ -12,12 +12,6 @@
 @section('content')
 <div class="article-hero" style="margin-bottom: 2rem;">
     <img src="{{ route('og-image', $article->id) }}" alt="{{ $article->title }}" style="width: 100%; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: block;" loading="eager">
-    @auth
-        <form action="{{ route('admin.articles.regenerate-thumbnail', $article) }}" method="POST" style="margin-top: 1rem; text-align: center;">
-            @csrf
-            <button type="submit" style="background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);" onclick="return confirm('Forcer la régénération de la miniature ?')">🔄 Régénérer la miniature</button>
-        </form>
-    @endauth
 </div>
 @php
     $articleBlocks = collect($article->content_blocks ?: [['type' => 'markdown', 'content' => $article->body]]);

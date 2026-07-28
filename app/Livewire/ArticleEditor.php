@@ -26,6 +26,8 @@ class ArticleEditor extends Component
 
     public string $title = '';
 
+    public ?string $thumbnailTitle = null;
+
     public string $slug = '';
 
     public string $excerpt = '';
@@ -81,6 +83,7 @@ class ArticleEditor extends Component
         foreach (['title', 'slug', 'excerpt', 'body', 'status', 'type'] as $field) {
             $this->{$field} = (string) $this->article->{$field};
         }
+        $this->thumbnailTitle = (string) $this->article->thumbnail_title;
         $this->body = app(GeneratedContentSanitizer::class)->stripSourceMarkers($this->body);
         $this->metaTitle = (string) $this->article->meta_title;
         $this->metaDescription = (string) $this->article->meta_description;
@@ -188,6 +191,7 @@ class ArticleEditor extends Component
             'meta_title' => $this->metaTitle ?: $this->title,
             'meta_description' => $this->metaDescription ?: $this->excerpt,
             'canonical_url' => $this->canonicalUrl ?: null,
+            'thumbnail_title' => $this->thumbnailTitle ?: null,
             'primary_keyword' => $this->primaryKeyword ?: null,
             'search_intent' => $this->searchIntent ?: null,
             ...$duplicates->articleFingerprintAttributes($blueprint),
@@ -255,8 +259,28 @@ class ArticleEditor extends Component
     public function regenerateThumbnail(\App\Services\BlogThumbnailService $thumbnailService)
     {
         if ($this->article) {
+            if (empty($this->thumbnailTitle)) {
+                $key = \App\Models\Setting::value('gemini_api_key', config('services.gemini.key'));
+                if ($key) {
+                    $response = \Illuminate\Support\Facades\Http::timeout(15)->withHeaders([
+                        'x-goog-api-key' => trim($key),
+                        'Content-Type' => 'application/json',
+                    ])->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', [
+                        'contents' => [['parts' => [['text' => "Résume ce titre en 7 mots MAXIMUM (très percutant) pour une miniature d'article : {$this->title}"]]]],
+                        'generationConfig' => ['temperature' => 0.2]
+                    ]);
+                    if ($response->successful()) {
+                        $text = $response->json('candidates.0.content.parts.0.text');
+                        if ($text) {
+                            $this->thumbnailTitle = trim(str_replace(['"', '*'], '', $text));
+                            $this->article->update(['thumbnail_title' => $this->thumbnailTitle]);
+                        }
+                    }
+                }
+            }
+
             $thumbnailService->ensureForArticle($this->article, true);
-            $this->message = "Miniature régénérée avec succès !";
+            $this->message = "Miniature régénérée avec succès par l'IA !";
         }
     }
 
