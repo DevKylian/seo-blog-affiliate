@@ -499,7 +499,9 @@ final class ContentScheduler
         if ($task->content_cluster_id && ! $article->content_cluster_id) {
             $article->update(['content_cluster_id' => $task->content_cluster_id]);
         }
-        if ($task->schedule->auto_publish) {
+        $shouldPublish = $task->schedule->auto_publish || ($task->scheduled_for && $task->scheduled_for->isPast());
+
+        if ($shouldPublish) {
             $audit = $this->audits->audit($article, ['auto_publish' => true]);
             if ($audit->status === 'blocked') {
                 $article->update([

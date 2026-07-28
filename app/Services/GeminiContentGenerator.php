@@ -606,6 +606,7 @@ TEXT;
             'intent_type' => $keyword?->intent_type ?: 'information',
             'affiliate_priority' => (float) ($keyword?->affiliate_priority ?? 0),
             'title' => mb_substr((string) $data['title'], 0, 255),
+            'thumbnail_title' => mb_substr((string) ($blueprint['thumbnail_title'] ?? ''), 0, 255) ?: null,
             'slug' => $slug,
             'status' => 'review',
             'primary_keyword' => $keyword?->keyword,

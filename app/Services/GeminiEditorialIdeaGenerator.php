@@ -120,6 +120,8 @@ RÈGLES BLOQUANTES DE STRUCTURATION
 - COHÉRENCE DES ENTITÉS : Respecte la nature réelle des outils. Par exemple, Indy et Freebe sont des logiciels de facturation/compta, ce ne sont PAS des "comptes pros" au sens bancaire.
 - SIMPLICITÉ ET CIBLAGE : Ne crée pas de sujets trop artificiels. Crée des silos étanches : une page pour la compta, une page pour la signature, etc.
 - ANTI-HALLUCINATION STRICTE : N'invente JAMAIS de nom de logiciel, module ou outil fictif (ex: "FinanceCore Module"). Si tu dois citer un outil, utilise EXCLUSIVEMENT des logiciels réels et connus (ex: Indy, Qonto, Pennylane, Freebe, Abby, Shine). Toute invention de marque est formellement interdite.
+- TITRE DE MINIATURE (thumbnail_title) : Résume le titre en 7 mots MAX (très percutant) pour la miniature (ex: "Meilleurs outils de compta 2024").
+- CALL TO ACTION : La phrase d'accroche pour la bannière commerciale (ex: "Créez votre micro-entreprise avec [Outil]").
 - OBJECTIF DE CONVERSION (conversion_goal) : Tu dois OBLIGATOIREMENT définir le but commercial de la page. Les seules valeurs possibles sont :
   * 'create_company' : Pour les requêtes liées à la création d'entreprise (SASU, micro-entreprise, etc).
   * 'invoice' : Pour la facturation, les devis, la relance d'impayés.
@@ -230,6 +232,7 @@ PROMPT;
                         'properties' => [
                             'source_keyword_id' => ['type' => 'integer'],
                             'title' => $string,
+                            'thumbnail_title' => $string,
                             'primary_keyword' => $string,
                             'entity' => $string,
                             'topic' => $string,
@@ -264,7 +267,7 @@ PROMPT;
                             'schema_org' => $string,
                             'internal_links_strategy' => $string,
                         ],
-                        'required' => ['source_keyword_id', 'title', 'primary_keyword', 'entity', 'topic', 'intent', 'angle', 'audience', 'problem', 'expected_outcome', 'funnel_stage', 'unique_promise', 'excluded_topics', 'outline', 'content_type', 'roadmap_level', 'call_to_action', 'conversion_goal', 'lsi_keywords', 'people_also_ask', 'tone_of_voice', 'schema_org', 'internal_links_strategy'],
+                        'required' => ['source_keyword_id', 'title', 'thumbnail_title', 'primary_keyword', 'entity', 'topic', 'intent', 'angle', 'audience', 'problem', 'expected_outcome', 'funnel_stage', 'unique_promise', 'excluded_topics', 'outline', 'content_type', 'roadmap_level', 'call_to_action', 'conversion_goal', 'lsi_keywords', 'people_also_ask', 'tone_of_voice', 'schema_org', 'internal_links_strategy'],
                         'additionalProperties' => false,
                     ],
                 ],

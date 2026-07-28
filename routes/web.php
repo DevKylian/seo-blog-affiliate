@@ -93,4 +93,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
             "Generations coupees : {$result['runs']} campagne(s), {$result['items']} contenu(s), {$result['tasks']} tache(s), {$result['plans']} plan(s), {$result['articles']} regeneration(s) article.",
         );
     })->name('admin.dev.stop-generations');
+
+    Route::post('/tools/{slug}/generate-comparisons', function (string $slug) {
+        \Illuminate\Support\Facades\Artisan::call('blog:generate-missing-comparisons', ['slug' => $slug]);
+        return back()->with('success', 'La génération des comparatifs a été lancée en tâche de fond !');
+    })->name('admin.tools.generate-comparisons');
 });

@@ -70,6 +70,7 @@ class EditorialIdea extends Model
             'brief_details' => $this->brief_details ?? [],
             'fingerprint' => $this->fingerprint,
             'conversion_goal' => $this->conversion_goal ?? 'general',
+            'thumbnail_title' => $this->thumbnail_title,
         ];
     }
 }

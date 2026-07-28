@@ -54,6 +54,9 @@
                     </form>
                 @endif
                 <span class="status-pill"><i></i> Système opérationnel</span>
+                <a href="{{ url('/') }}" target="_blank" style="margin: 0 15px; font-size: 13px; font-weight: 500; color: var(--admin-text-muted); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 4px; background: rgba(0,0,0,0.05);" onmouseover="this.style.background='rgba(0,0,0,0.1)'" onmouseout="this.style.background='rgba(0,0,0,0.05)'">
+                    Voir le site ↗
+                </a>
                 <div class="top-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
             </header>
             @if(session('dev_generation_stop'))

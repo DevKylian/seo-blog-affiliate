@@ -77,12 +77,9 @@ class BlogThumbnailService
         return $path;
     }
 
-    public function httpResponse(string $slug, string $title, string $category = 'BUSINESSKIT', ?string $excerpt = null, ?\DateTimeInterface $updatedAt = null): Response
+    public function httpResponse(string $slug, string $title, string $category = 'BUSINESSKIT', ?string $excerpt = null, ?\DateTimeInterface $updatedAt = null, ?string $thumbnailTitle = null): Response
     {
-        $path = $this->absolutePath($slug);
-        if (!$this->isFresh($path, $updatedAt)) {
-            $path = $this->ensure($slug, $title, $category, $excerpt, $updatedAt);
-        }
+        $path = $this->ensure($slug, $thumbnailTitle ?? $title, $category, $excerpt, $updatedAt);
         
         return response(file_get_contents($path), 200, [
             'Content-Type'  => 'image/png',
@@ -103,19 +100,18 @@ class BlogThumbnailService
         }
     }
 
-    public function ensureForArticle(Article $article, bool $force = false): string
+    public function ensureForArticle($article, bool $force = false): string
     {
+        $category = \Illuminate\Support\Str::upper($article->topic_key ?? 'BUSINESSKIT');
         if ($force) {
             $this->forget($article->slug);
         }
 
-        $subtitle = $article->topic_key ? Str::title(str_replace('_', ' ', $article->topic_key)) . ' — 100% gratuit.' : 'Comparatifs, tests et guides — 100% gratuit.';
-
         return $this->ensure(
             $article->slug,
-            $article->title,
-            'BUSINESSKIT',
-            $subtitle,
+            $article->thumbnail_title ?? $article->title,
+            $category,
+            null,
             $article->updated_at
         );
     }
@@ -171,7 +167,7 @@ class BlogThumbnailService
   <rect width="1200" height="630" fill="url(#bottom-glow)"/>
 
   <!-- Document / Note watermark (Clean & Pro) -->
-  <g transform="translate(850, 40) scale(20)" opacity="0.12"
+  <g transform="translate(750, 40) scale(20)" opacity="0.12"
      fill="none" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
     <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
     <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
@@ -179,10 +175,6 @@ class BlogThumbnailService
     <path d="M16 13H8"/>
     <path d="M16 17H8"/>
   </g>
-
-  <!-- Branding top-left -->
-  <text x="72" y="90" fill="rgba(255,255,255,0.55)" font-size="22" font-weight="700"
-        font-family="'Helvetica Neue', Arial, sans-serif" letter-spacing="2">BUSINESSKIT</text>
 
   <!-- Category pill -->
   <rect x="68" y="112" width="{$pillW}" height="34" rx="17" fill="rgba(255,255,255,0.18)"/>

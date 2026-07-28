@@ -475,6 +475,7 @@ final class EditorialPlanBuilder
             'content_cluster_id' => $keyword?->content_cluster_id,
             'closest_article_id' => $decision['closest_article_id'] ?? null,
             'title' => mb_substr(trim((string) ($raw['title'] ?? $blueprint['unique_promise'])), 0, 255),
+            'thumbnail_title' => mb_substr(trim((string) ($raw['thumbnail_title'] ?? '')), 0, 255) ?: null,
             'primary_keyword' => mb_substr((string) ($keyword?->keyword ?: $blueprint['primary_keyword']), 0, 255),
             'entity_key' => $blueprint['entity'],
             'topic_key' => $blueprint['topic'],
