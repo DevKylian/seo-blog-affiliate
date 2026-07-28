@@ -151,9 +151,9 @@ class BlogThumbnailService
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1d4ed8"/>
-      <stop offset="70%" stop-color="#2563eb"/>
-      <stop offset="100%" stop-color="#bfdbfe"/>
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="60%" stop-color="#1e3a8a"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
     </linearGradient>
     <linearGradient id="bottom-glow" x1="0%" y1="100%" x2="0%" y2="0%">
       <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28"/>

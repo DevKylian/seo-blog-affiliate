@@ -10,8 +10,8 @@
 @endpush
 
 @section('content')
-<div class="article-hero" style="margin-bottom: 2rem;">
-    <img src="{{ route('og-image', $article->id) }}" alt="{{ $article->title }}" style="width: 100%; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: block;" loading="eager">
+<div class="article-hero-image" style="margin-bottom: 3rem; display: flex; justify-content: center; padding: 0 20px;">
+    <img src="{{ route('og-image', $article->id) }}" alt="{{ $article->title }}" style="width: 100%; max-width: 800px; border-radius: 16px; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.15); display: block; border: 1px solid #e2e8f0;" loading="eager">
 </div>
 @php
     $articleBlocks = collect($article->content_blocks ?: [['type' => 'markdown', 'content' => $article->body]]);
