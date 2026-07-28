@@ -122,44 +122,72 @@ class BlogThumbnailService
 
     public function buildSvg(string $title, string $category = 'BUSINESSKIT', ?string $excerpt = null): string
     {
+        $category = mb_strtoupper($category ?: 'BUSINESSKIT');
+
         $titleLen = mb_strlen($title);
         $fontSize = $titleLen <= 30 ? 72 : ($titleLen <= 50 ? 62 : 52);
-        $maxChars = $titleLen <= 30 ? 20 : ($titleLen <= 50 ? 24 : 28);
-        $lineH    = (int) ($fontSize * 1.2);
+        $maxChars = $titleLen <= 30 ? 18 : ($titleLen <= 50 ? 22 : 26);
+        $lineH    = (int) ($fontSize * 1.18);
 
         $lines  = $this->wrapTitle($title, $maxChars);
         $nLines = count($lines);
-        $yStart = 280 - (($nLines - 1) * ($lineH / 2));
+        $yStart = self::HEIGHT - 200 - ($nLines - 1) * $lineH;
 
         $svgLines = '';
         foreach ($lines as $i => $line) {
             $y       = $yStart + $i * $lineH;
             $escaped = htmlspecialchars($line, ENT_XML1);
-            $svgLines .= "<text x=\"80\" y=\"{$y}\" fill=\"#ffffff\" font-size=\"{$fontSize}\" font-weight=\"700\" font-family=\"'Helvetica Neue', Arial, sans-serif\" letter-spacing=\"-0.5\">{$escaped}</text>\n  ";
+            $svgLines .= "<text x=\"72\" y=\"{$y}\" fill=\"#ffffff\" font-size=\"{$fontSize}\" font-weight=\"700\" font-family=\"'Arial Black', 'Helvetica Neue', Arial, sans-serif\" letter-spacing=\"-0.5\">{$escaped}</text>\n  ";
         }
 
         $excerptSvg = '';
-        if ($excerpt) {
-            $escapedEx = htmlspecialchars($excerpt, ENT_XML1);
-            $excerptY  = $yStart + (($nLines - 1) * $lineH) + $lineH + 20;
-            $excerptSvg = "<text x=\"80\" y=\"{$excerptY}\" fill=\"#b4bccc\" font-size=\"28\" font-family=\"'Helvetica Neue', Arial, sans-serif\">{$escapedEx}</text>";
+        if ($nLines === 1 && $excerpt) {
+            $short     = mb_strlen($excerpt) > 80 ? mb_substr($excerpt, 0, 77) . '…' : $excerpt;
+            $escapedEx = htmlspecialchars($short, ENT_XML1);
+            $excerptY  = $yStart + $lineH + 10;
+            $excerptSvg = "<text x=\"72\" y=\"{$excerptY}\" fill=\"rgba(255,255,255,0.72)\" font-size=\"28\" font-family=\"'Helvetica Neue', Arial, sans-serif\">{$escapedEx}</text>";
         }
+
+        $escapedCat = htmlspecialchars($category, ENT_XML1);
+        $pillW      = mb_strlen($category) * 12 + 32; // Simplified pill width
 
         return <<<SVG
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
-  <rect width="1200" height="630" fill="#171f2c"/>
-  
-  <!-- Clipboard watermark (Large outline on the right) -->
-  <g transform="translate(680, 50) scale(18)" stroke="rgba(255,255,255,0.08)" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <rect width="14" height="18" x="5" y="4" rx="2" ry="2"/>
-    <path d="M8 2h8v4H8z"/>
-    <path d="M9 10h6"/>
-    <path d="M9 14h6"/>
-    <path d="M9 18h4"/>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2251e0"/>
+      <stop offset="70%" stop-color="#4a7ef5"/>
+      <stop offset="100%" stop-color="#c8dcff"/>
+    </linearGradient>
+    <linearGradient id="bottom-glow" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28"/>
+      <stop offset="33%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <!-- Bottom white glow -->
+  <rect width="1200" height="630" fill="url(#bottom-glow)"/>
+
+  <!-- Document / Note watermark (Clean & Pro) -->
+  <g transform="translate(850, 40) scale(20)" opacity="0.12"
+     fill="none" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
+    <path d="M10 9H8"/>
+    <path d="M16 13H8"/>
+    <path d="M16 17H8"/>
   </g>
 
-  <text x="80" y="120" fill="#3b82f6" font-size="22" font-weight="700"
+  <!-- Branding top-left -->
+  <text x="72" y="90" fill="rgba(255,255,255,0.55)" font-size="22" font-weight="700"
         font-family="'Helvetica Neue', Arial, sans-serif" letter-spacing="2">BUSINESSKIT</text>
+
+  <!-- Category pill -->
+  <rect x="68" y="112" width="{$pillW}" height="34" rx="17" fill="rgba(255,255,255,0.18)"/>
+  <text x="84" y="135" fill="#ffffff" font-size="17" font-weight="700"
+        font-family="'Helvetica Neue', Arial, sans-serif" letter-spacing="1.5">{$escapedCat}</text>
 
   {$svgLines}
   {$excerptSvg}
