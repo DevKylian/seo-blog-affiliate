@@ -14,96 +14,78 @@ class OgImageController extends Controller
         $height = 630;
         $image = imagecreatetruecolor($width, $height);
 
-        // Background: Blue gradient
-        $colorStart = [59, 130, 246]; // #3b82f6
-        $colorEnd = [30, 58, 138]; // #1e3a8a
+        // Background: Dark navy (e.g., #171f2c)
+        $bg = imagecolorallocate($image, 23, 31, 44);
+        imagefill($image, 0, 0, $bg);
 
-        for ($y = 0; $y < $height; $y++) {
-            for ($x = 0; $x < $width; $x++) {
-                $factor = ($x + $y) / ($width + $height);
-                $r = $colorStart[0] + ($colorEnd[0] - $colorStart[0]) * $factor;
-                $g = $colorStart[1] + ($colorEnd[1] - $colorStart[1]) * $factor;
-                $b = $colorStart[2] + ($colorEnd[2] - $colorStart[2]) * $factor;
-                $color = imagecolorallocate($image, (int)$r, (int)$g, (int)$b);
-                imagesetpixel($image, $x, $y, $color);
-            }
-        }
+        // Colors
+        $white = imagecolorallocate($image, 255, 255, 255);
+        $grey = imagecolorallocate($image, 180, 188, 204);
+        $blue = imagecolorallocate($image, 59, 130, 246); // BusinessKit Blue
 
-        // Draw an abstract watermark shape (e.g. a shield or a large B) on the right
-        // We can draw some polygons to look like a shield
-        $watermarkColor = imagecolorallocatealpha($image, 255, 255, 255, 110); // Very transparent white
-        $shieldPoints = [
-            800, 100, // Top left
-            1100, 100, // Top right
-            1100, 400, // Bottom right (curve starts)
-            950, 550,  // Bottom middle (point)
-            800, 400,  // Bottom left
-        ];
-        // Draw lines manually for a thick stroke
-        imagesetthickness($image, 15);
-        imagepolygon($image, $shieldPoints, 5, $watermarkColor);
+        // Draw a large clipboard icon outline on the right
+        // The icon is drawn with thick white lines
+        imagesetthickness($image, 8);
+        $iconX = 750;
+        $iconY = 80;
+        $iconW = 350;
+        $iconH = 480;
+        
+        // Outer box
+        imagerectangle($image, $iconX, $iconY, $iconX + $iconW, $iconY + $iconH, $white);
+        
+        // The clip at the top
+        $clipW = 140;
+        $clipH = 40;
+        $clipX = $iconX + ($iconW / 2) - ($clipW / 2);
+        $clipY = $iconY - ($clipH / 2);
+        
+        // Clear the top border under the clip by drawing a thick background line
+        imagesetthickness($image, 12);
+        imageline($image, $clipX + 10, $iconY, $clipX + $clipW - 10, $iconY, $bg);
+        
+        // Draw the clip box
+        imagesetthickness($image, 8);
+        imagerectangle($image, $clipX, $clipY, $clipX + $clipW, $clipY + $clipH, $white);
+        // Clip detail (inner line)
+        imageline($image, $clipX + 20, $clipY + 20, $clipX + $clipW - 20, $clipY + 20, $white);
+        
+        // Horizontal lines inside the clipboard
+        $lineW = 200;
+        $lineX = $iconX + ($iconW / 2) - ($lineW / 2);
+        imageline($image, $lineX, $iconY + 160, $lineX + $lineW, $iconY + 160, $white);
+        imageline($image, $lineX, $iconY + 260, $lineX + $lineW, $iconY + 260, $white);
+        imageline($image, $lineX, $iconY + 360, $lineX + $lineW, $iconY + 360, $white);
+        
+        // Reset thickness
         imagesetthickness($image, 1);
 
-        $fontBoldSrc = realpath(resource_path('fonts/Inter-Bold.ttf'));
-        $fontMediumSrc = realpath(resource_path('fonts/Inter-Medium.ttf'));
-
-        // Workaround for Linux GD/FreeType strict permissions and open_basedir issues
-        $fontBold = sys_get_temp_dir() . '/Inter-Bold-' . md5_file($fontBoldSrc) . '.ttf';
-        $fontMedium = sys_get_temp_dir() . '/Inter-Medium-' . md5_file($fontMediumSrc) . '.ttf';
-        
-        if (!file_exists($fontBold)) @copy($fontBoldSrc, $fontBold);
-        if (!file_exists($fontMedium)) @copy($fontMediumSrc, $fontMedium);
+        // Fonts
+        $fontBold = resource_path('fonts/Inter-Bold.ttf');
+        $fontMedium = resource_path('fonts/Inter-Medium.ttf');
 
         if (!file_exists($fontBold) || !file_exists($fontMedium)) {
             abort(500, "Font files not readable or missing.");
         }
 
-        $white = imagecolorallocate($image, 255, 255, 255);
-        $pillBg = imagecolorallocatealpha($image, 255, 255, 255, 90); // Translucent white pill
-
         // Text variables
         $siteName = 'BUSINESSKIT';
-        $categoryName = Str::upper($article->topic_key ?? 'CONSEILS PRO');
         $title = $article->title;
+        $subtitle = $article->topic_key ? Str::title(str_replace('_', ' ', $article->topic_key)) . ' — 100% gratuit.' : 'Comparatifs, tests et guides — 100% gratuit.';
 
-        // Site Name
-        imagettftext($image, 24, 0, 80, 100, $white, $fontBold, $siteName);
-
-        // Category Pill
-        $bbox = imagettfbbox(16, 0, $fontMedium, $categoryName);
-        $textWidth = abs($bbox[4] - $bbox[0]);
-        $textHeight = abs($bbox[5] - $bbox[1]);
-        
-        $pillX = 80;
-        $pillY = 140;
-        $pillPaddingX = 20;
-        $pillPaddingY = 12;
-        
-        // Draw rounded rectangle for pill (using standard filled rectangle for now, or filled polygon for rounded)
-        imagefilledrectangle(
-            $image, 
-            $pillX, 
-            $pillY, 
-            $pillX + $textWidth + ($pillPaddingX * 2), 
-            $pillY + $textHeight + ($pillPaddingY * 2), 
-            $pillBg
-        );
-        // Draw Category Text
-        imagettftext(
-            $image, 
-            16, 
-            0, 
-            $pillX + $pillPaddingX, 
-            $pillY + $textHeight + $pillPaddingY, 
-            $white, 
-            $fontMedium, 
-            $categoryName
-        );
+        // Site Name (Blue)
+        imagettftext($image, 20, 0, 80, 220, $blue, $fontBold, $siteName);
 
         // Title
         // Word wrap title if too long
-        $wrappedTitle = $this->wrapText(70, 0, $fontBold, $title, 900);
-        imagettftext($image, 70, 0, 80, 360, $white, $fontBold, $wrappedTitle);
+        $wrappedTitle = $this->wrapText(65, 0, $fontBold, $title, 620);
+        imagettftext($image, 65, 0, 80, 320, $white, $fontBold, $wrappedTitle);
+
+        // Subtitle (Grey)
+        // Draw it below the title. We need to calculate how many lines the title took.
+        $titleLines = substr_count($wrappedTitle, "\n") + 1;
+        $subtitleY = 320 + ($titleLines * 80) + 20;
+        imagettftext($image, 24, 0, 80, $subtitleY, $grey, $fontMedium, $subtitle);
 
         ob_start();
         imagepng($image);
