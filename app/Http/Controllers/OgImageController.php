@@ -57,6 +57,17 @@ class OgImageController extends Controller
         if (!file_exists($fontBold) || !file_exists($fontMedium)) {
             abort(500, "Font files not readable or missing.");
         }
+
+        // --- DEBUG BLOCK (Temporaire) ---
+        // Vérification de la taille et de l'en-tête du fichier pour s'assurer qu'il n'est pas corrompu.
+        $boldSize = filesize($fontBold);
+        $boldHead = bin2hex(substr(file_get_contents($fontBold), 0, 4));
+        if ($boldSize < 100000 || !in_array($boldHead, ['00010000', '4f54544f'])) {
+            $contentHead = substr(file_get_contents($fontBold), 0, 100);
+            abort(500, "DEBUG FONT CORRUPTED: Size={$boldSize} bytes. HeaderHex={$boldHead}. Content preview: {$contentHead}");
+        }
+        // --------------------------------
+
         $white = imagecolorallocate($image, 255, 255, 255);
         $pillBg = imagecolorallocatealpha($image, 255, 255, 255, 90); // Translucent white pill
 
