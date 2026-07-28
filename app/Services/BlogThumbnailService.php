@@ -151,9 +151,9 @@ class BlogThumbnailService
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#2251e0"/>
-      <stop offset="70%" stop-color="#4a7ef5"/>
-      <stop offset="100%" stop-color="#c8dcff"/>
+      <stop offset="0%" stop-color="#1d4ed8"/>
+      <stop offset="70%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#bfdbfe"/>
     </linearGradient>
     <linearGradient id="bottom-glow" x1="0%" y1="100%" x2="0%" y2="0%">
       <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28"/>
@@ -167,7 +167,7 @@ class BlogThumbnailService
   <rect width="1200" height="630" fill="url(#bottom-glow)"/>
 
   <!-- Document / Note watermark (Clean & Pro) -->
-  <g transform="translate(750, 40) scale(20)" opacity="0.12"
+  <g transform="translate(750, 40) rotate(15) scale(20)" opacity="0.12"
      fill="none" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
     <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
     <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
