@@ -98,4 +98,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         \Illuminate\Support\Facades\Artisan::call('blog:generate-missing-comparisons', ['slug' => $slug]);
         return back()->with('success', 'La génération des comparatifs a été lancée en tâche de fond !');
     })->name('admin.tools.generate-comparisons');
+
+    Route::post('/articles/{article}/regenerate-thumbnail', function (\App\Models\Article $article, \App\Services\BlogThumbnailService $thumbnailService) {
+        $thumbnailService->ensureForArticle($article, true);
+        return back()->with('success', 'Miniature régénérée avec succès !');
+    })->name('admin.articles.regenerate-thumbnail');
 });
