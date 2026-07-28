@@ -44,11 +44,18 @@ class OgImageController extends Controller
         imagepolygon($image, $shieldPoints, 5, $watermarkColor);
         imagesetthickness($image, 1);
 
-        $fontBold = resource_path('fonts/Inter-Bold.ttf');
-        $fontMedium = resource_path('fonts/Inter-Medium.ttf');
+        $fontBoldSrc = realpath(resource_path('fonts/Inter-Bold.ttf'));
+        $fontMediumSrc = realpath(resource_path('fonts/Inter-Medium.ttf'));
+
+        // Workaround for Linux GD/FreeType strict permissions and open_basedir issues
+        $fontBold = sys_get_temp_dir() . '/Inter-Bold-' . md5_file($fontBoldSrc) . '.ttf';
+        $fontMedium = sys_get_temp_dir() . '/Inter-Medium-' . md5_file($fontMediumSrc) . '.ttf';
+        
+        if (!file_exists($fontBold)) @copy($fontBoldSrc, $fontBold);
+        if (!file_exists($fontMedium)) @copy($fontMediumSrc, $fontMedium);
 
         if (!file_exists($fontBold) || !file_exists($fontMedium)) {
-            abort(500, "Font files not found at: " . $fontBold);
+            abort(500, "Font files not readable or missing.");
         }
         $white = imagecolorallocate($image, 255, 255, 255);
         $pillBg = imagecolorallocatealpha($image, 255, 255, 255, 90); // Translucent white pill
