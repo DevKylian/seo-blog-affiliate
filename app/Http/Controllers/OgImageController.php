@@ -44,9 +44,8 @@ class OgImageController extends Controller
         imagepolygon($image, $shieldPoints, 5, $watermarkColor);
         imagesetthickness($image, 1);
 
-        // Fonts
-        $fontBold = storage_path('app/fonts/Inter-Bold.ttf');
-        $fontMedium = storage_path('app/fonts/Inter-Medium.ttf');
+        $fontBold = realpath(resource_path('fonts/Inter-Bold.ttf'));
+        $fontMedium = realpath(resource_path('fonts/Inter-Medium.ttf'));
         $white = imagecolorallocate($image, 255, 255, 255);
         $pillBg = imagecolorallocatealpha($image, 255, 255, 255, 90); // Translucent white pill
 
