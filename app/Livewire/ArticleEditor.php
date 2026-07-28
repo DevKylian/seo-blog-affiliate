@@ -266,13 +266,14 @@ class ArticleEditor extends Component
                         'x-goog-api-key' => trim($key),
                         'Content-Type' => 'application/json',
                     ])->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', [
-                        'contents' => [['parts' => [['text' => "Résume ce titre en 7 mots MAXIMUM (très percutant) pour une miniature d'article : {$this->title}"]]]],
+                        'contents' => [['parts' => [['text' => "Tu es un expert SEO. Résume ce titre d'article pour une miniature d'image (7 mots MAXIMUM, très percutant). Règle ABSOLUE : tu dois uniquement renvoyer le titre brut, sans introduction, sans choix multiples, sans puces, et sans points ni guillemets. Titre d'origine : {$this->title}"]]]],
                         'generationConfig' => ['temperature' => 0.2]
                     ]);
                     if ($response->successful()) {
                         $text = $response->json('candidates.0.content.parts.0.text');
                         if ($text) {
-                            $this->thumbnailTitle = trim(str_replace(['"', '*'], '', $text));
+                            $cleanText = trim(str_replace(['"', '*'], '', $text));
+                            $this->thumbnailTitle = \Illuminate\Support\Str::limit($cleanText, 200, '');
                             $this->article->update(['thumbnail_title' => $this->thumbnailTitle]);
                         }
                     }
