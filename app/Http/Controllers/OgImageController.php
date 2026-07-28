@@ -10,6 +10,10 @@ class OgImageController extends Controller
 {
     public function show(Article $article, BlogThumbnailService $service): Response
     {
+        if (request()->has('force')) {
+            $service->forget($article->slug);
+        }
+
         return $service->httpResponse(
             $article->slug,
             $article->title,
