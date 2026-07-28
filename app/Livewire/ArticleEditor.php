@@ -280,7 +280,14 @@ class ArticleEditor extends Component
                 }
             }
 
-            $thumbnailService->ensureForArticle($this->article, true);
+            $thumbnailService->forget($this->article->slug);
+            $thumbnailService->ensure(
+                $this->article->slug,
+                $this->thumbnailTitle ?? $this->title,
+                'BUSINESSKIT',
+                null,
+                $this->article->updated_at
+            );
             $this->message = "Miniature régénérée avec succès par l'IA !";
         }
     }

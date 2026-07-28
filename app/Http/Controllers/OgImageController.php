@@ -19,7 +19,8 @@ class OgImageController extends Controller
             $article->title,
             'BUSINESSKIT',
             null,
-            $article->updated_at
+            $article->updated_at,
+            $article->thumbnail_title
         );
     }
 }
