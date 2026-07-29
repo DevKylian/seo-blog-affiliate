@@ -24,7 +24,7 @@
     <meta name="twitter:description" content="@yield('description', 'Guides, outils et comparatifs pour gérer son activité freelance en France.')">
     <meta name="twitter:image" content="@yield('og_image', url('/images/og-default.png'))">
     
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('head')
     <style>
