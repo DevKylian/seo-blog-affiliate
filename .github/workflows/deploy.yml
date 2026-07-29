@@ -31,7 +31,8 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 22
           script: |
-            sudo rm -rf /var/www/businesskit.fr/public/build
+            sudo /usr/bin/chown -R deploy:www-data /var/www/businesskit.fr || true
+            rm -rf /var/www/businesskit.fr/public/build || true
 
       - name: Copy build to server
         uses: appleboy/scp-action@master
