@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\Category;
+use App\Models\EditorialIdea;
+use App\Models\EditorialPlan;
 use App\Models\SeoProject;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Response;
