@@ -54,6 +54,10 @@
     ];
     $slug = $tool->slug;
     $rating = $ratings[$slug] ?? $ratings['indy'];
+
+    function getBarColor($score) {
+        return floatval($score) > 8 ? 'background: #10b981;' : '';
+    }
 @endphp
 
 <main class="tool-container">
@@ -97,28 +101,28 @@
                 <span>Simplicité</span>
                 <span class="score-value">{{ $rating['simplicity'] }}/10</span>
             </div>
-            <div class="score-bar-bg"><div class="score-bar-fill" style="width: {{ floatval($rating['simplicity']) * 10 }}%;"></div></div>
+            <div class="score-bar-bg"><div class="score-bar-fill" style="width: {{ floatval($rating['simplicity']) * 10 }}%; {{ getBarColor($rating['simplicity']) }}"></div></div>
         </div>
         <div>
             <div class="score-item-header">
                 <span>Prix</span>
                 <span class="score-value">{{ $rating['price'] }}/10</span>
             </div>
-            <div class="score-bar-bg"><div class="score-bar-fill" style="width: {{ floatval($rating['price']) * 10 }}%;"></div></div>
+            <div class="score-bar-bg"><div class="score-bar-fill" style="width: {{ floatval($rating['price']) * 10 }}%; {{ getBarColor($rating['price']) }}"></div></div>
         </div>
         <div>
             <div class="score-item-header">
                 <span>Support Client</span>
                 <span class="score-value">{{ $rating['support'] }}/10</span>
             </div>
-            <div class="score-bar-bg"><div class="score-bar-fill" style="width: {{ floatval($rating['support']) * 10 }}%; background: var(--tool-yellow);"></div></div>
+            <div class="score-bar-bg"><div class="score-bar-fill" style="width: {{ floatval($rating['support']) * 10 }}%; {{ getBarColor($rating['support']) }}"></div></div>
         </div>
         <div>
             <div class="score-item-header">
                 <span>Automatisation</span>
                 <span class="score-value">{{ $rating['automation'] }}/10</span>
             </div>
-            <div class="score-bar-bg"><div class="score-bar-fill" style="width: {{ floatval($rating['automation']) * 10 }}%;"></div></div>
+            <div class="score-bar-bg"><div class="score-bar-fill" style="width: {{ floatval($rating['automation']) * 10 }}%; {{ getBarColor($rating['automation']) }}"></div></div>
         </div>
     </div>
 
@@ -155,10 +159,18 @@
             <div>
                 <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px; color:var(--tool-text);">Comparé avec</h3>
                 <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px;">
-                    <li><a href="{{ route('comparisons.show', $tool->slug . '-vs-pennylane') }}" style="color:var(--tool-primary); text-decoration:none; font-weight:600; font-size:14px; display:inline-flex; align-items:center; gap:6px;">→ {{ ucfirst($tool->name) }} vs Pennylane</a></li>
-                    <li><a href="{{ route('comparisons.show', $tool->slug . '-vs-dougs') }}" style="color:var(--tool-primary); text-decoration:none; font-weight:600; font-size:14px; display:inline-flex; align-items:center; gap:6px;">→ {{ ucfirst($tool->name) }} vs Dougs</a></li>
-                    <li><a href="{{ route('comparisons.show', $tool->slug . '-vs-abby') }}" style="color:var(--tool-primary); text-decoration:none; font-weight:600; font-size:14px; display:inline-flex; align-items:center; gap:6px;">→ {{ ucfirst($tool->name) }} vs Abby</a></li>
-                    <li><a href="{{ route('comparisons.show', $tool->slug . '-vs-shine') }}" style="color:var(--tool-primary); text-decoration:none; font-weight:600; font-size:14px; display:inline-flex; align-items:center; gap:6px;">→ {{ ucfirst($tool->name) }} vs Shine</a></li>
+                    @php
+                        $competitors = [
+                            'pennylane' => 'Pennylane',
+                            'dougs' => 'Dougs',
+                            'abby' => 'Abby',
+                            'shine' => 'Shine',
+                        ];
+                        unset($competitors[$tool->slug]);
+                    @endphp
+                    @foreach($competitors as $compSlug => $compName)
+                    <li><a href="{{ route('comparisons.show', $tool->slug . '-vs-' . $compSlug) }}" style="color:var(--tool-primary); text-decoration:none; font-weight:600; font-size:14px; display:inline-flex; align-items:center; gap:6px;">→ {{ ucfirst($tool->name) }} vs {{ $compName }}</a></li>
+                    @endforeach
                 </ul>
                 <div style="margin-top:16px;">
                     <a href="{{ route('alternatives.show', 'alternatives-' . $tool->slug) }}" style="color:var(--tool-text); text-decoration:underline; font-size:13px; font-weight:600;">Voir toutes les alternatives à {{ ucfirst($tool->name) }}</a>
