@@ -122,15 +122,27 @@
                             <span>Gratuit / essai</span>
                             <span>Ce que couvre le prix</span>
                         </div>
-                        @foreach($comparisonRows as $row)
-                            <div class="pricing-row">
-                                <strong>{{ $row['product'] }}</strong>
-                                <span>{{ $row['entry_price'] }}</span>
-                                <span>{{ $row['offers'] }}</span>
-                                <span>{{ $row['free_trial'] }}</span>
-                                <span>{{ $row['coverage'] }}</span>
-                            </div>
-                        @endforeach
+                          @foreach($comparisonRows as $row)
+                              <div class="pricing-row">
+                                  <strong>{{ $row['product'] }}</strong>
+                                  <span>{{ $row['entry_price'] }}</span>
+                                  <div class="pricing-cell-list">
+                                      @foreach(explode('|', $row['offers']) as $item)
+                                          @if(trim($item)) <span>{{ trim($item) }}</span> @endif
+                                      @endforeach
+                                  </div>
+                                  <div class="pricing-cell-list">
+                                      @foreach(explode('|', $row['free_trial']) as $item)
+                                          @if(trim($item)) <span>{{ trim($item) }}</span> @endif
+                                      @endforeach
+                                  </div>
+                                  <div class="pricing-cell-list">
+                                      @foreach(explode('|', $row['coverage']) as $item)
+                                          @if(trim($item)) <span>{{ trim($item) }}</span> @endif
+                                      @endforeach
+                                  </div>
+                              </div>
+                          @endforeach
                     </div>
                 @else
                     <div class="pricing-grid">

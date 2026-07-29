@@ -298,6 +298,9 @@ button,a { -webkit-tap-highlight-color:transparent; }
 .pricing-comparison-table{display:grid;gap:1px;margin:0 0 16px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--line)}
 .pricing-row{display:grid;grid-template-columns:.85fr .85fr 2.1fr 1.05fr 1.7fr;gap:16px;align-items:start;padding:16px 20px;background:white;color:#334155;font-size:14px;line-height:1.6}
 .pricing-row strong{color:var(--ink);font:800 16px/1.4 'Manrope',sans-serif}
+.pricing-cell-list{display:flex;flex-direction:column;gap:6px}
+.pricing-cell-list span{position:relative;padding-left:14px;display:block;font-size:13px;line-height:1.45}
+.pricing-cell-list span::before{content:'•';position:absolute;left:0;color:#94a3b8;font-weight:bold}
 .pricing-head{background:#f8fafc;color:#475569;text-transform:uppercase;font-size:12px;font-weight:800;letter-spacing:.05em}
 .pricing-source-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}
 .pricing-source-links a{color:#6554e6;text-decoration:none;font-size:12px;font-weight:700}
