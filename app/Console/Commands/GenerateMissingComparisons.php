@@ -38,6 +38,7 @@ class GenerateMissingComparisons extends Command
                 'entity_key' => $project->name . '/' . $competitor,
                 'topic_key' => 'comparaison',
                 'intent' => 'Commercial',
+                'angle' => "Comparatif direct entre {$project->name} et {$competitor}",
                 'content_type' => 'comparison',
                 'status' => 'accepted',
                 'position' => $index + 1,
@@ -47,6 +48,9 @@ class GenerateMissingComparisons extends Command
                 'expected_outcome' => "Comprendre les différences clés entre {$project->name} et {$competitor}.",
                 'unique_promise' => "Le comparatif complet {$project->name} vs {$competitor}.",
                 'funnel_stage' => 'decision',
+                'excluded_topics' => [],
+                'outline' => ["Verdict rapide : quel outil choisir ?", "Tableau comparatif {$project->name} vs {$competitor}", "Analyse détaillée de {$project->name}", "Analyse détaillée de {$competitor}", "Tarifs et coût réel comparés", "FAQ du comparatif"],
+                'fingerprint' => mb_strtolower($title . '|comparatif|decision'),
             ]);
         }
 
