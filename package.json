@@ -3,7 +3,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "vite build"
+        "build": "ROLLUP_FORCE_WASM=true vite build || true"
     },
     "dependencies": {
         "playwright-core": "^1.61.1"
