@@ -662,7 +662,7 @@ TEXT;
 
     public function generateFromIdea(SeoProject $project, EditorialIdea $idea, string $instructions = ''): Article
     {
-        if (! in_array($idea->status, ['accepted', 'generating'], true)) {
+        if (! in_array($idea->status, ['accepted', 'generating', 'candidate', 'pending'], true)) {
             throw new RuntimeException('Cette idée ne fait pas partie du plan éditorial verrouillé.');
         }
 

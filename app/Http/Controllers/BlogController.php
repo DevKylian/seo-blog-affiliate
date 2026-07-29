@@ -112,6 +112,9 @@ class BlogController extends Controller
 
         if (request()->has('generate_now') && auth()->check()) {
             if ($idea) {
+                if (! in_array($idea->status, ['accepted', 'generating'], true)) {
+                    $idea->update(['status' => 'accepted']);
+                }
                 $generator = app(\App\Services\GeminiContentGenerator::class);
                 $newArticle = $generator->generateFromIdea($idea->plan->project, $idea);
                 $newArticle->update(['status' => 'published', 'published_at' => now()]);
