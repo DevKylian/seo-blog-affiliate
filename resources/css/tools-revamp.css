@@ -732,8 +732,10 @@
 }
 .tool-result-info-box {
   background: #f8fafc;
-  border-color: var(--tool-border);
-  color: var(--tool-primary);/* --- New Review Redesign Styles --- */
+  color: var(--tool-primary);
+}
+
+/* --- New Review Redesign Styles --- */
 
 /* Hero Badges */
 .review-hero-badges {
@@ -1027,5 +1029,4 @@
     from { opacity: 0; transform: translateY(-5px); }
     to { opacity: 1; transform: translateY(0); }
 }
- 
- 
+
