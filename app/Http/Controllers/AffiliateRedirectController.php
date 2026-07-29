@@ -14,15 +14,17 @@ class AffiliateRedirectController extends Controller
 {
     public function __invoke(Request $request, SeoProject $project, AffiliateBlockService $blocks): RedirectResponse
     {
-        $target = $blocks->targetUrl($project);
-        abort_unless($target, 404);
-
         $article = $request->integer('article')
             ? Article::query()->where('seo_project_id', $project->id)->find($request->integer('article'))
             : null;
         $block = $request->integer('block')
             ? AffiliateBlock::query()->find($request->integer('block'))
             : null;
+
+        $target = $blocks->targetUrl($project, $article, $block);
+        abort_unless($target, 404);
+
+
 
         AffiliateClick::query()->create([
             'seo_project_id' => $project->id,

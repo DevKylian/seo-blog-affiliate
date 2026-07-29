@@ -56,24 +56,69 @@ final class AffiliateBlockService
         ]);
     }
 
-    public function targetUrl(SeoProject $project): ?string
+    public function targetUrl(SeoProject $project, ?Article $article = null, ?AffiliateBlock $block = null): ?string
     {
-        return $project->affiliate_url ?: $project->website_url ?: null;
+        $url = $project->affiliate_url ?: $project->website_url ?: null;
+
+        if ($url && mb_strtolower($project->name) === 'indy' && $article) {
+            $cluster = $block?->affiliate_cluster
+                ?: $article->keyword?->affiliate_cluster
+                ?: $article->contentCluster?->affiliate_cluster
+                ?: $this->clusterFromArticle($article);
+                
+            $context = mb_strtolower($article->title . ' ' . $article->primary_keyword);
+
+            if (str_contains($context, 'création') || str_contains($context, 'statut') || str_contains($context, 'sasu') || str_contains($context, 'auto-entreprise')) {
+                return 'https://urls.fr/QDk1cj'; // Créer son entreprise
+            }
+            if ($cluster === 'facturation') {
+                return 'https://urls.fr/qAxSuF'; // Facturation
+            }
+            if (str_contains($context, 'compte pro') || str_contains($context, 'banque')) {
+                return 'https://urls.fr/OJ8ERj'; // Compte pro
+            }
+            
+            return 'https://www.indy.fr/?ae=1776'; // Default Indy link
+        }
+
+        return $url;
     }
 
     private function fallback(Article $article, string $position, ?string $cluster, string $intentType): AffiliateBlock
     {
         $projectName = $article->project->name;
         $strong = in_array($intentType, ['solution', 'money'], true);
+        
+        $isIndy = mb_strtolower($projectName) === 'indy';
+        
+        $title = $isIndy ? 'Essayez Indy gratuitement' : "Essayez {$projectName} gratuitement";
+        $description = $isIndy 
+            ? "🎁 1er mois offert sans engagement\nCentralisez votre facturation, vos dépenses et votre comptabilité dans un seul outil pensé pour les indépendants. Gagnez du temps dès aujourd'hui avec une solution simple et rapide à prendre en main."
+            : "Centralisez votre facturation, vos dépenses et votre comptabilité dans un seul outil pensé pour les indépendants. Gagnez du temps dès aujourd'hui avec une solution simple, rapide à prendre en main et disponible en version gratuite.\n\n• Pensé pour les indépendants\n• Prise en main immédiate\n• Support et assistance\n• Version gratuite disponible";
+            
+        $cta = "👉 Créer mon compte gratuit";
+
+        if ($isIndy) {
+            $context = mb_strtolower($article->title . ' ' . $article->primary_keyword);
+            if (str_contains($context, 'création') || str_contains($context, 'statut') || str_contains($context, 'sasu') || str_contains($context, 'auto-entreprise')) {
+                $cta = "👉 Créer son entreprise gratuitement";
+            } elseif ($cluster === 'facturation') {
+                $cta = "👉 Recevoir et faire ses factures gratuitement";
+            } elseif (str_contains($context, 'compte pro') || str_contains($context, 'banque')) {
+                $cta = "👉 Ouvrir un compte pro gratuit";
+            } elseif ($cluster === 'comptabilite' || $cluster === 'declarations') {
+                $cta = "👉 Automatiser sa compta et ses déclarations";
+            }
+        }
 
         return new AffiliateBlock([
             'seo_project_id' => $article->seo_project_id,
             'affiliate_cluster' => $cluster,
             'intent_type' => $intentType,
             'position' => $position,
-            'title' => 'Essayez Indy gratuitement',
-            'description' => "Centralisez votre facturation, vos dépenses et votre comptabilité dans un seul outil pensé pour les indépendants. Gagnez du temps dès aujourd’hui avec une solution simple, rapide à prendre en main et disponible en version gratuite.\n\n✅ Pensé pour les indépendants\n✅ Prise en main immédiate\n✅ Support et assistance\n✅ Version gratuite disponible",
-            'cta' => "🎁 Créer mon compte gratuit",
+            'title' => $title,
+            'description' => $description,
+            'cta' => $cta,
             'style' => $strong ? 'strong' : 'soft',
             'is_active' => true,
         ]);
