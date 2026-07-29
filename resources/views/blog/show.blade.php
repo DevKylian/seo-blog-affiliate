@@ -46,6 +46,10 @@
         ->all();
 @endphp
 
+<div class="reading-progress-container">
+    <div class="reading-progress-bar" id="readingProgressBar"></div>
+</div>
+
 <div class="article-hero">
     <div class="article-hero-inner">
         <div class="article-breadcrumbs">
@@ -56,6 +60,13 @@
         <h1>{{ $article->title }}</h1>
         <p class="article-lead">{{ $article->meta_description ?: $article->excerpt }}</p>
         <div class="article-meta-strip">
+            <div class="meta-item">
+                <span class="meta-icon">⏱</span>
+                <div>
+                    <strong>Temps de lecture</strong>
+                    <span>{{ $article->reading_time }} minutes</span>
+                </div>
+            </div>
             <div class="meta-item">
                 <span class="meta-icon">📅</span>
                 <div>
@@ -120,4 +131,30 @@
         </footer>
     </section>
 </article>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const progressBar = document.getElementById('readingProgressBar');
+        const article = document.querySelector('.public-article');
+        
+        if (progressBar && article) {
+            window.addEventListener('scroll', () => {
+                const articleRect = article.getBoundingClientRect();
+                const totalScroll = articleRect.height - window.innerHeight;
+                let scrollProgress = (Math.abs(articleRect.top) / totalScroll) * 100;
+                
+                if (articleRect.top > 0) scrollProgress = 0;
+                if (scrollProgress > 100) scrollProgress = 100;
+                
+                progressBar.style.width = scrollProgress + '%';
+            }, { passive: true });
+        }
+    });
+</script>
+<script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'base', themeVariables: { primaryColor: '#f1f5f9', primaryTextColor: '#0f172a', primaryBorderColor: '#cbd5e1', lineColor: '#3b82f6', fontFamily: 'Manrope, sans-serif' } });
+</script>
+@endpush
 @endsection

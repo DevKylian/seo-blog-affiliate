@@ -16,7 +16,7 @@ final class ContextualInternalLinkRenderer
     public function render(string $markdown, Article $article): string
     {
         $markdown = app(GeneratedContentSanitizer::class)->stripSourceMarkers($markdown);
-        $html = Str::markdown($markdown, ['html_input' => 'strip', 'allow_unsafe_links' => false]);
+        $html = app(EnhancedMarkdownParser::class)->parse($markdown);
         $links = $article->internalLinks
             ->filter(fn (InternalLink $link): bool => $link->target?->status === 'published')
             ->take(3)
@@ -164,24 +164,24 @@ final class ContextualInternalLinkRenderer
     private function sentenceStart(InternalLink $link): string
     {
         return match ($link->target->type) {
-            'pricing' => 'Pour chiffrer cette décision, notre analyse sur ',
-            'comparison' => 'Pour mettre ces critères en perspective, consultez ',
-            'alternatives' => 'Si vous évaluez d’autres approches, notre dossier sur ',
-            'best_tools' => 'Pour élargir votre sélection, consultez ',
-            'tool_review' => 'Pour compléter cette analyse, découvrez ',
-            default => 'Pour approfondir ce point, consultez ',
+            'pricing' => 'Pour anticiper vos coûts, notre guide sur ',
+            'comparison' => 'Si vous hésitez sur le choix de votre outil, notre comparatif détaillé sur ',
+            'alternatives' => 'Si cette solution ne vous correspond pas tout à fait, notre sélection d\'alternatives concernant ',
+            'best_tools' => 'Pour faire le meilleur choix pour votre activité, découvrez notre classement sur ',
+            'tool_review' => 'Pour aller plus loin, nous avons testé en détail cette solution dans notre avis sur ',
+            default => 'Pour en savoir plus sur ce sujet, n\'hésitez pas à consulter ',
         };
     }
 
     private function sentenceEnd(InternalLink $link): string
     {
         return match ($link->target->type) {
-            'pricing' => ' détaille les niveaux d’abonnement et leurs écarts.',
-            'comparison' => ' afin de comparer les options sur des critères concrets.',
-            'alternatives' => ' présente les options disponibles et leurs compromis.',
-            'best_tools' => ' pour rapprocher chaque solution de son usage réel.',
-            'tool_review' => ' pour examiner ses avantages, ses limites et ses cas d’usage.',
-            default => ' pour retrouver la méthode complète et ses points de vigilance.',
+            'pricing' => ' explique les différences de prix et ce que chaque abonnement inclut réellement.',
+            'comparison' => ' vous aidera à y voir plus clair selon votre profil.',
+            'alternatives' => ' vous présentera des options plus adaptées à vos besoins.',
+            'best_tools' => ' qui regroupe les outils les plus performants du marché.',
+            'tool_review' => ' où nous partageons notre retour d\'expérience concret.',
+            default => ' qui approfondit ces concepts avec des exemples concrets.',
         };
     }
 

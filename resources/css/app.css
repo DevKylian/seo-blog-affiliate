@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap');
 @import url('./home-revamp.css');
 @import url('./tools-revamp.css');
+@import url('./blog-enhancements.css');
 
 :root { --ink:#17203a; --muted:#74809a; --line:#e8ebf2; --surface:#fff; --bg:#f7f8fc; --purple:#6d5dfc; --purple-dark:#5142df; }
 * { box-sizing:border-box; }

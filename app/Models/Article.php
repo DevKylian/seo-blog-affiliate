@@ -144,4 +144,22 @@ class Article extends Model
             default => route('blog.show', $this->slug, false),
         };
     }
+
+    public function getReadingTimeAttribute(): int
+    {
+        $text = '';
+        if (is_array($this->content_blocks)) {
+            foreach ($this->content_blocks as $block) {
+                if (isset($block['content'])) {
+                    $text .= ' ' . $block['content'];
+                }
+            }
+        } else {
+            $text = $this->body ?? '';
+        }
+        
+        $wordCount = str_word_count(strip_tags($text));
+        $minutes = (int) ceil($wordCount / 250);
+        return max(1, $minutes);
+    }
 }
