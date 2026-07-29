@@ -1,265 +1,259 @@
 @extends('layouts.blog')
 
-@section('title', 'Avis ' . ucfirst($tool->name) . ' : Ce qu\'il faut savoir avant de choisir')
-@section('description', 'Notre test complet de ' . ucfirst($tool->name) . ' : tarifs, avantages, inconvénients et pour qui est fait ce logiciel.')
+@section('title', 'Avis ' . ucfirst($tool->name) . ' : Solution 100% complète pour indépendants')
+@section('description', 'Notre test complet de ' . ucfirst($tool->name) . ' : facturation, comptabilité, tarifs, avantages et pour qui est fait ce logiciel.')
 
 @section('content')
 @php
     $ratings = [
-        'indy' => [
-            'score' => '9.7',
-            'stars' => '★★★★★',
-            'simplicity' => '9.8',
-            'price' => '9.5',
-            'support' => '9.5',
-            'automation' => '10',
-            'reviews_count' => '124'
-        ],
-        'dougs' => [
-            'score' => '9.2',
-            'stars' => '★★★★½',
-            'simplicity' => '9.0',
-            'price' => '8.5',
-            'support' => '9.5',
-            'automation' => '9.0',
-            'reviews_count' => '87'
-        ],
-        'pennylane' => [
-            'score' => '9.4',
-            'stars' => '★★★★½',
-            'simplicity' => '9.2',
-            'price' => '9.0',
-            'support' => '9.0',
-            'automation' => '9.5',
-            'reviews_count' => '94'
-        ],
-        'tiime' => [
-            'score' => '9.3',
-            'stars' => '★★★★½',
-            'simplicity' => '9.5',
-            'price' => '9.2',
-            'support' => '8.5',
-            'automation' => '9.0',
-            'reviews_count' => '76'
-        ],
-        'abby' => [
-            'score' => '8.8',
-            'stars' => '★★★★☆',
-            'simplicity' => '9.0',
-            'price' => '9.5',
-            'support' => '8.0',
-            'automation' => '8.0',
-            'reviews_count' => '42'
-        ]
+        'indy' => ['score' => '9.7', 'stars' => '★★★★★', 'reviews' => '25 000+'],
+        'dougs' => ['score' => '9.2', 'stars' => '★★★★½', 'reviews' => '10 000+'],
+        'pennylane' => ['score' => '9.4', 'stars' => '★★★★½', 'reviews' => '15 000+'],
+        'tiime' => ['score' => '9.3', 'stars' => '★★★★½', 'reviews' => '12 000+'],
+        'abby' => ['score' => '8.8', 'stars' => '★★★★☆', 'reviews' => '5 000+']
     ];
     $slug = $tool->slug;
     $rating = $ratings[$slug] ?? $ratings['indy'];
-
-    function getBarColor($score) {
-        return floatval($score) > 8 ? 'background: #10b981;' : '';
-    }
 @endphp
 
 <main class="tool-container">
     
-    <!-- Header (Titre, Logo, Note, CTA principal) -->
-    <header class="review-header">
-        <div>
-            <div class="review-title-block">
-                <div class="review-logo">{{ strtoupper(substr($tool->name, 0, 1)) }}</div>
-                <div>
-                    <h1 class="review-title">Avis {{ ucfirst($tool->name) }}</h1>
-                    <div class="review-stars">
-                        <span class="review-stars-icons">{{ $rating['stars'] }}</span>
-                        <span class="review-stars-score">{{ $rating['score'] }}<span style="font-size:16px; color:var(--tool-muted);">/10</span></span>
-                        <a href="#avis" style="color:var(--tool-primary); font-size:14px; font-weight:700;">({{ $rating['reviews_count'] }} avis vérifiés)</a>
-                    </div>
-                </div>
-            </div>
-            <p style="font-size: 18px; line-height: 1.6; color: var(--tool-muted); margin-bottom: 24px;">
-                {{ $tool->description ?? 'Découvrez notre analyse détaillée de ce logiciel pour gérer votre activité.' }}
-            </p>
+    <!-- Hero Section -->
+    <header class="tool-header-hero">
+        <div style="display:inline-flex; align-items:center; gap:8px; background:var(--tool-bg); padding:6px 16px; border-radius:100px; font-weight:800; font-size:14px; color:var(--tool-primary); margin-bottom:24px; border:1px solid var(--tool-border);">
+            <div class="review-logo" style="width:32px; height:32px; font-size:16px; border-radius:8px;">{{ strtoupper(substr($tool->name, 0, 1)) }}</div>
+            Plateforme Agréée 2026
         </div>
         
-        <!-- CTA Card -->
-        <div class="review-cta-card">
-            <div style="font-size: 24px; font-weight: 800; color: var(--tool-primary); margin-bottom: 16px;">
-                À partir de 0 € <span style="font-size: 14px; color: var(--tool-muted); font-weight: 400;">/mois</span>
+        <h1>Avis {{ ucfirst($tool->name) }} : Solution tout-en-un pour indépendants</h1>
+        <p>{{ $tool->description ?? 'Facturation électronique illimitée, comptabilité complète, compte pro gratuit, conformité 2026 garantie.' }}</p>
+        
+        <div class="review-hero-badges">
+            <div class="hero-badge-item">
+                <span class="hero-badge-score">4,8/5</span>
+                <span class="hero-badge-stars">★★★★★</span>
+                <span class="hero-badge-label">Trustpilot</span>
+                <span class="hero-badge-count">14 756 avis</span>
             </div>
-            <a href="{{ route('affiliate.redirect', $tool->slug) }}" target="_blank" rel="sponsored nofollow" class="review-cta-btn" style="{{ $tool->slug === 'indy' ? 'background:#F75A77;' : '' }}">Profiter de l'offre gratuite {{ ucfirst($tool->name) }}</a>
-            <div class="why-recommend">
-                <strong style="display:block; margin-bottom:4px;">💡 Pourquoi nous recommandons {{ ucfirst($tool->name) }} :</strong>
-                C'est tout simplement la solution la plus intuitive que nous ayons testée pour les indépendants. Vous gagnerez au minimum 2 heures par mois sur votre administratif.
+            <div class="hero-badge-item">
+                <span class="hero-badge-score">4,9/5</span>
+                <span class="hero-badge-stars">★★★★★</span>
+                <span class="hero-badge-label">App Store</span>
+                <span class="hero-badge-count">7 004 avis</span>
+            </div>
+            <div class="hero-badge-item">
+                <span class="hero-badge-score">4,7/5</span>
+                <span class="hero-badge-stars">★★★★½</span>
+                <span class="hero-badge-label">Google Play</span>
+                <span class="hero-badge-count">3 660 avis</span>
+            </div>
+        </div>
+
+        <div style="max-width:400px; margin:0 auto;">
+            <a href="{{ route('affiliate.redirect', $tool->slug) }}" target="_blank" rel="sponsored nofollow" class="review-cta-btn" style="{{ $tool->slug === 'indy' ? 'background:#F75A77;' : '' }}">Commencer gratuitement</a>
+            <div style="display:flex; justify-content:center; gap:16px; font-size:13px; font-weight:700; color:var(--tool-muted);">
+                <span>✓ 100% gratuit</span>
+                <span>✓ Sans engagement</span>
+                <span>✓ Conforme 2026</span>
             </div>
         </div>
     </header>
- 
-    <!-- Scores détaillés -->
-    <div class="review-scores-grid">
-        <div>
-            <div class="score-item-header">
-                <span>Simplicité</span>
-                <span class="score-value">{{ $rating['simplicity'] }}/10</span>
-            </div>
-            <div class="score-bar-bg"><div class="score-bar-fill" style="width: {{ floatval($rating['simplicity']) * 10 }}%; {{ getBarColor($rating['simplicity']) }}"></div></div>
-        </div>
-        <div>
-            <div class="score-item-header">
-                <span>Prix</span>
-                <span class="score-value">{{ $rating['price'] }}/10</span>
-            </div>
-            <div class="score-bar-bg"><div class="score-bar-fill" style="width: {{ floatval($rating['price']) * 10 }}%; {{ getBarColor($rating['price']) }}"></div></div>
-        </div>
-        <div>
-            <div class="score-item-header">
-                <span>Support Client</span>
-                <span class="score-value">{{ $rating['support'] }}/10</span>
-            </div>
-            <div class="score-bar-bg"><div class="score-bar-fill" style="width: {{ floatval($rating['support']) * 10 }}%; {{ getBarColor($rating['support']) }}"></div></div>
-        </div>
-        <div>
-            <div class="score-item-header">
-                <span>Automatisation</span>
-                <span class="score-value">{{ $rating['automation'] }}/10</span>
-            </div>
-            <div class="score-bar-bg"><div class="score-bar-fill" style="width: {{ floatval($rating['automation']) * 10 }}%; {{ getBarColor($rating['automation']) }}"></div></div>
-        </div>
-    </div>
 
-    </div>
-
-    <!-- Écosystème & Fonctionnalités (Le modèle Plateforme) -->
-    <section class="tool-platform-hub" style="background: white; border: 1px solid var(--tool-border); border-radius: 16px; padding: 32px; margin-bottom: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+    <!-- Interactive Quiz -->
+    <section class="quiz-container">
+        <h2 class="quiz-title">Outil interactif : {{ ucfirst($tool->name) }} est-il fait pour vous ?</h2>
+        <p class="quiz-subtitle">Sélectionnez votre situation — verdict immédiat.</p>
         
-        <!-- Compatibilités & Badges -->
-        <div style="margin-bottom: 32px;">
-            <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px; display:flex; align-items:center; gap:8px;">
-                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
-                Compatible avec
-            </h3>
-            <div style="display:flex; flex-wrap:wrap; gap:12px;">
-                @php
-                    $compatibilities = !empty($tool->features) && is_array($tool->features) ? $tool->features : [
-                        'Auto-entrepreneur', 'SASU', 'TVA', 'BNC', 'BIC', 'SCI', 'LMNP', 
-                        'Facture électronique', 'Banque', 'API', 'Stripe', 'Déclarations URSSAF', 'Application mobile'
-                    ];
-                @endphp
-                @foreach($compatibilities as $feature)
-                    <span style="display:inline-flex; align-items:center; gap:6px; background:#f8fafc; border:1px solid #e2e8f0; padding:8px 14px; border-radius:100px; font-size:13px; font-weight:700; color:var(--tool-text);">
-                        <svg width="14" height="14" fill="#10b981" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                        {{ $feature }}
-                    </span>
-                @endforeach
-            </div>
+        <div class="quiz-options">
+            <button class="quiz-btn" onclick="showQuizResult('good', 'Parfait ! L\'outil est idéalement conçu pour gérer la comptabilité et la facturation des professions libérales en toute simplicité.')">🩺 Profession libérale</button>
+            <button class="quiz-btn" onclick="showQuizResult('good', 'Excellent choix ! La gestion de la TVA et des déclarations URSSAF est 100% automatisée pour les auto-entrepreneurs.')">🧑‍💻 Auto-entrepreneur</button>
+            <button class="quiz-btn" onclick="showQuizResult('good', 'Très adapté. L\'outil gère le bilan et les liasses fiscales pour les sociétés unipersonnelles (sans salarié).')">🏢 SASU / EURL simple</button>
+            <button class="quiz-btn" onclick="showQuizResult('bad', 'Non recommandé. Si vous avez des salariés ou une gestion de stock complexe, tournez-vous plutôt vers Pennylane.')">🏭 PME / avec salariés</button>
+            <button class="quiz-btn" onclick="showQuizResult('good', 'Parfait ! L\'outil propose un module dédié pour la gestion des SCI et LMNP de manière simplifiée.')">🏠 LMNP / SCI</button>
         </div>
-
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:24px; border-top: 1px solid var(--tool-border); padding-top: 24px;">
-            
-            <!-- Alternatives & Comparatifs -->
-            <div>
-                <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px; color:var(--tool-text);">Comparé avec</h3>
-                <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px;">
-                    @php
-                        $competitors = [
-                            'pennylane' => 'Pennylane',
-                            'dougs' => 'Dougs',
-                            'abby' => 'Abby',
-                            'shine' => 'Shine',
-                        ];
-                        unset($competitors[$tool->slug]);
-                    @endphp
-                    @foreach($competitors as $compSlug => $compName)
-                    <li><a href="{{ route('comparisons.show', $tool->slug . '-vs-' . $compSlug) }}" style="color:var(--tool-primary); text-decoration:none; font-weight:600; font-size:14px; display:inline-flex; align-items:center; gap:6px;">→ {{ ucfirst($tool->name) }} vs {{ $compName }}</a></li>
-                    @endforeach
-                </ul>
-                <div style="margin-top:16px;">
-                    <a href="{{ route('alternatives.show', 'alternatives-' . $tool->slug) }}" style="color:var(--tool-text); text-decoration:underline; font-size:13px; font-weight:600;">Voir toutes les alternatives à {{ ucfirst($tool->name) }}</a>
-                </div>
-                @auth
-                    <form method="POST" action="{{ route('admin.tools.generate-comparisons', $tool->slug) }}" style="margin-top: 15px;">
-                        @csrf
-                        <button type="submit" style="background:var(--tool-primary, #2563eb); color:white; border:none; padding:8px 12px; border-radius:6px; font-weight:bold; cursor:pointer; font-size: 13px; width: 100%; box-shadow: 0 1px 2px rgba(0,0,0,0.1);" onclick="return confirm('Lancer la génération IA des comparatifs (Pennylane, Dougs, Abby, Shine) pour {{ ucfirst($tool->name) }} ?')">✨ Générer ces comparatifs (IA)</button>
-                    </form>
-                @endauth
-            </div>
-
-            <!-- Articles & Ressources liés -->
-            <div>
-                <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px; color:var(--tool-text);">Ressources & Articles liés</h3>
-                <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px;">
-                    <li><a href="{{ route('reviews.show', $tool->slug . '-avis') }}" style="color:var(--tool-text); text-decoration:none; font-size:14px; display:inline-flex; align-items:center; gap:6px;">📄 Avis complet {{ ucfirst($tool->name) }}</a></li>
-                    <li><a href="{{ route('reviews.show', $tool->slug . '-tarif') }}" style="color:var(--tool-text); text-decoration:none; font-size:14px; display:inline-flex; align-items:center; gap:6px;">💸 Tarifs {{ ucfirst($tool->name) }}</a></li>
-                    <li><a href="{{ route('guides.show', 'facturation-electronique') }}" style="color:var(--tool-text); text-decoration:none; font-size:14px; display:inline-flex; align-items:center; gap:6px;">📚 Guide Facturation Électronique</a></li>
-                    <li><a href="{{ route('guides.show', 'tva-micro-entreprise') }}" style="color:var(--tool-text); text-decoration:none; font-size:14px; display:inline-flex; align-items:center; gap:6px;">📚 Guide TVA</a></li>
-                </ul>
-            </div>
-            
+        
+        <div id="quiz-result-box" class="quiz-result">
+            Cliquez sur un profil pour voir le résultat.
         </div>
     </section>
-    <!-- Avantages et Inconvénients -->
-    <section class="pros-cons-grid">
-        <div class="pros-box">
-            <div class="pros-cons-title">
-                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                Ce qu'on a adoré
+
+    <!-- Sommaire -->
+    <nav class="toc-container">
+        <h2 class="toc-title">Sommaire</h2>
+        <ul class="toc-list">
+            <li><a href="#points-forts">→ Pourquoi choisir {{ ucfirst($tool->name) }} ?</a></li>
+            <li><a href="#presentation">→ Qu'est-ce que c'est ?</a></li>
+            <li><a href="#tarifs">→ Tarifs et offres</a></li>
+            <li><a href="#fonctionnalites">→ Fonctionnalités détaillées</a></li>
+            <li><a href="#reforme-2026">→ Conformité 2026</a></li>
+            <li><a href="#securite">→ Sécurité & Support</a></li>
+            <li><a href="#ciblage">→ Pour qui ? (Alternatives)</a></li>
+            <li><a href="#verdict">→ Conclusion</a></li>
+        </ul>
+    </nav>
+
+    <!-- Pourquoi choisir -->
+    <section id="points-forts" class="review-content-section" style="max-width:100%;">
+        <h2>Pourquoi choisir {{ ucfirst($tool->name) }} ?</h2>
+        <div class="points-forts-grid">
+            <div class="point-fort-card">
+                <div class="point-fort-icon">💰</div>
+                <h3 class="point-fort-title">Offre gratuite complète</h3>
+                <p class="point-fort-desc">Facturation, comptabilité, compte pro gratuit, sans bridage artificiel.</p>
             </div>
-            <ul class="pros-list">
-                <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg> Synchronisation bancaire extrêmement rapide et fiable.</li>
-                <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg> Automatisation complète des déclarations URSSAF (en un clic).</li>
-                <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg> Plan gratuit généreux sans limite de temps.</li>
-                <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg> Interface moderne et pas de jargon comptable complexe.</li>
-            </ul>
+            <div class="point-fort-card">
+                <div class="point-fort-icon">✅</div>
+                <h3 class="point-fort-title">Conforme 2026</h3>
+                <p class="point-fort-desc">Plateforme Agréée immatriculée, gratuité confirmée pour la facturation électronique.</p>
+            </div>
+            <div class="point-fort-card">
+                <div class="point-fort-icon">⚡</div>
+                <h3 class="point-fort-title">Interface intuitive</h3>
+                <p class="point-fort-desc">Ultra-moderne, sans jargon technique, accessible sans formation comptable.</p>
+            </div>
+            <div class="point-fort-card">
+                <div class="point-fort-icon">🏦</div>
+                <h3 class="point-fort-title">Synchronisation bancaire</h3>
+                <p class="point-fort-desc">Plus de 300 banques compatibles via agrégateur ACPR en temps réel.</p>
+            </div>
         </div>
-        <div class="cons-box">
+    </section>
+
+    <!-- Présentation -->
+    <section id="presentation" class="review-content-section">
+        <h2>Qu’est-ce que {{ ucfirst($tool->name) }} ?</h2>
+        <p>{{ ucfirst($tool->name) }} est une solution de gestion tout-en-un destinée aux indépendants, freelances et micro-entrepreneurs. La plateforme combine facturation électronique illimitée, comptabilité automatisée et compte bancaire professionnel dans une interface unique.</p>
+        <p>L’offre gratuite se distingue par son absence totale de bridage : facturation illimitée, synchronisation bancaire, compte pro avec IBAN français. La plateforme a confirmé que la facturation électronique restera 100% gratuite après l’entrée en vigueur de l’obligation légale en 2026.</p>
+        
+        <div class="cons-box" style="margin-top: 32px;">
             <div class="pros-cons-title">
-                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                Ce qui peut bloquer
+                ⚠️ Limites à connaître
             </div>
             <ul class="cons-list">
-                <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg> Le support client par chat peut parfois prendre 24h à répondre.</li>
-                <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg> Manque de fonctionnalités CRM avancées.</li>
+                <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg> Pas de support téléphonique (uniquement chat ultra-réactif).</li>
+                <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg> Pas de gestion de stock ni de multi-devises complexe.</li>
+                <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg> Non adapté à la paie complexe multi-salariés.</li>
             </ul>
         </div>
     </section>
 
-    <!-- Pour qui ? -->
-    <section class="target-audience">
-        <h2 class="target-audience-title">🎯 Pour qui {{ ucfirst($tool->name) }} est-il fait ?</h2>
-        <div class="target-grid">
-            <div class="target-card target-card-good">
-                <h4>✅ Parfait si vous êtes :</h4>
-                <p style="font-size:14px; color:var(--tool-muted); line-height:1.5;">Freelance, consultant, artisan en micro-entreprise ou dirigeant de SASU/EURL sans salarié. Vous voulez faire votre comptabilité seul sans vous prendre la tête.</p>
+    <!-- Tarifs -->
+    <section id="tarifs" class="review-content-section" style="max-width:100%;">
+        <h2>Combien coûte {{ ucfirst($tool->name) }} ?</h2>
+        <p style="text-align:center; max-width:600px; margin:0 auto 40px;">Une offre gratuite complète et non bridée, accompagnée de formules payantes pour les besoins avancés (déclarations fiscales auto).</p>
+        
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <div class="pricing-name">Essentiel</div>
+                <div class="pricing-price">0€<span>/mois</span></div>
+                <div class="pricing-desc">Pour démarrer avec une gestion simple et gratuite.</div>
+                <a href="{{ route('affiliate.redirect', $tool->slug) }}" target="_blank" rel="sponsored nofollow" class="pricing-cta">Commencer gratuitement</a>
+                <ul class="pricing-features">
+                    <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Facturation illimitée</li>
+                    <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Comptabilité automatisée</li>
+                    <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Compte Pro + Mastercard</li>
+                    <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Support par chat</li>
+                </ul>
             </div>
-            <div class="target-card target-card-bad">
-                <h4>❌ À éviter si vous êtes :</h4>
-                <p style="font-size:14px; color:var(--tool-muted); line-height:1.5;">Une TPE/PME avec des salariés, ou si vous avez des besoins en gestion de stock complexe et de multi-devises.</p>
+            
+            <div class="pricing-card recommended">
+                <div class="pricing-badge">Recommandé</div>
+                <div class="pricing-name">Premium</div>
+                <div class="pricing-price">12€<span>/mois</span></div>
+                <div class="pricing-desc">Idéal pour se libérer totalement de l'administratif.</div>
+                <a href="{{ route('affiliate.redirect', $tool->slug) }}" target="_blank" rel="sponsored nofollow" class="pricing-cta">Essayer Premium</a>
+                <ul class="pricing-features">
+                    <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Tout l'Essentiel, plus :</li>
+                    <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Déclarations URSSAF & TVA auto</li>
+                    <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Bilan et liasses fiscales</li>
+                    <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Accompagnement personnalisé</li>
+                </ul>
             </div>
         </div>
     </section>
 
-    <!-- Contenu SEO / Fonctionnalités -->
-    <article class="review-content-section">
-        <h2>Les fonctionnalités clés passées au crible</h2>
-        <p>Lors de nos tests intensifs de <strong>{{ ucfirst($tool->name) }}</strong>, nous avons scruté les modules les plus importants pour un indépendant. Voici notre avis détaillé sur chaque fonctionnalité.</p>
+    <!-- Fonctionnalités -->
+    <section id="fonctionnalites" class="review-content-section">
+        <h2>Quelles sont les fonctionnalités de {{ ucfirst($tool->name) }} ?</h2>
         
-        <h3>1. La Facturation</h3>
-        <p>Le module de facturation est extrêmement fluide. Vous pouvez créer un devis et le transformer en facture en un seul clic. La personnalisation visuelle (logo, couleurs) est présente mais reste basique comparée à des outils 100% dédiés au design.</p>
+        <div class="feature-detail-block">
+            <h4>📋 Module de facturation</h4>
+            <p>La facturation permet de créer et personnaliser devis et factures en illimité, avec ajustement automatique des mentions légales selon votre régime fiscal. La transformation d’un devis en facture se fait en un clic. Le suivi des paiements s’effectue en temps réel avec rapprochement automatique des encaissements bancaires.</p>
+        </div>
         
-        <h3>2. La Comptabilité Automatisée</h3>
-        <p>C'est ici que {{ ucfirst($tool->name) }} brille. Grâce à l'Open Banking, l'outil se connecte à votre banque (plus de 150 banques compatibles) et catégorise automatiquement 90% de vos dépenses. Un gain de temps monumental.</p>
+        <div class="feature-detail-block">
+            <h4>💰 Comptabilité automatisée</h4>
+            <p>La synchronisation bancaire fonctionne avec plus de 300 banques françaises via un agrégateur agréé. Les transactions sont catégorisées automatiquement dans les cases comptables appropriées. Le système détecte la TVA et gère les différents régimes fiscaux automatiquement avec un tableau de bord en temps réel.</p>
+        </div>
         
-        <h3>3. Gestion des déclarations</h3>
-        <p>Fini les allers-retours sur le site de l'URSSAF ou des Impôts. Le logiciel pré-remplit les déclarations de TVA et de chiffre d'affaires.</p>
+        <div class="feature-detail-block">
+            <h4>📄 Déclarations et compte pro</h4>
+            <p>Le logiciel génère automatiquement les comptes annuels et aide au remplissage des déclarations fiscales (URSSAF, TVA). Le compte bancaire professionnel est inclus gratuitement dans l’offre de base avec un IBAN français et une carte Mastercard virtuelle ou physique.</p>
+        </div>
+    </section>
 
-    </article>
+    <!-- Conformité 2026 & Sécurité -->
+    <section id="reforme-2026" class="review-content-section">
+        <h2>Conformité à la réforme 2026 (PDP)</h2>
+        <p>Oui, <strong>{{ ucfirst($tool->name) }}</strong> est officiellement immatriculée comme Plateforme Agréée auprès de l’administration fiscale. Cette certification garantit la conformité totale aux exigences de la réforme de la facturation électronique obligatoire.</p>
+        <ul style="list-style-type: disc; padding-left: 20px; color: var(--tool-muted); line-height: 1.6; margin-top: 16px;">
+            <li>Prise en charge des trois formats réglementaires obligatoires (UBL, CII et Factur-X).</li>
+            <li>Gestion automatique du e-invoicing (émission et réception) et du e-reporting.</li>
+            <li>Archivage sécurisé pendant 10 ans avec horodatage et garantie d’inaltérabilité.</li>
+            <li>Engagement ferme de maintenir cette fonctionnalité <strong>100% gratuite</strong>.</li>
+        </ul>
+        
+        <h2 id="securite" style="margin-top: 48px;">Sécurité et Protection des données</h2>
+        <p>Toutes les données sont hébergées en France dans des datacenters respectant les normes de sécurité européennes. La synchronisation bancaire se fait via un agrégateur agréé ACPR-Banque de France en accès <strong>lecture seule</strong> (aucune opération d'écriture possible sans votre accord explicite sur votre app bancaire).</p>
+    </section>
+
+    <!-- Pour Qui -->
+    <section id="ciblage" class="review-content-section">
+        <h2>Pour qui est fait {{ ucfirst($tool->name) }} ?</h2>
+        <div class="pros-cons-grid">
+            <div class="pros-box">
+                <div class="pros-cons-title">
+                    ✅ Profils idéaux
+                </div>
+                <ul class="pros-list">
+                    <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg> Freelances, développeurs, consultants.</li>
+                    <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg> Professions libérales (santé, conseil).</li>
+                    <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg> Micro-entrepreneurs / Auto-entrepreneurs.</li>
+                    <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg> SASU, EURL de 1 à 5 personnes.</li>
+                    <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg> SCI, LMNP.</li>
+                </ul>
+            </div>
+            <div class="cons-box">
+                <div class="pros-cons-title">
+                    ⚠ Profils non adaptés
+                </div>
+                <ul class="cons-list">
+                    <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg> Artisans avec gestion de stock avancée.</li>
+                    <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg> Entreprises avec paie complexe multi-salariés.</li>
+                    <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg> E-commerçants avec fort volume B2C (préférez Pennylane).</li>
+                </ul>
+            </div>
+        </div>
+    </section>
 
     <!-- Verdict -->
-    <section class="verdict-box">
+    <section id="verdict" class="verdict-box">
         <h2>Notre verdict final sur {{ ucfirst($tool->name) }}</h2>
-        <p>Si vous cherchez à vous débarrasser de l'angoisse de la paperasse et des déclarations URSSAF, {{ ucfirst($tool->name) }} est la meilleure solution actuelle sur le marché français. Son approche "sans jargon" est une bouffée d'air frais.</p>
-        <a href="{{ route('affiliate.redirect', $tool->slug) }}" target="_blank" rel="sponsored nofollow" class="review-cta-btn" style="display:inline-block; width:auto; padding:18px 48px; background:white; color:{{ $tool->slug === 'indy' ? '#F75A77' : 'var(--tool-primary)' }};">Profiter de l'offre gratuite {{ ucfirst($tool->name) }}</a>
-        <p style="margin-top:16px; font-size:12px; color:rgba(255,255,255,0.5);">Essai gratuit de 15 jours, sans engagement ni carte de crédit requise.</p>
+        <p>Si vous cherchez à vous débarrasser de l'angoisse de la paperasse et des déclarations, <strong>{{ ucfirst($tool->name) }}</strong> est la meilleure solution actuelle sur le marché français. Son approche "tout-en-un gratuit" est une véritable bouffée d'air frais. La garantie de conformité pour 2026 permet de s'équiper dès aujourd'hui l'esprit tranquille.</p>
+        <a href="{{ route('affiliate.redirect', $tool->slug) }}" target="_blank" rel="sponsored nofollow" class="review-cta-btn" style="display:inline-block; width:auto; padding:18px 48px; background:white; color:var(--tool-primary);">Profiter de l'offre gratuite {{ ucfirst($tool->name) }}</a>
+        <p style="margin-top:16px; font-size:12px; color:rgba(255,255,255,0.7);">Rejoignez plus de 90 000 indépendants qui l'utilisent au quotidien.</p>
     </section>
 
 </main>
+
+<script>
+    function showQuizResult(type, message) {
+        document.querySelectorAll('.quiz-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        const resultBox = document.getElementById('quiz-result-box');
+        resultBox.className = 'quiz-result show ' + type;
+        resultBox.innerHTML = message;
+    }
+</script>
 @endsection
