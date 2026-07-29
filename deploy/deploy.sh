@@ -66,34 +66,10 @@ FRONTEND_REGEX="(resources/|lang/|app/View/|app/Livewire/|package|vite\.config|t
 FRONTEND_FILES=$(git diff "${PREV_COMMIT}" "${NEW_COMMIT}" --name-only 2>/dev/null | grep -E "$FRONTEND_REGEX" || true)
 FRONTEND_CHANGED=$(echo "$FRONTEND_FILES" | grep -v '^$' | wc -l || true)
 
-if [ ! -d "public/build" ] || [ "$FRONTEND_CHANGED" -gt 0 ] || [ "${1:-}" == "--force" ]; then
-    log "Changements frontend détectés — lancement build npm..."
-    
-    # Supprimer public/hot pour éviter que Laravel Vite ne cherche le dev server
+    # Les assets sont désormais compilés dans GitHub Actions et transférés via scp.
+    # On s'assure juste de supprimer le hot reload file et de mettre les bonnes permissions.
     rm -f public/hot || true
-
-    # Charger NVM si disponible (utile pour les connexions SSH non-interactives)
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
-    # Forcer l'installation des devDependencies en désactivant temporairement NODE_ENV=production
-    log "Installation des dépendances npm..."
-    if ! NODE_ENV=development npm ci --quiet 2>/dev/null; then
-        log "npm ci a échoué (pas de lockfile?), exécution de npm install..."
-        sudo rm -rf "$APP_DIR/node_modules" 2>/dev/null || true
-        NODE_ENV=development npm install --quiet
-    fi
-
-    log "Lancement de npm run build..."
-    if npm run build; then
-        log "Build frontend réussi."
-        chmod -R 775 public/build 2>/dev/null || true
-    else
-        fail "Échec de npm run build."
-    fi
-else
-    log "Pas de changements frontend détectés — skip npm build."
-fi
+    chmod -R 775 public/build 2>/dev/null || true
 
 # --- Sauvegarde BDD ----------------------------------------------------------
 log "Sauvegarde de la base de données..."
