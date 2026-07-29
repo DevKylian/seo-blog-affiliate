@@ -552,7 +552,7 @@ TEXT;
             $data['title'] = $lockedTitle;
             $data['meta_title'] = $lockedTitle;
             $data['outline'] = $blueprint['outline'];
-        } elseif ($type === 'informational') {
+        } elseif (in_array($type, ['informational', 'question'], true)) {
             $data['title'] = $this->duplicates->recommendedTitle($project, $blueprint);
             $data['meta_title'] = $data['title'];
         }
@@ -1617,6 +1617,7 @@ TEXT;
         if ($misleadingTitle || ! $technicalTitle || ! str_contains(mb_strtolower($title), mb_strtolower($project->name))) {
             $data['title'] = match ($type) {
                 'pricing' => "Tarifs {$project->name} : offres, prix et coût réel",
+                'question' => "Comment faire avec {$project->name} : " . ($keyword?->keyword ? ucfirst($keyword->keyword) : 'Guide pas à pas'),
                 'informational' => "Maîtriser {$project->name} pour {$keyword?->keyword} : guide technique",
                 default => "Maîtriser {$project->name} : cas d’usage, limites et conseils",
             };

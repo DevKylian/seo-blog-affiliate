@@ -348,6 +348,7 @@ final class InternalLinkService
             'alternatives' => "les alternatives à {$product}",
             'best_tools' => 'notre sélection d’outils adaptés',
             'tool_review' => "notre avis détaillé sur {$product}",
+            'question' => "notre tutoriel pas à pas sur {$product}",
             default => "notre guide pratique sur {$product}",
         };
     }

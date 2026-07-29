@@ -612,4 +612,15 @@ MARKDOWN;
 
         $this->addToAssertionCount(1);
     }
+
+    public function test_question_content_structure_has_enforced_how_to_sections(): void
+    {
+        $service = new SeoContentStructure;
+        $structure = $service->for('question');
+
+        $this->assertSame('Article Question / Tutoriel (How-to)', $structure['label']);
+        $this->assertGreaterThanOrEqual(1600, $structure['minimum_words']);
+        $this->assertGreaterThanOrEqual(7, count($structure['sections']));
+        $this->assertStringContainsString('STRUCTURE ÉDITORIALE OBLIGATOIRE — Article Question / Tutoriel (How-to)', $service->prompt('question'));
+    }
 }

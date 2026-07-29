@@ -48,8 +48,36 @@ class SemrushCsvImporter
         }
 
         if ($headers === null) {
+            rewind($handle);
+            $count = 0;
+            DB::transaction(function () use ($project, $handle, $delimiter, &$count): void {
+                while (($row = fgetcsv($handle, separator: $delimiter)) !== false) {
+                    $rawText = trim((string) ($row[0] ?? ''));
+                    $rawText = preg_replace('/^[0-9]+[\.\)\-]\s*|^[\-\*\•]\s*/u', '', $rawText);
+                    $keyword = $this->cleanKeyword($rawText);
+                    if (! $this->isValidKeyword($keyword)) {
+                        continue;
+                    }
+                    $data = [
+                        'keyword' => $keyword,
+                        'volume' => isset($row[1]) && is_numeric(trim($row[1])) ? (float) trim($row[1]) : 100,
+                        'kd' => isset($row[2]) && is_numeric(trim($row[2])) ? (float) trim($row[2]) : 20,
+                        'intent' => preg_match('/\b(?:comment|pourquoi|quand|quel|quelle|quels|quelles|combien|est-ce|ou|où)\b|\?/iu', $keyword) === 1 ? 'Informationnelle' : 'Informationnelle',
+                    ];
+                    $this->upsertKeywordFromData($project, $keyword, $data);
+                    $count++;
+                }
+            });
             fclose($handle);
-            throw new RuntimeException('Colonne de mot-clé introuvable. Copiez aussi la ligne d’en-tête Semrush (« Mot clé », « Intention », « Volume », « KD % »).');
+
+            if ($count > 0) {
+                $this->backfillEquivalentMetrics($project);
+                app(SemanticKeywordClusterer::class)->rebuildProject($project);
+
+                return $count;
+            }
+
+            throw new RuntimeException('Aucune donnée valide trouvée. Copiez une liste de questions ou l’en-tête Semrush (« Mot clé », « Intention », « Volume »).');
         }
 
         $count = 0;
@@ -159,6 +187,7 @@ class SemrushCsvImporter
             preg_match('/alternative|concurrent|comme/iu', $keyword) === 1 => 'Alternatives',
             preg_match('/prix|tarif|coût|promo/iu', $keyword) === 1 => 'Tarifs',
             preg_match('/avis|test|review/iu', $keyword) === 1 => 'Avis',
+            preg_match('/\b(?:comment|pourquoi|quand|quel|quelle|quels|quelles|combien|est-ce|ou|où)\b|\?/iu', $keyword) === 1 => 'Questions & Tutoriels',
             default => ucfirst(mb_strtolower($intent ?: 'Informationnel')),
         };
     }

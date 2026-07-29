@@ -52,6 +52,7 @@
                         <span>Consignes communes de la stratégie</span>
                         <div class="presets-buttons" style="display: flex; gap: 8px;">
                             <button type="button" wire:click="setPreset('pillar')" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;">Pages Mères (Pillars)</button>
+                            <button type="button" wire:click="setPreset('question')" style="background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;">Questions / Tutos (How-to)</button>
                             <button type="button" wire:click="setPreset('money')" style="background: #fce7f3; color: #db2777; border: 1px solid #fbcfe8; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;">Money Pages (Quick Wins)</button>
                             <button type="button" wire:click="setPreset('interception')" style="background: #fef9c3; color: #ca8a04; border: 1px solid #fef08a; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;">Trafic de masse (Interception)</button>
                         </div>

@@ -82,8 +82,14 @@ Tu as le droit (et même l'obligation) de générer MOINS d'idées que les {$des
 Le mot "compte pro" doit TOUJOURS désigner un compte bancaire (ex: Qonto, Shine, Indy), jamais un compte client sur une plateforme tierce.
 
 ATTENTION : Tu as deux sources pour générer tes idées :
-1. "Sujets Stratégiques (Knowledge Graph)" : Ce sont les idées fondatrices (Piliers, Comparatifs, Alternatives). Tu DOIS traiter en priorité ces sujets car ils ont une très haute valeur métier.
-2. "Mots-clés disponibles (Semrush)" : Ce sont les requêtes pour la longue traîne et le trafic de masse.
+1. "Sujets Stratégiques (Knowledge Graph)" : Ce sont les idées fondatrices (Piliers, Comparatifs, Alternatives, Questions opportunistes). Tu DOIS traiter en priorité ces sujets car ils ont une très haute valeur métier.
+2. "Mots-clés disponibles (Semrush)" : Ce me sont les requêtes pour la longue traîne et le trafic de masse.
+
+GÉNÉRATION DYNAMIQUE ET INTELLIGENTE DE QUESTIONS (HOW-TO) PAR L'API GEMINI :
+Lorsque le mode "Questions / Tutoriels" est sélectionné ou demandé dans les consignes, l'API Gemini doit analyser dynamiquement le positionnement du projet ({$project->name}) et son univers métier pour extraire les questions réelles les plus opportunistes, recherchées et pertinentes pour sa cible (freelances, micro-entrepreneurs, créateurs, TPE).
+Tu ne dois pas utiliser d'exemples figés : utilise l'ensemble de tes connaissances du marché B2B/SaaS français pour déduire dynamiquement les requêtes "How-to" les plus stratégiques ("Comment...", "Pourquoi...", "Combien...", "Quelle méthode...") qui captent une intention réelle et débouchent sur la recommandation naturelle de {$project->name}.
+
+
 
 LANGUE FRANÇAISE
 - Rédige tous les champs visibles en français naturel avec les accents normaux de la langue française.
@@ -131,6 +137,7 @@ RÈGLES BLOQUANTES DE STRUCTURATION
   * 'general' : Pour tout ce qui ne rentre pas dans les cases ci-dessus (marketing, productivité, etc).
 - Comparison : nomme explicitement les deux solutions dans le titre avec « X vs Y » et prévois au moins 2 solutions concurrentielles dans le plan.
 - Alternatives : le titre part explicitement du produit cible ou d'un concurrent sous la forme « Alternatives à X… ».
+- Question / Tutoriel (content_type='question') : formule un titre clair sous forme de question directe ou tuto ("Comment [faire X avec Y] ?", "Comment [configurer/utiliser X] ?") ciblant l'intention How-to.
 
 Empreintes déjà couvertes ou refusées — ne pas les reformuler ni créer de contenu avec une intention similaire (> 70%) :
 {$excludedJson}
@@ -251,7 +258,7 @@ PROMPT;
                                 'type' => 'array',
                                 'items' => $string,
                             ],
-                            'content_type' => ['type' => 'string', 'enum' => ['informational', 'tool_review', 'pricing', 'comparison', 'alternatives', 'best_tools']],
+                            'content_type' => ['type' => 'string', 'enum' => ['informational', 'tool_review', 'pricing', 'comparison', 'alternatives', 'best_tools', 'question']],
                             'roadmap_level' => ['type' => 'string', 'enum' => ['Level 1 - Pillar', 'Level 2 - Commercial', 'Level 3 - Long Tail', 'Level 4 - FAQ', 'Level 5 - Comparatifs', 'Level 6 - Alternatives', 'Level 7 - Tutoriels']],
                             'call_to_action' => $string,
                             'conversion_goal' => ['type' => 'string', 'enum' => ['create_company', 'invoice', 'account', 'accounting', 'plus', 'micro', 'general']],

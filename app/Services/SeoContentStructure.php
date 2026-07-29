@@ -149,6 +149,7 @@ TEXT;
             'best_tools' => 3,
             'alternatives' => 4,
             'informational' => 2,
+            'question' => 2,
         ];
         $index = $preferredIndexes[$type] ?? 1;
         if (isset($sections[$index])) {
@@ -895,6 +896,26 @@ TEXT;
                     'Conclusion et prochaines étapes',
                 ],
                 'required_terms' => [['définition', 'réponse'], ['étape', 'méthode'], ['exemple', 'scénario'], ['erreur'], ['checklist'], ['outil', 'ressource'], ['faq', 'questions fréquentes'], ['conclusion']],
+            ],
+            'question' => [
+                'label' => 'Article Question / Tutoriel (How-to)',
+                'objective' => 'Répondre directement et précisément à une question ("Comment faire X avec Y ?"), fournir la réponse dès l’introduction pour le Featured Snippet, puis guider l’exécution pas à pas avec cas concrets et tableau de synthèse.',
+                'target_min' => 2000,
+                'target_max' => 3000,
+                'minimum_words' => 1600,
+                'minimum_h2' => 7,
+                'sections' => [
+                    'Réponse directe et solution rapide',
+                    'Prérequis et éléments nécessaires',
+                    'Guide pas à pas : Comment faire étape par étape',
+                    'Exemple concret et cas d’usage',
+                    'Erreurs fréquentes et pièges à éviter',
+                    'Tableau récapitulatif de la méthode et des outils',
+                    'Outils et ressources complémentaires recommandés',
+                    'FAQ et questions associées',
+                    'Conclusion et conseils d’optimisation',
+                ],
+                'required_terms' => [['réponse', 'solution'], ['prérequis', 'nécessaire'], ['étape', 'tutoriel', 'guide'], ['exemple', 'cas'], ['erreur', 'piège'], ['tableau', 'récapitulatif'], ['faq', 'questions'], ['conclusion']],
             ],
         ];
     }

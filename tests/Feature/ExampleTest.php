@@ -2839,4 +2839,19 @@ MARKDOWN;
 
         $this->actingAs($user)->get('/admin')->assertForbidden();
     }
+
+    public function test_import_raw_questions_list_without_semrush_headers(): void
+    {
+        $project = SeoProject::query()->create(['name' => 'Indy', 'slug' => 'indy-test-questions', 'website_url' => 'https://example.com', 'country' => 'FR', 'currency' => 'EUR']);
+        $importer = app(\App\Services\SemrushCsvImporter::class);
+
+        $questionsText = "Comment faire une facture d'acompte avec Indy ?\nComment calculer les cotisations Urssaf en micro ?\nPourquoi ouvrir un compte bancaire pro ?";
+        $count = $importer->importText($project, $questionsText);
+
+        $this->assertSame(3, $count);
+        $this->assertDatabaseHas('keywords', [
+            'seo_project_id' => $project->id,
+            'keyword' => "Comment faire une facture d'acompte avec Indy ?",
+        ]);
+    }
 }

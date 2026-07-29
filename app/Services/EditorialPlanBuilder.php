@@ -499,7 +499,7 @@ final class EditorialPlanBuilder
                 'internal_links_strategy' => $raw['internal_links_strategy'] ?? null,
             ],
             'fingerprint' => $blueprint['fingerprint'],
-            'content_type' => in_array($raw['content_type'] ?? '', ['informational', 'tool_review', 'pricing', 'comparison', 'alternatives', 'best_tools'], true) ? $raw['content_type'] : 'informational',
+            'content_type' => in_array($raw['content_type'] ?? '', ['informational', 'tool_review', 'pricing', 'comparison', 'alternatives', 'best_tools', 'question'], true) ? $raw['content_type'] : 'informational',
             'status' => $decision['accepted'] ? 'candidate' : 'rejected',
             'rejection_reason' => $decision['reason'],
             'seo_score' => $decision['seo_score'] ?? 0,

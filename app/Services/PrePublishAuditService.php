@@ -295,7 +295,7 @@ final class PrePublishAuditService
 
     private function safeType(string $type): string
     {
-        return in_array($type, ['tool_review', 'pricing', 'comparison', 'best_tools', 'alternatives', 'informational'], true)
+        return in_array($type, ['tool_review', 'pricing', 'comparison', 'best_tools', 'alternatives', 'informational', 'question'], true)
             ? $type
             : 'informational';
     }
