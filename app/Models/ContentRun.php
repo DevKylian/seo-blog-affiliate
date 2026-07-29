@@ -10,7 +10,11 @@ class ContentRun extends Model
 {
     protected $guarded = [];
 
-    protected $casts = ['started_at' => 'datetime', 'completed_at' => 'datetime'];
+    protected $casts = [
+        'publication_days' => 'integer',
+        'started_at' => 'datetime',
+        'completed_at' => 'datetime',
+    ];
 
     public function project(): BelongsTo
     {

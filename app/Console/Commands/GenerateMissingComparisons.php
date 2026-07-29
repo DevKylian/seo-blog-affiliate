@@ -61,7 +61,7 @@ class GenerateMissingComparisons extends Command
             'name' => 'Comparatifs ' . $project->name,
             'requested_count' => count($competitors),
             'status' => 'pending',
-            'publication_days' => [],
+            'publication_days' => null,
         ]);
 
         foreach ($ideas as $idea) {
