@@ -72,7 +72,7 @@ class GenerateMissingComparisons extends Command
             ]);
         }
 
-        $launcher->launch($run);
+        $launcher->launch($run->id);
 
         $this->info("Génération lancée pour " . count($competitors) . " comparatifs.");
     }
