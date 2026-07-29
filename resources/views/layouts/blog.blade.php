@@ -81,7 +81,7 @@
                 <a href="{{ route('blog.index') }}" class="nav-link">Guides</a>
                 <a href="{{ route('free-tools.index') }}" class="nav-link">Outils gratuits</a>
                 <a href="{{ route('tools.index') }}" class="nav-link">Comparateur</a>
-                <a href="{{ route('affiliate.redirect', 'indy') }}" class="nav-cta" target="_blank" rel="sponsored nofollow">Essayer Indy</a>
+                <a href="{{ route('affiliate.redirect', 'indy') }}" class="nav-cta" target="_blank" rel="sponsored nofollow">Profiter de l'offre gratuite Indy</a>
             </nav>
         </header>
     </div>

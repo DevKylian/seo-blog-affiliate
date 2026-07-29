@@ -86,7 +86,7 @@
             <div style="font-size: 24px; font-weight: 800; color: var(--tool-primary); margin-bottom: 16px;">
                 À partir de 0 € <span style="font-size: 14px; color: var(--tool-muted); font-weight: 400;">/mois</span>
             </div>
-            <a href="{{ route('affiliate.redirect', $tool->slug) }}" target="_blank" rel="sponsored nofollow" class="review-cta-btn" style="{{ $tool->slug === 'indy' ? 'background:#F75A77;' : '' }}">Essayer {{ ucfirst($tool->name) }} gratuitement</a>
+            <a href="{{ route('affiliate.redirect', $tool->slug) }}" target="_blank" rel="sponsored nofollow" class="review-cta-btn" style="{{ $tool->slug === 'indy' ? 'background:#F75A77;' : '' }}">Profiter de l'offre gratuite {{ ucfirst($tool->name) }}</a>
             <div class="why-recommend">
                 <strong style="display:block; margin-bottom:4px;">💡 Pourquoi nous recommandons {{ ucfirst($tool->name) }} :</strong>
                 C'est tout simplement la solution la plus intuitive que nous ayons testée pour les indépendants. Vous gagnerez au minimum 2 heures par mois sur votre administratif.
@@ -257,7 +257,7 @@
     <section class="verdict-box">
         <h2>Notre verdict final sur {{ ucfirst($tool->name) }}</h2>
         <p>Si vous cherchez à vous débarrasser de l'angoisse de la paperasse et des déclarations URSSAF, {{ ucfirst($tool->name) }} est la meilleure solution actuelle sur le marché français. Son approche "sans jargon" est une bouffée d'air frais.</p>
-        <a href="{{ route('affiliate.redirect', $tool->slug) }}" target="_blank" rel="sponsored nofollow" class="review-cta-btn" style="display:inline-block; width:auto; padding:18px 48px; background:white; color:{{ $tool->slug === 'indy' ? '#F75A77' : 'var(--tool-primary)' }};">Créer un compte gratuit</a>
+        <a href="{{ route('affiliate.redirect', $tool->slug) }}" target="_blank" rel="sponsored nofollow" class="review-cta-btn" style="display:inline-block; width:auto; padding:18px 48px; background:white; color:{{ $tool->slug === 'indy' ? '#F75A77' : 'var(--tool-primary)' }};">Profiter de l'offre gratuite {{ ucfirst($tool->name) }}</a>
         <p style="margin-top:16px; font-size:12px; color:rgba(255,255,255,0.5);">Essai gratuit de 15 jours, sans engagement ni carte de crédit requise.</p>
     </section>
 

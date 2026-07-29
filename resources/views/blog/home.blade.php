@@ -401,7 +401,7 @@
                             <a href="{{ route('tools.show', 'indy') }}" class="home-software-btn" style="flex:1;">Voir notre avis complet →</a>
                             <span style="font-size:12px; color:var(--home-muted); font-weight:700; margin-left:12px; white-space:nowrap;">⏱ 12 min</span>
                         </div>
-                        <a href="{{ route('affiliate.redirect', 'indy') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn" style="width:100%; background:var(--home-accent); color:white; border-color:var(--home-accent);">Créer mon compte gratuitement</a>
+                        <a href="{{ route('affiliate.redirect', 'indy') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn" style="width:100%; background:var(--home-accent); color:white; border-color:var(--home-accent);">Profiter de l'offre gratuite Indy</a>
                         
                         <div style="margin-top:12px; text-align:left;">
                             <a href="#" @click.prevent="showWhy = !showWhy" style="font-size:13px; color:var(--home-primary-light); text-decoration:none; font-weight:700; display:flex; align-items:center; gap:4px; justify-content:center;">
