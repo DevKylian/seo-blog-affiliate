@@ -79,12 +79,103 @@ class BlogController extends Controller
             'sources',
             'internalLinks.target',
         ])
-            ->where('status', 'published')->where('slug', $slug)
-            ->when($type, fn ($query) => $query->where('type', $type))->firstOrFail();
+            ->where('status', 'published')
+            ->where('slug', $slug)
+            ->when($type, fn ($query) => $query->where('type', $type))
+            ->first();
 
-        $article->increment('views');
+        if ($article) {
+            $article->increment('views');
+            return view('blog.show', compact('article'));
+        }
 
-        return view('blog.show', compact('article'));
+        $draftArticle = Article::query()
+            ->where('slug', $slug)
+            ->when($type, fn ($query) => $query->where('type', $type))
+            ->first();
+
+        if ($draftArticle && auth()->check()) {
+            return $this->preview($draftArticle);
+        }
+
+        $normalizedSlug = str_replace('-', ' ', $slug);
+        $idea = EditorialIdea::query()
+            ->where(function ($query) use ($slug, $normalizedSlug) {
+                $query->where('primary_keyword', $normalizedSlug)
+                    ->orWhere('title', 'like', '%' . str_replace('-', '%', $slug) . '%');
+            })
+            ->when($type, fn ($query) => $query->where('content_type', $type))
+            ->latest('id')
+            ->first();
+
+        if (request()->has('generate_now') && auth()->check()) {
+            if ($idea) {
+                $generator = app(\App\Services\GeminiContentGenerator::class);
+                $newArticle = $generator->generateFromIdea($idea->plan->project, $idea);
+                $newArticle->update(['status' => 'published', 'published_at' => now()]);
+                return $this->article($newArticle->slug, $type);
+            }
+        }
+
+        if ($idea) {
+            $title = $idea->title;
+            return view('blog.generating', compact('title', 'slug'));
+        }
+
+        if ($type === 'comparison' || str_contains($slug, '-vs-')) {
+            $parts = explode('-vs-', $slug, 2);
+            if (count($parts) === 2) {
+                $projectSlug = $parts[0];
+                $competitorName = ucfirst($parts[1]);
+                $project = SeoProject::query()->where('slug', $projectSlug)->first();
+
+                if ($project) {
+                    $title = ucfirst($project->name) . ' vs ' . $competitorName;
+
+                    if (request()->has('generate_now') && auth()->check()) {
+                        $plan = EditorialPlan::create([
+                            'seo_project_id' => $project->id,
+                            'name' => 'Génération à la volée : ' . $title,
+                            'status' => 'generating',
+                            'requested_count' => 1,
+                        ]);
+
+                        $newIdea = EditorialIdea::create([
+                            'editorial_plan_id' => $plan->id,
+                            'title' => $title,
+                            'thumbnail_title' => $title,
+                            'primary_keyword' => mb_strtolower($title),
+                            'entity_key' => $project->name . '/' . $competitorName,
+                            'topic_key' => 'comparaison',
+                            'intent' => 'Commercial',
+                            'angle' => "Comparatif direct entre {$project->name} et {$competitorName}",
+                            'content_type' => 'comparison',
+                            'status' => 'accepted',
+                            'position' => 1,
+                            'seo_score' => 90,
+                            'audience' => 'Indépendants/TPE',
+                            'problem' => "Quel outil choisir entre {$project->name} et {$competitorName} ?",
+                            'expected_outcome' => "Comprendre les différences clés entre {$project->name} et {$competitorName}.",
+                            'unique_promise' => "Le comparatif complet {$project->name} vs {$competitorName}.",
+                            'funnel_stage' => 'decision',
+                            'excluded_topics' => [],
+                            'outline' => ["Verdict rapide : quel outil choisir ?", "Tableau comparatif {$project->name} vs {$competitorName}", "Analyse détaillée de {$project->name}", "Analyse détaillée de {$competitorName}", "Tarifs et coût réel comparés", "FAQ du comparatif"],
+                            'fingerprint' => mb_strtolower($title . '|comparatif|decision'),
+                        ]);
+
+                        $generator = app(\App\Services\GeminiContentGenerator::class);
+                        $newArticle = $generator->generateFromIdea($project, $newIdea);
+                        $newArticle->update(['status' => 'published', 'published_at' => now()]);
+
+                        return $this->article($newArticle->slug, $type);
+                    }
+
+                    return view('blog.missing_comparison', compact('title', 'slug'));
+                }
+            }
+        }
+
+        abort(404);
     }
 
     public function preview(Article $article): View
