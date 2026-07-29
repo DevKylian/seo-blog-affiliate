@@ -127,7 +127,7 @@
             <p class="hp-wizard-question">2. Quel est votre chiffre d'affaires (estimé) ?</p>
             <div class="hp-wizard-options">
                 <div class="hp-wizard-option" @click="answer(2, 'petit')">
-                    <span style="font-size: 24px; margin-right: 8px;">🪙</span>
+                    <span style="font-size: 24px; margin-right: 8px;">💶</span>
                     Moins de 36 000 € (Pas de TVA)
                 </div>
                 <div class="hp-wizard-option" @click="answer(2, 'moyen')">
