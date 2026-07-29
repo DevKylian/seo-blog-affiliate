@@ -3,7 +3,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "ROLLUP_FORCE_WASM=true vite build || true"
+        "build": "node -e \"if (require('fs').existsSync('public/build/manifest.json')) process.exit(0); process.exit(1);\" || vite build"
     },
     "dependencies": {
         "playwright-core": "^1.61.1"
