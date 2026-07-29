@@ -1,6 +1,7 @@
 @extends('layouts.blog')
 
 @section('title', 'Politique de confidentialité - BusinessKit')
+@section('robots', 'noindex, nofollow')
 
 @section('content')
 <div class="container" style="max-width: 800px; margin: 40px auto; padding: 0 20px;">
