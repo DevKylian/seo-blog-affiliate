@@ -1817,7 +1817,7 @@ TEXT;
     {
         return collect(preg_split('/-+/', Str::slug($value)) ?: [])
             ->map(fn (string $token): string => trim($token))
-            ->filter(fn (string $token): bool => mb_strlen($token) >= 3
+            ->filter(fn (string $token): bool => (mb_strlen($token) >= 3 || $token === 'vs')
                 && ! in_array($token, $this->slugStopWords(), true)
                 && preg_match('/^\d{1,2}$/', $token) !== 1)
             ->values()
