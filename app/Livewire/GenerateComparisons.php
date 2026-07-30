@@ -85,9 +85,6 @@ class GenerateComparisons extends Component
 
     public function generateAllMissing()
     {
-        @set_time_limit(300);
-        @ini_set('memory_limit', '512M');
-
         $catalog = $this->getCatalog();
         $missingItems = [];
 
@@ -104,33 +101,48 @@ class GenerateComparisons extends Component
             return;
         }
 
-        $generator = app(GeminiContentGenerator::class);
-        $totalGenerated = 0;
+        $launcher = app(ContentRunWorkerLauncher::class);
+        $grouped = collect($missingItems)->groupBy('project.id');
+        $totalLaunched = 0;
 
-        foreach ($missingItems as $item) {
-            $project = $item['project'];
+        foreach ($grouped as $projectId => $items) {
+            $project = SeoProject::find($projectId);
             if (!$project) continue;
 
-            try {
-                $plan = EditorialPlan::create([
-                    'seo_project_id' => $project->id,
-                    'name' => 'Génération ' . $item['title'],
-                    'status' => 'generating',
-                    'requested_count' => 1,
-                ]);
+            // Ensure verified source page exists
+            SourcePage::firstOrCreate(
+                ['seo_project_id' => $project->id, 'url' => $project->website_url ?: 'https://' . $project->slug . '.fr'],
+                [
+                    'title' => 'Page officielle ' . $project->name,
+                    'type' => 'pricing',
+                    'status' => 'verified',
+                    'verified_at' => now(),
+                    'confidence_score' => 1.0,
+                    'content' => 'Tarifs, caractéristiques et fonctionnalités de ' . $project->name . '.',
+                ]
+            );
 
-                $idea = EditorialIdea::create([
+            $plan = EditorialPlan::create([
+                'seo_project_id' => $project->id,
+                'name' => 'Catalogue ' . $project->name,
+                'status' => 'generating',
+                'requested_count' => count($items),
+            ]);
+
+            $ideas = [];
+            foreach ($items as $index => $item) {
+                $ideas[] = EditorialIdea::create([
                     'editorial_plan_id' => $plan->id,
                     'title' => $item['title'],
                     'thumbnail_title' => $item['title'],
                     'primary_keyword' => mb_strtolower($item['title']),
-                    'entity_key' => $project->name,
+                    'entity_key' => isset($item['competitor']) ? $project->name . '/' . $item['competitor'] : $project->name,
                     'topic_key' => $item['type'],
                     'intent' => 'Commercial',
                     'angle' => "Analyse et guide : {$item['title']}",
                     'content_type' => $item['type'],
                     'status' => 'accepted',
-                    'position' => 1,
+                    'position' => $index + 1,
                     'seo_score' => 90,
                     'audience' => 'Indépendants/TPE',
                     'problem' => "Découvrir {$item['title']}",
@@ -141,21 +153,31 @@ class GenerateComparisons extends Component
                     'outline' => ["Verdict", "Analyse", "Tarifs", "FAQ"],
                     'fingerprint' => mb_strtolower($item['title'] . '|' . $item['type']),
                 ]);
-
-                $article = $generator->generateFromIdea($project, $idea);
-                $article->update([
-                    'slug' => $item['slug'],
-                    'status' => 'published',
-                    'published_at' => now(),
-                ]);
-
-                $totalGenerated++;
-            } catch (\Exception $e) {
-                logger()->error("Generation failed for {$item['title']}: " . $e->getMessage());
             }
+
+            $run = ContentRun::create([
+                'seo_project_id' => $project->id,
+                'user_id' => auth()->id() ?? 1,
+                'editorial_plan_id' => $plan->id,
+                'name' => 'Catalogue ' . $project->name,
+                'requested_count' => count($items),
+                'status' => 'pending',
+                'publication_days' => null,
+            ]);
+
+            foreach ($ideas as $idea) {
+                $run->items()->create([
+                    'editorial_idea_id' => $idea->id,
+                    'content_type' => $idea->content_type,
+                    'status' => 'pending',
+                ]);
+            }
+
+            $launcher->launch($run->id);
+            $totalLaunched += count($items);
         }
 
-        $this->message = "✅ {$totalGenerated} article(s) sur " . count($missingItems) . " ont été générés et publiés immédiatement !";
+        $this->message = "⚡ {$totalLaunched} contenu(s) manquant(s) ont été lancés dans le Flux Automatique ! La rédaction se poursuit en arrière-plan, vous pouvez quitter la page.";
         $this->messageType = 'success';
     }
 
@@ -178,6 +200,18 @@ class GenerateComparisons extends Component
         }
 
         $project = $item['project'];
+
+        SourcePage::firstOrCreate(
+            ['seo_project_id' => $project->id, 'url' => $project->website_url ?: 'https://' . $project->slug . '.fr'],
+            [
+                'title' => 'Page officielle ' . $project->name,
+                'type' => 'pricing',
+                'status' => 'verified',
+                'verified_at' => now(),
+                'confidence_score' => 1.0,
+                'content' => 'Tarifs, caractéristiques et fonctionnalités de ' . $project->name . '.',
+            ]
+        );
 
         $plan = EditorialPlan::create([
             'seo_project_id' => $project->id,
@@ -209,17 +243,27 @@ class GenerateComparisons extends Component
             'fingerprint' => mb_strtolower($item['title'] . '|' . $item['type']),
         ]);
 
-        try {
-            $generator = app(GeminiContentGenerator::class);
-            $article = $generator->generateFromIdea($project, $idea);
-            $article->update(['slug' => $targetSlug, 'status' => 'published', 'published_at' => now()]);
+        $run = ContentRun::create([
+            'seo_project_id' => $project->id,
+            'user_id' => auth()->id() ?? 1,
+            'editorial_plan_id' => $plan->id,
+            'name' => 'Génération ' . $item['title'],
+            'requested_count' => 1,
+            'status' => 'pending',
+            'publication_days' => null,
+        ]);
 
-            $this->message = "✅ L'article {$item['title']} a été généré et publié avec le slug {$targetSlug} !";
-            $this->messageType = 'success';
-        } catch (\Exception $e) {
-            $this->message = "Erreur lors de la génération de {$item['title']} : " . $e->getMessage();
-            $this->messageType = 'error';
-        }
+        $run->items()->create([
+            'editorial_idea_id' => $idea->id,
+            'content_type' => $idea->content_type,
+            'status' => 'pending',
+        ]);
+
+        $launcher = app(ContentRunWorkerLauncher::class);
+        $launcher->launch($run->id);
+
+        $this->message = "⚡ La rédaction de {$item['title']} a été lancée en arrière-plan !";
+        $this->messageType = 'success';
     }
 
     public function setCategory(string $category)

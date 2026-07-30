@@ -1,4 +1,4 @@
-<div style="padding: 30px;">
+<div style="padding: 30px;" wire:poll.5s>
     
     <!-- En-tête -->
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px;">
