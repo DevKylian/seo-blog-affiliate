@@ -331,8 +331,8 @@
         <div class="home-softwares-list">
             
             <!-- Notre sélection 1: Indy -->
-            <div class="hp-selection-card">
-                <div class="hp-selection-badge">🏆 Notre meilleure recommandation pour les indépendants</div>
+            <div class="hp-selection-card" style="--home-accent: #ec4899; --home-accent-hover: #db2777; --home-primary: #ec4899; border-color: var(--home-accent);">
+                <div class="hp-selection-badge" style="background: var(--home-accent);">🏆 Notre meilleure recommandation pour les indépendants</div>
                 <div class="hp-selection-content" style="display:flex; flex-wrap:wrap; gap:32px; align-items:center;">
                     <div style="flex: 1 1 300px;">
                         <h3 class="hp-selection-title" style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Indy ⭐</h3>
