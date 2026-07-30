@@ -7,6 +7,7 @@ use App\Models\ContentRun;
 use App\Models\EditorialIdea;
 use App\Models\EditorialPlan;
 use App\Models\SeoProject;
+use App\Models\SourcePage;
 use App\Services\ContentRunWorkerLauncher;
 use App\Services\GeminiContentGenerator;
 use Illuminate\Support\Str;
