@@ -68,11 +68,11 @@ class GenerateComparisons extends Component
             ['title' => 'Avis complet Shine', 'category' => 'review', 'type' => 'tool_review', 'slug' => 'shine-avis', 'project' => $shine],
 
             // --- 3. TARIFS & PRIX ---
-            ['title' => 'Tarifs et prix Indy', 'category' => 'pricing', 'type' => 'pricing', 'slug' => 'indy-tarif', 'project' => $indy],
-            ['title' => 'Tarifs et prix Pennylane', 'category' => 'pricing', 'type' => 'pricing', 'slug' => 'pennylane-tarif', 'project' => $pennylane],
-            ['title' => 'Tarifs et prix Dougs', 'category' => 'pricing', 'type' => 'pricing', 'slug' => 'dougs-tarif', 'project' => $dougs],
-            ['title' => 'Tarifs et prix Abby', 'category' => 'pricing', 'type' => 'pricing', 'slug' => 'abby-tarif', 'project' => $abby],
-            ['title' => 'Tarifs et prix Shine', 'category' => 'pricing', 'type' => 'pricing', 'slug' => 'shine-tarif', 'project' => $shine],
+            ['title' => 'Tarifs Indy', 'category' => 'pricing', 'type' => 'pricing', 'slug' => 'indy-tarif', 'project' => $indy],
+            ['title' => 'Tarifs Pennylane', 'category' => 'pricing', 'type' => 'pricing', 'slug' => 'pennylane-tarif', 'project' => $pennylane],
+            ['title' => 'Tarifs Dougs', 'category' => 'pricing', 'type' => 'pricing', 'slug' => 'dougs-tarif', 'project' => $dougs],
+            ['title' => 'Tarifs Abby', 'category' => 'pricing', 'type' => 'pricing', 'slug' => 'abby-tarif', 'project' => $abby],
+            ['title' => 'Tarifs Shine', 'category' => 'pricing', 'type' => 'pricing', 'slug' => 'shine-tarif', 'project' => $shine],
 
             // --- 4. GUIDES PILIERS ---
             ['title' => 'Guide Facturation Électronique 2026', 'category' => 'guide', 'type' => 'informational', 'slug' => 'facturation-electronique', 'project' => $indy],

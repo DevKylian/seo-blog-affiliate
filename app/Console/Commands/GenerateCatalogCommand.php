@@ -82,11 +82,11 @@ class GenerateCatalogCommand extends Command
             ['title' => 'Avis complet Shine', 'type' => 'tool_review', 'slug' => 'shine-avis', 'project' => $shine],
 
             // TARIFS (pricing)
-            ['title' => 'Tarifs et prix Indy', 'type' => 'pricing', 'slug' => 'indy-tarif', 'project' => $indy],
-            ['title' => 'Tarifs et prix Pennylane', 'type' => 'pricing', 'slug' => 'pennylane-tarif', 'project' => $pennylane],
-            ['title' => 'Tarifs et prix Dougs', 'type' => 'pricing', 'slug' => 'dougs-tarif', 'project' => $dougs],
-            ['title' => 'Tarifs et prix Abby', 'type' => 'pricing', 'slug' => 'abby-tarif', 'project' => $abby],
-            ['title' => 'Tarifs et prix Shine', 'type' => 'pricing', 'slug' => 'shine-tarif', 'project' => $shine],
+            ['title' => 'Tarifs Indy', 'type' => 'pricing', 'slug' => 'indy-tarif', 'project' => $indy],
+            ['title' => 'Tarifs Pennylane', 'type' => 'pricing', 'slug' => 'pennylane-tarif', 'project' => $pennylane],
+            ['title' => 'Tarifs Dougs', 'type' => 'pricing', 'slug' => 'dougs-tarif', 'project' => $dougs],
+            ['title' => 'Tarifs Abby', 'type' => 'pricing', 'slug' => 'abby-tarif', 'project' => $abby],
+            ['title' => 'Tarifs Shine', 'type' => 'pricing', 'slug' => 'shine-tarif', 'project' => $shine],
 
             // GUIDES (informational)
             ['title' => 'Guide Facturation Électronique 2026', 'type' => 'informational', 'slug' => 'facturation-electronique', 'project' => $indy],
