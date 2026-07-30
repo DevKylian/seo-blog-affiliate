@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Exceptions\DuplicateContentException;
 use App\Exceptions\PlannedContentRejectedException;
 use App\Models\Article;
+use App\Models\Category;
 use App\Models\ContentBrief;
 use App\Models\EditorialIdea;
 use App\Models\Keyword;
