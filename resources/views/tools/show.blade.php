@@ -180,11 +180,36 @@
             <!-- Articles & Ressources liés -->
             <div>
                 <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px; color:var(--tool-text);">Ressources & Articles liés</h3>
+                @php
+                    $reviewArticle = \App\Models\Article::where('slug', $tool->slug . '-avis')->where('status', 'published')->first();
+                    $factuGuide = \App\Models\Article::where('slug', 'facturation-electronique')->where('status', 'published')->first();
+                    $tvaGuide = \App\Models\Article::where('slug', 'tva-micro-entreprise')->where('status', 'published')->first();
+                @endphp
                 <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px;">
-                    <li><a href="{{ route('reviews.show', $tool->slug . '-avis') }}" style="color:var(--tool-text); text-decoration:none; font-size:14px; display:inline-flex; align-items:center; gap:6px;">📄 Avis complet {{ ucfirst($tool->name) }}</a></li>
-                    <li><a href="{{ route('reviews.show', $tool->slug . '-tarif') }}" style="color:var(--tool-text); text-decoration:none; font-size:14px; display:inline-flex; align-items:center; gap:6px;">💸 Tarifs {{ ucfirst($tool->name) }}</a></li>
-                    <li><a href="{{ route('guides.show', 'facturation-electronique') }}" style="color:var(--tool-text); text-decoration:none; font-size:14px; display:inline-flex; align-items:center; gap:6px;">📚 Guide Facturation Électronique</a></li>
-                    <li><a href="{{ route('guides.show', 'tva-micro-entreprise') }}" style="color:var(--tool-text); text-decoration:none; font-size:14px; display:inline-flex; align-items:center; gap:6px;">📚 Guide TVA</a></li>
+                    <li>
+                        @if($reviewArticle)
+                            <a href="{{ route('reviews.show', $tool->slug . '-avis') }}" style="color:var(--tool-text); text-decoration:none; font-size:14px; display:inline-flex; align-items:center; gap:6px;">📄 Avis complet {{ ucfirst($tool->name) }}</a>
+                        @else
+                            <span style="color:#94a3b8; font-size:14px; display:inline-flex; align-items:center; gap:6px;">📄 Avis complet {{ ucfirst($tool->name) }} <small style="font-size:11px; background:#f1f5f9; padding:2px 6px; border-radius:4px; color:#64748b;">(À venir)</small></span>
+                        @endif
+                    </li>
+                    <li>
+                        <a href="{{ route('tools.pricing', $tool->slug) }}" style="color:var(--tool-text); text-decoration:none; font-size:14px; display:inline-flex; align-items:center; gap:6px;">💸 Tarifs & Offres {{ ucfirst($tool->name) }}</a>
+                    </li>
+                    <li>
+                        @if($factuGuide)
+                            <a href="{{ route('guides.show', 'facturation-electronique') }}" style="color:var(--tool-text); text-decoration:none; font-size:14px; display:inline-flex; align-items:center; gap:6px;">📚 Guide Facturation Électronique</a>
+                        @else
+                            <span style="color:#94a3b8; font-size:14px; display:inline-flex; align-items:center; gap:6px;">📚 Guide Facturation Électronique <small style="font-size:11px; background:#f1f5f9; padding:2px 6px; border-radius:4px; color:#64748b;">(À venir)</small></span>
+                        @endif
+                    </li>
+                    <li>
+                        @if($tvaGuide)
+                            <a href="{{ route('guides.show', 'tva-micro-entreprise') }}" style="color:var(--tool-text); text-decoration:none; font-size:14px; display:inline-flex; align-items:center; gap:6px;">📚 Guide TVA Micro-entreprise</a>
+                        @else
+                            <span style="color:#94a3b8; font-size:14px; display:inline-flex; align-items:center; gap:6px;">📚 Guide TVA Micro-entreprise <small style="font-size:11px; background:#f1f5f9; padding:2px 6px; border-radius:4px; color:#64748b;">(À venir)</small></span>
+                        @endif
+                    </li>
                 </ul>
             </div>
             
