@@ -97,13 +97,70 @@
                     <button class="launch-button" wire:click="startRun" wire:loading.attr="disabled" type="button" @disabled(!$workspaceReady || !$hasApiKey)><span>⌁</span><div><strong wire:loading.remove wire:target="startRun">Planifier {{ $contentCount }} contenus</strong><strong wire:loading wire:target="startRun">Analyse et déduplication des angles…</strong><small>Aucun article n’est rédigé pendant cette étape.</small></div><b>→</b></button>
                 @endif
                 @if($plan)
-                <div class="table-wrap"><table><thead><tr><th>#</th><th>Idée éditoriale</th><th>Intention</th><th>Angle / audience</th><th>Score</th><th>Similarité</th><th>Statut</th></tr></thead><tbody>@foreach($plan->ideas->whereIn('status',['candidate','accepted','reserve','generated','generating']) as $idea)<tr><td>{{ $idea->position ?? '—' }}</td><td><div class="title-with-kd"><strong class="table-title">{{ $idea->title }}</strong>@if($idea->keyword?->hasMeasuredDifficulty())<span class="kd-badge {{ $idea->keyword->keyword_difficulty <= 30 ? 'low' : ($idea->keyword->keyword_difficulty <= 50 ? 'medium' : 'high') }}">KD {{ number_format($idea->keyword->keyword_difficulty,0) }}</span>@elseif($idea->keyword)<span class="kd-badge">KD —</span>@endif</div><small>{{ $idea->primary_keyword }}</small></td><td>{{ $idea->intent }}</td><td>{{ str_replace('-',' ',$idea->angle) }}<br><small>{{ str_replace('-',' ',$idea->audience) }}</small></td><td>{{ number_format($idea->seo_score,1,',',' ') }}</td><td>{{ number_format($idea->similarity_score,0) }} %</td><td><span class="state-badge {{ $idea->status }}">{{ $idea->status }}</span></td></tr>@endforeach</tbody></table></div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 40px; text-align: center;">#</th>
+                                <th>Idée éditoriale</th>
+                                <th style="width: 100px;">Intention</th>
+                                <th>Angle / Audience</th>
+                                <th style="width: 70px; text-align: right;">Score</th>
+                                <th style="width: 80px; text-align: right;">Similarité</th>
+                                <th style="width: 110px; text-align: center;">Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($plan->ideas->whereIn('status',['candidate','accepted','reserve','generated','generating']) as $idea)
+                                <tr>
+                                    <td style="text-align: center; font-weight: 700; color: #94a3b8;">{{ $idea->position ?? '—' }}</td>
+                                    <td>
+                                        <div class="title-with-kd">
+                                            <strong class="table-title">{{ $idea->title }}</strong>
+                                            @if($idea->keyword?->hasMeasuredDifficulty())
+                                                <span class="kd-badge {{ $idea->keyword->keyword_difficulty <= 30 ? 'low' : ($idea->keyword->keyword_difficulty <= 50 ? 'medium' : 'high') }}">KD {{ number_format($idea->keyword->keyword_difficulty,0) }}</span>
+                                            @elseif($idea->keyword)
+                                                <span class="kd-badge">KD —</span>
+                                            @endif
+                                        </div>
+                                        <small style="display: block; margin-top: 3px; color: #94a3b8; font-size: 11px;">{{ $idea->primary_keyword }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="strategy-badge {{ strtolower($idea->intent) === 'commercial' ? 'niche' : (strtolower($idea->intent) === 'pillar' ? 'pillar' : 'supporting') }}">
+                                            {{ $idea->intent }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div style="display: grid; gap: 2px;">
+                                            <span style="font-weight: 600; color: #cbd5e1; font-size: 11px;">{{ str_replace('-',' ',$idea->angle) }}</span>
+                                            <small style="color: #64748b; font-size: 10px;">{{ str_replace('-',' ',$idea->audience) }}</small>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: right; font-weight: 700; color: #38bdf8;">{{ number_format($idea->seo_score,1,',',' ') }}</td>
+                                    <td style="text-align: right; color: #94a3b8;">{{ number_format($idea->similarity_score,0) }} %</td>
+                                    <td style="text-align: center;">
+                                        <span class="state-badge {{ $idea->status }}">
+                                            {{ match($idea->status) {
+                                                'accepted' => 'Validé',
+                                                'candidate' => 'Candidat',
+                                                'reserve' => 'Réserve',
+                                                'generated' => 'Généré',
+                                                'generating' => 'En cours',
+                                                default => ucfirst($idea->status)
+                                            } }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
                 @endif
             </div>
         </article>
 
         <article class="panel automation-step {{ $run ? 'active' : 'locked' }}">
-            <header><i>3</i><div><h2>Production du lot</h2><p>Suivi détaillé de chaque contenu.</p></div>@if($run)<span class="run-status {{ $run->status }}">{{ str_replace('_',' ',$run->status) }}</span>@endif</header>
+            <header><i>3</i><div><h2>Production du lot</h2><p>Suivi détaillé de chaque contenu.</p></div>@if($run)<span class="run-status {{ $run->status }}">{{ match($run->status) { 'completed' => 'Terminé', 'processing' => 'En cours', 'pending' => 'En attente', 'paused' => 'En pause', 'failed' => 'Échec', 'completed_with_errors' => 'Terminé (erreurs)', default => str_replace('_',' ',ucfirst($run->status)) } }}</span>@endif</header>
             @if($run)
                 <div class="run-progress" @if(in_array($run->status,['pending','processing'])) wire:poll.5s.keep-alive="processNext" @endif><div><strong>{{ $run->progress_percentage }}%</strong><span>{{ $run->completed_count }} validés · {{ $run->items->sum('generation_step') }} parties sauvegardées · {{ $run->items->where('status','rejected')->count() }} remplacés · {{ $run->failed_count }} échecs techniques · {{ $run->requested_count }} attendus</span></div><div class="progress-track"><span style="width:{{ $run->progress_percentage }}%"></span></div>@if(in_array($run->status,['pending','processing']))<div class="run-actions"><span>La génération avance automatiquement.</span><button class="danger" type="button" wire:click="stopRun" wire:loading.attr="disabled" wire:confirm="Arrêter cette campagne ? Les articles terminés et les parties déjà générées seront conservés.">Arrêter la campagne</button></div>@elseif($run->status === 'paused')<div class="run-actions"><button type="button" wire:click="resumePausedRun({{ $run->id }})">Reprendre la campagne</button><button class="danger" type="button" wire:click="stopRun" wire:confirm="Arrêter définitivement cette campagne ? Les parties déjà générées seront conservées.">Arrêter la campagne</button></div>@elseif($run->status === 'completed_with_errors' && $run->failed_count > 0)<button type="button" wire:click="retryFailedRun({{ $run->id }})" x-show="!running">Réessayer les contenus en échec</button>@endif</div>
                 <div class="batch-items">
@@ -111,7 +168,15 @@
                         <div class="batch-item {{ $item->status }}">
                             <i>@if($item->status==='completed')✓@elseif($item->status==='failed')!@elseif($item->status==='rejected')↺@elseif($item->status==='processing')↻@else{{ $loop->iteration }}@endif</i>
                             <div>
-                                <div class="title-with-kd"><strong>{{ $item->editorialIdea?->title ?? $item->keyword?->keyword ?? 'Brief supprimé' }}</strong>@php($itemKeyword = $item->editorialIdea?->keyword ?? $item->keyword)@if($itemKeyword?->hasMeasuredDifficulty())<span class="kd-badge {{ $itemKeyword->keyword_difficulty <= 30 ? 'low' : ($itemKeyword->keyword_difficulty <= 50 ? 'medium' : 'high') }}">KD {{ number_format($itemKeyword->keyword_difficulty,0) }}</span>@elseif($itemKeyword)<span class="kd-badge">KD —</span>@endif</div>
+                                <div class="title-with-kd">
+                                    <strong>{{ $item->editorialIdea?->title ?? $item->keyword?->keyword ?? 'Brief supprimé' }}</strong>
+                                    @php($itemKeyword = $item->editorialIdea?->keyword ?? $item->keyword)
+                                    @if($itemKeyword?->hasMeasuredDifficulty())
+                                        <span class="kd-badge {{ $itemKeyword->keyword_difficulty <= 30 ? 'low' : ($itemKeyword->keyword_difficulty <= 50 ? 'medium' : 'high') }}">KD {{ number_format($itemKeyword->keyword_difficulty,0) }}</span>
+                                    @elseif($itemKeyword)
+                                        <span class="kd-badge">KD —</span>
+                                    @endif
+                                </div>
                                 <span>
                                     {{ str_replace('_',' ',$item->content_type) }}
                                     @if(in_array($item->status,['pending','processing']) && ($item->generation_step || $item->api_attempts))
@@ -121,7 +186,16 @@
                                     @if($item->error_message) · {{ Str::limit($item->error_message,90) }} @endif
                                 </span>
                             </div>
-                            <b>{{ $item->status }}</b>
+                            <span class="state-badge {{ $item->status }}">
+                                {{ match($item->status) {
+                                    'completed' => 'Terminé',
+                                    'processing' => 'En cours',
+                                    'pending' => 'En attente',
+                                    'failed' => 'Échec',
+                                    'rejected' => 'Remplacé',
+                                    default => ucfirst($item->status)
+                                } }}
+                            </span>
                             @if($item->article)<a href="{{ route('admin.articles.edit',$item->article) }}" wire:navigate>Relire →</a>@endif
                         </div>
                     @endforeach
@@ -130,5 +204,74 @@
         </article>
     </section>
 
-    @if($recentRuns->isNotEmpty())<article class="panel recent-runs"><div class="panel-head"><div><h2>Campagnes récentes</h2><p>Historique des générations automatisées</p></div></div>@if($selectedIds)<div class="bulk-toolbar"><strong>{{ count($selectedIds) }} sélectionnée(s)</strong><button type="button" wire:click="clearSelection">Annuler</button><button class="danger" type="button" wire:click="deleteSelected" wire:confirm="Supprimer les campagnes sélectionnées ? Les articles déjà générés seront conservés.">Supprimer</button></div>@endif<div class="table-wrap"><table><thead><tr><th class="selection-cell"><input type="checkbox" wire:model.live="selectAll" aria-label="Tout sélectionner"></th><th>Campagne</th><th>Projet</th><th>Statut</th><th>Progression</th><th>Date</th><th>Action</th></tr></thead><tbody>@foreach($recentRuns as $recent)<tr class="{{ in_array($recent->id,$selectedIds) ? 'is-selected':'' }}"><td class="selection-cell"><input type="checkbox" wire:model.live="selectedIds" value="{{ $recent->id }}" aria-label="Sélectionner {{ $recent->name }}"></td><td><strong class="table-title">{{ $recent->name }}</strong></td><td>{{ $recent->project->name }}</td><td><span class="state-badge {{ $recent->status }}">{{ str_replace('_',' ',$recent->status) }}</span></td><td>{{ $recent->completed_count }}/{{ $recent->requested_count }} contenus</td><td>{{ $recent->created_at->diffForHumans() }}</td><td>@if($recent->status === 'paused')<button type="button" wire:click="resumePausedRun({{ $recent->id }})">Reprendre</button>@elseif($recent->status === 'completed_with_errors' && $recent->failed_count > 0)<button type="button" wire:click="retryFailedRun({{ $recent->id }})">Réessayer</button>@else<span>—</span>@endif</td></tr>@endforeach</tbody></table></div></article>@endif
+    @if($recentRuns->isNotEmpty())
+        <article class="panel recent-runs">
+            <div class="panel-head">
+                <div>
+                    <h2>Campagnes récentes</h2>
+                    <p>Historique des générations automatisées</p>
+                </div>
+            </div>
+            @if($selectedIds)
+                <div class="bulk-toolbar">
+                    <strong>{{ count($selectedIds) }} sélectionnée(s)</strong>
+                    <button type="button" wire:click="clearSelection">Annuler</button>
+                    <button class="danger" type="button" wire:click="deleteSelected" wire:confirm="Supprimer les campagnes sélectionnées ? Les articles déjà générés seront conservés.">Supprimer</button>
+                </div>
+            @endif
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="selection-cell"><input type="checkbox" wire:model.live="selectAll" aria-label="Tout sélectionner"></th>
+                            <th>Campagne</th>
+                            <th>Projet</th>
+                            <th style="text-align: center;">Statut</th>
+                            <th>Progression</th>
+                            <th>Date</th>
+                            <th style="text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($recentRuns as $recent)
+                            <tr class="{{ in_array($recent->id,$selectedIds) ? 'is-selected':'' }}">
+                                <td class="selection-cell">
+                                    <input type="checkbox" wire:model.live="selectedIds" value="{{ $recent->id }}" aria-label="Sélectionner {{ $recent->name }}">
+                                </td>
+                                <td><strong class="table-title">{{ $recent->name }}</strong></td>
+                                <td><span style="display: inline-block; padding: 3px 8px; border-radius: 6px; background: #1e293b; color: #94a3b8; font-size: 11px; font-weight: 600;">{{ $recent->project->name }}</span></td>
+                                <td style="text-align: center;">
+                                    <span class="state-badge {{ $recent->status }}">
+                                        {{ match($recent->status) {
+                                            'completed' => 'Terminé',
+                                            'processing' => 'En cours',
+                                            'pending' => 'En attente',
+                                            'paused' => 'En pause',
+                                            'failed' => 'Échec',
+                                            'completed_with_errors' => 'Terminé (erreurs)',
+                                            default => str_replace('_',' ',ucfirst($recent->status))
+                                        } }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <strong style="color: #f8fafc;">{{ $recent->completed_count }}/{{ $recent->requested_count }}</strong>
+                                    <small style="color: #64748b;">contenus</small>
+                                </td>
+                                <td style="white-space: nowrap; color: #94a3b8; font-size: 11px;">{{ $recent->created_at->diffForHumans() }}</td>
+                                <td style="text-align: right;">
+                                    @if($recent->status === 'paused')
+                                        <button type="button" class="secondary-button" style="padding: 4px 10px; font-size: 11px;" wire:click="resumePausedRun({{ $recent->id }})">Reprendre</button>
+                                    @elseif($recent->status === 'completed_with_errors' && $recent->failed_count > 0)
+                                        <button type="button" class="secondary-button" style="padding: 4px 10px; font-size: 11px;" wire:click="retryFailedRun({{ $recent->id }})">Réessayer</button>
+                                    @else
+                                        <span style="color: #475569;">—</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </article>
+    @endif
 </div>

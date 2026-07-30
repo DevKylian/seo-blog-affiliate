@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap');
 @import url('./home-revamp.css');
 @import url('./tools-revamp.css');
 @import url('./blog-enhancements.css');
@@ -2606,21 +2606,23 @@ button,a { -webkit-tap-highlight-color:transparent; }
     align-items:center;
     justify-content:center;
     gap:6px;
-    min-height:26px;
-    max-width:100%;
-    padding:7px 10px;
+    min-height:22px;
+    max-width:max-content;
+    padding:4px 10px;
     border-radius:999px;
     font-size:10px;
-    font-weight:800;
-    line-height:1.15;
-    letter-spacing:0;
+    font-weight:700;
+    line-height:1;
+    letter-spacing:.02em;
     text-transform:none;
-    white-space:normal;
-    overflow-wrap:anywhere;
+    white-space:nowrap!important;
+    overflow-wrap:normal!important;
+    word-break:keep-all!important;
+    flex-shrink:0!important;
 }
 .admin-body .kd-badge{
-    min-width:56px;
-    font:800 11px/1 'Manrope',sans-serif;
+    min-width:48px;
+    font:700 10px/1 'Manrope',sans-serif;
 }
 .admin-body .factory-status i{
     flex:0 0 6px;
@@ -2628,9 +2630,10 @@ button,a { -webkit-tap-highlight-color:transparent; }
     height:6px;
 }
 .admin-body .title-with-kd{
-    flex-wrap:wrap;
-    align-items:flex-start;
+    display:inline-flex;
+    align-items:center;
     gap:8px;
+    flex-wrap:wrap;
 }
 .admin-body .article-title-cell{
     width:340px;
