@@ -22,10 +22,10 @@
                                 disponible en version gratuite.</p>
                         </div>
                         <ul class="premium-cta-indy__bullets">
-                            <li><i>✓</i> Pensé pour les indépendants</li>
-                            <li><i>✓</i> Prise en main immédiate</li>
-                            <li><i>✓</i> Support et assistance</li>
-                            <li><i>✓</i> Version gratuite disponible</li>
+                            <li><i>✓</i> Devis & Facturation illimités</li>
+                            <li><i>✓</i> Déclarations URSSAF & TVA</li>
+                            <li><i>✓</i> Bilan et Liasse fiscale</li>
+                            <li><i>✓</i> Synchronisation bancaire</li>
                         </ul>
                     </div>
                     <x-dynamic-cta :goal="$article->conversion_goal" class="premium-cta-indy__button" />
