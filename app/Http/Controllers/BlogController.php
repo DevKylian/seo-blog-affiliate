@@ -258,7 +258,21 @@ class BlogController extends Controller
 
     public function tools(): View
     {
-        return view('tools.index', ['tools' => SeoProject::query()->withCount(['plans', 'articles'])->where('status', 'active')->orderBy('name')->get()]);
+        $tools = SeoProject::query()
+            ->withCount(['plans', 'articles'])
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->get();
+
+        $comparisonArticles = Article::query()
+            ->where('status', 'published')
+            ->where(function ($q) {
+                $q->where('type', 'comparison')->orWhere('slug', 'like', '%-vs-%');
+            })
+            ->latest('published_at')
+            ->get();
+
+        return view('tools.index', compact('tools', 'comparisonArticles'));
     }
 
     public function tool(string $slug): View
