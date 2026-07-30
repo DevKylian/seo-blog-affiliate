@@ -378,13 +378,16 @@
                         </div>
                         <p style="color:var(--home-muted); font-size:15px; margin-bottom:16px;">Une alternative simple à la comptabilité traditionnelle pour freelances et petites entreprises.</p>
                         
-                        <div class="hp-features-list" style="margin-bottom:16px; font-size:13px; color:var(--home-text);">
-                            <strong style="display:block; margin-bottom:8px;">✅ Fonctionnalités principales :</strong>
-                            <ul style="list-style:none; padding:0; margin:0; display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
-                                <li style="display: flex; gap: 6px; align-items: center;"><span style="color:#10b981;">✓</span> Devis & Facturation</li>
-                                <li style="display: flex; gap: 6px; align-items: center;"><span style="color:#10b981;">✓</span> Déclarations URSSAF</li>
-                                <li style="display: flex; gap: 6px; align-items: center;"><span style="color:#10b981;">✓</span> Bilan & Liasse Fiscale</li>
-                                <li style="display: flex; gap: 6px; align-items: center;"><span style="color:#10b981;">✓</span> Compte Pro intégré</li>
+                        <div class="hp-premium-features">
+                            <strong>
+                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                Fonctionnalités clés
+                            </strong>
+                            <ul>
+                                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Devis & Facturation</li>
+                                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Déclarations URSSAF</li>
+                                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Bilan & Liasse Fiscale</li>
+                                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Compte Pro intégré</li>
                             </ul>
                         </div>
                         
@@ -458,12 +461,15 @@
                         <span class="hp-badge yellow">🟡 PME</span>
                         <span class="hp-badge green">🟢 Banque + Compta</span>
                     </div>
-                    <div class="hp-features-list" style="margin-bottom:16px; font-size:13px; color:var(--home-text);">
-                        <strong style="display:block; margin-bottom:8px;">✅ Fonctionnalités principales :</strong>
-                        <ul style="list-style:none; padding:0; margin:0; display:grid; gap:6px;">
-                            <li style="display: flex; gap: 6px; align-items: center;"><span style="color:#10b981;">✓</span> Compte Pro intégré</li>
-                            <li style="display: flex; gap: 6px; align-items: center;"><span style="color:#10b981;">✓</span> Devis & Facturation</li>
-                            <li style="display: flex; gap: 6px; align-items: center;"><span style="color:#10b981;">✓</span> Partage Expert-Comptable</li>
+                    <div class="hp-premium-features">
+                        <strong>
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            Fonctionnalités clés
+                        </strong>
+                        <ul>
+                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Compte Pro intégré</li>
+                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Devis & Facturation</li>
+                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Partage Expert-Comptable</li>
                         </ul>
                     </div>
                 </div>
@@ -500,12 +506,15 @@
                         <span class="hp-badge green">🟢 Avec Comptable</span>
                         <span class="hp-badge red">🔴 Pas pour les Micro</span>
                     </div>
-                    <div class="hp-features-list" style="margin-bottom:16px; font-size:13px; color:var(--home-text);">
-                        <strong style="display:block; margin-bottom:8px;">✅ Fonctionnalités principales :</strong>
-                        <ul style="list-style:none; padding:0; margin:0; display:grid; gap:6px;">
-                            <li style="display: flex; gap: 6px; align-items: center;"><span style="color:#10b981;">✓</span> Vrai cabinet comptable</li>
-                            <li style="display: flex; gap: 6px; align-items: center;"><span style="color:#10b981;">✓</span> Bilan & Liasse Fiscale</li>
-                            <li style="display: flex; gap: 6px; align-items: center;"><span style="color:#10b981;">✓</span> Outil de pilotage inclus</li>
+                    <div class="hp-premium-features">
+                        <strong>
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            Fonctionnalités clés
+                        </strong>
+                        <ul>
+                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Vrai cabinet comptable</li>
+                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Bilan & Liasse Fiscale</li>
+                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Outil de pilotage inclus</li>
                         </ul>
                     </div>
                 </div>
@@ -542,12 +551,15 @@
                         <span class="hp-badge green">🟢 Micro-entreprise</span>
                         <span class="hp-badge red">🔴 Pas de paie</span>
                     </div>
-                    <div class="hp-features-list" style="margin-bottom:16px; font-size:13px; color:var(--home-text);">
-                        <strong style="display:block; margin-bottom:8px;">✅ Fonctionnalités principales :</strong>
-                        <ul style="list-style:none; padding:0; margin:0; display:grid; gap:6px;">
-                            <li style="display: flex; gap: 6px; align-items: center;"><span style="color:#10b981;">✓</span> Facturation gratuite</li>
-                            <li style="display: flex; gap: 6px; align-items: center;"><span style="color:#10b981;">✓</span> Déclaration URSSAF</li>
-                            <li style="display: flex; gap: 6px; align-items: center;"><span style="color:#10b981;">✓</span> Paiement en ligne</li>
+                    <div class="hp-premium-features">
+                        <strong>
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            Fonctionnalités clés
+                        </strong>
+                        <ul>
+                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Facturation gratuite</li>
+                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Déclaration URSSAF</li>
+                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Paiement en ligne</li>
                         </ul>
                     </div>
                 </div>

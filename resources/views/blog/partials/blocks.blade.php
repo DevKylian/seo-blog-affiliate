@@ -21,12 +21,18 @@
                                 indépendants. Gagnez du temps dès aujourd’hui avec une solution simple, rapide à prendre en main et
                                 disponible en version gratuite.</p>
                         </div>
-                        <ul class="premium-cta-indy__bullets">
-                            <li><i>✓</i> Devis & Facturation illimités</li>
-                            <li><i>✓</i> Déclarations URSSAF & TVA</li>
-                            <li><i>✓</i> Bilan et Liasse fiscale</li>
-                            <li><i>✓</i> Synchronisation bancaire</li>
-                        </ul>
+                        <div class="hp-premium-features" style="margin-top: 24px;">
+                            <strong>
+                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                Fonctionnalités clés
+                            </strong>
+                            <ul>
+                                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Devis & Facturation illimités</li>
+                                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Déclarations URSSAF & TVA</li>
+                                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Bilan et Liasse fiscale</li>
+                                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Synchronisation bancaire</li>
+                            </ul>
+                        </div>
                     </div>
                     <x-dynamic-cta :goal="$article->conversion_goal" class="premium-cta-indy__button" />
                 </aside>
@@ -63,15 +69,17 @@
                             <p>{!! nl2br(e(implode("\n", $textLines))) !!}</p>
                         </div>
                         @if(count($bullets) > 0)
-                            <ul class="affiliate-cta-pro__bullets">
-                                @foreach($bullets as $bullet)
-                                    <li><i><svg viewBox="0 0 20 20" fill="currentColor">
-                                                <path fill-rule="evenodd"
-                                                    d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                                                    clip-rule="evenodd" />
-                                            </svg></i> {{ $bullet }}</li>
-                                @endforeach
-                            </ul>
+                            <div class="hp-premium-features" style="margin-top: 24px;">
+                                <strong>
+                                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                    Fonctionnalités clés
+                                </strong>
+                                <ul>
+                                    @foreach($bullets as $bullet)
+                                        <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> {{ $bullet }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
                         @endif
                     </div>
                     <div class="affiliate-cta-pro__action">
