@@ -90,7 +90,9 @@ class GenerateComparisons extends Component
         $missingItems = [];
 
         foreach ($catalog as $item) {
-            $article = Article::where('slug', $item['slug'])->first();
+            $article = Article::where('slug', $item['slug'])
+                ->orWhere('title', $item['title'])
+                ->first();
             if (!$article) {
                 $missingItems[] = $item;
             }
@@ -193,7 +195,9 @@ class GenerateComparisons extends Component
             return;
         }
 
-        $existingArticle = Article::where('slug', $targetSlug)->first();
+        $existingArticle = Article::where('slug', $targetSlug)
+            ->orWhere('title', $item['title'])
+            ->first();
         if ($existingArticle) {
             $this->message = "L'article {$item['title']} existe déjà.";
             $this->messageType = 'info';
@@ -281,7 +285,9 @@ class GenerateComparisons extends Component
         $missingCount = 0;
 
         foreach ($catalog as $catItem) {
-            $article = Article::where('slug', $catItem['slug'])->first();
+            $article = Article::where('slug', $catItem['slug'])
+                ->orWhere('title', $catItem['title'])
+                ->first();
             if ($article) {
                 $publishedCount++;
                 $status = 'published';
