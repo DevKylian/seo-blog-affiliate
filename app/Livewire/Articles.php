@@ -23,6 +23,8 @@ class Articles extends Component
 
     public string $duplicateFilter = '';
 
+    public bool $todayOnly = false;
+
     public string $message = '';
 
     public string $error = '';
@@ -147,14 +149,30 @@ class Articles extends Component
         return $this->filteredQuery()->pluck('id')->map(fn ($id) => (int) $id)->all();
     }
 
+    public function toggleToday(): void
+    {
+        $this->todayOnly = ! $this->todayOnly;
+        $this->resetPage();
+        $this->resetBulkSelection();
+    }
+
     private function filteredQuery(): Builder
     {
+        $today = now()->toDateString();
+
         return Article::query()
             ->when($this->search, fn ($query) => $query->where('title', 'like', '%'.$this->search.'%'))
             ->when($this->status, fn ($query) => $query->where('status', $this->status))
             ->when($this->duplicateFilter === 'potential', fn ($query) => $query->whereIn('duplicate_status', ['potential', 'needs_differentiation']))
             ->when($this->duplicateFilter === 'merged', fn ($query) => $query->where('duplicate_status', 'merged'))
-            ->when($this->duplicateFilter === 'ignored', fn ($query) => $query->where('duplicate_status', 'ignored'));
+            ->when($this->duplicateFilter === 'ignored', fn ($query) => $query->where('duplicate_status', 'ignored'))
+            ->when($this->todayOnly, function ($query) use ($today) {
+                $query->where(function ($q) use ($today) {
+                    $q->whereDate('published_at', $today)
+                      ->orWhereDate('created_at', $today)
+                      ->orWhereDate('scheduled_at', $today);
+                });
+            });
     }
 
     public function render()

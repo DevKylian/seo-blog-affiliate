@@ -10,6 +10,10 @@
         <div class="panel-head">
             <div><h2>Bibliothèque éditoriale</h2><p>Brouillons, contenus publiés et gouvernance des doublons</p></div>
             <div class="filters-row">
+                <button type="button" wire:click="toggleToday" class="filter-today-btn {{ $todayOnly ? 'is-active' : '' }}" title="Filtrer les articles créés ou publiés aujourd'hui">
+                    <span class="icon">⚡</span>
+                    <span>Aujourd'hui</span>
+                </button>
                 <select wire:model.live="duplicateFilter"><option value="">Tous les contenus</option><option value="potential">Doublons potentiels</option><option value="merged">Doublons fusionnés</option><option value="ignored">Exceptions ignorées</option></select>
                 <select wire:model.live="status"><option value="">Tous les statuts</option><option value="draft">Brouillon</option><option value="review">À relire</option><option value="scheduled">Programmé</option><option value="published">Publié</option><option value="archived">Archivé</option></select>
                 <div class="search-box"><span>⌕</span><input wire:model.live.debounce.300ms="search" type="search" placeholder="Rechercher…"></div>
