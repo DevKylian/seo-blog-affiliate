@@ -1,5 +1,3 @@
-<?php
-
 $articles = App\Models\Article::where('title', 'like', '%Tarifs et prix%')->get();
 $count = 0;
 foreach ($articles as $a) {
