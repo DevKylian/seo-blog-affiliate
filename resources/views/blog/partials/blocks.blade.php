@@ -6,7 +6,7 @@
     @if($blockType === 'affiliate_cta')
         @php
             $position = $block['position'] ?? 'after_intro';
-            $positionClass = 'affiliate-cta--'.preg_replace('/[^a-z0-9_-]+/', '-', mb_strtolower($position));
+            $positionClass = 'affiliate-cta--' . preg_replace('/[^a-z0-9_-]+/', '-', mb_strtolower($position));
             $affiliateBlock = app(\App\Services\AffiliateBlockService::class)->resolveBlock($article, $position);
             $isIndy = $affiliateBlock && $affiliateBlock->project && in_array(mb_strtolower($affiliateBlock->project->slug), ['indy', 'indy-1', 'indy-fr']);
         @endphp
@@ -17,7 +17,9 @@
                     <div class="premium-cta-indy__content">
                         <div class="premium-cta-indy__text">
                             <strong>Essayez Indy gratuitement</strong>
-                            <p>Centralisez votre facturation, vos dépenses et votre comptabilité dans un seul outil pensé pour les indépendants. Gagnez du temps dès aujourd’hui avec une solution simple, rapide à prendre en main et disponible en version gratuite.</p>
+                            <p>Centralisez votre facturation, vos dépenses et votre comptabilité dans un seul outil pensé pour les
+                                indépendants. Gagnez du temps dès aujourd’hui avec une solution simple, rapide à prendre en main et
+                                disponible en version gratuite.</p>
                         </div>
                         <ul class="premium-cta-indy__bullets">
                             <li><i>✓</i> Pensé pour les indépendants</li>
@@ -46,8 +48,8 @@
                     $lines = array_filter(array_map('trim', explode("\n", $affiliateBlock->description)));
                     $textLines = [];
                     $bullets = [];
-                    foreach($lines as $line) {
-                        if(str_starts_with($line, '✅') || str_starts_with($line, '✓')) {
+                    foreach ($lines as $line) {
+                        if (str_starts_with($line, '✅') || str_starts_with($line, '✓')) {
                             $bullets[] = trim(mb_substr($line, 1));
                         } else {
                             $textLines[] = $line;
@@ -61,15 +63,21 @@
                             <p>{!! nl2br(e(implode("\n", $textLines))) !!}</p>
                         </div>
                         @if(count($bullets) > 0)
-                        <ul class="affiliate-cta-pro__bullets">
-                            @foreach($bullets as $bullet)
-                                <li><i><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg></i> {{ $bullet }}</li>
-                            @endforeach
-                        </ul>
+                            <ul class="affiliate-cta-pro__bullets">
+                                @foreach($bullets as $bullet)
+                                    <li><i><svg viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd"
+                                                    d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                                                    clip-rule="evenodd" />
+                                            </svg></i> {{ $bullet }}</li>
+                                @endforeach
+                            </ul>
                         @endif
                     </div>
                     <div class="affiliate-cta-pro__action">
-                        <a class="affiliate-cta-pro__button" href="{{ app(\App\Services\AffiliateBlockService::class)->trackedUrl($article, $affiliateBlock->exists ? $affiliateBlock : null, $position) }}" rel="sponsored nofollow">{{ $affiliateBlock->cta }}</a>
+                        <a class="affiliate-cta-pro__button"
+                            href="{{ app(\App\Services\AffiliateBlockService::class)->trackedUrl($article, $affiliateBlock->exists ? $affiliateBlock : null, $position) }}"
+                            rel="sponsored nofollow">{{ $affiliateBlock->cta }}</a>
                         @if($priceText)
                             <div class="affiliate-cta-pro__price">{{ $priceText }}</div>
                         @endif
@@ -78,7 +86,8 @@
             @endif
         @endif
     @elseif($blockType === 'markdown')
-        <div class="markdown-body public-markdown">{!! app(\App\Services\ContextualInternalLinkRenderer::class)->render($block['content'] ?? '', $article) !!}</div>
+        <div class="markdown-body public-markdown">
+            {!! app(\App\Services\ContextualInternalLinkRenderer::class)->render($block['content'] ?? '', $article) !!}</div>
     @elseif($blockType === 'pricing_table')
         @php
             $affiliatePlans = $article->project->plans;
@@ -87,13 +96,13 @@
                 : collect();
             $configuredCompetitors = collect(array_keys($article->project->competitor_pricing_urls ?? []))
                 ->merge($article->project->competitors ?? [])
-                ->map(fn ($name) => trim((string) $name))
-                ->filter(fn ($name) => $name !== '' && mb_strtolower($name) !== mb_strtolower($article->project->name))
-                ->unique(fn ($name) => mb_strtolower($name))
+                ->map(fn($name) => trim((string) $name))
+                ->filter(fn($name) => $name !== '' && mb_strtolower($name) !== mb_strtolower($article->project->name))
+                ->unique(fn($name) => mb_strtolower($name))
                 ->values();
             $configuredCompetitorGroups = $configuredCompetitors->mapWithKeys(function (string $name) use ($actualCompetitorGroups) {
                 $plans = $actualCompetitorGroups->first(
-                    fn ($plans, $groupName) => mb_strtolower((string) $groupName) === mb_strtolower($name)
+                    fn($plans, $groupName) => mb_strtolower((string) $groupName) === mb_strtolower($name)
                 );
 
                 return [$name => $plans ?: collect()];
@@ -109,39 +118,48 @@
         @if($allPricingPlans->isNotEmpty())
             <section class="dynamic-pricing">
                 <div class="dynamic-heading">
-                    <span>{{ $isComparisonPricing ? 'Tarifs comparés' : 'Tarifs '.$article->project->name }}</span>
+                    <span>{{ $isComparisonPricing ? 'Tarifs comparés' : 'Tarifs ' . $article->project->name }}</span>
                     <small>Vérifié le {{ $allPricingPlans->max('verified_at')?->format('d/m/Y') ?? 'site officiel' }}</small>
                 </div>
 
                 @if($isComparisonPricing)
-                    <div class="pricing-comparison-table">
-                        <div class="pricing-row pricing-head">
-                            <span>Outil</span>
-                            <span>Prix d'entrée</span>
-                            <span>Offres relevées</span>
-                            <span>Gratuit / essai</span>
-                            <span>Ce que couvre le prix</span>
-                        </div>
+                    <div class="pricing-comparison-cards">
                         @foreach($comparisonRows as $row)
-                            <div class="pricing-row">
-                                <strong>{{ $row['product'] }}</strong>
-                                <span>{{ $row['entry_price'] }}</span>
-                                <div class="pricing-cell-list">
-                                    @foreach(explode('|', $row['offers']) as $item)
-                                        @if(trim($item)) <span>{{ trim($item) }}</span> @endif
-                                    @endforeach
+                            <article class="pricing-card">
+                                <header class="pricing-card__header">
+                                    <h3>{{ $row['product'] }}</h3>
+                                    <div class="pricing-card__entry-price">{{ $row['entry_price'] }}</div>
+                                </header>
+                                
+                                <div class="pricing-card__body">
+                                    <div class="pricing-card__section">
+                                        <h4>Offres relevées</h4>
+                                        <ul>
+                                            @foreach(explode('|', $row['offers']) as $item)
+                                                @if(trim($item)) <li>{{ trim($item) }}</li> @endif
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="pricing-card__section">
+                                        <h4>Gratuit / Essai</h4>
+                                        <ul>
+                                            @foreach(explode('|', $row['free_trial']) as $item)
+                                                @if(trim($item)) <li>{{ trim($item) }}</li> @endif
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="pricing-card__section">
+                                        <h4>Inclus</h4>
+                                        <ul>
+                                            @foreach(explode('|', $row['coverage']) as $item)
+                                                @if(trim($item)) <li>{{ trim($item) }}</li> @endif
+                                            @endforeach
+                                        </ul>
+                                    </div>
                                 </div>
-                                <div class="pricing-cell-list">
-                                    @foreach(explode('|', $row['free_trial']) as $item)
-                                        @if(trim($item)) <span>{{ trim($item) }}</span> @endif
-                                    @endforeach
-                                </div>
-                                <div class="pricing-cell-list">
-                                    @foreach(explode('|', $row['coverage']) as $item)
-                                        @if(trim($item)) <span>{{ trim($item) }}</span> @endif
-                                    @endforeach
-                                </div>
-                            </div>
+                            </article>
                         @endforeach
                     </div>
                 @else
@@ -150,20 +168,23 @@
                             <article>
                                 <h3>{{ $plan->name }}</h3>
                                 <strong>{{ $plan->publicPriceLabel() }}</strong>
-                                @if($plan->publicFeatureSummary())<p>{{ $plan->publicFeatureSummary() }}</p>@endif
+                                @if($plan->publicFeatureSummary())
+                                <p>{{ $plan->publicFeatureSummary() }}</p>@endif
                             </article>
                         @endforeach
                     </div>
                 @endif
 
-                <p class="data-note">Les prix peuvent varier selon le profil et le mode de facturation. Consultez les pages officielles avant de souscrire.</p>
+                <p class="data-note">Les prix peuvent varier selon le profil et le mode de facturation. Consultez les pages
+                    officielles avant de souscrire.</p>
                 @if($isComparisonPricing)
                     <div class="pricing-source-links">
                         @foreach($article->project->sourcePages->whereNotNull('competitor_name') as $source)
                             <a href="{{ $source->url }}" target="_blank" rel="noopener">{{ $source->competitor_name }} source</a>
                         @endforeach
                         @if($article->project->pricing_url)
-                            <a href="{{ $article->project->pricing_url }}" target="_blank" rel="noopener">{{ $article->project->name }} source</a>
+                            <a href="{{ $article->project->pricing_url }}" target="_blank" rel="noopener">{{ $article->project->name }}
+                                source</a>
                         @endif
                     </div>
                 @endif
@@ -172,7 +193,8 @@
     @elseif($blockType === 'affiliate_disclosure')
         <div class="affiliate-disclosure">
             <strong>Transparence</strong>
-            <p>Certains liens présents dans ce contenu peuvent être affiliés. Cela ne change ni notre méthodologie ni le prix payé.</p>
+            <p>Certains liens présents dans ce contenu peuvent être affiliés. Cela ne change ni notre méthodologie ni le prix
+                payé.</p>
         </div>
     @elseif($blockType === 'last_verified')
         <p class="last-verified">
