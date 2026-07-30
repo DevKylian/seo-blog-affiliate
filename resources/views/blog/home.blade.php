@@ -335,7 +335,7 @@
                 <div class="hp-selection-badge">🏆 Notre meilleure recommandation pour les indépendants</div>
                 <div class="hp-selection-content" style="display:flex; flex-wrap:wrap; gap:32px; align-items:center;">
                     <div style="flex: 1 1 300px;">
-                        <h3 class="hp-selection-title" style="margin-bottom:8px;">Indy</h3>
+                        <h3 class="hp-selection-title" style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Indy ⭐</h3>
                         <p style="color:var(--home-muted); font-size:15px; margin-bottom:24px;">Une alternative simple à la comptabilité traditionnelle pour freelances et petites entreprises.</p>
                         
                         <ul class="hp-clean-list" style="margin-bottom:16px;">
