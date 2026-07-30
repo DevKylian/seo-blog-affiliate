@@ -12,22 +12,20 @@
     </div>
 
     <h1 style="font-size: 26px; font-weight: 800; color: #0f172a; margin-bottom: 12px;">
-        {{ $title ?? 'Comparatif disponible sur demande' }}
+        {{ $title ?? 'Comparatif en cours de rédaction' }}
     </h1>
 
     <p style="font-size: 15px; color: #64748b; line-height: 1.6; max-width: 580px; margin: 0 auto 28px;">
-        Ce comparatif n'est pas encore en ligne. Vous pouvez lancer sa rédaction automatique par notre IA dès maintenant.
+        Ce comparatif n'est pas encore en ligne. Nos équipes analysent les fonctionnalités et les tarifs pour publier une analyse impartiale très prochainement.
     </p>
 
-    @auth
-        <div style="border-top: 1px solid #f1f5f9; padding-top: 20px; margin-top: 20px;">
-            <a href="{{ request()->fullUrlWithQuery(['generate_now' => 1]) }}" 
-               style="display: inline-block; background: #2563eb; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; font-size: 15px; box-shadow: 0 4px 12px rgba(37,99,235,0.2);">
-                ✨ Générer ce comparatif avec l'IA (en direct)
-            </a>
-        </div>
-    @else
-        <a href="{{ route('home') }}" style="color: #2563eb; font-weight: 600; text-decoration: none;">← Retour à l'accueil</a>
-    @endauth
+    <div style="display: flex; justify-content: center; gap: 12px;">
+        <a href="{{ route('tools.index') }}" style="display: inline-block; background: #2563eb; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 14px;">
+            Voir le comparateur d'outils →
+        </a>
+        <a href="{{ route('home') }}" style="display: inline-block; background: #f1f5f9; color: #334155; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 14px;">
+            Accueil
+        </a>
+    </div>
 </div>
 @endsection

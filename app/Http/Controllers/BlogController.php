@@ -168,44 +168,6 @@ class BlogController extends Controller
                 if ($project) {
                     $title = ucfirst($project->name) . ' vs ' . $competitorName;
 
-                    if (request()->has('generate_now') && auth()->check()) {
-                        $plan = EditorialPlan::create([
-                            'seo_project_id' => $project->id,
-                            'name' => 'Génération à la volée : ' . $title,
-                            'status' => 'generating',
-                            'requested_count' => 1,
-                        ]);
-
-                        $newIdea = EditorialIdea::create([
-                            'editorial_plan_id' => $plan->id,
-                            'title' => $title,
-                            'thumbnail_title' => $title,
-                            'primary_keyword' => mb_strtolower($title),
-                            'entity_key' => $project->name . '/' . $competitorName,
-                            'topic_key' => 'comparaison',
-                            'intent' => 'Commercial',
-                            'angle' => "Comparatif direct entre {$project->name} et {$competitorName}",
-                            'content_type' => 'comparison',
-                            'status' => 'accepted',
-                            'position' => 1,
-                            'seo_score' => 90,
-                            'audience' => 'Indépendants/TPE',
-                            'problem' => "Quel outil choisir entre {$project->name} et {$competitorName} ?",
-                            'expected_outcome' => "Comprendre les différences clés entre {$project->name} et {$competitorName}.",
-                            'unique_promise' => "Le comparatif complet {$project->name} vs {$competitorName}.",
-                            'funnel_stage' => 'decision',
-                            'excluded_topics' => [],
-                            'outline' => ["Verdict rapide : quel outil choisir ?", "Tableau comparatif {$project->name} vs {$competitorName}", "Analyse détaillée de {$project->name}", "Analyse détaillée de {$competitorName}", "Tarifs et coût réel comparés", "FAQ du comparatif"],
-                            'fingerprint' => mb_strtolower($title . '|comparatif|decision'),
-                        ]);
-
-                        $generator = app(\App\Services\GeminiContentGenerator::class);
-                        $newArticle = $generator->generateFromIdea($project, $newIdea);
-                        $newArticle->update(['status' => 'published', 'published_at' => now()]);
-
-                        return $this->article($newArticle->slug, $type);
-                    }
-
                     return view('blog.missing_comparison', compact('title', 'slug'));
                 }
             }

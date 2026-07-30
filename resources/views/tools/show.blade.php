@@ -175,12 +175,6 @@
                 <div style="margin-top:16px;">
                     <a href="{{ route('alternatives.show', 'alternatives-' . $tool->slug) }}" style="color:var(--tool-text); text-decoration:underline; font-size:13px; font-weight:600;">Voir toutes les alternatives à {{ ucfirst($tool->name) }}</a>
                 </div>
-                @auth
-                    <form method="POST" action="{{ route('admin.tools.generate-comparisons', $tool->slug) }}" style="margin-top: 15px;">
-                        @csrf
-                        <button type="submit" style="background:var(--tool-primary, #2563eb); color:white; border:none; padding:8px 12px; border-radius:6px; font-weight:bold; cursor:pointer; font-size: 13px; width: 100%; box-shadow: 0 1px 2px rgba(0,0,0,0.1);" onclick="return confirm('Lancer la génération IA des comparatifs (Pennylane, Dougs, Abby, Shine) pour {{ ucfirst($tool->name) }} ?')">✨ Générer ces comparatifs (IA)</button>
-                    </form>
-                @endauth
             </div>
 
             <!-- Articles & Ressources liés -->

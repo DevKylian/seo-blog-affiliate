@@ -95,6 +95,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         );
     })->name('admin.dev.stop-generations');
 
+    Route::get('/comparatifs-ia', \App\Livewire\GenerateComparisons::class)->name('admin.generate-comparisons');
+
     Route::post('/tools/{slug}/generate-comparisons', function (string $slug) {
         \Illuminate\Support\Facades\Artisan::call('blog:generate-missing-comparisons', ['slug' => $slug]);
         return back()->with('success', 'La génération des comparatifs a été lancée en tâche de fond !');
