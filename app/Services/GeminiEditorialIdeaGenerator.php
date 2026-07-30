@@ -78,6 +78,7 @@ Le sujet du mot-clé DOIT obligatoirement faire partie d'une de ces catégories 
 4. Compte Bancaire Professionnel (exclusivité bancaire)
 
 => Si un mot-clé (même s'il contient le mot "pro" ou "entreprise") traite d'un autre sujet technique, commercial, énergétique, transport, emploi ou métier qui ne rentre pas dans ces 4 catégories, TU DOIS LE REJETER.
+=> RÈGLE ABSOLUE POUR LES ASSOCIATIONS : Le logiciel Indy ne gère PAS du tout les associations loi 1901. Il est STRICTEMENT INTERDIT de générer une idée de contenu qui cible les associations. Si tu vois le mot "association" ou "associatif" dans un mot-clé ou un sujet, tu DOIS REJETER ce sujet immédiatement. Aucune exception.
 Tu as le droit (et même l'obligation) de générer MOINS d'idées que les {$desiredCount} demandées si les mots-clés restants sont hors-sujet. Il vaut mieux 3 excellentes idées parfaitement ciblées que 10 idées hors-sujet. Ne force jamais la génération.
 Le mot "compte pro" doit TOUJOURS désigner un compte bancaire (ex: Qonto, Shine, Indy), jamais un compte client sur une plateforme tierce.
 
