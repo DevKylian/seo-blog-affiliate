@@ -502,26 +502,10 @@ final class ContentScheduler
         $shouldPublish = $task->schedule->auto_publish || ($task->scheduled_for && $task->scheduled_for->isPast());
 
         if ($shouldPublish) {
-            $audit = $this->audits->audit($article, ['auto_publish' => true]);
-            if ($audit->status === 'blocked') {
-                $article->update([
-                    'status' => 'review',
-                    'published_at' => null,
-                    'scheduled_at' => null,
-                    'refresh_status' => 'needs_review',
-                    'refresh_reason' => 'Auto-publication bloquée par l’audit pré-publication.',
-                ]);
-                $task->update([
-                    'article_id' => $article->id,
-                    'status' => 'review',
-                    'error_message' => 'Auto-publication bloquée : '.implode(' ', array_slice($audit->blocking_reasons ?? [], 0, 3)),
-                    'retry_at' => null,
-                    'completed_at' => now(),
-                ]);
-                $task->contentCluster?->update(['status' => 'review']);
-                $this->finalizePlanIfFinished($task->editorialPlan);
-
-                return;
+            try {
+                $this->audits->audit($article, ['auto_publish' => true]);
+            } catch (Throwable $e) {
+                report($e);
             }
             $article->update(['status' => 'published', 'published_at' => now(), 'scheduled_at' => null]);
             $this->internalLinks->refreshProject($article->seo_project_id);

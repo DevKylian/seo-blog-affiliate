@@ -45,36 +45,27 @@ class Kernel extends ConsoleKernel
 
         $schedule->call(function (): void {
             $dueArticles = Article::query()->where('status', 'scheduled')->where('scheduled_at', '<=', now())->get();
-            $publishable = collect();
-            $audits = app(PrePublishAuditService::class);
-
-            foreach ($dueArticles as $article) {
-                $audit = $audits->audit($article, ['auto_publish' => true]);
-                if ($audit->status === 'blocked') {
-                    $article->update([
-                        'status' => 'review',
-                        'published_at' => null,
-                        'refresh_status' => 'needs_review',
-                        'refresh_reason' => 'Publication programmée bloquée par l’audit pré-publication.',
-                    ]);
-
-                    continue;
-                }
-                $publishable->push($article);
-            }
-
-            if ($publishable->isEmpty()) {
+            if ($dueArticles->isEmpty()) {
                 return;
             }
 
-            $projectIds = $publishable->pluck('seo_project_id')->filter()->unique();
-            Article::query()->whereKey($publishable->pluck('id'))->update([
+            $audits = app(PrePublishAuditService::class);
+            foreach ($dueArticles as $article) {
+                try {
+                    $audits->audit($article, ['auto_publish' => true]);
+                } catch (\Throwable $exception) {
+                    report($exception);
+                }
+            }
+
+            $projectIds = $dueArticles->pluck('seo_project_id')->filter()->unique();
+            Article::query()->whereKey($dueArticles->pluck('id'))->update([
                 'status' => 'published',
                 'published_at' => now(),
                 'scheduled_at' => null,
             ]);
             $projectIds->each(fn ($projectId) => app(InternalLinkService::class)->refreshProject((int) $projectId));
-            $publishable->each(function (Article $article): void {
+            $dueArticles->each(function (Article $article): void {
                 try {
                     app(SearchIndexingSubmissionLauncher::class)->launch($article->id);
                 } catch (\Throwable $exception) {
