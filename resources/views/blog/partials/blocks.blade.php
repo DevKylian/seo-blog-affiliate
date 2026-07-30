@@ -114,45 +114,36 @@
                 </div>
 
                 @if($isComparisonPricing)
-                      <div class="pricing-comparison-cards">
-                          @foreach($comparisonRows as $row)
-                              <article class="comp-card">
-                                  <header class="comp-card-header">
-                                      <h3>{{ $row['product'] }}</h3>
-                                      <div class="comp-price">
-                                          <span>À partir de</span>
-                                          <strong>{{ $row['entry_price'] }}</strong>
-                                      </div>
-                                  </header>
-                                  
-                                  <div class="comp-card-body">
-                                      <div class="comp-section">
-                                          <h4>Ce que couvre le prix</h4>
-                                          <ul>
-                                              @foreach(explode('|', $row['coverage']) as $item)
-                                                  @if(trim($item)) <li>{{ trim($item) }}</li> @endif
-                                              @endforeach
-                                          </ul>
-                                      </div>
-                                      
-                                      <div class="comp-section">
-                                          <h4>Offres relevées</h4>
-                                          <ul>
-                                              @foreach(explode('|', $row['offers']) as $item)
-                                                  @if(trim($item)) <li>{{ trim($item) }}</li> @endif
-                                              @endforeach
-                                          </ul>
-                                      </div>
-                                  </div>
-                                  
-                                  <footer class="comp-card-footer">
-                                      @foreach(explode('|', $row['free_trial']) as $item)
-                                          @if(trim($item)) <span class="comp-badge">{{ trim($item) }}</span> @endif
-                                      @endforeach
-                                  </footer>
-                              </article>
-                          @endforeach
-                      </div>
+                    <div class="pricing-comparison-table">
+                        <div class="pricing-row pricing-head">
+                            <span>Outil</span>
+                            <span>Prix d'entrée</span>
+                            <span>Offres relevées</span>
+                            <span>Gratuit / essai</span>
+                            <span>Ce que couvre le prix</span>
+                        </div>
+                        @foreach($comparisonRows as $row)
+                            <div class="pricing-row">
+                                <strong>{{ $row['product'] }}</strong>
+                                <span>{{ $row['entry_price'] }}</span>
+                                <div class="pricing-cell-list">
+                                    @foreach(explode('|', $row['offers']) as $item)
+                                        @if(trim($item)) <span>{{ trim($item) }}</span> @endif
+                                    @endforeach
+                                </div>
+                                <div class="pricing-cell-list">
+                                    @foreach(explode('|', $row['free_trial']) as $item)
+                                        @if(trim($item)) <span>{{ trim($item) }}</span> @endif
+                                    @endforeach
+                                </div>
+                                <div class="pricing-cell-list">
+                                    @foreach(explode('|', $row['coverage']) as $item)
+                                        @if(trim($item)) <span>{{ trim($item) }}</span> @endif
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 @else
                     <div class="pricing-grid">
                         @foreach($affiliatePlans as $plan)

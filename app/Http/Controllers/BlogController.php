@@ -259,20 +259,16 @@ class BlogController extends Controller
     public function tools(): View
     {
         $tools = SeoProject::query()
+            ->with(['plans' => fn ($q) => $q->where('is_active', true)->orderBy('position'), 'sourcePages'])
             ->withCount(['plans', 'articles'])
             ->where('status', 'active')
             ->orderBy('name')
             ->get();
 
-        $comparisonArticles = Article::query()
-            ->where('status', 'published')
-            ->where(function ($q) {
-                $q->where('type', 'comparison')->orWhere('slug', 'like', '%-vs-%');
-            })
-            ->latest('published_at')
-            ->get();
+        $pricingGroups = $tools->mapWithKeys(fn ($tool) => [$tool->name => $tool->plans]);
+        $comparisonRows = app(\App\Services\PricingComparisonPresenter::class)->rows($pricingGroups);
 
-        return view('tools.index', compact('tools', 'comparisonArticles'));
+        return view('tools.index', compact('tools', 'comparisonRows'));
     }
 
     public function tool(string $slug): View
