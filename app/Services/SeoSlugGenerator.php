@@ -39,7 +39,7 @@ final class SeoSlugGenerator
     {
         $tokens = preg_split('/-+/', Str::slug($title)) ?: [];
 
-        return array_values(array_filter($tokens, fn (string $token) => mb_strlen($token) >= 3
+        return array_values(array_filter($tokens, fn (string $token) => (mb_strlen($token) >= 3 || in_array($token, ['vs', 'ia', 'rh', 'ux', 'ui'], true))
             && ! in_array($token, $this->stopWords(), true)));
     }
 
