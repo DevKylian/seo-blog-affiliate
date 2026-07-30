@@ -9,10 +9,17 @@ foreach ($articles as $a) {
         $parts = explode('-', $a->slug, 2);
         if (count($parts) == 2) {
             $newSlug = $parts[0] . '-vs-' . $parts[1];
-            $a->slug = $newSlug;
-            $changed = true;
-            $slugCount++;
-            echo "Updated slug for {$a->title} to {$newSlug}\n";
+            
+            // Check if slug already exists to prevent crash
+            $exists = App\Models\Article::where('slug', $newSlug)->exists();
+            if ($exists) {
+                echo "Skipping {$a->title}: Slug {$newSlug} already exists!\n";
+            } else {
+                $a->slug = $newSlug;
+                $changed = true;
+                $slugCount++;
+                echo "Updated slug for {$a->title} to {$newSlug}\n";
+            }
         }
     }
 
