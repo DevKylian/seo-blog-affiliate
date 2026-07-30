@@ -346,8 +346,10 @@
                         </ul>
                     </div>
                     <div class="home-software-action" style="flex: 0 0 220px; display:flex; flex-direction:column;">
-                        <div style="font-size:18px; font-weight:800; color:var(--home-text); margin-bottom:4px; text-align:right;">Dès 0€/mois</div>
-                        <div style="font-size:13px; font-weight:700; color:var(--home-muted); margin-bottom:16px; text-align:right;">Note : 4.9/5</div>
+                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-bottom:16px;">
+                            <div style="font-size:18px; font-weight:900; color:var(--home-primary); display:flex; align-items:center; gap:6px;">💰 Dès 0€/mois</div>
+                            <div style="font-size:14px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 4.9/5</div>
+                        </div>
                         <a href="{{ route('tools.show', 'indy') }}" class="home-software-btn" style="margin-bottom:12px; width:100%; text-align:center; box-sizing:border-box;">Lire le test complet</a>
                         <a href="{{ route('affiliate.redirect', 'indy') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box;">Profiter de l'offre gratuite</a>
                     </div>
@@ -366,8 +368,10 @@
                     </ul>
                 </div>
                 <div class="home-software-action">
-                    <div style="font-size:15px; font-weight:800; color:var(--home-text); margin-bottom:4px;">Dès 14€/mois</div>
-                    <div style="font-size:12px; font-weight:700; color:var(--home-muted); margin-bottom:12px;">Note : 4.7/5</div>
+                    <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:16px;">
+                        <div style="font-size:16px; font-weight:900; color:var(--home-text); display:flex; align-items:center; gap:6px;">💰 Dès 14€/mois</div>
+                        <div style="font-size:13px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 4.7/5</div>
+                    </div>
                     <a href="{{ route('tools.show', 'pennylane') }}" class="home-software-btn" style="margin-bottom:8px;">Lire le test complet</a>
                     <a href="{{ route('affiliate.redirect', 'pennylane') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary">Découvrir l'offre</a>
                 </div>
@@ -385,8 +389,10 @@
                     </ul>
                 </div>
                 <div class="home-software-action">
-                    <div style="font-size:15px; font-weight:800; color:var(--home-text); margin-bottom:4px;">Dès 49€/mois</div>
-                    <div style="font-size:12px; font-weight:700; color:var(--home-muted); margin-bottom:12px;">Note : 4.6/5</div>
+                    <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:16px;">
+                        <div style="font-size:16px; font-weight:900; color:var(--home-text); display:flex; align-items:center; gap:6px;">💰 Dès 49€/mois</div>
+                        <div style="font-size:13px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 4.6/5</div>
+                    </div>
                     <a href="{{ route('tools.show', 'dougs') }}" class="home-software-btn" style="margin-bottom:8px;">Lire le test complet</a>
                     <a href="{{ route('affiliate.redirect', 'dougs') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary">Découvrir l'offre</a>
                 </div>
@@ -404,8 +410,10 @@
                     </ul>
                 </div>
                 <div class="home-software-action">
-                    <div style="font-size:15px; font-weight:800; color:var(--home-text); margin-bottom:4px;">Dès 0€/mois</div>
-                    <div style="font-size:12px; font-weight:700; color:var(--home-muted); margin-bottom:12px;">Note : 4.5/5</div>
+                    <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:16px;">
+                        <div style="font-size:16px; font-weight:900; color:var(--home-text); display:flex; align-items:center; gap:6px;">💰 Dès 0€/mois</div>
+                        <div style="font-size:13px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 4.5/5</div>
+                    </div>
                     <a href="{{ route('tools.show', 'abby') }}" class="home-software-btn" style="margin-bottom:8px;">Lire le test complet</a>
                     <a href="{{ route('affiliate.redirect', 'abby') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary">Découvrir l'offre</a>
                 </div>
