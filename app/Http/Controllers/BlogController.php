@@ -28,7 +28,7 @@ class BlogController extends Controller
         return view('blog.home', [
             'intention' => $intention,
             'latestArticles' => Article::query()->with(['project', 'categories'])->where('status', 'published')->latest('published_at')->limit(6)->get(),
-            'categories' => Category::query()->withCount(['articles' => fn ($query) => $query->where('status', 'published')])->orderBy('name')->get(),
+            'categories' => $this->getCategoriesWithCounts(),
             'freeTools' => $this->freeToolCatalog(),
             'projects' => SeoProject::where('status', 'active')->get()
         ]);
@@ -50,7 +50,7 @@ class BlogController extends Controller
                 ->when($cluster, fn ($query) => $query->whereHas('keyword', fn ($keywordQuery) => $keywordQuery->where('affiliate_cluster', $cluster)))
                 ->latest('published_at')
                 ->paginate(12),
-            'categories' => Category::query()->withCount(['articles' => fn ($query) => $query->where('status', 'published')])->orderBy('name')->get(),
+            'categories' => $this->getCategoriesWithCounts(),
             'cluster' => $cluster,
         ]);
     }
@@ -59,13 +59,44 @@ class BlogController extends Controller
     {
         $category = Category::query()->where('slug', $slug)->first();
         if ($category) {
-            return view('blog.category', [
-                'category' => $category,
-                'articles' => $category->articles()->with('project')->where('status', 'published')->latest('published_at')->paginate(12),
-            ]);
+            $articles = Article::query()
+                ->with(['project', 'categories'])
+                ->where('status', 'published')
+                ->where(function ($query) use ($category) {
+                    $query->whereHas('categories', fn ($q) => $q->where('categories.id', $category->id));
+                    if (in_array($category->slug, ['comparatifs', 'comparatif'], true)) {
+                        $query->orWhere('type', 'comparison')->orWhere('slug', 'like', '%-vs-%');
+                    }
+                })
+                ->latest('published_at')
+                ->paginate(12);
+
+            return view('blog.category', compact('category', 'articles'));
         }
 
         return $this->article($slug);
+    }
+
+    private function getCategoriesWithCounts()
+    {
+        return Category::query()
+            ->withCount(['articles' => fn ($query) => $query->where('status', 'published')])
+            ->orderBy('name')
+            ->get()
+            ->map(function ($cat) {
+                if (in_array($cat->slug, ['comparatifs', 'comparatif'], true)) {
+                    $comparisonCount = Article::query()
+                        ->where('status', 'published')
+                        ->where(function ($q) use ($cat) {
+                            $q->whereHas('categories', fn ($c) => $c->where('categories.id', $cat->id))
+                              ->orWhere('type', 'comparison')
+                              ->orWhere('slug', 'like', '%-vs-%');
+                        })
+                        ->count();
+                    $cat->articles_count = max((int) $cat->articles_count, $comparisonCount);
+                }
+                return $cat;
+            });
     }
 
     public function article(string $slug, ?string $type = null): View

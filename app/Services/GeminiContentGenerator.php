@@ -643,21 +643,30 @@ TEXT;
     private function autoCategorizeArticle(Article $article): void
     {
         $categoryIds = [];
-        
-        if ($article->type === 'tool_review') $categoryIds[] = 5;
-        elseif ($article->type === 'tool_comparison') $categoryIds[] = 6;
-        elseif ($article->type === 'best_tools') $categoryIds[] = 7;
-        else $categoryIds[] = 8;
-        
-        $text = strtolower($article->title . ' ' . $article->primary_keyword);
-        if (preg_match('/compta|indy|pennylane|dougs/', $text)) $categoryIds[] = 2;
-        if (preg_match('/facture|devis|tiime/', $text)) $categoryIds[] = 3;
-        if (preg_match('/banque|qonto|shine|blank|finom/', $text)) $categoryIds[] = 4;
-        if (preg_match('/email|newsletter|brevo|mailchimp|mailpilot/', $text)) $categoryIds[] = 1;
-        
-        if (!empty($categoryIds)) {
-            $article->categories()->syncWithoutDetaching($categoryIds);
+
+        $categorySlug = match ($article->type) {
+            'comparison', 'tool_comparison' => 'comparatifs',
+            'tool_review', 'review' => 'avis',
+            'best_tools', 'alternatives' => 'logiciels',
+            default => 'guides',
+        };
+
+        if (str_contains((string) $article->slug, '-vs-')) {
+            $categorySlug = 'comparatifs';
         }
+
+        $mainCategory = Category::firstOrCreate(
+            ['slug' => $categorySlug],
+            ['name' => match ($categorySlug) {
+                'comparatifs' => 'Comparatifs',
+                'avis' => 'Avis & Tests Logiciels',
+                'logiciels' => 'Les Meilleurs Logiciels',
+                default => 'Guides Indépendants',
+            }]
+        );
+        $categoryIds[] = $mainCategory->id;
+
+        $article->categories()->syncWithoutDetaching($categoryIds);
     }
 
     public function generateFromIdea(SeoProject $project, EditorialIdea $idea, string $instructions = ''): Article
