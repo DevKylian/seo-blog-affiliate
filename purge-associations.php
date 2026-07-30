@@ -28,8 +28,8 @@ foreach ($articles as $a) {
 
 $ideas = EditorialIdea::where('title', 'like', '%association%')
     ->orWhere('title', 'like', '%associatif%')
-    ->orWhere('keyword', 'like', '%association%')
-    ->orWhere('keyword', 'like', '%associatif%')
+    ->orWhere('primary_keyword', 'like', '%association%')
+    ->orWhere('primary_keyword', 'like', '%associatif%')
     ->get();
 
 $deletedIdeas = 0;
