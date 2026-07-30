@@ -351,7 +351,7 @@ PROMPT;
         $previousScheduledAt = $article->scheduled_at;
         $previousSlug = $article->slug;
 
-        $baseRegenerationInstructions = trim($instructions."\nRégénération admin : conserve le même angle SEO, le même titre et remplace le contenu par une version plus précise et vérifiée.");
+        $baseRegenerationInstructions = trim($instructions."\nRégénération admin (ID variant: ".rand(10000, 99999).") : Il est IMPÉRATIF de reformuler intégralement le texte. N'utilise pas les mêmes phrases ou les mêmes structures que précédemment. Conserve l'angle SEO et le titre, mais varie fortement le vocabulaire et l'approche rédactionnelle.");
         $regenerationInstructions = $baseRegenerationInstructions;
         $generated = null;
         $maxAttempts = 7;
