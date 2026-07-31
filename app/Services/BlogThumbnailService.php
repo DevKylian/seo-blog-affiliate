@@ -46,6 +46,51 @@ class BlogThumbnailService
         }
     }
 
+    public static function formatThumbnailTitle(?string $thumbnailTitle, string $fullTitle): string
+    {
+        $raw = trim($thumbnailTitle ?: $fullTitle);
+
+        // 1. If contains colon or dash, extract first part if it's punchy
+        if (str_contains($raw, ':')) {
+            $parts = explode(':', $raw);
+            $firstPart = trim($parts[0]);
+            if (mb_strlen($firstPart) >= 8 && count(explode(' ', $firstPart)) <= 8) {
+                $raw = $firstPart;
+            }
+        } elseif (str_contains($raw, ' - ')) {
+            $parts = explode(' - ', $raw);
+            $firstPart = trim($parts[0]);
+            if (mb_strlen($firstPart) >= 8 && count(explode(' ', $firstPart)) <= 8) {
+                $raw = $firstPart;
+            }
+        }
+
+        // 2. Keep MAX 7 words
+        $words = array_values(array_filter(explode(' ', $raw)));
+        if (count($words) > 7) {
+            $words = array_slice($words, 0, 7);
+        }
+
+        // 3. Strip trailing stop words/prepositions
+        $stopWords = ['pour', 'et', 'de', 'du', 'des', 'la', 'le', 'les', 'en', 'a', 'au', 'aux', 'par', 'avec', 'sur', 'comment', 'une', 'un', 'dans'];
+        while (!empty($words) && in_array(mb_strtolower(end($words)), $stopWords, true)) {
+            array_pop($words);
+        }
+
+        if (empty($words)) {
+            $words = array_slice(array_values(array_filter(explode(' ', $fullTitle))), 0, 5);
+        }
+
+        $formatted = implode(' ', $words);
+
+        // Capitalize nicely if lowercase
+        if (mb_strtolower($formatted) === $formatted) {
+            $formatted = mb_convert_case($formatted, MB_CASE_TITLE, 'UTF-8');
+        }
+
+        return $formatted;
+    }
+
     public function ensure(string $slug, string $title, string $category = 'BUSINESSKIT', ?string $excerpt = null, ?\DateTimeInterface $updatedAt = null): string
     {
         $path = $this->absolutePath($slug);
@@ -54,7 +99,8 @@ class BlogThumbnailService
             return $path;
         }
 
-        $svg = $this->buildSvg($title, $category, $excerpt);
+        $cleanTitle = self::formatThumbnailTitle(null, $title);
+        $svg = $this->buildSvg($cleanTitle, $category, $excerpt);
         $png = $this->svgToPng($svg);
 
         if ($png === null || strlen($png) < 100) {
@@ -79,7 +125,8 @@ class BlogThumbnailService
 
     public function httpResponse(string $slug, string $title, string $category = 'BUSINESSKIT', ?string $excerpt = null, ?\DateTimeInterface $updatedAt = null, ?string $thumbnailTitle = null): Response
     {
-        $path = $this->ensure($slug, $thumbnailTitle ?? $title, $category, $excerpt, $updatedAt);
+        $cleanTitle = self::formatThumbnailTitle($thumbnailTitle, $title);
+        $path = $this->ensure($slug, $cleanTitle, $category, $excerpt, $updatedAt);
         
         return response(file_get_contents($path), 200, [
             'Content-Type'  => 'image/png',
