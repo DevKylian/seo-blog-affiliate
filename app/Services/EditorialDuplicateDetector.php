@@ -236,13 +236,27 @@ final class EditorialDuplicateDetector
         $bestLexicalScore = 0.0;
         foreach ($articles as $article) {
             $articleBlueprint = $this->normalizeBlueprint($this->blueprintForArticle($article));
+
+            // Strict title collision check
+            $candidateTitle = mb_strtolower(trim((string) ($candidateBlueprint['title'] ?? $candidateBlueprint['primary_keyword'] ?? '')));
+            $existingTitle = mb_strtolower(trim((string) $article->title));
+            
+            if ($candidateTitle !== '' && $existingTitle !== '') {
+                $titleSim = $this->similarity($candidateTitle, $existingTitle);
+                if ($candidateTitle === $existingTitle || $titleSim >= 0.78) {
+                    return [
+                        'article' => $article,
+                        'score' => 100.0,
+                        'lexical_score' => 100.0,
+                        'decision' => 'block',
+                    ];
+                }
+            }
+
             $score = $this->blueprintScore($candidateBlueprint, $articleBlueprint);
             $candidateKeyword = $this->topics->key((string) ($candidateBlueprint['primary_keyword'] ?? ''));
             $articleKeyword = $this->topics->key((string) ($articleBlueprint['primary_keyword'] ?? ''));
             if ($candidateKeyword !== '' && $candidateKeyword === $articleKeyword && $candidateBlueprint['intent'] === $articleBlueprint['intent']) {
-                // Face à un article déjà créé, le même mot-clé principal est un
-                // signal supplémentaire. Entre deux briefs du même lot, les
-                // angles restent libres d'être réellement distincts.
                 $score += 46;
             }
             $candidateText = $candidateRepresentation ?: $this->blueprintRepresentation($candidateBlueprint);
@@ -267,6 +281,7 @@ final class EditorialDuplicateDetector
     {
         if ($article->topic_fingerprint) {
             return [
+                'title' => (string) $article->title,
                 'entity' => $article->entity_key,
                 'topic' => $article->topic_key,
                 'intent' => $this->normalizedIntent($article->search_intent, $article->type),
@@ -288,7 +303,9 @@ final class EditorialDuplicateDetector
             'intent' => $article->search_intent,
         ]);
 
-        return $this->blueprint($article->project, $keyword, $article->type);
+        $bp = $this->blueprint($article->project, $keyword, $article->type);
+        $bp['title'] = (string) $article->title;
+        return $bp;
     }
 
     private function blueprintScore(array $candidate, array $existing): float
