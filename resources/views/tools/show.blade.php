@@ -170,6 +170,7 @@
                     @endphp
                     @foreach($competitors as $compSlug => $compName)
                     <li><a href="{{ route('comparisons.show', $tool->slug . '-vs-' . $compSlug) }}" style="color:var(--tool-primary); text-decoration:none; font-weight:600; font-size:14px; display:inline-flex; align-items:center; gap:6px;">→ {{ ucfirst($tool->name) }} vs {{ $compName }}</a></li>
+                    @endforeach
                 </ul>
             </div>
 
