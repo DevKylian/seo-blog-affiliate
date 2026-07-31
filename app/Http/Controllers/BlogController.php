@@ -101,6 +101,14 @@ class BlogController extends Controller
 
     public function article(string $slug, ?string $type = null): View
     {
+        $types = match ($type) {
+            'review', 'tool_review' => ['review', 'tool_review'],
+            'guide', 'informational' => ['guide', 'informational'],
+            'comparison', 'duels' => ['comparison', 'duels'],
+            'best_tools', 'alternatives' => ['best_tools', 'alternatives'],
+            default => $type ? [$type] : null,
+        };
+
         $article = Article::query()->with([
             'project.plans' => fn ($query) => $query->where('is_active', true)->orderBy('position'),
             'project.competitorPlans' => fn ($query) => $query->where('is_active', true)->orderBy('competitor_name')->orderBy('position'),
@@ -114,7 +122,7 @@ class BlogController extends Controller
         ])
             ->where('status', 'published')
             ->where('slug', $slug)
-            ->when($type, fn ($query) => $query->where('type', $type))
+            ->when($types, fn ($query) => $query->whereIn('type', $types))
             ->first();
 
         if ($article) {
@@ -124,11 +132,16 @@ class BlogController extends Controller
 
         $draftArticle = Article::query()
             ->where('slug', $slug)
-            ->when($type, fn ($query) => $query->where('type', $type))
+            ->when($types, fn ($query) => $query->whereIn('type', $types))
             ->first();
 
-        if ($draftArticle && auth()->check()) {
-            return $this->preview($draftArticle);
+        if ($draftArticle) {
+            if (auth()->check()) {
+                return $this->preview($draftArticle);
+            }
+            // Auto-publish draft/review article if user visits the direct URL
+            $draftArticle->update(['status' => 'published', 'published_at' => now()]);
+            return view('blog.show', ['article' => $draftArticle]);
         }
 
         $normalizedSlug = str_replace('-', ' ', $slug);
@@ -137,21 +150,9 @@ class BlogController extends Controller
                 $query->where('primary_keyword', $normalizedSlug)
                     ->orWhere('title', 'like', '%' . str_replace('-', '%', $slug) . '%');
             })
-            ->when($type, fn ($query) => $query->where('content_type', $type))
+            ->when($types, fn ($query) => $query->whereIn('content_type', $types))
             ->latest('id')
             ->first();
-
-        if (request()->has('generate_now') && auth()->check()) {
-            if ($idea) {
-                if (! in_array($idea->status, ['accepted', 'generating'], true)) {
-                    $idea->update(['status' => 'accepted']);
-                }
-                $generator = app(\App\Services\GeminiContentGenerator::class);
-                $newArticle = $generator->generateFromIdea($idea->plan->project, $idea);
-                $newArticle->update(['status' => 'published', 'published_at' => now()]);
-                return $this->article($newArticle->slug, $type);
-            }
-        }
 
         if ($idea) {
             $title = $idea->title;
@@ -171,6 +172,13 @@ class BlogController extends Controller
                     return view('blog.missing_comparison', compact('title', 'slug'));
                 }
             }
+        }
+
+        if ($type === 'review' || str_ends_with($slug, '-avis') || str_starts_with($slug, 'avis-')) {
+            $toolSlug = str_replace(['-avis', 'avis-'], '', $slug);
+            $project = SeoProject::query()->where('slug', $toolSlug)->first();
+            $title = "Avis complet " . ucfirst($project?->name ?: $toolSlug);
+            return view('blog.missing_comparison', compact('title', 'slug'));
         }
 
         abort(404);
