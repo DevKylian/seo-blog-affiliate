@@ -246,7 +246,7 @@ final class EditorialPlanBuilder
         for ($attempt = 1; $attempt <= 1; $attempt++) {
             $rawIdeas = $this->generator->generate(
                 $project,
-                $generationKeywords,
+                $generationKeywords->take(100)->values(),
                 $strategicSubjects,
                 3,
                 $excluded,

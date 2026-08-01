@@ -361,6 +361,9 @@ TEXT;
             'dans', 'sur', 'avec', 'sans', 'par', 'est', 'sont', 'faire', 'fait',
             'etre', 'avoir', 'votre', 'notre', 'vos', 'nos', 'ces', 'ses', 'ces',
             'cet', 'cette', 'celui', 'ceux', 'celle', 'celles', 'ici', 'la', 'bas',
+            'finances', 'publiques', 'comptables', 'plus', 'nouveau', 'nouvelle',
+            'systeme', 'creation', 'micro', 'astuces', 'conseils', 'etapes',
+            'avantage', 'avantages', 'inconvenients', 'methode', 'solution', 'solutions'
         ];
 
         return $words !== [] && count(array_diff($words, $common)) === 0;

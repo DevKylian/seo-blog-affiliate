@@ -257,16 +257,6 @@ final class EditorialDuplicateDetector
             }
 
             $score = $this->blueprintScore($candidateBlueprint, $articleBlueprint);
-            $candidateKeyword = $this->topics->key((string) ($candidateBlueprint['primary_keyword'] ?? ''));
-            $articleKeyword = $this->topics->key((string) ($articleBlueprint['primary_keyword'] ?? ''));
-            if ($candidateKeyword !== '' && $candidateKeyword === $articleKeyword && $candidateBlueprint['intent'] === $articleBlueprint['intent']) {
-                $score += 46;
-            }
-            if ($candidateBlueprint['entity'] !== '' && $candidateBlueprint['entity'] === $articleBlueprint['entity'] 
-                && $candidateBlueprint['topic'] !== '' && $candidateBlueprint['topic'] === $articleBlueprint['topic'] 
-                && $candidateBlueprint['intent'] === $articleBlueprint['intent']) {
-                $score += 35; // Forte pénalité si même entité, même topic précis et même intention
-            }
             $candidateText = $this->blueprintRepresentation($candidateBlueprint);
             $lexicalScore = $this->similarity($candidateText, $this->articleRepresentation($article));
             $score = min(100, $score + ($lexicalScore * 20));
@@ -327,6 +317,17 @@ final class EditorialDuplicateDetector
             + (26 * $this->similarity($candidate['topic'], $existing['topic']))
             + (16 * $this->similarity($candidate['angle'], $existing['angle']))
             + ($candidate['audience'] === $existing['audience'] ? 6 : 0);
+
+        $candidateKeyword = $this->topics->key((string) ($candidate['primary_keyword'] ?? ''));
+        $existingKeyword = $this->topics->key((string) ($existing['primary_keyword'] ?? ''));
+        if ($candidateKeyword !== '' && $candidateKeyword === $existingKeyword && $candidate['intent'] === $existing['intent']) {
+            $score += 46;
+        }
+        if ($candidate['entity'] !== '' && $candidate['entity'] === $existing['entity'] 
+            && $candidate['topic'] !== '' && $candidate['topic'] === $existing['topic'] 
+            && $candidate['intent'] === $existing['intent']) {
+            $score += 35; // Forte pénalité si même entité, même topic précis et même intention
+        }
 
         return $score;
     }
