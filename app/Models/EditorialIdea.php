@@ -52,6 +52,7 @@ class EditorialIdea extends Model
     public function blueprint(): array
     {
         return [
+            'title' => $this->title,
             'entity' => $this->entity_key,
             'topic' => $this->topic_key,
             'intent' => $this->intent,
