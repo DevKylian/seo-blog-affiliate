@@ -288,6 +288,11 @@ final class EditorialPlanBuilder
     {
         $project = $plan->project;
         
+        $fullText = implode(' ', [$blueprint['title'] ?? '', $blueprint['entity'] ?? '', $blueprint['topic'] ?? '', $blueprint['primary_keyword'] ?? '']);
+        if (app(\App\Services\EntityCompatibilityCatalog::class)->isForbidden($fullText)) {
+            return $this->reject('forbidden_entity', 'Entité ou cible incompatible détectée (ex: association, CSE, agriculture).');
+        }
+
         if (in_array($blueprint['angle'], self::FORBIDDEN_ANGLES, true)
             || mb_strlen($blueprint['unique_promise']) < 35
             || count($blueprint['outline']) < 5) {
@@ -350,6 +355,7 @@ final class EditorialPlanBuilder
             'similarity' => round($bestScore, 2),
             'closest_article_id' => $closestArticle?->id,
             'seo_score' => $this->score($keyword, $blueprint, $sourceCoverage, $bestScore, $project),
+            'embedding' => $existing['embedding'] ?? null,
         ];
     }
 
@@ -494,6 +500,7 @@ final class EditorialPlanBuilder
             'outline' => $blueprint['outline'],
             'roadmap_level' => $raw['roadmap_level'] ?? null,
             'conversion_goal' => $raw['conversion_goal'] ?? 'general',
+            'title_embedding' => $decision['embedding'] ?? null,
             'brief_details' => [
                 'call_to_action' => $raw['call_to_action'] ?? null,
                 'lsi_keywords' => $raw['lsi_keywords'] ?? [],

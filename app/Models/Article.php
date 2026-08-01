@@ -24,6 +24,7 @@ class Article extends Model
         'affiliate_priority' => 'float',
         'prepublish_score' => 'float',
         'prepublish_audited_at' => 'datetime',
+        'title_embedding' => 'array',
     ];
 
     public function project(): BelongsTo

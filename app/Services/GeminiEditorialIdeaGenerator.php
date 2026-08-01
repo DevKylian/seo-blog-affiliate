@@ -69,6 +69,12 @@ Stratégie de portefeuille : {$strategy}
 ATTENTION CRITIQUE - INTERDICTION D'INVENTER DES LOGICIELS : 
 Tu as l'interdiction formelle et absolue d'inventer des noms de logiciels. Ne génère JAMAIS de faux outils (comme "AccountPro Cloud", "ComptaFacile", etc.). Base-toi STRICTEMENT et UNIQUEMENT sur les logiciels cités dans les "Sujets Stratégiques" ou ceux qui sont des outils réels et extrêmement connus du marché français. TOUTE INVENTION de logiciel entraînera le rejet de ta réponse.
 
+COMPATIBILITÉ DES ENTITÉS (BLOQUANT) :
+Le logiciel ciblé (comme Indy) ne gère PAS toutes les entités juridiques. 
+Tu as l'INTERDICTION ABSOLUE de cibler les entités ou statuts suivants : Association, loi 1901, CSE (comité social et économique), agriculture, agricole, LMP, LMNP.
+Si tu vois un mot-clé concernant ces statuts, IGNORE-LE. Toute idée générée pour ces statuts sera rejetée.
+Les entités autorisées et prioritaires sont : micro-entreprise, auto-entrepreneur, SASU, SAS, EURL, SARL, SCI, SCM, EI, EIRL, freelance, indépendant.
+
 GARDE-FOUS ET PÉRIMÈTRE DU SITE (BUSINESSKIT) - RÈGLES DE REJET STRICTES (LISTE BLANCHE UNIQUEMENT) :
 Ton algorithme de décision interne DOIT IMPÉRATIVEMENT filtrer la liste des mots-clés disponibles selon cette liste blanche stricte.
 Le sujet du mot-clé DOIT obligatoirement faire partie d'une de ces catégories (niche Indy) :

@@ -9,10 +9,14 @@ use Illuminate\Support\Str;
 
 final class EditorialDuplicateDetector
 {
+    private \App\Services\GeminiEmbeddingService $embeddingService;
+
     public function __construct(
         private readonly TopicNormalizer $topics,
         private readonly SeoSlugGenerator $slugs,
-    ) {}
+    ) {
+        $this->embeddingService = app(\App\Services\GeminiEmbeddingService::class);
+    }
 
     public function blueprint(SeoProject $project, ?Keyword $keyword, string $type): array
     {
@@ -69,23 +73,30 @@ final class EditorialDuplicateDetector
 
     public function compareBlueprints(array $candidate, array $existing): float
     {
-        $candidate = $this->normalizeBlueprint($candidate);
-        $existing = $this->normalizeBlueprint($existing);
+        $candidateTitle = mb_strtolower(trim((string) ($candidate['title'] ?? $candidate['primary_keyword'] ?? '')));
+        $existingTitle = mb_strtolower(trim((string) ($existing['title'] ?? $existing['primary_keyword'] ?? '')));
         
-        $titleSimilarity = $this->similarity((string) ($candidate['title'] ?? ''), (string) ($existing['title'] ?? ''));
-        $titleInclusion = $this->inclusion((string) ($candidate['title'] ?? ''), (string) ($existing['title'] ?? ''));
-        $keywordSimilarity = $this->similarity((string) ($candidate['primary_keyword'] ?? ''), (string) ($existing['primary_keyword'] ?? ''));
-        $keywordInclusion = $this->inclusion((string) ($candidate['primary_keyword'] ?? ''), (string) ($existing['primary_keyword'] ?? ''));
-        
-        if ($titleSimilarity >= 0.80 || $titleInclusion >= 0.85 || $keywordSimilarity >= 0.80 || $keywordInclusion >= 0.90) {
-            return 100.0;
+        if ($candidateTitle !== '' && $existingTitle !== '') {
+            $titleSim = $this->similarity($candidateTitle, $existingTitle);
+            $titleInclusion = $this->inclusion($candidateTitle, $existingTitle);
+            if ($candidateTitle === $existingTitle || $titleSim >= 0.78 || $titleInclusion >= 0.85) {
+                return 100.0;
+            }
+        }
+
+        $candidateVec = $candidate['title_embedding'] ?? $this->embeddingService->embed($candidateTitle . ' ' . ($candidate['angle'] ?? ''));
+        $existingVec = $existing['title_embedding'] ?? $this->embeddingService->embed($existingTitle . ' ' . ($existing['angle'] ?? ''));
+
+        if ($candidateVec && $existingVec) {
+            $semantic = $this->embeddingService->cosineSimilarity($candidateVec, $existingVec);
+        } else {
+            $semantic = $this->similarity($this->blueprintRepresentation($candidate), $this->blueprintRepresentation($existing));
         }
 
         $score = $this->blueprintScore($candidate, $existing);
-        $semantic = $this->similarity($this->blueprintRepresentation($candidate), $this->blueprintRepresentation($existing));
-        $outline = $this->compareOutlines($candidate['outline'], $existing['outline']);
+        $outline = $this->compareOutlines($candidate['outline'] ?? [], $existing['outline'] ?? []);
 
-        return round(min(100, $score + ($semantic * 18) + ($outline * 18)), 2);
+        return round(min(100, $score + ($semantic * 50) + ($outline * 20)), 2);
     }
 
     public function compareOutlines(array $first, array $second): float
@@ -233,6 +244,9 @@ final class EditorialDuplicateDetector
             ->when($ignoreArticleId, fn ($query) => $query->whereKeyNot($ignoreArticleId))
             ->get();
 
+        $candidateTitleText = trim(($candidateBlueprint['title'] ?? '') . ' ' . ($candidateBlueprint['angle'] ?? ''));
+        $candidateVec = $candidateBlueprint['title_embedding'] ?? $this->embeddingService->embed($candidateTitleText);
+
         $bestArticle = null;
         $bestScore = 0.0;
         $bestLexicalScore = 0.0;
@@ -256,10 +270,31 @@ final class EditorialDuplicateDetector
                 }
             }
 
+            $articleVec = $article->title_embedding;
+            if (! $articleVec) {
+                $articleTitleText = trim(($article->title ?? '') . ' ' . ($articleBlueprint['angle'] ?? ''));
+                $articleVec = $this->embeddingService->embed($articleTitleText);
+                if ($articleVec) {
+                    $article->update(['title_embedding' => $articleVec]);
+                }
+            }
+
+            if ($candidateVec && $articleVec) {
+                $lexicalScore = $this->embeddingService->cosineSimilarity($candidateVec, $articleVec);
+            } else {
+                $candidateText = $this->blueprintRepresentation($candidateBlueprint);
+                $lexicalScore = $this->similarity($candidateText, $this->articleRepresentation($article));
+            }
+
             $score = $this->blueprintScore($candidateBlueprint, $articleBlueprint);
-            $candidateText = $this->blueprintRepresentation($candidateBlueprint);
-            $lexicalScore = $this->similarity($candidateText, $this->articleRepresentation($article));
-            $score = min(100, $score + ($lexicalScore * 20));
+            
+            // Si forte similarité sémantique (> 0.85), on donne un malus énorme (doublon quasi certain)
+            if ($candidateVec && $articleVec && $lexicalScore >= 0.85) {
+                $score = max(86, $score + ($lexicalScore * 100)); // Force le score au-delà du seuil de rejet
+            } else {
+                $score = min(100, $score + ($lexicalScore * 40));
+            }
+
             if ($score > $bestScore) {
                 $bestArticle = $article;
                 $bestScore = $score;
@@ -272,6 +307,7 @@ final class EditorialDuplicateDetector
             'score' => round($bestScore, 2),
             'lexical_score' => round($bestLexicalScore * 100, 2),
             'decision' => $this->decision($bestScore),
+            'embedding' => $candidateVec,
         ];
     }
 

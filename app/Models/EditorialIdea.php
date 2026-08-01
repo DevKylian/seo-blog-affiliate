@@ -17,6 +17,7 @@ class EditorialIdea extends Model
         'seo_score' => 'float',
         'similarity_score' => 'float',
         'source_coverage' => 'float',
+        'title_embedding' => 'array',
     ];
 
     public function plan(): BelongsTo
