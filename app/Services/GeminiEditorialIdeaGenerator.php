@@ -66,6 +66,17 @@ Variables système injectées par l’application : CURRENT_DATE = {$currentDate
 Consignes utilisateur : {$instructions}
 Stratégie de portefeuille : {$strategy}
 
+MÉTHODE DE VÉRIFICATION DES DOUBLONS (à appliquer avant de valider chaque idée) :
+Pour chaque idée, formule d'abord mentalement sa "signature de sujet" : [Entité ou outil concerné] + [Besoin ou tâche métier concerné], en langage normalisé (ex: "SCI + comptabilité générale", "Mac + choix logiciel", "auto-entrepreneur + comptabilité gratuite"). Compare cette signature — pas seulement le titre — à celles des articles déjà publiés fournis en contexte ET des autres idées de ce même lot. Si la signature est identique ou quasi identique à un sujet déjà traité, l'idée est un doublon même si le titre est reformulé différemment (ex: "gérer sa SCI avec un logiciel" et "optimiser sa comptabilité SCI" sont la MÊME signature). Rejette-la.
+
+SOUS-SUJETS DÉJÀ LARGEMENT COUVERTS — à éviter sauf angle radicalement nouveau et non générique (ex: un cas d'usage précis, une nouveauté réglementaire 2026, une comparaison chiffrée inédite) :
+SCI (comptabilité générale) · Mac (choix de logiciel) · auto-entrepreneur/micro-entreprise (choix ou usage général d'un logiciel) · professions libérales (comptabilité générale, y compris ses variantes métier comme infirmière libérale) · Sage (prise en main générale) · abonnement logiciel comptable · banque pro freelance (choix générique) · Excel comptabilité.
+Si tu proposes malgré tout une idée sur l'un de ces sous-sujets, l'angle doit être explicitement et fortement différenciant, précisé dans le champ "angle", et non une simple reformulation du besoin déjà couvert.
+
+RÈGLE ABSOLUE DE DIVERSIFICATION : Interdiction totale de proposer plus d'UNE seule idée sur la même signature de sujet, y compris entre les idées de ce lot.
+
+LIBERTÉ ÉDITORIALE : En dehors des sous-sujets saturés listés ci-dessus, tu as une entière liberté pour explorer la niche de la comptabilité et gestion des indépendants/TPE sous tous ses angles peu ou pas traités : paie et charges sociales, notes de frais et remboursements, immobilisations et amortissements, TVA sur régimes spécifiques (exonération, franchise, régime réel), clôture d'exercice, facturation internationale, relations avec un expert-comptable, trésorerie prévisionnelle, obligations légales par secteur d'activité (BTP, professions réglementées, e-commerce...), etc. Priorise ces zones sous-exploitées plutôt que de reformuler les sous-sujets saturés.
+
 ATTENTION CRITIQUE - INTERDICTION D'INVENTER DES LOGICIELS : 
 Tu as l'interdiction formelle et absolue d'inventer des noms de logiciels. Ne génère JAMAIS de faux outils (comme "AccountPro Cloud", "ComptaFacile", etc.). Base-toi STRICTEMENT et UNIQUEMENT sur les logiciels cités dans les "Sujets Stratégiques" ou ceux qui sont des outils réels et extrêmement connus du marché français. TOUTE INVENTION de logiciel entraînera le rejet de ta réponse.
 

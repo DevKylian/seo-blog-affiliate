@@ -19,8 +19,8 @@ class GeminiEmbeddingService
             return null;
         }
 
-        $apiKey = config('services.gemini.key');
-        if (! $apiKey) {
+        $apiKey = \App\Models\Setting::value('gemini_api_key', config('services.gemini.key'));
+        if (! $apiKey || trim($apiKey) === '') {
             Log::error('Clé API Gemini manquante pour GeminiEmbeddingService.');
             return null;
         }
