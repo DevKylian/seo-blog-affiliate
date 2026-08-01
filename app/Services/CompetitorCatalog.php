@@ -150,10 +150,12 @@ final class CompetitorCatalog
             }
         }
 
-        if (preg_match_all('/\b([A-Z][a-zA-Z0-9]+(?:Pro|Cloud|Master|Advanced|Analytics|Core|Plus|Enterprise|Ultimate|V\d+|Module))\b/i', $text, $matches)) {
+        if (preg_match_all('/\b([A-Z][a-zA-Z0-9]*(?:\s+[A-Z][a-zA-Z0-9]+)*\s*(?:Pro|Cloud|Master|Advanced|Analytics|Core|Plus|Enterprise|Ultimate|V\d+|Module))\b/u', $text, $matches)) {
             foreach ($matches[1] as $suspicious) {
-                if (! $this->isAllowedName($suspicious, $allowed)) {
-                    $unknown[] = $suspicious;
+                // To avoid matching generic terms like "Compte Pro", "Chorus Pro", check if it's explicitly non-competitor
+                $clean = trim($suspicious);
+                if (! $this->isAllowedName($clean, $allowed) && ! in_array(mb_strtolower($clean), array_map('mb_strtolower', self::KNOWN_NON_COMPETITOR_PHRASES), true)) {
+                    $unknown[] = $clean;
                 }
             }
         }
