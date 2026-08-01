@@ -59,6 +59,13 @@ final class ContentRunProcessor
 
         try {
             $idea = $item->editorialIdea;
+            \Illuminate\Support\Facades\Log::info("ContentRunProcessor Starting Item", [
+                'item_id' => $item->id,
+                'idea_title' => $idea?->title,
+                'content_type' => $item->content_type,
+                'step' => $item->generation_step,
+                'attempts' => $item->api_attempts,
+            ]);
             if ($idea) {
                 if ($item->generation_step === 0) {
                     $idea->increment('generation_attempts');
@@ -163,6 +170,14 @@ final class ContentRunProcessor
             }
             $this->replaceRejectedItem($run, $item, $exception);
         } catch (Throwable $exception) {
+            \Illuminate\Support\Facades\Log::error("ContentRunProcessor Exception Caught", [
+                'item_id' => $item->id,
+                'step' => $item->generation_step,
+                'attempts' => $item->api_attempts,
+                'error' => $exception->getMessage(),
+                'recoverable' => $this->isRecoverableGenerationError($exception)
+            ]);
+
             if ($this->isRecoverableGenerationError($exception)) {
                 $apiAttempts = min(255, (int) $item->api_attempts + 1);
                 $isMissingSources = str_contains($exception->getMessage(), '[S1]');

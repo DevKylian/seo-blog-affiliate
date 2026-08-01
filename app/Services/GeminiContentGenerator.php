@@ -1059,6 +1059,12 @@ PROMPT;
         }
 
         if ($issues !== []) {
+            \Illuminate\Support\Facades\Log::warning("Gemini Content Assert Failed", [
+                'issues' => $issues,
+                'sections' => $sections,
+                'body_length' => strlen($body),
+                'h2_count' => count($h2[0] ?? [])
+            ]);
             throw new RuntimeException('Réponse Gemini incomplète : '.implode(', ', $issues).'.');
         }
     }
