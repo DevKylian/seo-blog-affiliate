@@ -145,22 +145,6 @@ final class CompetitorCatalog
             }
         }
 
-        preg_match_all('/\b[A-Z][A-Za-z0-9]{2,}(?:\s+(?:[A-Z][A-Za-z0-9]{2,}|Max|Advanced|Evolution|Builder|Enterprise|Suite|Pro|Business|Plus|Premium|Starter|Standard)){0,3}\b/u', $text, $matches);
-        foreach ($matches[0] ?? [] as $candidate) {
-            $candidate = trim($candidate);
-            if (
-                $candidate === ''
-                || $this->isAllowedName($candidate, $allowed)
-                || $this->isKnownNonCompetitorPhrase($candidate)
-                || $this->isCommonTitlePhrase($candidate)
-                || $this->isPlanTierPhrase($candidate, $allowed)
-            ) {
-                continue;
-            }
-
-            $unknown[] = $candidate;
-        }
-
         return collect($unknown)
             ->filter()
             ->unique(fn (string $name): string => $this->compactKey($name))
