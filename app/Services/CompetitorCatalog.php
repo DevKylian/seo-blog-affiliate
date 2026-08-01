@@ -273,7 +273,7 @@ TEXT;
     }
 
     /** @param string[] $allowed */
-    private function isAllowedName(string $candidate, array $allowed): bool
+    public function isAllowedName(string $candidate, array $allowed): bool
     {
         $candidateKey = $this->compactKey($candidate);
         if ($candidateKey === '') {
