@@ -88,7 +88,7 @@ final class EditorialDuplicateDetector
         $existingVec = $existing['title_embedding'] ?? $this->embeddingService->embed($existingTitle . ' ' . ($existing['angle'] ?? ''));
 
         if ($candidateVec && $existingVec) {
-            $semantic = $this->embeddingService->cosineSimilarity($candidateVec, $existingVec);
+            $semantic = $this->normalizeCosine($this->embeddingService->cosineSimilarity($candidateVec, $existingVec));
         } else {
             $semantic = $this->similarity($this->blueprintRepresentation($candidate), $this->blueprintRepresentation($existing));
         }
@@ -280,7 +280,8 @@ final class EditorialDuplicateDetector
             }
 
             if ($candidateVec && $articleVec) {
-                $lexicalScore = $this->embeddingService->cosineSimilarity($candidateVec, $articleVec);
+                $rawCos = $this->embeddingService->cosineSimilarity($candidateVec, $articleVec);
+                $lexicalScore = $this->normalizeCosine($rawCos);
             } else {
                 $candidateText = $this->blueprintRepresentation($candidateBlueprint);
                 $lexicalScore = $this->similarity($candidateText, $this->articleRepresentation($article));
@@ -567,5 +568,22 @@ final class EditorialDuplicateDetector
             'pour', 'sans', 'son', 'sur', 'une', 'utiliser', 'votre', 'vos', 'complet', 'complete',
             'logiciel', 'outil', 'solution', 'meilleur', 'meilleure', 'avis', 'test', '2026',
         ];
+    }
+
+    private function normalizeCosine(float $cos): float
+    {
+        // gemini-embedding-001 vectors for the same niche naturally cluster between 0.80 and 0.95.
+        // We stretch this specific window to a 0.0 - 1.0 scale to match the previous lexical logic.
+        $min = 0.80;
+        $max = 0.93;
+        
+        if ($cos <= $min) {
+            return 0.0;
+        }
+        if ($cos >= $max) {
+            return 1.0;
+        }
+        
+        return ($cos - $min) / ($max - $min);
     }
 }
