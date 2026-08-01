@@ -96,7 +96,7 @@ Utilise ensuite ces sections H2 dans cet ordre. Les libellés peuvent être lég
 {$sections}
 
 RÈGLES DE PROFONDEUR
-- Les H2 fournis sont une base structurelle : transforme les H2 génériques ("Méthode détaillée étape par étape", "Exemples et scénarios concrets") en titres précis liés au sujet de l'article (ex: "Comment intégrer X dans votre processus de vente", "Cas d'usage : X pour une PME de 10 personnes").
+- Les H2 fournis sont obligatoires. Tu DOIS utiliser EXACTEMENT les titres H2 fournis dans la liste ci-dessus, sans les modifier et sans les reformuler. La spécificité doit se trouver dans le texte, pas dans le titre H2.
 - Chaque H2 comporte une réponse développée, concrète et non redondante ; utilise des H3 pour les sous-parties.
 - Aucun paragraphe ne dépasse 90 mots ou 5 phrases. Sépare les idées par une ligne vide pour une lecture mobile fluide.
 - Dans les sections Checklist et Outils/Ressources : 1 à 2 phrases de transition maximum, puis directement des H3 ou une liste. Chaque puce contient une seule phrase d’action de 20 mots maximum. Aucune justification, théorie ou répétition d’une section précédente.
