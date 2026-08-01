@@ -908,14 +908,14 @@ TEXT;
                     'Réponse directe et solution rapide',
                     'Prérequis et éléments nécessaires',
                     'Guide pas à pas : Comment faire étape par étape',
-                    'Exemple concret et cas d’usage',
+                    'Application pratique et conseils',
                     'Erreurs fréquentes et pièges à éviter',
-                    'Tableau récapitulatif de la méthode et des outils',
+                    'Synthèse de la méthode et des outils',
                     'Outils et ressources complémentaires recommandés',
-                    'FAQ et questions associées',
+                    'Questions connexes et cas particuliers',
                     'Conclusion et conseils d’optimisation',
                 ],
-                'required_terms' => [['réponse', 'solution'], ['prérequis', 'nécessaire'], ['étape', 'tutoriel', 'guide'], ['exemple', 'cas'], ['erreur', 'piège'], ['tableau', 'récapitulatif'], ['faq', 'questions'], ['conclusion']],
+                'required_terms' => [['réponse', 'solution'], ['prérequis', 'nécessaire'], ['étape', 'tutoriel', 'guide'], ['pratique', 'conseils', 'cas'], ['erreur', 'piège'], ['synthèse', 'récapitulatif'], ['questions', 'connexes', 'particuliers'], ['conclusion']],
             ],
         ];
     }

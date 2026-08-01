@@ -676,7 +676,7 @@ class Automation extends Component
         } elseif ($type === 'interception') {
             $this->instructions = "Objectif : Trafic de Masse & Interception. Ce sont des requêtes navigationnelles. L'angle de l'article doit être l'interception de trafic (ex: faire un avis détaillé, proposer des alternatives, décrypter l'offre). Le ton doit être analytique et comparatif.\nCONTRAINTE DE RIGUEUR : Le brief produit doit exiger du rédacteur une vérification stricte des prix et fonctionnalités à la date de publication." . $diversity;
         } elseif ($type === 'question') {
-            $this->instructions = "Objectif : Articles Question / Tutoriel (How-to). Répondre directement aux questions des utilisateurs ('Comment faire XXX avec YYY ?', 'Comment configurer/utiliser XXX ?', 'Quelle méthode pour...'). \nCONTRAINTE STRICTE : Tu DOIS utiliser la valeur 'question' pour le champ content_type. Rédige un guide pas à pas ultra-pratique avec réponse directe Featured Snippet dès l'introduction, étapes chronologiques numérotées, exemple concret, pièges à éviter et tableau récapitulatif." . $diversity;
+            $this->instructions = "Objectif : Articles Question / Tutoriel (How-to). Répondre directement aux questions des utilisateurs ('Comment faire XXX avec YYY ?', 'Comment configurer/utiliser XXX ?', 'Quelle méthode pour...'). \nCONTRAINTE STRICTE : Tu DOIS utiliser la valeur 'question' pour le champ content_type. Rédige un guide pas à pas ultra-pratique avec réponse directe Featured Snippet dès l'introduction, étapes chronologiques numérotées, application pratique, pièges à éviter et synthèse finale." . $diversity;
         }
     }
 
