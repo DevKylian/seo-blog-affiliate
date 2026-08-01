@@ -132,7 +132,8 @@ RÈGLES BLOQUANTES DE STRUCTURATION
 - NATURALITÉ DES TITRES (TRÈS IMPORTANT) : Rédige des titres sobres, naturels et alignés sur de vraies requêtes Google. Interdiction des titres artificiels ou clickbait.
 - COHÉRENCE DES ENTITÉS : Respecte la nature réelle des outils. Par exemple, Indy et Freebe sont des logiciels de facturation/compta, ce ne sont PAS des "comptes pros" au sens bancaire.
 - SIMPLICITÉ ET CIBLAGE : Ne crée pas de sujets trop artificiels. Crée des silos étanches : une page pour la compta, une page pour la signature, etc.
-- ANTI-HALLUCINATION STRICTE : N'invente JAMAIS de nom de logiciel, module ou outil fictif (ex: "FinanceCore Module"). Si tu dois citer un outil, utilise EXCLUSIVEMENT des logiciels réels et connus (ex: Indy, Qonto, Pennylane, Freebe, Abby, Shine). Toute invention de marque est formellement interdite. ATTENTION : Le logiciel de Rivalis s'écrit TOUJOURS "Henrri" avec deux "r", jamais "Henri".
+- ANTI-HALLUCINATION STRICTE : N'invente JAMAIS de nom de logiciel, module ou outil fictif (ex: "FinanceCore Module", "AccountPro Cloud"). Si tu dois citer un outil, utilise EXCLUSIVEMENT des logiciels réels et connus (ex: Indy, Qonto, Pennylane, Freebe, Abby, Shine). Toute invention de marque est formellement interdite. ATTENTION : Le logiciel de Rivalis s'écrit TOUJOURS "Henrri" avec deux "r", jamais "Henri".
+- LOGICIELS CITÉS (cited_software_brands) : Tu DOIS lister exhaustivement TOUS les noms de logiciels, applications, banques ou outils numériques qui sont mentionnés ou visés par ton idée (dans le titre, l'angle, etc.). Par exemple : ["Indy", "Qonto"], ["Excel"], ["Sage"]. Si l'idée est générique (ex: "logiciel de comptabilité freelance"), mets un tableau vide [].
 - TITRE DE MINIATURE (thumbnail_title) : Résume le titre en 7 mots MAX (très percutant) pour la miniature (ex: "Meilleurs outils de compta 2024").
 - CALL TO ACTION : La phrase d'accroche pour la bannière commerciale (ex: "Créez votre micro-entreprise avec [Outil]").
 - OBJECTIF DE CONVERSION (conversion_goal) : Tu dois OBLIGATOIREMENT définir le but commercial de la page. Les seules valeurs possibles sont :
@@ -276,6 +277,10 @@ PROMPT;
                             'call_to_action' => $string,
                             'conversion_goal' => ['type' => 'string', 'enum' => ['create_company', 'invoice', 'account', 'accounting', 'plus', 'micro', 'general']],
                             'lsi_keywords' => [
+                                'type' => 'array',
+                                'items' => $string,
+                            ],
+                            'cited_software_brands' => [
                                 'type' => 'array',
                                 'items' => $string,
                             ],

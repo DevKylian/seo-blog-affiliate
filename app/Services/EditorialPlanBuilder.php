@@ -293,6 +293,18 @@ final class EditorialPlanBuilder
             return $this->reject('forbidden_entity', 'Entité ou cible incompatible détectée (ex: association, CSE, agriculture).');
         }
 
+        $competitorCatalog = app(\App\Services\CompetitorCatalog::class);
+        $allowedEntities = $competitorCatalog->allowedEntities($project);
+        
+        $citedBrands = $blueprint['cited_software_brands'] ?? [];
+        if (is_array($citedBrands)) {
+            foreach ($citedBrands as $brand) {
+                if (! $competitorCatalog->isAllowedName((string) $brand, $allowedEntities)) {
+                    return $this->reject('unknown_competitor', "Logiciel ou marque inconnue détectée ({$brand}). Ce logiciel n'est pas dans la liste blanche.");
+                }
+            }
+        }
+
         if (in_array($blueprint['angle'], self::FORBIDDEN_ANGLES, true)
             || mb_strlen($blueprint['unique_promise']) < 35
             || count($blueprint['outline']) < 5) {
