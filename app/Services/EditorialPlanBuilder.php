@@ -317,11 +317,7 @@ final class EditorialPlanBuilder
             return $this->reject('duplicate', $coverageIssue, $sourceCoverage, 100);
         }
 
-        $representation = implode(' ', [
-            $blueprint['title'] ?? '', $blueprint['primary_keyword'], $blueprint['problem'],
-            $blueprint['expected_outcome'], $blueprint['unique_promise'], implode(' ', $blueprint['outline']),
-        ]);
-        $existing = $this->duplicates->analyzeBlueprint($project, $blueprint, $representation);
+        $existing = $this->duplicates->analyzeBlueprint($project, $blueprint);
         $bestScore = (float) $existing['score'];
         $lexicalScore = (float) ($existing['lexical_score'] ?? 0);
         $closestArticle = $existing['article'];

@@ -120,9 +120,9 @@ final class EditorialDuplicateDetector
         return $blueprint;
     }
 
-    public function analyzeBlueprint(SeoProject $project, array $blueprint, string $representation, ?int $ignoreArticleId = null): array
+    public function analyzeBlueprint(SeoProject $project, array $blueprint, ?int $ignoreArticleId = null): array
     {
-        return ['blueprint' => $blueprint, ...$this->findBestMatch($project, $blueprint, $representation, $ignoreArticleId)];
+        return ['blueprint' => $blueprint, ...$this->findBestMatch($project, $blueprint, $this->blueprintRepresentation($blueprint), $ignoreArticleId)];
     }
 
     public function analyzeGenerated(
@@ -267,7 +267,7 @@ final class EditorialDuplicateDetector
                 && $candidateBlueprint['intent'] === $articleBlueprint['intent']) {
                 $score += 35; // Forte pénalité si même entité, même topic précis et même intention
             }
-            $candidateText = $candidateRepresentation ?: $this->blueprintRepresentation($candidateBlueprint);
+            $candidateText = $this->blueprintRepresentation($candidateBlueprint);
             $lexicalScore = $this->similarity($candidateText, $this->articleRepresentation($article));
             $score = min(100, $score + ($lexicalScore * 20));
             if ($score > $bestScore) {
