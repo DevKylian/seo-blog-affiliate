@@ -42,6 +42,11 @@ final class CompetitorCatalog
         'quotepro' => 'QuotePro',
         'easycompta' => 'EasyCompta',
         'financecore' => 'FinanceCore',
+        'cashmaster' => 'CashMaster',
+        'cashflowanalytics' => 'Cashflow Analytics',
+        'digicube' => 'Digicube',
+        'editionsdp' => 'Editions DP',
+        'b2bnetwork' => 'B2B Network',
     ];
 
     private const KNOWN_NON_COMPETITOR_PHRASES = [
@@ -142,6 +147,14 @@ final class CompetitorCatalog
         foreach (self::SYNTHETIC_NAMES as $needle => $label) {
             if (str_contains($compactText, $needle) && ! $this->isAllowedName($label, $allowed)) {
                 $unknown[] = $this->bestMentionLabel($text, $label);
+            }
+        }
+
+        if (preg_match_all('/\b([A-Z][a-zA-Z0-9]+(?:Pro|Cloud|Master|Advanced|Analytics|Core|Plus|Enterprise|Ultimate|V\d+|Module))\b/i', $text, $matches)) {
+            foreach ($matches[1] as $suspicious) {
+                if (! $this->isAllowedName($suspicious, $allowed)) {
+                    $unknown[] = $suspicious;
+                }
             }
         }
 
