@@ -323,11 +323,6 @@ final class EditorialDuplicateDetector
         if ($candidateKeyword !== '' && $candidateKeyword === $existingKeyword && $candidate['intent'] === $existing['intent']) {
             $score += 46;
         }
-        if ($candidate['entity'] !== '' && $candidate['entity'] === $existing['entity'] 
-            && $candidate['topic'] !== '' && $candidate['topic'] === $existing['topic'] 
-            && $candidate['intent'] === $existing['intent']) {
-            $score += 35; // Forte pénalité si même entité, même topic précis et même intention
-        }
 
         return $score;
     }

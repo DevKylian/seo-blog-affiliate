@@ -126,7 +126,7 @@ final class EditorialPlanBuilder
 
         $rawIdeas = $this->generator->generate(
             $project,
-            $generationKeywords,
+            $generationKeywords->take(100)->values(),
             $strategicSubjects,
             $desired,
             $excluded,
