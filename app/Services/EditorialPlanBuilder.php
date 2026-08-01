@@ -326,7 +326,15 @@ final class EditorialPlanBuilder
         $lexicalScore = (float) ($existing['lexical_score'] ?? 0);
         $closestArticle = $existing['article'];
         if ($bestScore >= 72 || $lexicalScore >= 65) {
-            return $this->reject('duplicate', $bestScore >= 86 || $lexicalScore >= 65 ? 'Sujet ou intention déjà couverts (anti-cannibalisation).' : 'Angle trop proche d’un contenu existant.', $sourceCoverage, max($bestScore, $lexicalScore), $closestArticle?->id);
+            $reason = $bestScore >= 86 || $lexicalScore >= 65 ? 'Sujet ou intention déjà couverts (anti-cannibalisation).' : 'Angle trop proche d’un contenu existant.';
+            if ($bestScore >= 100) {
+                \Illuminate\Support\Facades\Log::info('Rejet anti-cannibalisation strict détecté (à surveiller pour faux positifs)', [
+                    'blueprint' => $blueprint,
+                    'bestScore' => $bestScore,
+                    'closest_article_id' => $closestArticle?->id,
+                ]);
+            }
+            return $this->reject('duplicate', $reason, $sourceCoverage, max($bestScore, $lexicalScore), $closestArticle?->id);
         }
 
         foreach ($valid as $accepted) {

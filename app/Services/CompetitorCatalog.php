@@ -50,6 +50,12 @@ final class CompetitorCatalog
         'Portail Public de Facturation',
         'Plateforme de Dematerialisation Partenaire',
         'Plateforme de Dématérialisation Partenaire',
+        'Google', 'Excel', 'Word', 'Urssaf', 'Sasu', 'Eurl', 'Sarl', 'Sas',
+        'Mac', 'Windows', 'Apple', 'Android', 'Ios', 'Api', 'Bnc', 'Bic',
+        'Tva', 'Cfe', 'Pme', 'Tpe', 'Cpam', 'Rsi', 'Ssi', 'Cipav', 'Kbis',
+        'Siret', 'Siren', 'Cnil', 'Rgpd', 'Insee', 'France', 'Paris', 'Cae', 'Sci',
+        'Facebook', 'Instagram', 'Linkedin', 'Twitter', 'Tiktok', 'Youtube',
+        'Internet', 'Web', 'Sms', 'App',
     ];
 
     /** @return string[] */
@@ -152,13 +158,7 @@ final class CompetitorCatalog
                 continue;
             }
 
-            $compact = $this->compactKey($candidate);
-            $looksSynthetic = preg_match('/(?:invoice|bill|quote|legal|flow|master|builder|compta|finance|core)/u', $compact) === 1
-                || preg_match('/(?:max|advanced|evolution|builder|enterprise|suite|pro|business|plus)$/u', $compact) === 1;
-
-            if ($looksSynthetic) {
-                $unknown[] = $candidate;
-            }
+            $unknown[] = $candidate;
         }
 
         return collect($unknown)
@@ -355,7 +355,12 @@ TEXT;
             'ensuite', 'comptable', 'comptabilite', 'entreprise', 'entreprises',
             'pour', 'une', 'optimale', 'licence', 'alternatives', 'ligne', 'avis',
             'plan', 'offre', 'offres', 'plus', 'premium', 'starter', 'standard', 
-            'basic', 'abonnement', 'abonnements',
+            'basic', 'abonnement', 'abonnements', 'cependant', 'ainsi', 'les', 'des',
+            'comment', 'pourquoi', 'quel', 'quelle', 'quels', 'quelles', 'qui', 'que',
+            'quoi', 'quand', 'bien', 'tres', 'tout', 'tous', 'toute', 'toutes',
+            'dans', 'sur', 'avec', 'sans', 'par', 'est', 'sont', 'faire', 'fait',
+            'etre', 'avoir', 'votre', 'notre', 'vos', 'nos', 'ces', 'ses', 'ces',
+            'cet', 'cette', 'celui', 'ceux', 'celle', 'celles', 'ici', 'la', 'bas',
         ];
 
         return $words !== [] && count(array_diff($words, $common)) === 0;

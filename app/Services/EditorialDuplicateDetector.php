@@ -73,9 +73,11 @@ final class EditorialDuplicateDetector
         $existing = $this->normalizeBlueprint($existing);
         
         $titleSimilarity = $this->similarity((string) ($candidate['title'] ?? ''), (string) ($existing['title'] ?? ''));
+        $titleInclusion = $this->inclusion((string) ($candidate['title'] ?? ''), (string) ($existing['title'] ?? ''));
         $keywordSimilarity = $this->similarity((string) ($candidate['primary_keyword'] ?? ''), (string) ($existing['primary_keyword'] ?? ''));
+        $keywordInclusion = $this->inclusion((string) ($candidate['primary_keyword'] ?? ''), (string) ($existing['primary_keyword'] ?? ''));
         
-        if ($titleSimilarity >= 0.80 || $keywordSimilarity >= 0.80) {
+        if ($titleSimilarity >= 0.80 || $titleInclusion >= 0.85 || $keywordSimilarity >= 0.80 || $keywordInclusion >= 0.90) {
             return 100.0;
         }
 
@@ -243,7 +245,8 @@ final class EditorialDuplicateDetector
             
             if ($candidateTitle !== '' && $existingTitle !== '') {
                 $titleSim = $this->similarity($candidateTitle, $existingTitle);
-                if ($candidateTitle === $existingTitle || $titleSim >= 0.78) {
+                $titleInclusion = $this->inclusion($candidateTitle, $existingTitle);
+                if ($candidateTitle === $existingTitle || $titleSim >= 0.78 || $titleInclusion >= 0.85) {
                     return [
                         'article' => $article,
                         'score' => 100.0,
@@ -258,6 +261,11 @@ final class EditorialDuplicateDetector
             $articleKeyword = $this->topics->key((string) ($articleBlueprint['primary_keyword'] ?? ''));
             if ($candidateKeyword !== '' && $candidateKeyword === $articleKeyword && $candidateBlueprint['intent'] === $articleBlueprint['intent']) {
                 $score += 46;
+            }
+            if ($candidateBlueprint['entity'] !== '' && $candidateBlueprint['entity'] === $articleBlueprint['entity'] 
+                && $candidateBlueprint['topic'] !== '' && $candidateBlueprint['topic'] === $articleBlueprint['topic'] 
+                && $candidateBlueprint['intent'] === $articleBlueprint['intent']) {
+                $score += 35; // Forte pénalité si même entité, même topic précis et même intention
             }
             $candidateText = $candidateRepresentation ?: $this->blueprintRepresentation($candidateBlueprint);
             $lexicalScore = $this->similarity($candidateText, $this->articleRepresentation($article));
@@ -333,6 +341,22 @@ final class EditorialDuplicateDetector
 
         return count(array_intersect($firstTokens, $secondTokens))
             / count(array_unique([...$firstTokens, ...$secondTokens]));
+    }
+
+    public function inclusion(string $first, string $second): float
+    {
+        $firstTokens = $this->tokens($first);
+        $secondTokens = $this->tokens($second);
+        if ($firstTokens === [] || $secondTokens === []) {
+            return 0.0;
+        }
+
+        $min = min(count($firstTokens), count($secondTokens));
+        if ($min === 0) {
+            return 0.0;
+        }
+
+        return count(array_intersect($firstTokens, $secondTokens)) / $min;
     }
 
     private function topicKey(string $keyword, string $type): string

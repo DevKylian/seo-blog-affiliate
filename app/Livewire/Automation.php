@@ -667,14 +667,14 @@ class Automation extends Component
 
     public function setPreset(string $type): void
     {
-        $diversity = "\n\nREGLE ABSOLUE : Tu dois OBLIGATOIREMENT diversifier les sujets. Interdiction totale de proposer plus d'UNE seule idée sur le même sous-sujet (ex: si tu proposes un article sur la signature électronique, les autres doivent porter sur la comptabilité, la facturation, etc.).";
+        $diversity = "\n\nREGLE ABSOLUE : Tu dois OBLIGATOIREMENT diversifier les sujets. Interdiction totale de proposer plus d'UNE seule idée sur le même sous-sujet.\nCompare également chaque idée proposée à la liste des titres déjà publiés fournie en contexte, tous content_types confondus, et rejette toute idée dont le sujet + l'entité coïncident à plus de 70%.";
         
         if ($type === 'pillar') {
             $this->instructions = "Objectif : Construire les Pages Mères (Guides complets) pour asseoir l'autorité topique. \nCONTRAINTE STRICTE : Tu DOIS utiliser la valeur 'informational' pour le champ content_type. Ne crée JAMAIS de comparatif ou de liste d'outils ici. L'objectif est d'éduquer en profondeur sur des sujets métiers très distincts (la TVA, le statut juridique, les notes de frais, etc.) pour éviter les sujets génériques similaires." . $diversity;
         } elseif ($type === 'money') {
-            $this->instructions = "Objectif : Money Pages / Conversion. Requêtes ultra-spécifiques et transactionnelles. Inclure systématiquement des tableaux de prix, la mention d'un simulateur, et des appels à l'action (CTA) très agressifs pour générer des commissions." . $diversity;
+            $this->instructions = "Objectif : Money Pages / Conversion. Requêtes ultra-spécifiques et transactionnelles. Inclure systématiquement des tableaux de prix, la mention d'un simulateur, et des CTA clairs et incitatifs, fondés uniquement sur des avantages vérifiés dans les sources fournies — aucune affirmation de supériorité ou de classement qui ne soit pas directement étayée." . $diversity;
         } elseif ($type === 'interception') {
-            $this->instructions = "Objectif : Trafic de Masse & Interception. Ce sont des requêtes navigationnelles. L'angle de l'article doit être l'interception de trafic (ex: faire un avis détaillé, proposer des alternatives meilleures ou moins chères, décrypter l'offre). Le ton doit être analytique et comparatif." . $diversity;
+            $this->instructions = "Objectif : Trafic de Masse & Interception. Ce sont des requêtes navigationnelles. L'angle de l'article doit être l'interception de trafic (ex: faire un avis détaillé, proposer des alternatives, décrypter l'offre). Le ton doit être analytique et comparatif.\nCONTRAINTE DE RIGUEUR : Impose une vérification rigoureuse des prix et fonctionnalités à la date de publication pour tout contenu comparatif ou alternatif, en te basant strictement sur les sources officielles fournies." . $diversity;
         } elseif ($type === 'question') {
             $this->instructions = "Objectif : Articles Question / Tutoriel (How-to). Répondre directement aux questions des utilisateurs ('Comment faire XXX avec YYY ?', 'Comment configurer/utiliser XXX ?', 'Quelle méthode pour...'). \nCONTRAINTE STRICTE : Tu DOIS utiliser la valeur 'question' pour le champ content_type. Rédige un guide pas à pas ultra-pratique avec réponse directe Featured Snippet dès l'introduction, étapes chronologiques numérotées, exemple concret, pièges à éviter et tableau récapitulatif." . $diversity;
         }
