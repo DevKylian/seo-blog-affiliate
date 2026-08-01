@@ -73,8 +73,23 @@
                         <b>→</b>
                     </button>
                 @elseif($plan && $plan->status === 'planning')
-                    <div class="run-progress" wire:poll.5s.keep-alive="processPlanningStep"><div><strong>{{ $plan->ideas->where('status','candidate')->count() }}/{{ $plan->requested_count }} angles retenus</strong><span>{{ $plan->candidate_count }} idées analysées · étape {{ $plan->attempts }}/{{ $plan->requested_count >= 20 ? 15 : ($plan->requested_count >= 10 ? 10 : 6) }} · reprise automatique toutes les 5 secondes si Gemini est saturé</span></div></div>
-                    <div class="launch-button"><span>⌁</span><div><strong>Gemini prépare le prochain lot…</strong><small>Aucune action requise : les timeouts et HTTP 503 sont réessayés automatiquement, même si l’onglet passe en arrière-plan.</small></div><b>…</b></div>
+                    <div class="run-progress" wire:poll.5s.keep-alive="processPlanningStep"><div><strong>{{ $plan->ideas->where('status','candidate')->count() }}/{{ $plan->requested_count }} angles retenus</strong><span>{{ $plan->candidate_count }} idées analysées | étape {{ $plan->attempts }}/{{ $plan->requested_count >= 20 ? 15 : ($plan->requested_count >= 10 ? 10 : 6) }} | reprise automatique toutes les 5 secondes si Gemini est saturé</span></div></div>
+                    
+                    @if($plan->ideas->where('status','rejected')->count() > 0)
+                        <div style="margin-top: 10px; background: rgba(255,0,0,0.05); padding: 10px; border-radius: 6px; border: 1px solid rgba(255,0,0,0.1); font-size: 12px; max-height: 200px; overflow-y: auto;">
+                            <strong style="color: #d32f2f; display: block; margin-bottom: 5px;">Derniers rejets (Logs) :</strong>
+                            <ul style="margin: 0; padding-left: 20px; color: #555;">
+                                @foreach($plan->ideas->where('status','rejected')->sortByDesc('id')->take(10) as $rejectedIdea)
+                                    <li style="margin-bottom: 4px;">
+                                        <strong>{{ $rejectedIdea->title ?: 'Idée sans titre' }}</strong><br>
+                                        <span style="color: #d32f2f;">=> {{ $rejectedIdea->rejection_reason }}</span>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <div class="launch-button"><span>🤖</span><div><strong>Gemini prépare le prochain lot…</strong><small>Aucune action requise : les timeouts et HTTP 503 sont réessayés automatiquement, même si l’onglet passe en arrière-plan.</small></div><b>…</b></div>
                 @elseif($plan && $plan->isReady())
                     <div class="run-progress">
                         <div><strong>{{ $plan->accepted_count }}/{{ $plan->requested_count }} angles validés</strong><span>{{ $plan->candidate_count }} idées analysées · {{ $plan->duplicate_count }} doublons · {{ $plan->weak_angle_count }} angles faibles · {{ $plan->ideas->where('status','reserve')->count() }} réserves</span></div>
