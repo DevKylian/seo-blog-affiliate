@@ -25,10 +25,10 @@ class GeminiEmbeddingService
             return null;
         }
 
-        $url = "https://generativelanguage.googleapis.com/v1beta/models/embedding-001:embedContent?key={$apiKey}";
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key={$apiKey}";
 
         $response = Http::post($url, [
-            'model' => 'models/embedding-001',
+            'model' => 'models/gemini-embedding-001',
             'content' => [
                 'parts' => [
                     ['text' => $text],
