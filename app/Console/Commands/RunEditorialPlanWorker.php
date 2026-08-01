@@ -48,7 +48,7 @@ final class RunEditorialPlanWorker extends Command
                         continue;
                     }
 
-                    report($exception);
+                    \Illuminate\Support\Facades\Log::error("WORKER FATAL: " . $exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
                     EditorialPlan::query()->whereKey($planId)->where('status', 'planning')->update(['status' => 'failed']);
                     $this->error($exception->getMessage());
 

@@ -351,10 +351,11 @@ final class EditorialPlanBuilder
         }
 
         foreach ($valid as $accepted) {
-            $score = $this->duplicates->compareBlueprints($blueprint, $accepted->blueprint());
+            $comparison = $this->duplicates->compareBlueprints($plan->project, $blueprint, $accepted->blueprint());
+            $score = $comparison['semantic'] ?? $comparison['similarity'] ?? 0;
             $outlineScore = $this->duplicates->compareOutlines($blueprint['outline'], $accepted->outline ?? []);
-            if ($score >= 72 || $outlineScore >= .80) {
-                return $this->reject('duplicate', $outlineScore >= .80 ? 'Mini-plan trop similaire à une idée du lot.' : 'Promesse trop proche d’une idée du lot.', $sourceCoverage, max($score, $outlineScore * 100));
+            if ($score >= 72 || $outlineScore >= .80 || ($comparison['lexical'] ?? 0) >= 85) {
+                return $this->reject('duplicate', $outlineScore >= .80 ? 'Mini-plan trop similaire à une idée du lot.' : 'Promesse trop proche d\'une idée du lot.', $sourceCoverage, max($score, $outlineScore * 100));
             }
             $bestScore = max($bestScore, $score);
         }
