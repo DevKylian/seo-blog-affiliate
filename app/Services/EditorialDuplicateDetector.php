@@ -77,7 +77,13 @@ final class EditorialDuplicateDetector
         $keywordSimilarity = $this->similarity((string) ($candidate['primary_keyword'] ?? ''), (string) ($existing['primary_keyword'] ?? ''));
         $keywordInclusion = $this->inclusion((string) ($candidate['primary_keyword'] ?? ''), (string) ($existing['primary_keyword'] ?? ''));
         
-        if ($titleSimilarity >= 0.80 || $titleInclusion >= 0.85 || $keywordSimilarity >= 0.80 || $keywordInclusion >= 0.90) {
+        if ($titleSimilarity >= 0.80 || $keywordSimilarity >= 0.80) {
+            return 100.0;
+        }
+
+        if (($titleInclusion >= 0.85 || $keywordInclusion >= 0.90)
+            && $candidate['entity'] === $existing['entity']
+            && $candidate['topic'] === $existing['topic']) {
             return 100.0;
         }
 
@@ -246,7 +252,32 @@ final class EditorialDuplicateDetector
             if ($candidateTitle !== '' && $existingTitle !== '') {
                 $titleSim = $this->similarity($candidateTitle, $existingTitle);
                 $titleInclusion = $this->inclusion($candidateTitle, $existingTitle);
-                if ($candidateTitle === $existingTitle || $titleSim >= 0.78 || $titleInclusion >= 0.85) {
+                if ($candidateTitle === $existingTitle || $titleSim >= 0.78) {
+                    return [
+                        'article' => $article,
+                        'score' => 100.0,
+                        'lexical_score' => 100.0,
+                        'decision' => 'block',
+                    ];
+                }
+                if ($titleInclusion >= 0.85
+                    && $candidateBlueprint['entity'] === $articleBlueprint['entity']
+                    && $candidateBlueprint['topic'] === $articleBlueprint['topic']) {
+                    return [
+                        'article' => $article,
+                        'score' => 100.0,
+                        'lexical_score' => 100.0,
+                        'decision' => 'block',
+                    ];
+                }
+            }
+
+            // Strict keyword collision check
+            $candidateKeyword = mb_strtolower(trim((string) ($candidateBlueprint['primary_keyword'] ?? '')));
+            $existingKeyword = mb_strtolower(trim((string) $article->primary_keyword));
+            if ($candidateKeyword !== '' && $existingKeyword !== '') {
+                $kwSim = $this->similarity($candidateKeyword, $existingKeyword);
+                if ($candidateKeyword === $existingKeyword || $kwSim >= 0.80) {
                     return [
                         'article' => $article,
                         'score' => 100.0,

@@ -96,11 +96,19 @@ Objectif : requêtes navigationnelles — avis détaillés, alternatives, décry
 
 ORIENTATIONS ET PRÉFÉRENCES (Le filtre déterministe côté code assurera la validation stricte et finale en aval) :
 
-- CONCURRENTS DANS LES TITRES COMPARATIFS (OBLIGATOIRE) : Pour tout article comparatif ou "alternatives à" (type 'comparison', 'alternatives' ou 'best_tools'), tu DOIS nommer explicitement dans le titre au moins un concurrent réel choisi dans cette liste, en fonction de la catégorie du sujet :
+- CONCURRENTS DANS LES TITRES COMPARATIFS (OBLIGATOIRE) : Pour tout article comparatif (type 'comparison' ou 'best_tools'), tu DOIS nommer explicitement dans le titre au moins un concurrent réel choisi dans cette liste, en fonction de la catégorie du sujet :
   * Logiciels compta/facturation : Pennylane, Dougs, Abby, Tiime, Freebe
   * Logiciels BTP : Obat, Tolteck, Costructor, ProGBat, EBP Bâtiment, Sage Batigest, Mediabat, Batappli, iXbat
   * Banques pro : Qonto, Shine, BNP Paribas, Société Générale, LCL, Boursorama, Crédit Agricole, La Banque Postale, Revolut, CMB
   Ne propose jamais de titre générique type "les meilleures options" ou "alternatives à Indy" sans nommer précisément lequel de ces concurrents est comparé.
+
+- COMPARATIFS DÉJÀ PUBLIÉS (INTERDICTION DE REPROPOSER CES PAIRES) :
+  Indy vs Pennylane · Indy vs Dougs · Indy vs Abby
+  Priorise activement les combinaisons encore inexplorées en comparatif direct avec Indy : Shine, Qonto, Tiime, Freebe, ainsi que les banques (BNP Paribas, Société Générale, LCL, Boursorama, Crédit Agricole, La Banque Postale, Revolut, CMB) et les outils BTP spécialisés.
+
+- COMPARATIF BTP (OBLIGATOIRE) : Pour tout article comparatif BTP, cite au moins 3 outils spécialisés (parmi Obat, Tolteck, Costructor, ProGBat, EBP Bâtiment, Sage Batigest, Mediabat, Batappli, iXbat) dans le titre ou le plan, plutôt qu'un face-à-face à deux.
+
+- FORMAT ALTERNATIVES (OBLIGATOIRE) : Pour tout contenu de type 'alternatives à X' (type 'alternatives'), nomme explicitement l'alternative retenue dans le titre (ex: "X vs Y" ou "X vs Y : alternatives" plutôt que "X et ses alternatives").
 
 - COMPATIBILITÉ DES ENTITÉS : Indy ne gérant pas certains statuts (comme les associations loi 1901, CSE, agriculture, LMP, LMNP), privilégie des sujets ciblant plutôt : micro-entreprise, auto-entrepreneur, SASU, SAS, EURL, SARL, SCI, SCM, EI, EIRL, freelance, indépendant.
 - PÉRIMÈTRE THÉMATIQUE : Vise de préférence des sujets liés à la comptabilité, liasse fiscale, facturation, devis, création d'entreprise, statuts juridiques, ou comptes bancaires professionnels. Le mot "compte pro" doit désigner un compte bancaire (ex: Qonto, Shine, Indy), pas un compte client sur une plateforme tierce.
