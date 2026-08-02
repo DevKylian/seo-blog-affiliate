@@ -61,53 +61,53 @@ final class GeminiEditorialIdeaGenerator
         $prompt = <<<PROMPT
 Tu es l'éditeur stratégique d’un site SEO affilié de très haut niveau. Tu ne rédiges aucun article, tu construis le plan éditorial parfait. Ton rôle n'est pas de générer des articles en vrac, mais de bâtir une autorité sémantique.
 
-Crée {$desiredCount} idées réellement distinctes pour {$project->name}. C’est le cycle {$attempt}.
+Crée {$desiredCount} idées d'articles sémantiquement intéressantes pour {$project->name}. C’est le cycle {$attempt}.
 Variables système injectées par l’application : CURRENT_DATE = {$currentDate} ; CURRENT_YEAR = {$currentYear}.
 Consignes utilisateur : {$instructions}
 Stratégie de portefeuille : {$strategy}
 
-MÉTHODE DE VÉRIFICATION DES DOUBLONS (à appliquer avant de valider chaque idée) :
-Pour chaque idée, formule d'abord mentalement sa "signature de sujet" : [Entité ou outil concerné] + [Besoin ou tâche métier concerné], en langage normalisé (ex: "SCI + comptabilité générale", "Mac + choix logiciel", "auto-entrepreneur + comptabilité gratuite"). Compare cette signature — pas seulement le titre — à celles des articles déjà publiés fournis en contexte ET des autres idées de ce même lot. Si la signature est identique ou quasi identique à un sujet déjà traité, l'idée est un doublon même si le titre est reformulé différemment (ex: "gérer sa SCI avec un logiciel" et "optimiser sa comptabilité SCI" sont la MÊME signature). Rejette-la.
+LES QUATRE TYPOLOGIES DE CONTENUS (à utiliser pour catégoriser et orienter chaque idée) :
 
-SOUS-SUJETS DÉJÀ LARGEMENT COUVERTS — à éviter sauf angle radicalement nouveau et non générique (ex: un cas d'usage précis, une nouveauté réglementaire 2026, une comparaison chiffrée inédite) :
-SCI (comptabilité générale) · Mac (choix de logiciel) · auto-entrepreneur/micro-entreprise (choix ou usage général d'un logiciel) · professions libérales (comptabilité générale, y compris ses variantes métier comme infirmière libérale) · Sage (prise en main générale) · abonnement logiciel comptable · banque pro freelance (choix générique) · Excel comptabilité.
-Si tu proposes malgré tout une idée sur l'un de ces sous-sujets, l'angle doit être explicitement et fortement différenciant, précisé dans le champ "angle", et non une simple reformulation du besoin déjà couvert.
+1. PILIERS (informational)
+Objectif : construire des guides de fond qui asseyent l'autorité du site sur des sujets métiers larges et distincts (TVA, statut juridique, notes de frais, immobilisations, paie, clôture d'exercice, etc.) — pas des comparatifs ni des listes d'outils.
+* Contrainte technique unique : content_type = 'informational' (obligatoire).
+* Diversification : Propose des sujets aussi variés que possible entre eux. Si deux de tes idées touchent un terrain proche, garde la meilleure et remplace l'autre par un angle différent.
+* Orientation : Consulte la liste de titres déjà publiés fournie en contexte pour t'orienter vers des zones encore peu couvertes — ce n'est pas grave si un recoupement t'échappe, le filtre de publication en code fera la vérification finale.
 
-RÈGLE ABSOLUE DE DIVERSIFICATION : Interdiction totale de proposer plus d'UNE seule idée sur la même signature de sujet, y compris entre les idées de ce lot.
+2. QUESTIONS / HOW-TO
+Objectif : répondre directement à une question ou un besoin pratique ('Comment faire X avec Y ?', 'Comment configurer X ?', 'Quelle méthode pour...').
+* Contrainte technique unique : content_type = 'question' (obligatoire).
+* Structure attendue dans le brief : prévois un plan avec une réponse directe en intro (format Featured Snippet), des étapes numérotées, un exemple concret, les pièges à éviter et une synthèse finale.
+* Diversification : Diversifie les sujets entre eux dans ce lot. Si plusieurs idées répondent au même besoin sous un angle proche, garde la plus utile et explore autre chose pour les suivantes.
+* Orientation : Consulte la liste de titres déjà publiés pour repérer les terrains déjà bien couverts et privilégier ce qui manque encore au site.
 
-LIBERTÉ ÉDITORIALE : En dehors des sous-sujets saturés listés ci-dessus, tu as une entière liberté pour explorer la niche de la comptabilité et gestion des indépendants/TPE sous tous ses angles peu ou pas traités : paie et charges sociales, notes de frais et remboursements, immobilisations et amortissements, TVA sur régimes spécifiques (exonération, franchise, régime réel), clôture d'exercice, facturation internationale, relations avec un expert-comptable, trésorerie prévisionnelle, obligations légales par secteur d'activité (BTP, professions réglementées, e-commerce...), etc. Priorise ces zones sous-exploitées plutôt que de reformuler les sous-sujets saturés.
+3. MONEY PAGES / CONVERSION
+Objectif : requêtes transactionnelles très spécifiques, orientées décision d'achat.
+* Contrainte technique unique : content_type doit être choisi parmi les types de conversion ('pricing', 'comparison', 'alternatives', 'best_tools', 'tool_review').
+* Structure attendue dans le brief : prévois un tableau de prix, la mention d'un simulateur si pertinent, et un CTA clair. Les contraintes factuelles sur le sourçage des avantages du CTA seront appliquées lors de la rédaction par le rédacteur ; ne mentionne pas cette contrainte dans le titre ou l'angle.
+* Diversification et Orientation : Diversifie les sujets entre eux dans ce lot, et vise des terrains encore peu exploités par rapport aux titres déjà publiés fournis en contexte.
 
-ATTENTION CRITIQUE - INTERDICTION D'INVENTER DES LOGICIELS : 
-Tu as l'interdiction formelle et absolue d'inventer des noms de logiciels. Ne génère JAMAIS de faux outils (comme "AccountPro Cloud", "ComptaFacile", etc.). Base-toi STRICTEMENT et UNIQUEMENT sur les logiciels cités dans les "Sujets Stratégiques" ou ceux qui sont des outils réels et extrêmement connus du marché français. TOUTE INVENTION de logiciel entraînera le rejet de ta réponse.
-
-COMPATIBILITÉ DES ENTITÉS (BLOQUANT) :
-Le logiciel ciblé (comme Indy) ne gère PAS toutes les entités juridiques. 
-Tu as l'INTERDICTION ABSOLUE de cibler les entités ou statuts suivants : Association, loi 1901, CSE (comité social et économique), agriculture, agricole, LMP, LMNP.
-Si tu vois un mot-clé concernant ces statuts, IGNORE-LE. Toute idée générée pour ces statuts sera rejetée.
-Les entités autorisées et prioritaires sont : micro-entreprise, auto-entrepreneur, SASU, SAS, EURL, SARL, SCI, SCM, EI, EIRL, freelance, indépendant.
-
-GARDE-FOUS ET PÉRIMÈTRE DU SITE (BUSINESSKIT) - RÈGLES DE REJET STRICTES (LISTE BLANCHE UNIQUEMENT) :
-Ton algorithme de décision interne DOIT IMPÉRATIVEMENT filtrer la liste des mots-clés disponibles selon cette liste blanche stricte.
-Le sujet du mot-clé DOIT obligatoirement faire partie d'une de ces catégories (niche Indy) :
-1. Comptabilité & Liasse Fiscale
-2. Facturation & Devis
-3. Création d'entreprise & Statuts juridiques
-4. Compte Bancaire Professionnel (exclusivité bancaire)
-
-=> Si un mot-clé (même s'il contient le mot "pro" ou "entreprise") traite d'un autre sujet technique, commercial, énergétique, transport, emploi ou métier qui ne rentre pas dans ces 4 catégories, TU DOIS LE REJETER.
-=> RÈGLE ABSOLUE POUR LES ASSOCIATIONS : Le logiciel Indy ne gère PAS du tout les associations loi 1901. Il est STRICTEMENT INTERDIT de générer une idée de contenu qui cible les associations. Si tu vois le mot "association" ou "associatif" dans un mot-clé ou un sujet, tu DOIS REJETER ce sujet immédiatement. Aucune exception.
-Tu as le droit (et même l'obligation) de générer MOINS d'idées que les {$desiredCount} demandées si les mots-clés restants sont hors-sujet. Il vaut mieux 3 excellentes idées parfaitement ciblées que 10 idées hors-sujet. Ne force jamais la génération.
-Le mot "compte pro" doit TOUJOURS désigner un compte bancaire (ex: Qonto, Shine, Indy), jamais un compte client sur une plateforme tierce.
-
-ATTENTION : Tu as deux sources pour générer tes idées :
-1. "Sujets Stratégiques (Knowledge Graph)" : Ce sont les idées fondatrices (Piliers, Comparatifs, Alternatives, Questions opportunistes). Tu DOIS traiter en priorité ces sujets car ils ont une très haute valeur métier.
-2. "Mots-clés disponibles (Semrush)" : Ce me sont les requêtes pour la longue traîne et le trafic de masse.
-
-GÉNÉRATION DYNAMIQUE ET INTELLIGENTE DE QUESTIONS (HOW-TO) PAR L'API GEMINI :
-Lorsque le mode "Questions / Tutoriels" est sélectionné ou demandé dans les consignes, l'API Gemini doit analyser dynamiquement le positionnement du projet ({$project->name}) et son univers métier pour extraire les questions réelles les plus opportunistes, recherchées et pertinentes pour sa cible (freelances, micro-entrepreneurs, créateurs, TPE).
-Tu ne dois pas utiliser d'exemples figés : utilise l'ensemble de tes connaissances du marché B2B/SaaS français pour déduire dynamiquement les requêtes "How-to" les plus stratégiques ("Comment...", "Pourquoi...", "Combien...", "Quelle méthode...") qui captent une intention réelle et débouchent sur la recommandation naturelle de {$project->name}.
+4. TRAFIC DE MASSE / INTERCEPTION
+Objectif : requêtes navigationnelles — avis détaillés, alternatives, décryptage d'offres. Ton analytique et comparatif.
+* Contrainte technique unique : content_type doit être choisi parmi ('tool_review', 'comparison', 'alternatives', 'best_tools').
+* Structure attendue dans le brief : précise dans le brief que le rédacteur devra vérifier les prix et fonctionnalités à la date de publication à partir des sources fournies.
+* Diversification et Orientation : Diversifie les sujets entre eux dans ce lot, et vise des terrains encore peu exploités par rapport aux titres déjà publiés fournis en contexte.
 
 
+ORIENTATIONS ET PRÉFÉRENCES (Le filtre déterministe côté code assurera la validation stricte et finale en aval) :
+
+- COMPATIBILITÉ DES ENTITÉS : Indy ne gérant pas certains statuts (comme les associations loi 1901, CSE, agriculture, LMP, LMNP), privilégie des sujets ciblant plutôt : micro-entreprise, auto-entrepreneur, SASU, SAS, EURL, SARL, SCI, SCM, EI, EIRL, freelance, indépendant.
+- PÉRIMÈTRE THÉMATIQUE : Vise de préférence des sujets liés à la comptabilité, liasse fiscale, facturation, devis, création d'entreprise, statuts juridiques, ou comptes bancaires professionnels. Le mot "compte pro" doit désigner un compte bancaire (ex: Qonto, Shine, Indy), pas un compte client sur une plateforme tierce.
+- DIVERSIFICATION ET DOUBLONS : Suggère des sujets et angles variés. Pour t'orienter, compare tes idées aux titres déjà publiés. Un recoupement occasionnel ou une estimation de similarité imprécise n'est pas grave car le filtre de publication automatique en code se chargera de la déduplication et de la vérification stricte en fin de chaîne.
+- NOMS DE LOGICIELS : Utilise uniquement des outils existants et connus du marché français (comme Indy, Qonto, Shine, Pennylane, Freebe, Abby, Henrri, Sage, Excel, etc.) ou ceux cités dans les sujets stratégiques en contexte. Évite les noms de logiciels inventés ou fictifs.
+- ORDRE DE PRIORITÉ CONSEILLÉ : Privilégie les pages piliers (Pillar) avant de proposer des contenus secondaires ou de longue traîne.
+- STRUCTURATION DU BRIEF :
+  * Le mini-plan (outline) doit être structuré de manière professionnelle avec idéalement 5 à 8 H2. Évite les H2 génériques du type "Introduction" ou "Conclusion" et privilégie des titres précis et parlants.
+  * Pour un type 'comparison', mentionne explicitement les deux solutions comparées dans le titre (ex: X vs Y) et prévois au moins deux solutions concurrentes dans le plan.
+  * Pour un type 'alternatives', pars du produit ou d'un concurrent (ex: Alternatives à X).
+  * Pour 'question', formule un titre de question directe ou tutoriel.
+  * L'objectif de conversion (conversion_goal) doit correspondre au but commercial de la page ('create_company', 'invoice', 'account', 'accounting', 'plus', 'micro', 'general').
+  * Remplis le reste des champs de manière riche et détaillée pour faciliter la rédaction ultérieure (PAA, mots-clés LSI, audience, problème, etc.).
 
 LANGUE FRANÇAISE
 - Rédige tous les champs visibles en français naturel avec les accents normaux de la langue française.
@@ -116,52 +116,12 @@ LANGUE FRANÇAISE
 
 {$competitorDirective}
 
-Pour chaque idée, fournis un brief autonome, classé par niveau de roadmap : source_keyword_id, title, primary_keyword, entity, topic, intent, angle, audience, problem, expected_outcome, funnel_stage, unique_promise, excluded_topics, outline, content_type, roadmap_level, call_to_action, conversion_goal, lsi_keywords, people_also_ask, tone_of_voice, schema_org, internal_links_strategy.
+Pour chaque idée, fournis un brief autonome au format JSON, structuré selon la roadmap : source_keyword_id, title, primary_keyword, entity, topic, intent, angle, audience, problem, expected_outcome, funnel_stage, unique_promise, excluded_topics, outline, content_type, roadmap_level, call_to_action, conversion_goal, lsi_keywords, people_also_ask, tone_of_voice, schema_org, internal_links_strategy.
 
-ORDRE DE PRIORITÉ ABSOLU ET RÈGLES DE SILOING
-1. Piliers d'abord : Priorise TOUJOURS les pages piliers (Level 1 - Pillar) avant les contenus secondaires. Ce sont les fondations du site.
-2. Conversion ensuite : Les comparatifs et pages money (Level 2, 5, 6) ne doivent être créés qu'après ou pour soutenir les piliers.
-3. Longue traîne en dernier : Ne génère des articles longue traîne (Level 3 - Long Tail) que si la page pilier du thème est évidente ou existe déjà.
-4. Rôle unique : Chaque page doit avoir un rôle unique dans le silo (pilier, conversion, support ou outil).
-
-RÈGLE ANTI-DOUBLON STRATÉGIQUE (BLOQUANTE)
-1. Identifier l’intention de recherche précise.
-2. Vérifier (via les empreintes couvertes ci-dessous) si une page pilier ou similaire existe déjà sur ce thème.
-3. Si oui, créer seulement une page complémentaire ou comparative si l'intention est RÉELLEMENT différente.
-4. Ne jamais créer deux pages pour la même intention (ex: "Logiciel comptable freelance" et "Meilleur logiciel comptable pour freelance" sont la MÊME intention, un seul pilier suffit).
-5. Si un sujet est déjà couvert à 70 % ou plus, ne propose pas de nouvelle page.
-6. Chaque nouvelle page longue traîne ou avis doit indiquer dans 'internal_links_strategy' qu'elle pointe vers son pilier parent.
-
-RÈGLES BLOQUANTES DE STRUCTURATION
-- Une idée basée sur un Sujet Stratégique (Knowledge Graph) N'A PAS besoin d'un `source_keyword_id` valide, tu peux mettre null ou 0.
-- `roadmap_level` DOIT être l'un des choix de l'enum stricte (Level 1 - Pillar, Level 2 - Commercial, etc.) selon la hiérarchie sémantique.
-- Le brief doit être ULTRA-RICHE. Le rédacteur IA n'aura besoin d'aucune autre réflexion. Fournis des mots-clés LSI précis, des PAA réelles, une consigne de Tone of Voice spécifique, et la logique de maillage interne (ex: "Lien vers le pilier parent [Nom du pilier]").
-- Un quick_win reste un contenu expert et complet. Faible difficulté ne signifie jamais contenu court ou superficiel.
-- Le mini-plan (outline) doit être EXTRÊMEMENT structuré et professionnel. Il doit contenir 5 à 8 H2.
-- Interdiction absolue des H2 génériques type "Introduction", "Conclusion", "Pourquoi c'est important". Les H2 doivent être des affirmations fortes ou des questions ultra-précises.
-- DIVERSITÉ THÉMATIQUE ET FORMATS : Tu dois IMPÉRATIVEMENT générer une variété de formats (content_type). Génère des comparatifs en priorité si les Sujets Stratégiques le suggèrent.
-- NATURALITÉ DES TITRES (TRÈS IMPORTANT) : Rédige des titres sobres, naturels et alignés sur de vraies requêtes Google. Interdiction des titres artificiels ou clickbait.
-- COHÉRENCE DES ENTITÉS : Respecte la nature réelle des outils. Par exemple, Indy et Freebe sont des logiciels de facturation/compta, ce ne sont PAS des "comptes pros" au sens bancaire.
-- SIMPLICITÉ ET CIBLAGE : Ne crée pas de sujets trop artificiels. Crée des silos étanches : une page pour la compta, une page pour la signature, etc.
-- ANTI-HALLUCINATION STRICTE : N'invente JAMAIS de nom de logiciel, module ou outil fictif (ex: "FinanceCore Module", "AccountPro Cloud"). Si tu dois citer un outil, utilise EXCLUSIVEMENT des logiciels réels et connus (ex: Indy, Qonto, Pennylane, Freebe, Abby, Shine). Toute invention de marque est formellement interdite. ATTENTION : Le logiciel de Rivalis s'écrit TOUJOURS "Henrri" avec deux "r", jamais "Henri".
-- LOGICIELS CITÉS (cited_software_brands) : Tu DOIS lister exhaustivement TOUS les noms de logiciels, applications, banques ou outils numériques qui sont mentionnés ou visés par ton idée (dans le titre, l'angle, etc.). Par exemple : ["Indy", "Qonto"], ["Excel"], ["Sage"]. Si l'idée est générique (ex: "logiciel de comptabilité freelance"), mets un tableau vide [].
-- TITRE DE MINIATURE (thumbnail_title) : Résume le titre en 7 mots MAX (très percutant) pour la miniature (ex: "Meilleurs outils de compta 2024").
-- CALL TO ACTION : La phrase d'accroche pour la bannière commerciale (ex: "Créez votre micro-entreprise avec [Outil]").
-- OBJECTIF DE CONVERSION (conversion_goal) : Tu dois OBLIGATOIREMENT définir le but commercial de la page. Les seules valeurs possibles sont :
-  * 'create_company' : Pour les requêtes liées à la création d'entreprise (SASU, micro-entreprise, etc).
-  * 'invoice' : Pour la facturation, les devis, la relance d'impayés.
-  * 'account' : Pour le choix d'un compte bancaire professionnel.
-  * 'accounting' : Pour la gestion de la comptabilité, déclaration TVA, liasse fiscale.
-  * 'plus', 'micro' : Pour les plans spécifiques d'Indy.
-  * 'general' : Pour tout ce qui ne rentre pas dans les cases ci-dessus (marketing, productivité, etc).
-- Comparison : nomme explicitement les deux solutions dans le titre avec « X vs Y » et prévois au moins 2 solutions concurrentielles dans le plan.
-- Alternatives : le titre part explicitement du produit cible ou d'un concurrent sous la forme « Alternatives à X… ».
-- Question / Tutoriel (content_type='question') : formule un titre clair sous forme de question directe ou tuto ("Comment [faire X avec Y] ?", "Comment [configurer/utiliser X] ?") ciblant l'intention How-to.
-
-Empreintes déjà couvertes ou refusées — ne pas les reformuler ni créer de contenu avec une intention similaire (> 70%) :
+Empreintes déjà couvertes ou refusées (fournies pour t'aider à t'orienter, sans bloquer ta créativité) :
 {$excludedJson}
 
-Sujets Stratégiques (Knowledge Graph - PRIORITÉ ABSOLUE) :
+Sujets Stratégiques (Knowledge Graph) :
 {$strategicJson}
 
 Mots-clés disponibles (Semrush) :
