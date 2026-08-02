@@ -136,7 +136,7 @@ class AffiliateFactoryTest extends TestCase
             'article' => $article->id,
             'block' => $block?->id,
             'position' => 'after_intro',
-        ]))->assertRedirect('https://www.indy.fr/?ref=businesskit');
+        ]))->assertRedirect('https://urls.fr/qAxSuF');
 
         $this->assertSame(1, AffiliateClick::query()->count());
         $this->assertDatabaseHas('affiliate_clicks', [
@@ -171,16 +171,16 @@ class AffiliateFactoryTest extends TestCase
         $this->get(route('home'))
             ->assertOk()
             ->assertSee('BusinessKit')
-            ->assertSee('TJM freelance');
+            ->assertSee('TJM Freelance');
 
         $this->get(route('free-tools.index'))
             ->assertOk()
-            ->assertSee('Outils gratuits freelance');
+            ->assertSee('boîte à outils');
 
         $this->get(route('free-tools.show', 'calculateur-tjm-freelance'))
             ->assertOk()
-            ->assertSee('Objectif annuel')
-            ->assertSee('TJM estimé');
+            ->assertSee('Salaire net')
+            ->assertSee('Taux Journalier Moyen');
 
         $this->get(route('sitemap'))
             ->assertOk()

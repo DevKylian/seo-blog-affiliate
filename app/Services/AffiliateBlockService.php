@@ -15,7 +15,7 @@ final class AffiliateBlockService
             return null;
         }
 
-        if (mb_strtolower($article->project->name) === 'indy') {
+        if ($this->isIndyProject($article->project)) {
             $context = mb_strtolower($article->title . ' ' . $article->primary_keyword . ' ' . $article->topic_key);
             if (str_contains($context, 'association') || str_contains($context, 'associatif')) {
                 return null;
@@ -50,7 +50,32 @@ final class AffiliateBlockService
             ->latest('seo_project_id')
             ->first();
 
-        return $block ?: $this->fallback($article, $position, $cluster, $intentType);
+        $block = $block ?: $this->fallback($article, $position, $cluster, $intentType);
+
+        if ($block && $this->isIndyProject($article->project)) {
+            $projectName = $article->project->name;
+            if ($projectName !== 'Indy') {
+                $variants = [
+                    $projectName,
+                    'Blog & Guides Généraux',
+                    'Blog & Guides Generaux',
+                    'blog & guides généraux',
+                    'blog & guides generaux',
+                ];
+                foreach ($variants as $variant) {
+                    $block->title = str_ireplace($variant, 'Indy', $block->title);
+                    $block->description = str_ireplace($variant, 'Indy', $block->description);
+                    $block->cta = str_ireplace($variant, 'Indy', $block->cta);
+                }
+            }
+            
+            $nonIndyDesc = "Centralisez votre facturation, vos dépenses et votre comptabilité dans un seul outil pensé pour les indépendants. Gagnez du temps dès aujourd'hui avec une solution simple, rapide à prendre en main et disponible en version gratuite.\n\n• Pensé pour les indépendants\n• Prise en main immédiate\n• Support et assistance\n• Version gratuite disponible";
+            if (trim($block->description) === trim($nonIndyDesc)) {
+                $block->description = "🎁 1er mois offert sans engagement\nCentralisez votre facturation, vos dépenses et votre comptabilité dans un seul outil pensé pour les indépendants. Gagnez du temps dès aujourd'hui avec une solution simple et rapide à prendre en main.";
+            }
+        }
+
+        return $block;
     }
 
     public function trackedUrl(Article $article, ?AffiliateBlock $block, string $position): string
@@ -67,7 +92,7 @@ final class AffiliateBlockService
     {
         $url = $project->affiliate_url ?: $project->website_url ?: null;
 
-        if ($url && mb_strtolower($project->name) === 'indy' && $article) {
+        if ($url && $this->isIndyProject($project) && $article) {
             $cluster = $block?->affiliate_cluster
                 ?: $article->keyword?->affiliate_cluster
                 ?: $article->contentCluster?->affiliate_cluster
@@ -94,9 +119,11 @@ final class AffiliateBlockService
     private function fallback(Article $article, string $position, ?string $cluster, string $intentType): AffiliateBlock
     {
         $projectName = $article->project->name;
+        $isIndy = $this->isIndyProject($article->project);
+        if ($isIndy) {
+            $projectName = 'Indy';
+        }
         $strong = in_array($intentType, ['solution', 'money'], true);
-        
-        $isIndy = mb_strtolower($projectName) === 'indy';
         
         $title = $isIndy ? 'Essayez Indy gratuitement' : "Essayez {$projectName} gratuitement";
         $description = $isIndy 
@@ -129,6 +156,27 @@ final class AffiliateBlockService
             'style' => $strong ? 'strong' : 'soft',
             'is_active' => true,
         ]);
+    }
+
+    private function isIndyProject(?SeoProject $project): bool
+    {
+        if (! $project) {
+            return false;
+        }
+
+        $name = \Illuminate\Support\Str::lower($project->name);
+        $slug = \Illuminate\Support\Str::lower($project->slug);
+
+        return $name === 'indy'
+            || in_array($slug, ['indy', 'indy-1', 'indy-fr'], true)
+            || in_array($name, ['blog & guides généraux', 'blog & guides generaux', 'guides généraux', 'guides generaux'], true)
+            || str_contains($name, 'blog')
+            || str_contains($name, 'guide')
+            || str_contains($name, 'généraux')
+            || str_contains($name, 'generaux')
+            || str_contains($slug, 'blog')
+            || str_contains($slug, 'guide')
+            || str_contains($slug, 'generaux');
     }
 
     private function clusterFromArticle(Article $article): ?string

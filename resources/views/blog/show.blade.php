@@ -109,8 +109,8 @@
                     <h3 style="font: 800 24px/1.2 'Manrope', sans-serif; color: #0f172a; margin: 0 0 20px;">Dans ce guide</h3>
                     <ul style="list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
                         @foreach($article->internalLinks as $link)
-                            @if($link->target)
-                                <li><a href="{{ $link->target->public_url }}" style="color: #2563eb; text-decoration: none; font-weight: 600;">→ {{ $link->target->title }}</a></li>
+                            @if($link->target && !str_contains($article->body, $link->target->public_url) && !str_contains($article->body, $link->target->public_path))
+                                <li><a href="{{ $link->target->public_url }}" style="color: #2563eb; text-decoration: none; font-weight: 600;">→ {{ $link->anchor_text ?: $link->target->title }}</a></li>
                             @endif
                         @endforeach
                     </ul>

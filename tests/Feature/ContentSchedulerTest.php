@@ -164,8 +164,8 @@ final class ContentSchedulerTest extends TestCase
         ]);
 
         $this->assertCount(3, $suggestions);
-        $this->assertContains(route('blog.index'), $suggestions->pluck('url'));
-        $this->assertContains(route('tools.show', $project->slug), $suggestions->pluck('url'));
+        $this->assertContains(route('blog.index', [], false), $suggestions->pluck('url'));
+        $this->assertContains(route('tools.show', $project->slug, false), $suggestions->pluck('url'));
         $this->assertTrue($suggestions->every(fn (array $suggestion) => filled($suggestion['title']) && filled($suggestion['url'])));
     }
 

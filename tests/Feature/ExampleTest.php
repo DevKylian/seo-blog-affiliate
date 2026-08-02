@@ -625,7 +625,7 @@ class ExampleTest extends TestCase
         $directive = $method->invoke(app(GeminiContentGenerator::class), $project, $blueprint, 'informational');
 
         $this->assertSame(3, substr_count($directive, 'URL exacte :'));
-        $targets->each(fn (Article $target) => $this->assertStringContainsString($target->public_url, $directive));
+        $targets->each(fn (Article $target) => $this->assertStringContainsString($target->public_path, $directive));
         $this->assertStringContainsString('phrase qui apporte déjà une information utile', $directive);
         $this->assertStringContainsString('Utilise le titre fourni comme texte d’ancrage Markdown', $directive);
         $this->assertStringContainsString('Rôle : BoFu / conversion', $directive);
@@ -2420,7 +2420,7 @@ MARKDOWN;
             && str_contains((string) data_get($request->data(), 'contents.0.parts.0.text'), 'PHASE FONDATIONS')
             && str_contains((string) data_get($request->data(), 'contents.0.parts.0.text'), 'strategy_tier')
             && str_contains((string) data_get($request->data(), 'contents.0.parts.0.text'), 'new_for_planning')
-            && str_contains((string) data_get($request->data(), 'contents.0.parts.0.text'), 'ORTHOGRAPHE DES MARQUES'));
+            && str_contains((string) data_get($request->data(), 'contents.0.parts.0.text'), 'CONCURRENTS REELS AUTORISES'));
     }
 
     public function test_editorial_fingerprint_blocks_keyword_variants_but_allows_a_distinct_angle(): void
@@ -2925,5 +2925,35 @@ MARKDOWN;
         
         $unknown = $catalog->unknownCompetitorMentions($project, 'quel est le meilleur compte pro : Qonto, Shine ou Société Générale ?');
         $this->assertNotContains('Société Générale', $unknown);
+    }
+
+    public function test_resolve_block_returns_indy_defaults_for_blog_guides_generaux(): void
+    {
+        $project = SeoProject::query()->create([
+            'name' => 'Blog & Guides Généraux',
+            'slug' => 'blog-guides-generaux',
+            'website_url' => 'https://example.com',
+            'affiliate_url' => 'https://www.indy.fr/?ae=1776',
+            'country' => 'FR',
+            'currency' => 'EUR'
+        ]);
+        
+        $article = Article::query()->create([
+            'seo_project_id' => $project->id,
+            'type' => 'informational',
+            'title' => 'Calcul des indemnités kilométriques',
+            'slug' => 'calcul-indemnites-kilometriques',
+            'status' => 'published',
+            'primary_keyword' => 'indemnités kilométriques',
+            'body' => 'Contenu explicatif.'
+        ]);
+
+        $service = app(\App\Services\AffiliateBlockService::class);
+        $block = $service->resolveBlock($article, 'after_intro');
+
+        $this->assertNotNull($block);
+        $this->assertSame('Essayez Indy gratuitement', $block->title);
+        $this->assertStringContainsString('1er mois offert sans engagement', $block->description);
+        $this->assertStringContainsString('comptabilité', $block->description);
     }
 }

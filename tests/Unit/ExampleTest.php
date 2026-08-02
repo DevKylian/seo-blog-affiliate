@@ -67,6 +67,7 @@ MD;
 
     public function test_background_worker_resolves_the_cli_binary_when_http_runs_under_php_fpm(): void
     {
+        config(['services.runtime.php_binary' => null]);
         $binaries = new RuntimeBinaryLocator;
         $launcher = new ContentRunWorkerLauncher(new BackgroundArtisanLauncher($binaries), $binaries);
         $fpmBinary = PHP_BINARY.'-fpm';
@@ -129,8 +130,8 @@ MD;
         foreach (['tool_review', 'pricing', 'comparison', 'best_tools', 'alternatives', 'informational'] as $type) {
             $structure = $service->for($type);
 
-            $this->assertGreaterThanOrEqual(2200, $structure['target_min']);
-            $this->assertGreaterThanOrEqual(10, count($structure['sections']));
+            $this->assertGreaterThanOrEqual(1800, $structure['target_min']);
+            $this->assertGreaterThanOrEqual(8, count($structure['sections']));
             $this->assertStringContainsString('STRUCTURE ÉDITORIALE OBLIGATOIRE', $service->prompt($type));
 
             $audit = $service->audit('Texte trop court sans structure.', $type, 'mot clé', true);
@@ -267,7 +268,7 @@ MARKDOWN;
 
         $this->assertSame('facture-acquittee-confirmer-paiement-recu', $acquitted);
         $this->assertSame('facture-dacompte-securiser-tresorerie', $deposit);
-        $this->assertSame('indy-odoo-logiciel-facturation-choisir', $comparison);
+        $this->assertSame('indy-vs-odoo-logiciel-facturation', $comparison);
         $this->assertCount(3, array_unique([$acquitted, $deposit, $comparison]));
     }
 

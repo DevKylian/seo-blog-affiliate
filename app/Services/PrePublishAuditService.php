@@ -144,8 +144,8 @@ final class PrePublishAuditService
 
         $factualityScore = 100;
         if ($visibleSourceMarkers) {
-            $factualityScore -= 5;
-            $recommendations[] = 'Des marqueurs de source visibles restent dans le contenu. (Recommandé de les nettoyer avant publication)';
+            $factualityScore -= 30;
+            $blockers[] = 'Des marqueurs de source visibles restent dans le contenu.';
         }
         if ($unknownCompetitors !== []) {
             $factualityScore -= 45;

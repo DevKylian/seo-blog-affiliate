@@ -162,7 +162,14 @@ final class CompetitorCatalog
             foreach ($matches[1] as $suspicious) {
                 // To avoid matching generic terms like "Compte Pro", "Chorus Pro", check if it's explicitly non-competitor
                 $clean = trim($suspicious);
-                if (! $this->isAllowedName($clean, $allowed) && ! in_array(mb_strtolower($clean), array_map('mb_strtolower', self::KNOWN_NON_COMPETITOR_PHRASES), true)) {
+                $isNonCompetitor = false;
+                foreach (self::KNOWN_NON_COMPETITOR_PHRASES as $phrase) {
+                    if (mb_strtolower($clean) === mb_strtolower($phrase) || str_ends_with(mb_strtolower($clean), ' ' . mb_strtolower($phrase))) {
+                        $isNonCompetitor = true;
+                        break;
+                    }
+                }
+                if (! $this->isAllowedName($clean, $allowed) && ! $isNonCompetitor) {
                     $unknown[] = $clean;
                 }
             }

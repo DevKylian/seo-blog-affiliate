@@ -1683,8 +1683,9 @@ TEXT;
                 'btp_simulation_disclaimer' => 'placer une mention de simulation fictive avant les chiffres',
             ];
 
-            // Règle désactivée pour éviter les rejets intempestifs. On se contente de logguer ou d'ignorer.
-            \Illuminate\Support\Facades\Log::warning('Page BTP potentiellement non conforme: '.implode(' ; ', $failed->map(fn (string $key): string => $labels[$key])->all()));
+            $message = 'Page BTP potentiellement non conforme: '.implode(' ; ', $failed->map(fn (string $key): string => $labels[$key])->all());
+            \Illuminate\Support\Facades\Log::warning($message);
+            throw new PlannedContentRejectedException($message);
         }
     }
 
@@ -1694,11 +1695,17 @@ TEXT;
             && preg_match('/e[\s-]?commerce|boutique en ligne|vente en ligne|b2c/iu', $keyword) === 1;
     }
 
-    /** @return string[] */
     private function staleCompetitorPricingClaims(string $text): array
     {
-        // Règle désactivée pour éviter les rejets intempestifs sur les informations tarifaires
-        return [];
+        $normalized = Str::ascii(mb_strtolower($text));
+        $issues = [];
+
+        if (str_contains($normalized, 'abby')
+            && preg_match('/\bdecouverte\b|(?:limitee?|limite|limites?)\s+a\s+(?:3|trois).{0,80}\b(?:factures?|devis)\b|(?:3|trois)\s+(?:factures?|devis)\s+par\s+mois/u', $normalized) === 1) {
+            $issues[] = 'Information tarifaire obsolete sur Abby.';
+        }
+
+        return $issues;
     }
 
     private function contentBlocks(SeoProject $project, string $body, ?DateTimeInterface $verifiedAt = null, string $type = 'informational', ?Keyword $keyword = null): array

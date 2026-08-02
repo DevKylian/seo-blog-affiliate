@@ -8,7 +8,7 @@
             $position = $block['position'] ?? 'after_intro';
             $positionClass = 'affiliate-cta--' . preg_replace('/[^a-z0-9_-]+/', '-', mb_strtolower($position));
             $affiliateBlock = app(\App\Services\AffiliateBlockService::class)->resolveBlock($article, $position);
-            $isIndy = $affiliateBlock && $affiliateBlock->project && in_array(mb_strtolower($affiliateBlock->project->slug), ['indy', 'indy-1', 'indy-fr']);
+            $isIndy = $affiliateBlock && $affiliateBlock->project && (in_array(mb_strtolower($affiliateBlock->project->slug), ['indy', 'indy-1', 'indy-fr'], true) || in_array(mb_strtolower($affiliateBlock->project->name), ['indy', 'blog & guides généraux', 'blog & guides generaux', 'guides généraux', 'guides generaux'], true));
         @endphp
         @if($affiliateBlock)
             @if($isIndy)
@@ -16,10 +16,8 @@
                     <div class="premium-cta-indy__badge">🏆 Choix N°1 de la Rédaction</div>
                     <div class="premium-cta-indy__content">
                         <div class="premium-cta-indy__text">
-                            <strong>Essayez Indy gratuitement</strong>
-                            <p>Centralisez votre facturation, vos dépenses et votre comptabilité dans un seul outil pensé pour les
-                                indépendants. Gagnez du temps dès aujourd’hui avec une solution simple, rapide à prendre en main et
-                                disponible en version gratuite.</p>
+                            <strong>{{ $affiliateBlock->title }}</strong>
+                            <p>{!! nl2br(e($affiliateBlock->description)) !!}</p>
                         </div>
                         <div class="hp-premium-features" style="margin-top: 24px;">
                             <strong>
@@ -34,7 +32,13 @@
                             </ul>
                         </div>
                     </div>
-                    <x-dynamic-cta :goal="$article->conversion_goal" class="premium-cta-indy__button" />
+                    <a href="{{ app(\App\Services\AffiliateBlockService::class)->trackedUrl($article, $affiliateBlock->exists ? $affiliateBlock : null, $position) }}"
+                        target="_blank" rel="sponsored noopener" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm transition-colors duration-200 premium-cta-indy__button">
+                        {{ $affiliateBlock->cta }}
+                        <svg style="width: 20px; height: 20px; margin-left: 8px; margin-right: -4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
+                    </a>
                 </aside>
             @else
                 @php
@@ -136,7 +140,10 @@
                             <article class="pricing-card">
                                 <header class="pricing-card__header">
                                     <h3>{{ $row['product'] }}</h3>
-                                    <div class="pricing-card__entry-price">{{ $row['entry_price'] }}</div>
+                                    <div class="pricing-card__entry-price">
+                                        <span class="pricing-card__entry-price-label" style="font-size: 11px; display: block; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">Prix d'entrée</span>
+                                        {{ $row['entry_price'] }}
+                                    </div>
                                 </header>
                                 
                                 <div class="pricing-card__body">
@@ -150,7 +157,7 @@
                                     </div>
                                     
                                     <div class="pricing-card__section">
-                                        <h4>Gratuit / Essai</h4>
+                                        <h4>Gratuit / essai</h4>
                                         <ul>
                                             @foreach(explode('|', $row['free_trial']) as $item)
                                                 @if(trim($item)) <li>{{ trim($item) }}</li> @endif

@@ -341,7 +341,10 @@ final class ContentRunProcessor
             || str_contains($message, 'clé api')
             || str_contains($message, 'unauthorized')
             || str_contains($message, 'forbidden')
-            || str_contains($message, 'database');
+            || str_contains($message, 'database')
+            || str_contains($message, 'invalid request')
+            || str_contains($message, 'payload')
+            || str_contains($message, 'http 400');
     }
 
     private function stopRunAfterTechnicalError(ContentRun $run, ContentRunItem $failedItem, Throwable $exception): void

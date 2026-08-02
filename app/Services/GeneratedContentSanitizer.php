@@ -23,7 +23,7 @@ final class GeneratedContentSanitizer
 
     public function stripSourceMarkers(string $body): string
     {
-        return $body;
+        return preg_replace('/\s*\[\s*(?:[Ss]\d+\s*(?:[,;]\s*)?)+\]/u', '', $body) ?: $body;
     }
 
     public function hasSourceMarkers(string $body): bool
