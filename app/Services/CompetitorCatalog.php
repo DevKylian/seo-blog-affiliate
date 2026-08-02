@@ -32,6 +32,10 @@ final class CompetitorCatalog
             'Obat', 'Tolteck', 'Costructor', 'ProGBat', 'EBP Bâtiment',
             'Sage Batigest', 'Mediabat', 'Batappli', 'iXbat',
         ],
+        'banking' => [
+            'Qonto', 'Shine', 'Blank', 'BNP Paribas', 'Société Générale', 'LCL',
+            'Boursorama', 'Crédit Agricole', 'La Banque Postale', 'Revolut', 'CMB',
+        ],
     ];
 
     private const SYNTHETIC_NAMES = [
@@ -64,15 +68,19 @@ final class CompetitorCatalog
     ];
 
     /** @return string[] */
-    public function competitorsFor(SeoProject $project): array
+    public function competitorsFor(SeoProject $project, ?string $candidateText = null): array
     {
         $context = $this->projectContext($project);
+        if ($candidateText) {
+            $context .= ' ' . $candidateText;
+        }
         $markets = $this->detectedMarkets($project, $context);
         $explicit = $this->cleanNames($project->competitors ?? []);
         if ($explicit !== []) {
             $verticalNames = in_array('construction', $markets, true) ? self::MARKET_COMPETITORS['construction'] : [];
+            $bankingNames = in_array('banking', $markets, true) ? self::MARKET_COMPETITORS['banking'] : [];
 
-            return $this->withoutProjectName($project, $this->cleanNames([...$explicit, ...$verticalNames]));
+            return $this->withoutProjectName($project, $this->cleanNames([...$explicit, ...$verticalNames, ...$bankingNames]));
         }
 
         $names = [];
@@ -92,14 +100,14 @@ final class CompetitorCatalog
     }
 
     /** @return string[] */
-    public function allowedEntities(SeoProject $project): array
+    public function allowedEntities(SeoProject $project, ?string $candidateText = null): array
     {
         $explicit = $this->cleanNames($project->competitors ?? []);
         $extracted = $this->extractBrandsFromKeywordsAndSources($project);
 
         return $this->cleanNames([
             $project->name,
-            ...$this->competitorsFor($project),
+            ...$this->competitorsFor($project, $candidateText),
             ...$explicit,
             ...$extracted,
         ]);
@@ -108,7 +116,7 @@ final class CompetitorCatalog
     /** @return string[] */
     public function mentionedCompetitors(SeoProject $project, string $text): array
     {
-        return collect($this->competitorsFor($project))
+        return collect($this->competitorsFor($project, $text))
             ->filter(fn (string $name): bool => $this->containsName($text, $name))
             ->values()
             ->all();
@@ -117,16 +125,16 @@ final class CompetitorCatalog
     /** @return string[] */
     public function mentionedAllowedEntities(SeoProject $project, string $text): array
     {
-        return collect($this->allowedEntities($project))
+        return collect($this->allowedEntities($project, $text))
             ->filter(fn (string $name): bool => $this->containsName($text, $name))
             ->values()
             ->all();
     }
 
     /** @return string[] */
-    public function invalidComparedProducts(SeoProject $project, array $products): array
+    public function invalidComparedProducts(SeoProject $project, array $products, ?string $contextText = null): array
     {
-        $allowed = $this->allowedEntities($project);
+        $allowed = $this->allowedEntities($project, $contextText);
 
         return collect($products)
             ->map(fn ($name): string => trim((string) $name))
@@ -140,7 +148,7 @@ final class CompetitorCatalog
     /** @return string[] */
     public function unknownCompetitorMentions(SeoProject $project, string $text): array
     {
-        $allowed = $this->allowedEntities($project);
+        $allowed = $this->allowedEntities($project, $text);
         $unknown = [];
         $compactText = $this->compactKey($text);
 
@@ -263,6 +271,9 @@ TEXT;
         }
         if (preg_match('/\b(?:btp|batiment|chantier|chantiers|construction|travaux|devis facture batiment|facturation btp)\b/u', $text) === 1) {
             $markets[] = 'construction';
+        }
+        if (preg_match('/\b(?:compte pro|banque|banques|banquiers?|revolut|qonto|shine|blank|finances?)\b/u', $text) === 1) {
+            $markets[] = 'banking';
         }
 
         foreach (self::MARKET_COMPETITORS as $market => $competitors) {

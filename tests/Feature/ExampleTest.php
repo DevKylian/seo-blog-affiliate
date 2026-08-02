@@ -2895,4 +2895,35 @@ MARKDOWN;
         $this->assertNotNull($blockNormal);
         $this->assertNull($blockAssociation);
     }
+
+    public function test_competitor_catalog_supports_banking_competitors_contextually(): void
+    {
+        $project = SeoProject::query()->create([
+            'name' => 'Indy',
+            'slug' => 'indy-test-banking-comps',
+            'website_url' => 'https://www.indy.fr',
+            'country' => 'FR',
+            'currency' => 'EUR',
+            'competitors' => ['Pennylane', 'Abby', 'Freebe']
+        ]);
+
+        $catalog = app(CompetitorCatalog::class);
+
+        $compsDefault = $catalog->competitorsFor($project);
+        $this->assertContains('Pennylane', $compsDefault);
+        $this->assertNotContains('Société Générale', $compsDefault);
+
+        $compsBanking = $catalog->competitorsFor($project, 'meilleur compte pro Société Générale ou Qonto');
+        $this->assertContains('Pennylane', $compsBanking);
+        $this->assertContains('Société Générale', $compsBanking);
+        $this->assertContains('Qonto', $compsBanking);
+
+        $mentions = $catalog->mentionedCompetitors($project, 'quel est le meilleur compte pro : Qonto, Shine ou Société Générale ?');
+        $this->assertContains('Société Générale', $mentions);
+        $this->assertContains('Qonto', $mentions);
+        $this->assertContains('Shine', $mentions);
+        
+        $unknown = $catalog->unknownCompetitorMentions($project, 'quel est le meilleur compte pro : Qonto, Shine ou Société Générale ?');
+        $this->assertNotContains('Société Générale', $unknown);
+    }
 }
