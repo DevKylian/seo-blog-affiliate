@@ -144,7 +144,7 @@ class ArticleEditor extends Component
             $this->uniquePromise,
             collect(preg_split('/\R/', $this->excludedTopicsText) ?: [])->map(fn ($topic) => trim($topic))->filter()->values()->all(),
         );
-        $duplicateAnalysis = $duplicates->analyzeBlueprint($project, $blueprint, $this->title.' '.$this->body, $this->article?->id);
+        $duplicateAnalysis = $duplicates->analyzeBlueprint($project, $blueprint, $this->article?->id);
         $similarArticle = $duplicateAnalysis['article'];
         $hasDuplicateWarning = $similarArticle && $duplicateAnalysis['decision'] !== 'allow';
 

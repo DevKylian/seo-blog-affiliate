@@ -108,6 +108,8 @@ ORIENTATIONS ET PRÉFÉRENCES (Le filtre déterministe côté code assurera la v
   * Pour 'question', formule un titre de question directe ou tutoriel.
   * L'objectif de conversion (conversion_goal) doit correspondre au but commercial de la page ('create_company', 'invoice', 'account', 'accounting', 'plus', 'micro', 'general').
   * Remplis le reste des champs de manière riche et détaillée pour faciliter la rédaction ultérieure (PAA, mots-clés LSI, audience, problème, etc.).
+  * thumbnail_title : Résume le titre en 7 mots MAX (percutant) pour la miniature de l'article.
+  * cited_software_brands : Liste des marques/logiciels cités ou visés par ton idée (ex: ["Indy", "Qonto"]), ou un tableau vide [] si générique.
 
 LANGUE FRANÇAISE
 - Rédige tous les champs visibles en français naturel avec les accents normaux de la langue française.
@@ -116,7 +118,7 @@ LANGUE FRANÇAISE
 
 {$competitorDirective}
 
-Pour chaque idée, fournis un brief autonome au format JSON, structuré selon la roadmap : source_keyword_id, title, primary_keyword, entity, topic, intent, angle, audience, problem, expected_outcome, funnel_stage, unique_promise, excluded_topics, outline, content_type, roadmap_level, call_to_action, conversion_goal, lsi_keywords, people_also_ask, tone_of_voice, schema_org, internal_links_strategy.
+Pour chaque idée, fournis un brief autonome au format JSON, structuré selon la roadmap : source_keyword_id, title, thumbnail_title, primary_keyword, entity, topic, intent, angle, audience, problem, expected_outcome, funnel_stage, unique_promise, excluded_topics, outline, content_type, roadmap_level, call_to_action, conversion_goal, lsi_keywords, cited_software_brands, people_also_ask, tone_of_voice, schema_org, internal_links_strategy.
 
 Empreintes déjà couvertes ou refusées (fournies pour t'aider à t'orienter, sans bloquer ta créativité) :
 {$excludedJson}

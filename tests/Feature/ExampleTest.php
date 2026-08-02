@@ -91,7 +91,7 @@ class ExampleTest extends TestCase
             'outline' => ['Définition', 'Valeur juridique', 'Procédure', 'Archivage', 'FAQ'],
         ];
 
-        $analysis = app(EditorialDuplicateDetector::class)->analyzeBlueprint($project, $candidate, 'facture acquittée confirmer paiement');
+        $analysis = app(EditorialDuplicateDetector::class)->analyzeBlueprint($project, $candidate);
 
         $this->assertNotSame('allow', $analysis['decision']);
         $this->assertGreaterThanOrEqual(72, $analysis['score']);
