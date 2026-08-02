@@ -313,14 +313,43 @@ final class EditorialPlanBuilder
             return $this->reject('source_gap', 'Les sources vérifiées ne couvrent pas suffisamment ce sujet.', $sourceCoverage);
         }
 
+        if ($coverageIssue = $this->alreadyPlannedKeywordIssue($blueprint, $valid, $keyword)) {
+            return $this->reject('duplicate', $coverageIssue, $sourceCoverage, 100);
+        }
+
+        $existing = $this->duplicates->analyzeBlueprint($project, $blueprint);
+        $bestScore = (float) $existing['score'];
+        $lexicalScore = (float) ($existing['lexical_score'] ?? 0);
+        $closestArticle = $existing['article'];
+        if ($bestScore >= 72 || $lexicalScore >= 65) {
+            $reason = $bestScore >= 86 || $lexicalScore >= 65 ? 'Sujet ou intention déjà couverts (anti-cannibalisation).' : 'Angle trop proche d’un contenu existant.';
+            if ($bestScore >= 100) {
+                \Illuminate\Support\Facades\Log::info('Rejet anti-cannibalisation strict détecté (à surveiller pour faux positifs)', [
+                    'blueprint' => $blueprint,
+                    'bestScore' => $bestScore,
+                    'closest_article_id' => $closestArticle?->id,
+                ]);
+            }
+            return $this->reject('duplicate', $reason, $sourceCoverage, max($bestScore, $lexicalScore), $closestArticle?->id);
+        }
+
+        foreach ($valid as $accepted) {
+            $score = $this->duplicates->compareBlueprints($blueprint, $accepted->blueprint());
+            $outlineScore = $this->duplicates->compareOutlines($blueprint['outline'], $accepted->outline ?? []);
+            if ($score >= 72 || $outlineScore >= .80) {
+                return $this->reject('duplicate', $outlineScore >= .80 ? 'Mini-plan trop similaire à une idée du lot.' : 'Promesse trop proche d’une idée du lot.', $sourceCoverage, max($score, $outlineScore * 100));
+            }
+            $bestScore = max($bestScore, $score);
+        }
+
         return [
             'accepted' => true,
             'category' => null,
             'reason' => null,
             'source_coverage' => $sourceCoverage,
-            'similarity' => 0.0,
-            'closest_article_id' => null,
-            'seo_score' => $this->score($keyword, $blueprint, $sourceCoverage, 0.0, $project),
+            'similarity' => round($bestScore, 2),
+            'closest_article_id' => $closestArticle?->id,
+            'seo_score' => $this->score($keyword, $blueprint, $sourceCoverage, $bestScore, $project),
         ];
     }
 

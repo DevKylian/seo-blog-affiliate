@@ -15,6 +15,13 @@ final class AffiliateBlockService
             return null;
         }
 
+        if (mb_strtolower($article->project->name) === 'indy') {
+            $context = mb_strtolower($article->title . ' ' . $article->primary_keyword . ' ' . $article->topic_key);
+            if (str_contains($context, 'association') || str_contains($context, 'associatif')) {
+                return null;
+            }
+        }
+
         $cluster = $article->keyword?->affiliate_cluster
             ?: $article->contentCluster?->affiliate_cluster
             ?: $this->clusterFromArticle($article);

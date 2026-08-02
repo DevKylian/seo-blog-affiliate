@@ -188,9 +188,10 @@ class ExampleTest extends TestCase
             'fingerprint' => 'indy|crm-facturation|informational|cycle-commercial|freelances-tpe|gerer-le-cycle-commercial-complet',
             'content_type' => 'informational',
         ];
+        $plan = EditorialPlan::query()->create(['seo_project_id' => $project->id, 'name' => 'Plan Indy Test', 'requested_count' => 2]);
         $method = new \ReflectionMethod(EditorialPlanBuilder::class, 'validate');
 
-        $decision = $method->invoke(app(EditorialPlanBuilder::class), $project, $blueprint, collect([$firstIdea]), $keyword);
+        $decision = $method->invoke(app(EditorialPlanBuilder::class), $plan, $blueprint, collect([$firstIdea]), $keyword);
 
         $this->assertFalse($decision['accepted']);
         $this->assertSame('duplicate', $decision['category']);
@@ -974,6 +975,7 @@ class ExampleTest extends TestCase
                 'outline' => ['Section A', 'Section B'],
                 'fingerprint' => 'fingerprint-'.$index,
                 'content_type' => 'informational',
+                'roadmap_level' => $keyword->strategyTier() === 'pillar' ? 'Level 1 - Pillar' : 'Level 3 - Long Tail',
                 'status' => 'candidate',
                 'seo_score' => $score,
             ]);
@@ -2524,7 +2526,7 @@ MARKDOWN;
         $this->assertSame(2, $plan->accepted_count);
         $this->assertSame(1, $plan->duplicate_count);
         $this->assertSame(2, $plan->ideas()->where('status', 'accepted')->count());
-        $this->assertSame(2, $plan->ideas()->where('status', 'reserve')->count());
+        $this->assertSame(1, $plan->ideas()->where('status', 'reserve')->count());
         $this->assertSame(0, $project->contentRuns()->count());
 
         $component->call('launchRun')->assertDispatched('batch-started');
@@ -2853,5 +2855,44 @@ MARKDOWN;
             'seo_project_id' => $project->id,
             'keyword' => "Comment faire une facture d'acompte avec Indy ?",
         ]);
+    }
+
+    public function test_resolve_block_returns_null_for_indy_association_articles(): void
+    {
+        $project = SeoProject::query()->create([
+            'name' => 'Indy',
+            'slug' => 'indy',
+            'website_url' => 'https://www.indy.fr',
+            'country' => 'FR',
+            'currency' => 'EUR'
+        ]);
+        
+        $articleNormal = Article::query()->create([
+            'seo_project_id' => $project->id,
+            'type' => 'informational',
+            'title' => 'Comptabilité pour micro-entreprise',
+            'slug' => 'comptabilite-micro-entreprise',
+            'status' => 'published',
+            'primary_keyword' => 'micro-entreprise compta',
+            'body' => 'Contenu normal.'
+        ]);
+
+        $articleAssociation = Article::query()->create([
+            'seo_project_id' => $project->id,
+            'type' => 'informational',
+            'title' => 'Guide de la comptabilité pour une association loi 1901',
+            'slug' => 'comptabilite-association-loi-1901',
+            'status' => 'published',
+            'primary_keyword' => 'comptabilité association',
+            'body' => 'Contenu association.'
+        ]);
+
+        $service = app(\App\Services\AffiliateBlockService::class);
+        
+        $blockNormal = $service->resolveBlock($articleNormal, 'after_intro');
+        $blockAssociation = $service->resolveBlock($articleAssociation, 'after_intro');
+
+        $this->assertNotNull($blockNormal);
+        $this->assertNull($blockAssociation);
     }
 }
