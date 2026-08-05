@@ -44,7 +44,7 @@
                         </div>
                     </div>
                     <a href="{{ app(\App\Services\AffiliateBlockService::class)->trackedUrl($article, $affiliateBlock->exists ? $affiliateBlock : null, $position) }}"
-                        target="_blank" rel="sponsored noopener" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm transition-colors duration-200 premium-cta-indy__button">
+                        target="_blank" rel="sponsored noopener" class="flex w-full items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm transition-colors duration-200 premium-cta-indy__button">
                         {{ $affiliateBlock->cta }}
                         <svg style="width: 20px; height: 20px; margin-left: 8px; margin-right: -4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
@@ -97,8 +97,8 @@
                             </div>
                         @endif
                     </div>
-                    <div class="affiliate-cta-pro__action">
-                        <a class="affiliate-cta-pro__button"
+                    <div class="affiliate-cta-pro__action" style="width: 100%;">
+                        <a class="affiliate-cta-pro__button" style="display: block; width: 100%; text-align: center; box-sizing: border-box;"
                             href="{{ app(\App\Services\AffiliateBlockService::class)->trackedUrl($article, $affiliateBlock->exists ? $affiliateBlock : null, $position) }}"
                             rel="sponsored nofollow">{{ $affiliateBlock->cta }}</a>
                         @if($priceText)
