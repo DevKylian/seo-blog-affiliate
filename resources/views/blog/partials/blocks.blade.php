@@ -31,6 +31,17 @@
                                 <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Synchronisation bancaire</li>
                             </ul>
                         </div>
+                        <div class="premium-cta-indy__testimonial" style="margin-top: 20px; padding: 14px; background: #f8fafc; border-radius: 8px; font-size: 14px; font-style: italic; border-left: 4px solid #3b82f6;">
+                            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; background: #e2e8f0; margin-right: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #64748b;">M</div>
+                                <div>
+                                    <strong style="display: block; font-style: normal; color: #1e293b; line-height: 1.2;">Marie L.</strong>
+                                    <span style="font-size: 12px; color: #64748b; font-style: normal;">Infirmière libérale</span>
+                                </div>
+                                <div style="margin-left: auto; color: #fbbf24; font-style: normal; font-size: 16px;">★★★★★</div>
+                            </div>
+                            "Je ne perds plus mes soirées sur ma compta. Tout est synchronisé, c'est un vrai soulagement au quotidien."
+                        </div>
                     </div>
                     <a href="{{ app(\App\Services\AffiliateBlockService::class)->trackedUrl($article, $affiliateBlock->exists ? $affiliateBlock : null, $position) }}"
                         target="_blank" rel="sponsored noopener" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm transition-colors duration-200 premium-cta-indy__button">

@@ -33,6 +33,33 @@
             if ($insertIndex < 0) $insertIndex = $articleBlocks->count();
             $articleBlocks->splice($insertIndex, 0, [['type' => 'affiliate_cta', 'position' => 'after_intro']]);
         }
+        
+        $markdownIndex = $articleBlocks->search(fn($b) => ($b['type'] ?? '') === 'markdown');
+        if ($markdownIndex !== false) {
+            $mdContent = $articleBlocks[$markdownIndex]['content'] ?? '';
+            if (preg_match('/(##\s+[^#\n]*(?:erreur|piège|attention|limite|choisir|pourquoi)[^#\n]*\n(?:[^#].*\n)+)/ui', $mdContent, $matches, PREG_OFFSET_CAPTURE)) {
+                $splitPos = $matches[0][1] + strlen($matches[0][0]);
+                $part1 = substr($mdContent, 0, $splitPos);
+                $part2 = substr($mdContent, $splitPos);
+                $articleBlocks->splice($markdownIndex, 1, [
+                    ['type' => 'markdown', 'content' => $part1],
+                    ['type' => 'affiliate_cta', 'position' => 'middle'],
+                    ['type' => 'markdown', 'content' => $part2],
+                ]);
+            } else {
+                $parts = preg_split('/(?=^##\s+)/m', $mdContent);
+                if (count($parts) > 3) {
+                    $middleIndex = (int) floor(count($parts) / 2);
+                    $part1 = implode('', array_slice($parts, 0, $middleIndex));
+                    $part2 = implode('', array_slice($parts, $middleIndex));
+                    $articleBlocks->splice($markdownIndex, 1, [
+                        ['type' => 'markdown', 'content' => $part1],
+                        ['type' => 'affiliate_cta', 'position' => 'middle'],
+                        ['type' => 'markdown', 'content' => $part2],
+                    ]);
+                }
+            }
+        }
     }
 
     $footerBlockTypes = ['affiliate_disclosure', 'last_verified'];

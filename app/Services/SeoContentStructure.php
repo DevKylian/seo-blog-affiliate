@@ -109,6 +109,7 @@ RÈGLES DE PROFONDEUR
 {$listicleRule}
 - Insère au moins un tableau Markdown de synthèse ou de décision avec des données exclusivement vérifiées.
 - Le tableau doit faire choisir : au moins deux lignes de données et trois colonnes utiles, avec des différences réelles. Interdiction des tableaux remplis de « Oui ».
+- RÈGLE D'OBJECTIVITÉ (BLOQUANTE) : Le produit affilié principal ne doit JAMAIS gagner sur 100% des critères. Tu DOIS explicitement lui attribuer au moins 1 ou 2 désavantages clairs ou limites face à un concurrent précis (ex: profondeur des rapports, accompagnement expert, fonctionnalités complexes manquantes). Un tableau comparatif où le produit principal n'a aucune limite sera rejeté car perçu comme biaisé.
 - Ajoute des listes, exemples de décision, scénarios et calculs concrets. Une métrique inventée n’est autorisée que comme donnée d’entrée d’une « Hypothèse de simulation » ou d’un « Scénario illustratif » explicitement étiqueté ; ne la présente jamais comme une performance réelle du produit.
 - Pour chaque outil recommandé, expose au moins une limite réaliste et un conseil d’implémentation terrain (adoption, migration, formation, nettoyage des données ou déploiement).
 - EXCLUSION MUTUELLE DES ENTITÉS : les logiciels retenus dans le Top, la sélection, le tableau ou l’analyse détaillée ne doivent strictement jamais réapparaître dans « Outils écartés ou informations insuffisantes ». Cette section négative cite uniquement des concurrents distincts ; vérifie les deux ensembles avant de rendre le JSON.

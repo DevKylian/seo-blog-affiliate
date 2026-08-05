@@ -334,10 +334,20 @@ final class InternalLinkService
 
     private function naturalAnchor(Article $target): string
     {
-        $keyword = trim((string) $target->primary_keyword);
-        $wordCount = str_word_count(Str::ascii($keyword));
-        if ($keyword !== '' && $wordCount >= 2 && $wordCount <= 10) {
-            return mb_substr($keyword, 0, 120);
+        $title = trim((string) $target->title);
+        
+        if ($title !== '') {
+            $parts = preg_split('/\s*[:-]\s*/u', $title);
+            $anchor = mb_strtolower(trim($parts[0] ?? $title));
+            if (str_word_count(Str::ascii($anchor)) < 3) {
+                $anchor = mb_strtolower($title);
+            }
+            
+            $anchor = preg_replace('/^(?:les\s+|le\s+|la\s+|des\s+|un\s+|une\s+)?(?:meilleurs?|top\s+\d+|comparatif(?: complet)?|guide(?: complet)?)(?:\s+sur|\s+des|\s+de la|\s+de|\s+pour)?\s+/iu', '', $anchor);
+            
+            if (mb_strlen($anchor) > 5) {
+                return trim($anchor);
+            }
         }
 
         $product = trim((string) $target->project?->name) ?: 'ce logiciel';
