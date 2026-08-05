@@ -31,7 +31,7 @@
                                 <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Synchronisation bancaire</li>
                             </ul>
                         </div>
-                        <div class="premium-cta-indy__testimonial" style="margin-top: 20px; padding: 14px; background: #f8fafc; border-radius: 8px; font-size: 14px; font-style: italic; border-left: 4px solid #3b82f6;">
+                        <div class="premium-cta-indy__testimonial" style="margin-top: 20px; padding: 14px; background: #f8fafc; border-radius: 8px; font-size: 14px; font-style: italic; border-left: 4px solid #3b82f6; width: 100%; box-sizing: border-box; display: block;">
                             <div style="display: flex; align-items: center; margin-bottom: 8px;">
                                 <div style="width: 32px; height: 32px; border-radius: 50%; background: #e2e8f0; margin-right: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #64748b;">M</div>
                                 <div>
