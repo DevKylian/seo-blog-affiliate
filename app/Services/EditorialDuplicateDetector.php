@@ -112,7 +112,7 @@ final class EditorialDuplicateDetector
     {
         $blueprint = $this->blueprint($project, $keyword, $type);
 
-        return ['blueprint' => $blueprint, ...$this->findBestMatch($project, $blueprint, null, $ignoreArticleId)];
+        return ['blueprint' => $blueprint, ...$this->findBestMatch($project, $blueprint, null, $ignoreArticleId, $type, $keyword)];
     }
 
     public function customizeBlueprint(array $blueprint, ?string $audience, ?string $angle, ?string $uniquePromise, array $excludedTopics): array
@@ -126,9 +126,9 @@ final class EditorialDuplicateDetector
         return $blueprint;
     }
 
-    public function analyzeBlueprint(SeoProject $project, array $blueprint, ?int $ignoreArticleId = null): array
+    public function analyzeBlueprint(SeoProject $project, array $blueprint, ?int $ignoreArticleId = null, ?string $type = null, ?Keyword $keyword = null): array
     {
-        return ['blueprint' => $blueprint, ...$this->findBestMatch($project, $blueprint, $this->blueprintRepresentation($blueprint), $ignoreArticleId)];
+        return ['blueprint' => $blueprint, ...$this->findBestMatch($project, $blueprint, $this->blueprintRepresentation($blueprint), $ignoreArticleId, $type, $keyword)];
     }
 
     public function analyzeGenerated(
@@ -148,7 +148,7 @@ final class EditorialDuplicateDetector
             $blueprint['unique_promise'],
         ]));
 
-        return ['blueprint' => $blueprint, ...$this->findBestMatch($project, $blueprint, $representation, $ignoreArticleId)];
+        return ['blueprint' => $blueprint, ...$this->findBestMatch($project, $blueprint, $representation, $ignoreArticleId, $type, $keyword)];
     }
 
     public function hydrateArticleFingerprint(Article $article): array
@@ -183,8 +183,12 @@ final class EditorialDuplicateDetector
         ];
     }
 
-    public function decision(float $score): string
+    public function decision(float $score, ?string $type = null): string
     {
+        if (in_array($type, ['pricing', 'tool_review', 'comparison'], true)) {
+            return 'allow';
+        }
+
         return match (true) {
             $score >= 85 => 'block',
             $score >= 70 => 'merge_or_reangle',
@@ -228,6 +232,8 @@ final class EditorialDuplicateDetector
         array $candidateBlueprint,
         ?string $candidateRepresentation,
         ?int $ignoreArticleId,
+        ?string $type = null,
+        ?Keyword $keyword = null,
     ): array {
         $candidateBlueprint = $this->normalizeBlueprint($candidateBlueprint);
         // Le worker est un processus long : un cache local figé avant la
@@ -244,6 +250,15 @@ final class EditorialDuplicateDetector
         $bestLexicalScore = 0.0;
         foreach ($articles as $article) {
             $articleBlueprint = $this->normalizeBlueprint($this->blueprintForArticle($article));
+
+            if ($keyword && $keyword->content_cluster_id && $article->content_cluster_id === $keyword->content_cluster_id) {
+                return [
+                    'article' => $article,
+                    'score' => 100.0,
+                    'lexical_score' => 100.0,
+                    'decision' => 'block',
+                ];
+            }
 
             // Strict title collision check
             $candidateTitle = mb_strtolower(trim((string) ($candidateBlueprint['title'] ?? $candidateBlueprint['primary_keyword'] ?? '')));
@@ -302,7 +317,7 @@ final class EditorialDuplicateDetector
             'article' => $bestArticle,
             'score' => round($bestScore, 2),
             'lexical_score' => round($bestLexicalScore * 100, 2),
-            'decision' => $this->decision($bestScore),
+            'decision' => $this->decision($bestScore, $type),
         ];
     }
 

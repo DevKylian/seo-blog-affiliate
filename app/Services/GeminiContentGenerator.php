@@ -35,7 +35,7 @@ class GeminiContentGenerator
     {
         $this->allowLongGeneration();
         $preflight = $lockedBlueprint
-            ? $this->duplicates->analyzeBlueprint($project, $lockedBlueprint, $ignoreArticleId)
+            ? $this->duplicates->analyzeBlueprint($project, $lockedBlueprint, $ignoreArticleId, $type, $keyword)
             : $this->duplicates->analyzeBefore($project, $keyword, $type, $ignoreArticleId);
         $blueprint = $lockedBlueprint ? $this->duplicates->normalizeBlueprint($lockedBlueprint) : $preflight['blueprint'];
         $unknownCompetitors = $this->competitors->unknownCompetitorMentions($project, implode(' ', [
@@ -112,7 +112,7 @@ class GeminiContentGenerator
         }
 
         if ($step === 0) {
-            $preflight = $this->duplicates->analyzeBlueprint($project, $idea->blueprint());
+            $preflight = $this->duplicates->analyzeBlueprint($project, $idea->blueprint(), null, $idea->content_type, $idea->keyword);
             if ($preflight['article'] && in_array($preflight['decision'], ['block', 'merge_or_reangle'], true)) {
                 throw new DuplicateContentException($preflight['article'], $preflight['score'], $preflight['decision']);
             }
