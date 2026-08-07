@@ -251,13 +251,24 @@ final class EditorialDuplicateDetector
         foreach ($articles as $article) {
             $articleBlueprint = $this->normalizeBlueprint($this->blueprintForArticle($article));
 
-            if ($keyword && $keyword->content_cluster_id && $article->content_cluster_id === $keyword->content_cluster_id) {
-                return [
-                    'article' => $article,
-                    'score' => 100.0,
-                    'lexical_score' => 100.0,
-                    'decision' => 'block',
-                ];
+            if ($keyword) {
+                if ($keyword->content_cluster_id && $article->content_cluster_id === $keyword->content_cluster_id) {
+                    return [
+                        'article' => $article,
+                        'score' => 100.0,
+                        'lexical_score' => 100.0,
+                        'decision' => 'block',
+                    ];
+                }
+
+                if ($keyword->cluster && $article->keyword && $article->keyword->cluster === $keyword->cluster) {
+                    return [
+                        'article' => $article,
+                        'score' => 100.0,
+                        'lexical_score' => 100.0,
+                        'decision' => 'block',
+                    ];
+                }
             }
 
             // Strict title collision check

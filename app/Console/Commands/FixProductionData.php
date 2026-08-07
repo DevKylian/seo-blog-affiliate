@@ -44,7 +44,7 @@ class FixProductionData extends Command
                     ['to_path' => '/404', 'status_code' => 410, 'active' => true]
                 );
                 
-                $article->delete();
+                $article->forceDelete();
                 $this->line("- Supprimé et redirigé (410) : /{$slug}");
             } else {
                 $this->warn("- Article non trouvé (déjà supprimé ?) : /{$slug}");
