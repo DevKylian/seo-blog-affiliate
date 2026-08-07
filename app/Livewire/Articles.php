@@ -23,6 +23,8 @@ class Articles extends Component
 
     public string $duplicateFilter = '';
 
+    public bool $massView = false;
+
     public bool $todayOnly = false;
 
     public string $message = '';
@@ -156,6 +158,13 @@ class Articles extends Component
         $this->resetBulkSelection();
     }
 
+    public function toggleMassView(): void
+    {
+        $this->massView = ! $this->massView;
+        $this->resetPage();
+        $this->resetBulkSelection();
+    }
+
     private function filteredQuery(): Builder
     {
         $today = now()->toDateString();
@@ -179,7 +188,7 @@ class Articles extends Component
     {
         $articles = $this->filteredQuery()->with(['project', 'keyword', 'categories', 'canonicalArticle', 'latestAudit'])
             ->orderBy($this->sortField, $this->sortDirection)
-            ->paginate(15);
+            ->paginate($this->massView ? 500 : 15);
 
         return view('livewire.articles', compact('articles'))->title('Articles');
     }
