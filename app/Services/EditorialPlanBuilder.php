@@ -425,13 +425,19 @@ final class EditorialPlanBuilder
     private function alreadyPlannedKeywordIssue(array $blueprint, Collection $valid, ?Keyword $keyword): ?string
     {
         $keys = $this->planningKeywordKeys($keyword?->id, (string) ($keyword?->keyword ?: ($blueprint['primary_keyword'] ?? '')));
-        if ($keys === []) {
+        $clusterId = $keyword?->content_cluster_id;
+        
+        if ($keys === [] && !$clusterId) {
             return null;
         }
 
         foreach ($valid as $accepted) {
             if (! $accepted instanceof EditorialIdea) {
                 continue;
+            }
+
+            if ($clusterId !== null && $accepted->content_cluster_id === $clusterId) {
+                return 'Cluster sémantique déjà retenu dans le plan : "'.$accepted->title.'". Un même cluster ne doit produire qu un seul article, tous types confondus.';
             }
 
             $acceptedKeys = $this->planningKeywordKeys($accepted->keyword_id, (string) $accepted->primary_keyword);
@@ -578,7 +584,20 @@ final class EditorialPlanBuilder
         }])
             ->orderByDesc('opportunity_score')->limit(600)->get();
             
-        $unplanned = $all->filter(fn (Keyword $keyword) => $keyword->isUnplanned());
+        $plannedClusterIds = \App\Models\ContentCluster::where('seo_project_id', $project->id)
+            ->where(function ($query) {
+                $query->whereHas('articles', fn($q) => $q->where('status', '!=', 'archived'))
+                      ->orWhereHas('editorialIdeas', fn($q) => $q->where('status', '!=', 'rejected'));
+            })
+            ->pluck('id')
+            ->toArray();
+
+        $unplanned = $all->filter(function (Keyword $keyword) use ($plannedClusterIds) {
+            if ($keyword->content_cluster_id) {
+                return !in_array($keyword->content_cluster_id, $plannedClusterIds, true);
+            }
+            return $keyword->isUnplanned();
+        });
         $bucket = fn (string $tier) => $unplanned->filter(fn (Keyword $keyword) => $keyword->strategyTier() === $tier);
 
         return $this->pickDiverse($bucket('pillar')->sortByDesc('opportunity_score'), 20)
