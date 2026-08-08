@@ -328,16 +328,17 @@ final class EditorialPlanBuilder
         $bestScore = (float) $existing['score'];
         $lexicalScore = (float) ($existing['lexical_score'] ?? 0);
         $closestArticle = $existing['article'];
+        $closestArticleId = $closestArticle instanceof \App\Models\Article ? $closestArticle->id : null;
         if ($bestScore >= 72 || $lexicalScore >= 65) {
             $reason = $bestScore >= 86 || $lexicalScore >= 65 ? 'Sujet ou intention déjà couverts (anti-cannibalisation).' : 'Angle trop proche d’un contenu existant.';
             if ($bestScore >= 100) {
                 \Illuminate\Support\Facades\Log::info('Rejet anti-cannibalisation strict détecté (à surveiller pour faux positifs)', [
                     'blueprint' => $blueprint,
                     'bestScore' => $bestScore,
-                    'closest_article_id' => $closestArticle?->id,
+                    'closest_article_id' => $closestArticleId,
                 ]);
             }
-            return $this->reject('duplicate', $reason, $sourceCoverage, max($bestScore, $lexicalScore), $closestArticle?->id);
+            return $this->reject('duplicate', $reason, $sourceCoverage, max($bestScore, $lexicalScore), $closestArticleId);
         }
 
         foreach ($valid as $accepted) {
@@ -355,7 +356,7 @@ final class EditorialPlanBuilder
             'reason' => null,
             'source_coverage' => $sourceCoverage,
             'similarity' => round($bestScore, 2),
-            'closest_article_id' => $closestArticle?->id,
+            'closest_article_id' => $closestArticleId,
             'seo_score' => $this->score($keyword ?? $proposedKeyword, $blueprint, $sourceCoverage, $bestScore, $project),
         ];
     }
