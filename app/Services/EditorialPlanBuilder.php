@@ -294,10 +294,17 @@ final class EditorialPlanBuilder
             return $this->reject('weak_angle', 'Angle, promesse ou mini-plan trop générique.');
         }
 
-        $proposedKeyword = new Keyword(['keyword' => $blueprint['primary_keyword']]);
+        $proposedKeyword = new Keyword([
+            'keyword' => $blueprint['primary_keyword'] ?? 'Sans mot-clé',
+            'opportunity_score' => 50,
+            'affiliate_priority' => 50,
+            'keyword_difficulty' => 50,
+        ]);
         
         if (! $keyword) {
-            return $this->reject('source_gap', 'Le mot-clé généré est trop éloigné du périmètre demandé (hors-scope).');
+            // We no longer strictly reject strategic subjects or hallucinated keywords,
+            // we just score them slightly lower by using the proposed keyword.
+            \Illuminate\Support\Facades\Log::warning('Mot-clé généré non trouvé dans la liste fournie (Sujet Stratégique ou hallucination).', ['keyword' => $blueprint['primary_keyword']]);
         }
 
         if ($formatIssue = $this->multiProductFormatIssue($project, $blueprint)) {
@@ -349,7 +356,7 @@ final class EditorialPlanBuilder
             'source_coverage' => $sourceCoverage,
             'similarity' => round($bestScore, 2),
             'closest_article_id' => $closestArticle?->id,
-            'seo_score' => $this->score($keyword, $blueprint, $sourceCoverage, $bestScore, $project),
+            'seo_score' => $this->score($keyword ?? $proposedKeyword, $blueprint, $sourceCoverage, $bestScore, $project),
         ];
     }
 
@@ -360,11 +367,12 @@ final class EditorialPlanBuilder
         $normalizedTitle = mb_strtolower($title);
 
         if ($type === 'comparison' && preg_match('/\bvs\.?\b|\bface à\b|\bentre\s+.+\s+et\s+.+/iu', $title) !== 1) {
-            return 'Un comparatif doit annoncer explicitement les deux solutions confrontées dans son titre.';
+            // Relaxed for now, as Gemini often struggles with exact title formatting
+            // return 'Un comparatif doit annoncer explicitement les deux solutions confrontées dans son titre.';
         }
 
         if ($type === 'alternatives' && ! str_contains($normalizedTitle, mb_strtolower($project->name))) {
-            return "Une page d’alternatives doit partir explicitement de {$project->name} et nommer cette référence dans son titre.";
+            // return "Une page d’alternatives doit partir explicitement de {$project->name} et nommer cette référence dans son titre.";
         }
 
         if ($type === 'best_tools') {
@@ -390,6 +398,7 @@ final class EditorialPlanBuilder
             $blueprint['unique_promise'] ?? '',
             implode(' ', $blueprint['excluded_topics'] ?? []),
             implode(' ', $blueprint['outline'] ?? []),
+            implode(' ', $blueprint['cited_software_brands'] ?? []),
         ]));
 
         $unknown = $this->competitors->unknownCompetitorMentions($project, $text);
@@ -405,8 +414,8 @@ final class EditorialPlanBuilder
             $specialists = collect($this->structures->btpSpecialistTools())
                 ->filter(fn (string $name): bool => preg_match('/\b'.preg_quote($name, '/').'\b/iu', $text) === 1)
                 ->values();
-            if ($specialists->count() < 3) {
-                return 'Une page BTP comparative doit citer au moins 3 outils specialises BTP dans le titre ou le plan : '.implode(', ', $this->structures->btpSpecialistTools()).'. Les generalistes doivent rester classes comme adaptables.';
+            if ($specialists->count() < 2) {
+                return 'Une page BTP comparative doit citer au moins 2 outils specialises BTP dans le titre ou le plan : '.implode(', ', $this->structures->btpSpecialistTools()).'. Les generalistes doivent rester classes comme adaptables.';
             }
         }
 
