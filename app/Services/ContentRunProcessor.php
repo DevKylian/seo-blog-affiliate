@@ -368,6 +368,7 @@ final class ContentRunProcessor
             $run->update([
                 'status' => 'completed_with_errors',
                 'failed_count' => $run->items()->where('status', 'failed')->count(),
+                'error_message' => mb_substr($exception->getMessage(), 0, 2000),
                 'completed_at' => now(),
             ]);
             if ($run->editorialPlan && $run->editorialPlan->status === 'generating') {

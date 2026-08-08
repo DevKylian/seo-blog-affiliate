@@ -411,7 +411,10 @@ class Automation extends Component
                 $planningWorker->launch($plan->id);
             } catch (Throwable $exception) {
                 report($exception);
-                $plan->update(['status' => 'failed']);
+                $plan->update([
+                    'status' => 'failed',
+                    'error_message' => mb_substr($exception->getMessage(), 0, 2000),
+                ]);
                 $this->error = $exception->getMessage();
                 $this->message = '';
             }
@@ -1128,6 +1131,7 @@ class Automation extends Component
             $run->update([
                 'status' => 'completed_with_errors',
                 'failed_count' => $run->items()->where('status', 'failed')->count(),
+                'error_message' => mb_substr($exception->getMessage(), 0, 2000),
                 'completed_at' => now(),
             ]);
             if ($run->editorialPlan && $run->editorialPlan->status === 'generating') {

@@ -100,7 +100,15 @@
                     <button class="launch-button" wire:click="launchRun" wire:loading.attr="disabled" type="button" @disabled($plan->accepted_count !== $plan->requested_count)><span>✦</span><div><strong>Générer les {{ $plan->requested_count }} articles</strong><small>La rédaction suit uniquement les briefs verrouillés ci-dessous.</small></div><b>→</b></button>
                 @elseif($plan && $plan->status === 'failed')
                     <div class="run-progress">
-                        <div><strong>Planification interrompue (Erreur)</strong><span>{{ $plan->candidate_count }} idées analysées</span></div>
+                        <div>
+                            <strong>Planification interrompue (Erreur)</strong>
+                            <span>{{ $plan->candidate_count }} idées analysées</span>
+                            @if($plan->error_message)
+                                <div style="margin-top: 10px; color: #d32f2f; font-size: 0.9em;">
+                                    <strong>Détail de l'erreur :</strong> {{ $plan->error_message }}
+                                </div>
+                            @endif
+                        </div>
                         <div class="run-actions">
                             <button class="danger" type="button" wire:click="cancelPlan" wire:loading.attr="disabled">Annuler et recommencer</button>
                             @if($plan->ideas->where('status', 'candidate')->count() > 0)
@@ -177,7 +185,31 @@
         <article class="panel automation-step {{ $run ? 'active' : 'locked' }}">
             <header><i>3</i><div><h2>Production du lot</h2><p>Suivi détaillé de chaque contenu.</p></div>@if($run)<span class="run-status {{ $run->status }}">{{ match($run->status) { 'completed' => 'Terminé', 'processing' => 'En cours', 'pending' => 'En attente', 'paused' => 'En pause', 'failed' => 'Échec', 'completed_with_errors' => 'Terminé (erreurs)', default => str_replace('_',' ',ucfirst($run->status)) } }}</span>@endif</header>
             @if($run)
-                <div class="run-progress" @if(in_array($run->status,['pending','processing'])) wire:poll.5s.keep-alive="processNext" @endif><div><strong>{{ $run->progress_percentage }}%</strong><span>{{ $run->completed_count }} validés · {{ $run->items->sum('generation_step') }} parties sauvegardées · {{ $run->items->where('status','rejected')->count() }} remplacés · {{ $run->failed_count }} échecs techniques · {{ $run->requested_count }} attendus</span></div><div class="progress-track"><span style="width:{{ $run->progress_percentage }}%"></span></div>@if(in_array($run->status,['pending','processing']))<div class="run-actions"><span>La génération avance automatiquement.</span><button class="danger" type="button" wire:click="stopRun" wire:loading.attr="disabled" wire:confirm="Arrêter cette campagne ? Les articles terminés et les parties déjà générées seront conservés.">Arrêter la campagne</button></div>@elseif($run->status === 'paused')<div class="run-actions"><button type="button" wire:click="resumePausedRun({{ $run->id }})">Reprendre la campagne</button><button class="danger" type="button" wire:click="stopRun" wire:confirm="Arrêter définitivement cette campagne ? Les parties déjà générées seront conservées.">Arrêter la campagne</button></div>@elseif($run->status === 'completed_with_errors' && $run->failed_count > 0)<button type="button" wire:click="retryFailedRun({{ $run->id }})" x-show="!running">Réessayer les contenus en échec</button>@endif</div>
+                <div class="run-progress" @if(in_array($run->status,['pending','processing'])) wire:poll.5s.keep-alive="processNext" @endif>
+                    <div>
+                        <strong>{{ $run->progress_percentage }}%</strong>
+                        <span>{{ $run->completed_count }} validés · {{ $run->items->sum('generation_step') }} parties sauvegardées · {{ $run->items->where('status','rejected')->count() }} remplacés · {{ $run->failed_count }} échecs techniques · {{ $run->requested_count }} attendus</span>
+                        @if($run->error_message && in_array($run->status, ['failed', 'completed_with_errors']))
+                            <div style="margin-top: 10px; color: #d32f2f; font-size: 0.9em;">
+                                <strong>Erreur globale de campagne :</strong> {{ $run->error_message }}
+                            </div>
+                        @endif
+                    </div>
+                    <div class="progress-track"><span style="width:{{ $run->progress_percentage }}%"></span></div>
+                    @if(in_array($run->status,['pending','processing']))
+                        <div class="run-actions">
+                            <span>La génération avance automatiquement.</span>
+                            <button class="danger" type="button" wire:click="stopRun" wire:loading.attr="disabled" wire:confirm="Arrêter cette campagne ? Les articles terminés et les parties déjà générées seront conservés.">Arrêter la campagne</button>
+                        </div>
+                    @elseif($run->status === 'paused')
+                        <div class="run-actions">
+                            <button type="button" wire:click="resumePausedRun({{ $run->id }})">Reprendre la campagne</button>
+                            <button class="danger" type="button" wire:click="stopRun" wire:confirm="Arrêter définitivement cette campagne ? Les parties déjà générées seront conservées.">Arrêter la campagne</button>
+                        </div>
+                    @elseif($run->status === 'completed_with_errors' && $run->failed_count > 0)
+                        <button type="button" wire:click="retryFailedRun({{ $run->id }})" x-show="!running">Réessayer les contenus en échec</button>
+                    @endif
+                </div>
                 <div class="batch-items">
                     @foreach($run->items as $item)
                         <div class="batch-item {{ $item->status }}">
