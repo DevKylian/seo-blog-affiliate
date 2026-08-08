@@ -12,6 +12,7 @@ final class EditorialDuplicateDetector
     public function __construct(
         private readonly TopicNormalizer $topics,
         private readonly SeoSlugGenerator $slugs,
+        private readonly CompetitorCatalog $competitors,
     ) {}
 
     public function blueprint(SeoProject $project, ?Keyword $keyword, string $type): array
@@ -126,9 +127,9 @@ final class EditorialDuplicateDetector
         return $blueprint;
     }
 
-    public function analyzeBlueprint(SeoProject $project, array $blueprint, ?int $ignoreArticleId = null, ?string $type = null, ?Keyword $keyword = null): array
+    public function analyzeBlueprint(SeoProject $project, array $blueprint, ?int $ignoreArticleId = null, ?string $type = null, ?Keyword $keyword = null, \Illuminate\Support\Collection $priorIdeas = null): array
     {
-        return ['blueprint' => $blueprint, ...$this->findBestMatch($project, $blueprint, $this->blueprintRepresentation($blueprint), $ignoreArticleId, $type, $keyword)];
+        return ['blueprint' => $blueprint, ...$this->findBestMatch($project, $blueprint, $this->blueprintRepresentation($blueprint), $ignoreArticleId, $type, $keyword, $priorIdeas)];
     }
 
     public function analyzeGenerated(
@@ -234,6 +235,7 @@ final class EditorialDuplicateDetector
         ?int $ignoreArticleId,
         ?string $type = null,
         ?Keyword $keyword = null,
+        ?\Illuminate\Support\Collection $priorIdeas = null,
     ): array {
         $candidateBlueprint = $this->normalizeBlueprint($candidateBlueprint);
         // Le worker est un processus long : un cache local figé avant la
@@ -245,14 +247,45 @@ final class EditorialDuplicateDetector
             ->when($ignoreArticleId, fn ($query) => $query->whereKeyNot($ignoreArticleId))
             ->get();
 
+        $items = [];
+        foreach ($articles as $article) {
+            $items[] = [
+                'type' => 'article',
+                'model' => $article,
+                'blueprint' => $this->normalizeBlueprint($this->blueprintForArticle($article)),
+                'representation' => $this->articleRepresentation($article),
+                'content_type' => $article->type,
+            ];
+        }
+
+        if ($priorIdeas) {
+            foreach ($priorIdeas as $idea) {
+                if ($idea instanceof \App\Models\EditorialIdea) {
+                    $items[] = [
+                        'type' => 'idea',
+                        'model' => $idea,
+                        'blueprint' => $this->normalizeBlueprint($this->blueprintForIdea($idea)),
+                        'representation' => $this->ideaRepresentation($idea),
+                        'content_type' => $idea->content_type,
+                    ];
+                }
+            }
+        }
+
         $bestArticle = null;
         $bestScore = 0.0;
         $bestLexicalScore = 0.0;
-        foreach ($articles as $article) {
-            $articleBlueprint = $this->normalizeBlueprint($this->blueprintForArticle($article));
+        foreach ($items as $item) {
+            $articleBlueprint = $item['blueprint'];
+            $article = $item['model']; // can be Article or EditorialIdea
+            $existingTitle = mb_strtolower(trim((string) $articleBlueprint['title']));
+            $existingKeyword = mb_strtolower(trim((string) $articleBlueprint['primary_keyword']));
+
+
+            $existingKeywordModel = $article instanceof Article ? $article->keyword : ($article->keyword_id ? Keyword::find($article->keyword_id) : null);
 
             if ($keyword) {
-                if ($keyword->content_cluster_id && $article->content_cluster_id === $keyword->content_cluster_id) {
+                if ($keyword->content_cluster_id && clone $article->content_cluster_id === $keyword->content_cluster_id) {
                     return [
                         'article' => $article,
                         'score' => 100.0,
@@ -261,7 +294,7 @@ final class EditorialDuplicateDetector
                     ];
                 }
 
-                if ($keyword->cluster && $article->keyword && $article->keyword->cluster === $keyword->cluster) {
+                if ($keyword->cluster && clone $existingKeywordModel?->cluster === $keyword->cluster) {
                     return [
                         'article' => $article,
                         'score' => 100.0,
@@ -273,12 +306,12 @@ final class EditorialDuplicateDetector
 
             // Strict title collision check
             $candidateTitle = mb_strtolower(trim((string) ($candidateBlueprint['title'] ?? $candidateBlueprint['primary_keyword'] ?? '')));
-            $existingTitle = mb_strtolower(trim((string) $article->title));
+            $existingTitleLower = mb_strtolower(trim((string) $existingTitle));
             
-            if ($candidateTitle !== '' && $existingTitle !== '') {
-                $titleSim = $this->similarity($candidateTitle, $existingTitle);
-                $titleInclusion = $this->inclusion($candidateTitle, $existingTitle);
-                if ($candidateTitle === $existingTitle || $titleSim >= 0.78) {
+            if ($candidateTitle !== '' && $existingTitleLower !== '') {
+                $titleSim = $this->similarity($candidateTitle, $existingTitleLower);
+                $titleInclusion = $this->inclusion($candidateTitle, $existingTitleLower);
+                if ($candidateTitle === $existingTitleLower || $titleSim >= 0.78) {
                     return [
                         'article' => $article,
                         'score' => 100.0,
@@ -299,11 +332,30 @@ final class EditorialDuplicateDetector
             }
 
             // Strict keyword collision check
-            $candidateKeyword = mb_strtolower(trim((string) ($candidateBlueprint['primary_keyword'] ?? '')));
-            $existingKeyword = mb_strtolower(trim((string) $article->primary_keyword));
-            if ($candidateKeyword !== '' && $existingKeyword !== '') {
-                $kwSim = $this->similarity($candidateKeyword, $existingKeyword);
-                if ($candidateKeyword === $existingKeyword || $kwSim >= 0.80) {
+            $candidateKeywordStr = mb_strtolower(trim((string) ($candidateBlueprint['primary_keyword'] ?? '')));
+            $existingKeywordStr = mb_strtolower(trim((string) $existingKeyword));
+            if ($candidateKeywordStr !== '' && $existingKeywordStr !== '') {
+                $kwSim = $this->similarity($candidateKeywordStr, $existingKeywordStr);
+                if ($candidateKeywordStr === $existingKeywordStr || $kwSim >= 0.80) {
+                    return [
+                        'article' => $article,
+                        'score' => 100.0,
+                        'lexical_score' => 100.0,
+                        'decision' => 'block',
+                    ];
+                }
+            }
+            
+            // Strict competitor comparison check
+            if ($type && in_array($type, ['comparison', 'alternatives', 'tool_review'], true) && $item['content_type'] === $type) {
+                $candidateCompetitors = $this->competitors->mentionedCompetitors($project, $candidateTitle . ' ' . $candidateKeywordStr);
+                $existingCompetitors = $this->competitors->mentionedCompetitors($project, $existingTitle . ' ' . $existingKeywordStr);
+                
+                if (count($candidateCompetitors) > 0 && 
+                    count($candidateCompetitors) === count($existingCompetitors) && 
+                    array_diff($candidateCompetitors, $existingCompetitors) === [] && 
+                    $candidateBlueprint['audience'] === $articleBlueprint['audience']) {
+                    
                     return [
                         'article' => $article,
                         'score' => 100.0,
@@ -315,7 +367,7 @@ final class EditorialDuplicateDetector
 
             $score = $this->blueprintScore($candidateBlueprint, $articleBlueprint);
             $candidateText = $this->blueprintRepresentation($candidateBlueprint);
-            $lexicalScore = $this->similarity($candidateText, $this->articleRepresentation($article));
+            $lexicalScore = $this->similarity($candidateText, $item['representation']);
             $score = min(100, $score + ($lexicalScore * 20));
             if ($score > $bestScore) {
                 $bestArticle = $article;
@@ -361,6 +413,37 @@ final class EditorialDuplicateDetector
         $bp = $this->blueprint($article->project, $keyword, $article->type);
         $bp['title'] = (string) $article->title;
         return $bp;
+    }
+
+    private function blueprintForIdea(\App\Models\EditorialIdea $idea): array
+    {
+        return [
+            'title' => (string) $idea->title,
+            'entity' => $idea->entity_key,
+            'topic' => $idea->topic_key,
+            'intent' => $this->normalizedIntent($idea->intent, clone $idea->content_type ?: 'informational'),
+            'audience' => $idea->audience ?: 'general',
+            'angle' => $idea->angle ?: 'guide-complet',
+            'funnel_stage' => $idea->funnel_stage ?: 'consideration',
+            'primary_keyword' => (string) $idea->primary_keyword,
+            'unique_promise' => (string) $idea->unique_promise,
+            'problem' => (string) $idea->problem,
+            'expected_outcome' => (string) $idea->expected_outcome,
+            'excluded_topics' => $idea->excluded_topics ?? [],
+            'outline' => $idea->outline ?? [],
+            'fingerprint' => $idea->fingerprint,
+        ];
+    }
+
+    private function ideaRepresentation(\App\Models\EditorialIdea $idea): string
+    {
+        return implode(' ', array_filter([
+            $idea->title,
+            $idea->primary_keyword,
+            $idea->angle,
+            $idea->audience,
+            implode(' ', $idea->outline ?? []),
+        ]));
     }
 
     private function blueprintScore(array $candidate, array $existing): float

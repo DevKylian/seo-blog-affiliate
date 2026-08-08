@@ -297,7 +297,7 @@ final class EditorialPlanBuilder
         $proposedKeyword = new Keyword(['keyword' => $blueprint['primary_keyword']]);
         
         if (! $keyword) {
-            return $this->reject('off_topic', 'Le mot-clé ne correspond pas au produit.');
+            return $this->reject('source_gap', 'Le mot-clé généré est trop éloigné du périmètre demandé (hors-scope).');
         }
 
         if ($formatIssue = $this->multiProductFormatIssue($project, $blueprint)) {
@@ -317,7 +317,7 @@ final class EditorialPlanBuilder
             return $this->reject('duplicate', $coverageIssue, $sourceCoverage, 100);
         }
 
-        $existing = $this->duplicates->analyzeBlueprint($project, $blueprint);
+        $existing = $this->duplicates->analyzeBlueprint($project, $blueprint, null, $blueprint['content_type'] ?? null, $keyword, $valid);
         $bestScore = (float) $existing['score'];
         $lexicalScore = (float) ($existing['lexical_score'] ?? 0);
         $closestArticle = $existing['article'];
@@ -535,7 +535,7 @@ final class EditorialPlanBuilder
             return $closest;
         }
 
-        return $keywords->first(fn (Keyword $k) => $k->isUnplanned()) ?? $closest ?? $keywords->first();
+        return null;
     }
 
     private function sourceKeyword(Collection $keywords, array $rawIdea, array $blueprint): ?Keyword

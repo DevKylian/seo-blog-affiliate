@@ -14,12 +14,9 @@
     $articleBlocks = collect($article->content_blocks ?: [['type' => 'markdown', 'content' => $article->body]]);
 
     if ($article->project) {
-        $articleBlocks = $articleBlocks->map(function ($block) {
-            if (($block['type'] ?? '') === 'affiliate_cta' && ($block['position'] ?? '') === 'final') {
-                $block['position'] = 'after_intro';
-            }
-            return $block;
-        });
+        $articleBlocks = $articleBlocks->reject(function ($block) {
+            return ($block['type'] ?? '') === 'affiliate_cta' && ($block['position'] ?? '') === 'final';
+        })->values();
 
         if (! $articleBlocks->contains('type', 'affiliate_cta')) {
             $markdownIndex = $articleBlocks->search(fn($b) => ($b['type'] ?? '') === 'markdown');
@@ -27,13 +24,7 @@
                 $articleBlocks->splice($markdownIndex, 0, [['type' => 'affiliate_cta', 'position' => 'after_intro']]);
             }
         }
-        if ($articleBlocks->filter(fn($b) => ($b['type'] ?? '') === 'affiliate_cta')->count() < 2) {
-            $pricingIndex = $articleBlocks->search(fn($b) => ($b['type'] ?? '') === 'pricing_table');
-            $insertIndex = $pricingIndex !== false ? $pricingIndex + 1 : $articleBlocks->count() - 2;
-            if ($insertIndex < 0) $insertIndex = $articleBlocks->count();
-            $articleBlocks->splice($insertIndex, 0, [['type' => 'affiliate_cta', 'position' => 'after_intro']]);
-        }
-        
+
         $markdownIndex = $articleBlocks->search(fn($b) => ($b['type'] ?? '') === 'markdown');
         if ($markdownIndex !== false) {
             $mdContent = $articleBlocks[$markdownIndex]['content'] ?? '';
