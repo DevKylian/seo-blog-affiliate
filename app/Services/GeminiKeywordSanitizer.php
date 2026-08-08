@@ -33,6 +33,7 @@ final class GeminiKeywordSanitizer
 
     private function processChunk(array $keywords): array
     {
+        $knownBrands = implode(', ', array_merge(...array_values(config('known_brands', []))));
         $keywordsJson = json_encode($keywords, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
         $prompt = <<<PROMPT
@@ -47,7 +48,7 @@ RÈGLE D'OR : Tu dois définir "keep": true SI ET SEULEMENT SI le sujet du mot-c
 
 REJET STRICT ("keep": false) :
 - Si le mot-clé traite d'un autre domaine (RH, immobilier, transport, énergie, médical, e-commerce, annonces, etc.)
-- Si le mot-clé mentionne un nom de logiciel, marque ou service qui NE FIGURE PAS dans cette liste de marques connues du secteur : Indy, Abby, Dougs, Pennylane, Tiime, Qonto, Shine, Boursorama, Revolut, Blank, BNP Paribas, Société Générale, LCL, Crédit Agricole, Caisse d'Épargne, La Banque Postale, La Poste, CMB, Sage, EBP, Ciel, Henrri, Free Pro. Si un nom de marque t'est inconnu ou te semble inventé/composite (ex: "InvoiceMaster", "EasyCompta Business", "FinancePro Plus"), REJETTE-le même s'il contient un mot de la niche comme "facturation" ou "comptabilité" — un mot-clé niche avec une marque inventée reste un mot-clé invalide.
+- Si le mot-clé mentionne un nom de logiciel, marque ou service qui NE FIGURE PAS dans cette liste de marques connues du secteur : {$knownBrands}. Si un nom de marque t'est inconnu ou te semble inventé/composite (ex: "InvoiceMaster", "EasyCompta Business", "FinancePro Plus"), REJETTE-le même s'il contient un mot de la niche comme "facturation" ou "comptabilité" — un mot-clé niche avec une marque inventée reste un mot-clé invalide.
 - Si le mot-clé semble être un identifiant technique interne plutôt qu'une requête humaine réelle (mots comme "interpreteur", "module", ou toute chaîne qui ne ressemble pas à une façon naturelle de chercher sur Google), REJETTE-le.
 
 IMPORTANT : Un mot-clé contenant "facturation", "comptabilité", "devis", "banque pro", "sasu" ou "auto-entrepreneur" doit être analysé avec attention plutôt que rejeté par réflexe pour hors-sujet — mais cela NE DISPENSE JAMAIS de vérifier la validité de la marque/l'entité mentionnée selon la règle ci-dessus. La présence d'un mot de la niche n'est pas une garantie de validité.

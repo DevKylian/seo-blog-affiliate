@@ -7,36 +7,13 @@ use Illuminate\Support\Str;
 
 final class CompetitorCatalog
 {
-    private const MARKET_COMPETITORS = [
-        'billing' => [
-            'Pennylane', 'Abby', 'Freebe', 'Henrri', 'Sinao', 'Evoliz', 'Facture.net',
-            'Axonaut', 'Sellsy', 'QuickBooks', 'Sage', 'Cegid', 'Tiime', 'Dougs',
-            'Qonto', 'Shine', 'Blank', 'Odoo',
-        ],
-        'crm' => [
-            'HubSpot', 'Salesforce', 'Pipedrive', 'Zoho CRM', 'Sellsy', 'Axonaut',
-            'Odoo', 'noCRM.io', 'Monday CRM', 'Brevo', 'ActiveCampaign', 'Klaviyo',
-        ],
-        'seo' => [
-            'Semrush', 'Ahrefs', 'SE Ranking', 'Sistrix', 'Moz', 'Ubersuggest',
-            'Mangools', 'Ranxplorer', 'Yooda Insight', 'Majestic',
-        ],
-        'emailing' => [
-            'Brevo', 'Mailchimp', 'MailerLite', 'ActiveCampaign', 'Klaviyo',
-            'Sarbacane', 'GetResponse', 'HubSpot',
-        ],
-        'project' => [
-            'Asana', 'Trello', 'Monday.com', 'ClickUp', 'Notion', 'Jira', 'Wrike',
-        ],
-        'construction' => [
-            'Obat', 'Tolteck', 'Costructor', 'ProGBat', 'EBP Bâtiment',
-            'Sage Batigest', 'Mediabat', 'Batappli', 'iXbat',
-        ],
-        'banking' => [
-            'Qonto', 'Shine', 'Blank', 'BNP Paribas', 'Société Générale', 'LCL',
-            'Boursorama', 'Crédit Agricole', 'La Banque Postale', 'Revolut', 'CMB',
-        ],
-    ];
+    /**
+     * @return array<string, string[]>
+     */
+    private function getMarketCompetitors(): array
+    {
+        return config('known_brands', []);
+    }
 
     private const SYNTHETIC_NAMES = [
         'invoiceflow' => 'InvoiceFlow',
@@ -77,18 +54,20 @@ final class CompetitorCatalog
         $markets = $this->detectedMarkets($project, $context);
         $explicit = $this->cleanNames($project->competitors ?? []);
         if ($explicit !== []) {
-            $verticalNames = in_array('construction', $markets, true) ? self::MARKET_COMPETITORS['construction'] : [];
-            $bankingNames = in_array('banking', $markets, true) ? self::MARKET_COMPETITORS['banking'] : [];
+            $marketCompetitors = $this->getMarketCompetitors();
+            $verticalNames = in_array('construction', $markets, true) ? ($marketCompetitors['construction'] ?? []) : [];
+            $bankingNames = in_array('banking', $markets, true) ? ($marketCompetitors['banking'] ?? []) : [];
 
             return $this->withoutProjectName($project, $this->cleanNames([...$explicit, ...$verticalNames, ...$bankingNames]));
         }
 
         $names = [];
+        $marketCompetitors = $this->getMarketCompetitors();
         foreach ($markets as $market) {
-            $names = [...$names, ...self::MARKET_COMPETITORS[$market]];
+            $names = [...$names, ...($marketCompetitors[$market] ?? [])];
         }
 
-        foreach (self::MARKET_COMPETITORS as $competitors) {
+        foreach ($marketCompetitors as $competitors) {
             foreach ($competitors as $competitor) {
                 if ($this->containsName($context, $competitor)) {
                     $names[] = $competitor;
@@ -283,7 +262,8 @@ TEXT;
             $markets[] = 'banking';
         }
 
-        foreach (self::MARKET_COMPETITORS as $market => $competitors) {
+        $marketCompetitors = $this->getMarketCompetitors();
+        foreach ($marketCompetitors as $market => $competitors) {
             foreach ($competitors as $competitor) {
                 if ($this->containsName($project->name, $competitor)) {
                     $markets[] = $market;
@@ -432,8 +412,12 @@ TEXT;
             ->pluck('keyword')
             ->all();
 
+        $knownBrands = array_merge(...array_values($this->getMarketCompetitors()));
+        $regexBrands = implode('|', array_map(fn($b) => preg_quote(mb_strtolower($b), '/'), $knownBrands));
+        $regex = '/\b[A-Z][A-Za-z0-9]{1,}\b|\b(?:' . $regexBrands . ')\b/iu';
+
         foreach ($keywords as $kw) {
-            preg_match_all('/\b[A-Z][A-Za-z0-9]{1,}\b|\b(?:ebp|indy|qonto|shine|blank|dougs|tiime|cegid|sage|pennylane|axonaut|sellsy|henrri|freebe|sinao|evoliz|quickbooks|hubspot|salesforce|pipedrive|zoho|brevo|mailchimp|trello|monday|asana|notion|clickup|jira|obat|tolteck|costructor|progbat|mediabat|batappli|easycompta|financecore|accountpro)\b/iu', $kw, $matches);
+            preg_match_all($regex, $kw, $matches);
             foreach ($matches[0] ?? [] as $m) {
                 $clean = trim($m);
                 if (mb_strlen($clean) >= 2 && ! $this->isCommonWord(mb_strtolower($clean))) {
