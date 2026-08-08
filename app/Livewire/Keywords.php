@@ -171,6 +171,13 @@ class Keywords extends Component
         $this->resetPage();
     }
 
+    public function copyAllKeywords(): void
+    {
+        $keywords = $this->filteredQuery()->orderByDesc('opportunity_score')->pluck('keyword')->implode("\n");
+        $this->dispatch('copy-to-clipboard', text: $keywords);
+        $this->message = "Tous les mots-clés ont été copiés dans le presse-papier.";
+    }
+
     public function exportCsv()
     {
         $keywords = $this->filteredQuery()->orderByDesc('opportunity_score')->get();
