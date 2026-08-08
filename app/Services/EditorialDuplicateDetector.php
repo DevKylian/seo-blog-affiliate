@@ -285,7 +285,7 @@ final class EditorialDuplicateDetector
             $existingKeywordModel = $article instanceof Article ? $article->keyword : ($article->keyword_id ? Keyword::find($article->keyword_id) : null);
 
             if ($keyword) {
-                if ($keyword->content_cluster_id && clone $article->content_cluster_id === $keyword->content_cluster_id) {
+                if ($keyword->content_cluster_id && $article->content_cluster_id === $keyword->content_cluster_id) {
                     return [
                         'article' => $article,
                         'score' => 100.0,
@@ -294,7 +294,7 @@ final class EditorialDuplicateDetector
                     ];
                 }
 
-                if ($keyword->cluster && clone $existingKeywordModel?->cluster === $keyword->cluster) {
+                if ($keyword->cluster && $existingKeywordModel?->cluster === $keyword->cluster) {
                     return [
                         'article' => $article,
                         'score' => 100.0,
@@ -421,7 +421,7 @@ final class EditorialDuplicateDetector
             'title' => (string) $idea->title,
             'entity' => $idea->entity_key,
             'topic' => $idea->topic_key,
-            'intent' => $this->normalizedIntent($idea->intent, clone $idea->content_type ?: 'informational'),
+            'intent' => $this->normalizedIntent($idea->intent, $idea->content_type ?: 'informational'),
             'audience' => $idea->audience ?: 'general',
             'angle' => $idea->angle ?: 'guide-complet',
             'funnel_stage' => $idea->funnel_stage ?: 'consideration',
