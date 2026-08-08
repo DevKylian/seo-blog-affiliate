@@ -425,7 +425,13 @@ TEXT;
 
         $entities = [];
 
-        $keywords = $project->keywords()->latest('id')->limit(200)->pluck('keyword')->all();
+        $keywords = $project->keywords()
+            ->whereHas('articles', fn($q) => $q->where('status', 'published'))
+            ->latest('id')
+            ->limit(200)
+            ->pluck('keyword')
+            ->all();
+
         foreach ($keywords as $kw) {
             preg_match_all('/\b[A-Z][A-Za-z0-9]{1,}\b|\b(?:ebp|indy|qonto|shine|blank|dougs|tiime|cegid|sage|pennylane|axonaut|sellsy|henrri|freebe|sinao|evoliz|quickbooks|hubspot|salesforce|pipedrive|zoho|brevo|mailchimp|trello|monday|asana|notion|clickup|jira|obat|tolteck|costructor|progbat|mediabat|batappli|easycompta|financecore|accountpro)\b/iu', $kw, $matches);
             foreach ($matches[0] ?? [] as $m) {
