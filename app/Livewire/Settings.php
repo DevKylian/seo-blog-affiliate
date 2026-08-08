@@ -229,4 +229,16 @@ class Settings extends Component
 
         return filter_var($value, FILTER_VALIDATE_BOOLEAN);
     }
+
+    public function pingSitemap(SearchEngineIndexingService $indexing): void
+    {
+        try {
+            $results = $indexing->submitSitemap('manual_ping');
+            $this->message = 'Le sitemap ('.count($results).' soumissions) a été envoyé avec succès à Google et/ou IndexNow. Le fichier sitemap.xml lui-même est toujours à jour en temps réel en fonction du contenu.';
+            $this->error = '';
+        } catch (Throwable $exception) {
+            $this->error = 'Erreur lors de la soumission du sitemap : '.$exception->getMessage();
+            $this->message = '';
+        }
+    }
 }

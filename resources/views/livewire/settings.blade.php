@@ -159,6 +159,14 @@
                         <small>Google remonte l'état connu dans Search Console, sans garantir l'indexation.</small>
                     </span>
                 </label>
+
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.05);">
+                    <button type="button" wire:click="pingSitemap" wire:loading.attr="disabled" class="secondary-button" style="width: 100%;">
+                        <span wire:loading.remove wire:target="pingSitemap">Soumettre le Sitemap (Ping Google/IndexNow)</span>
+                        <span wire:loading wire:target="pingSitemap">Soumission en cours...</span>
+                    </button>
+                    <p class="field-help" style="margin-top: 8px;">Ping manuel. Le fichier <code>/sitemap.xml</code> est déjà mis à jour dynamiquement en temps réel.</p>
+                </div>
             </section>
 
             <section class="panel settings-provider-card">
