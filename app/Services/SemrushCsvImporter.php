@@ -10,7 +10,10 @@ use RuntimeException;
 
 class SemrushCsvImporter
 {
-    public function __construct(private readonly AffiliateIntentClassifier $affiliateIntent) {}
+    public function __construct(
+        private readonly AffiliateIntentClassifier $affiliateIntent,
+        private readonly CompetitorCatalog $competitors
+    ) {}
 
     public function import(SeoProject $project, string $path): int
     {
@@ -55,7 +58,7 @@ class SemrushCsvImporter
                     $rawText = trim((string) ($row[0] ?? ''));
                     $rawText = preg_replace('/^[0-9]+[\.\)\-]\s*|^[\-\*\•]\s*/u', '', $rawText);
                     $keyword = $this->cleanKeyword($rawText);
-                    if (! $this->isValidKeyword($keyword)) {
+                    if (! $this->isValidKeyword($keyword, $project)) {
                         continue;
                     }
                     $data = [
@@ -86,7 +89,7 @@ class SemrushCsvImporter
                 $row = array_pad($row, count($headers), null);
                 $data = array_combine($headers, array_slice($row, 0, count($headers)));
                 $keyword = $this->cleanKeyword((string) ($data['keyword'] ?? ''));
-                if (! $this->isValidKeyword($keyword)) {
+                if (! $this->isValidKeyword($keyword, $project)) {
                     continue;
                 }
                 $this->upsertKeywordFromData($project, $keyword, $data);
@@ -106,7 +109,7 @@ class SemrushCsvImporter
     public function importMetricRow(SeoProject $project, array $data, bool $refreshProject = true): ?Keyword
     {
         $keyword = $this->cleanKeyword((string) ($data['keyword'] ?? ''));
-        if (! $this->isValidKeyword($keyword)) {
+        if (! $this->isValidKeyword($keyword, $project)) {
             return null;
         }
 
@@ -698,9 +701,18 @@ class SemrushCsvImporter
         return preg_match('/^[+\-]?\d[\d\s\x{202F}\x{00A0}.,]*%?$/u', $value) === 1;
     }
 
-    private function isValidKeyword(string $value): bool
+    private function isValidKeyword(string $value, SeoProject $project): bool
     {
-        return $this->looksLikeKeywordToken($value);
+        if (!$this->looksLikeKeywordToken($value)) {
+            return false;
+        }
+
+        // Rejeter les mots-clés qui mentionnent des marques/logiciels inventés par l'IA
+        if ($this->competitors->unknownCompetitorMentions($project, $value) !== []) {
+            return false;
+        }
+
+        return true;
     }
 
     private function cleanKeyword(string $value): string

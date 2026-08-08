@@ -54,6 +54,7 @@ RÈGLES BLOQUANTES :
 - Les requêtes doivent avoir un fort potentiel de volume de recherche.
 - N'inclus aucune longue traîne spécifique (pas de questions).
 - Assure-toi que les thématiques couvrent tout le périmètre fonctionnel du produit (ex: si le produit fait devis, factures, et CRM, donne des seeds pour ces trois domaines).
+- N'INVENTE JAMAIS de noms de logiciels B2B fictifs (ex: pas de "InvoiceMaster", "QuickBill", "AccountPro"). Limite-toi aux mots génériques ou aux marques RÉELLES très connues si pertinent.
 PROMPT;
 
         $response = $this->request()->post($this->endpoint(), [
