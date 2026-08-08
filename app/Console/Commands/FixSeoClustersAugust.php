@@ -55,11 +55,12 @@ class FixSeoClustersAugust extends Command
                     'canonical_article_id' => $pillar->id,
                     'duplicate_status' => 'merged',
                 ]);
-                $duplicate->delete(); // Soft delete
+                // Removed $duplicate->delete() to avoid hard deleting the article from the DB
+                // since the Article model does not use SoftDeletes.
 
                 $this->line("  -> Fusionné et redirigé (301) : /{$slug} vers /{$pillarSlug}");
             } else {
-                $this->warn("  -> Doublon non trouvé : /{$slug}");
+                $this->warn("  -> Doublon non trouvé : /{$slug} (déjà supprimé ou archivé)");
             }
         }
         $this->line("Attention : 'ouvrir-compte-bancaire-professionnel-ligne' (spécial SASU) n'a pas été touché, comme demandé.");
@@ -73,20 +74,23 @@ class FixSeoClustersAugust extends Command
         $correctPillarSlug = 'blog-guides-generaux-comptabilite-sci';
 
         $wrongPillar = Article::where('slug', $wrongPillarSlug)->first();
-        $correctPillar = Article::withTrashed()->where('slug', $correctPillarSlug)->first();
+        $correctPillar = Article::where('slug', $correctPillarSlug)->first();
 
-        if (!$correctPillar) {
-            $this->warn("- Impossible de trouver le bon pilier SCI (même dans la corbeille) : /{$correctPillarSlug}");
+        if (!$wrongPillar && !$correctPillar) {
+            $this->warn("- Ni le mauvais pilier ni le bon pilier ne sont trouvés.");
             return;
         }
 
-        if ($wrongPillar) {
-            // Restore correct pillar
-            if ($correctPillar->trashed()) {
-                $correctPillar->restore();
-            }
-
-            // Update correct pillar with content from wrong pillar
+        if ($wrongPillar && !$correctPillar) {
+            $this->info("- Le bon pilier a été hard-delete. Recréation à partir du contenu actuel...");
+            $correctPillar = $wrongPillar->replicate();
+            $correctPillar->slug = $correctPillarSlug;
+            $correctPillar->canonical_article_id = null;
+            $correctPillar->duplicate_status = null;
+            $correctPillar->status = 'published';
+            $correctPillar->save();
+        } elseif ($wrongPillar && $correctPillar) {
+            // S'il existe déjà, on le met juste à jour
             $correctPillar->update([
                 'title' => $wrongPillar->title ?? $correctPillar->title,
                 'body' => $wrongPillar->body ?? $correctPillar->body,
@@ -96,42 +100,46 @@ class FixSeoClustersAugust extends Command
                 'canonical_article_id' => null,
                 'duplicate_status' => null,
             ]);
+        }
 
+        if ($correctPillar) {
             // Check if there was a redirect from correctPillar to wrongPillar and remove it
             $fromPathCorrect = parse_url($correctPillar->public_path, PHP_URL_PATH);
             Redirect::where('from_path', $fromPathCorrect)->delete();
 
-            // Create redirect from wrongPillar to correctPillar
-            $fromPathWrong = parse_url($wrongPillar->public_path, PHP_URL_PATH);
-            $toPathCorrect = parse_url($correctPillar->public_path, PHP_URL_PATH);
-            
-            Redirect::updateOrCreate(
-                ['from_path' => $fromPathWrong],
-                ['to_path' => $toPathCorrect, 'status_code' => 301, 'active' => true]
-            );
-
-            // Update the previous duplicate redirect if it exists
-            $oldDuplicate = Article::withTrashed()->where('slug', 'gerer-comptabilite-dune-sci-logiciel')->first();
-            if ($oldDuplicate) {
-                $fromPathOldDuplicate = parse_url($oldDuplicate->public_path, PHP_URL_PATH);
+            if ($wrongPillar) {
+                // Create redirect from wrongPillar to correctPillar
+                $fromPathWrong = parse_url($wrongPillar->public_path, PHP_URL_PATH);
+                $toPathCorrect = parse_url($correctPillar->public_path, PHP_URL_PATH);
+                
                 Redirect::updateOrCreate(
-                    ['from_path' => $fromPathOldDuplicate],
+                    ['from_path' => $fromPathWrong],
                     ['to_path' => $toPathCorrect, 'status_code' => 301, 'active' => true]
                 );
-                $oldDuplicate->update(['canonical_article_id' => $correctPillar->id]);
+
+                // Archive the wrong pillar without hard deleting it
+                $wrongPillar->update([
+                    'status' => 'archived',
+                    'canonical_article_id' => $correctPillar->id,
+                    'duplicate_status' => 'merged',
+                ]);
+
+                $this->line("  -> Fusion inversée : /{$wrongPillarSlug} redirige vers /{$correctPillarSlug}");
             }
 
-            // Archive and delete the wrong pillar
-            $wrongPillar->update([
-                'status' => 'archived',
-                'canonical_article_id' => $correctPillar->id,
-                'duplicate_status' => 'merged',
-            ]);
-            $wrongPillar->delete();
-
-            $this->line("  -> Fusion inversée : /{$wrongPillarSlug} redirige vers /{$correctPillarSlug}");
-        } else {
-            $this->warn("- Le mauvais pilier /{$wrongPillarSlug} n'existe plus en base (déjà corrigé ?)");
+            // Update the previous duplicate redirect if it exists
+            // Since it was hard deleted, it won't be in the DB, but we can check if a Redirect exists for it
+            // The old duplicate was 'gerer-comptabilite-dune-sci-logiciel'
+            // We just create/update the redirect to point to the new correct pillar
+            // Fake an article to get its expected path:
+            $dummyArticle = new Article(['type' => 'blog', 'slug' => 'gerer-comptabilite-dune-sci-logiciel']);
+            $fromPathOldDuplicate = parse_url($dummyArticle->public_path, PHP_URL_PATH);
+            
+            Redirect::updateOrCreate(
+                ['from_path' => $fromPathOldDuplicate],
+                ['to_path' => parse_url($correctPillar->public_path, PHP_URL_PATH), 'status_code' => 301, 'active' => true]
+            );
+            $this->line("  -> Redirection de l'ancien doublon (gerer-comptabilite-dune-sci-logiciel) mise à jour.");
         }
     }
 }
