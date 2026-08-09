@@ -37,6 +37,22 @@ class SeoProject extends Model
         return $this->screenshot_path ? asset('storage/' . $this->screenshot_path) : null;
     }
 
+    public function getLogoUrlAttribute(): string
+    {
+        if (!$this->website_url) {
+            return '';
+        }
+        
+        $host = parse_url($this->website_url, PHP_URL_HOST);
+        if (!$host) {
+            return '';
+        }
+        
+        $host = preg_replace('/^www\./', '', $host);
+        
+        return "https://logo.clearbit.com/{$host}";
+    }
+
     public function sourcePages(): HasMany
     {
         return $this->hasMany(SourcePage::class);

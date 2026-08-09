@@ -66,7 +66,9 @@
     <header class="review-header">
         <div>
             <div class="review-title-block">
-                <div class="review-logo">{{ strtoupper(substr($tool->name, 0, 1)) }}</div>
+                <div class="review-logo" style="padding: 0; overflow: hidden; background: white; border: 1px solid var(--tool-border);">
+                    <img src="{{ $tool->logo_url }}" alt="Logo {{ $tool->name }}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.outerHTML='<span>{{ strtoupper(substr($tool->name, 0, 1)) }}</span>'">
+                </div>
                 <div>
                     <h1 class="review-title">Avis {{ ucfirst($tool->name) }}</h1>
                     <div class="review-stars">

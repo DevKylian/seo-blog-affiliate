@@ -10,6 +10,7 @@
             'slug' => 'indy',
             'name' => 'Indy',
             'logo' => 'I',
+            'domain' => 'indy.fr',
             'price' => 'Gratuit',
             'isFree' => true,
             'hasIa' => true,
@@ -26,6 +27,7 @@
             'slug' => 'dougs',
             'name' => 'Dougs',
             'logo' => 'D',
+            'domain' => 'dougs.fr',
             'price' => '49€ / mois',
             'isFree' => false,
             'hasIa' => false,
@@ -42,6 +44,7 @@
             'slug' => 'pennylane',
             'name' => 'Pennylane',
             'logo' => 'P',
+            'domain' => 'pennylane.com',
             'price' => '14€ / mois',
             'isFree' => false,
             'hasIa' => true,
@@ -58,6 +61,7 @@
             'slug' => 'tiime',
             'name' => 'Tiime',
             'logo' => 'T',
+            'domain' => 'tiime.fr',
             'price' => 'Gratuit (Fact.)',
             'isFree' => true,
             'hasIa' => true,
@@ -74,6 +78,7 @@
             'slug' => 'abby',
             'name' => 'Abby',
             'logo' => 'A',
+            'domain' => 'abby.fr',
             'price' => 'Gratuit',
             'isFree' => true,
             'hasIa' => false,
@@ -139,7 +144,9 @@
                     <th>Fonctionnalités</th>
                     @foreach($comparisonData as $t)
                         <th class="brand-col" x-show="isVisible('{{ $t['slug'] }}')">
-                            <div class="compare-brand-logo">{{ $t['logo'] }}</div>
+                            <div class="compare-brand-logo" style="padding: 0; overflow: hidden; background: white;">
+                                <img src="https://logo.clearbit.com/{{ $t['domain'] }}" alt="{{ $t['name'] }}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.outerHTML='<span>{{ $t['logo'] }}</span>'">
+                            </div>
                             <a href="{{ route('tools.show', $t['slug']) }}" style="color:var(--tool-primary);text-decoration:none;">{{ $t['name'] }}</a>
                         </th>
                     @endforeach
