@@ -116,7 +116,7 @@
 
     <div class="article-layout">
         <div class="article-main">
-            @if($article->project->screenshot_url)
+            @if(request()->is('outils/*') && $article->project->screenshot_url)
                 <div class="article-hero-image" style="margin-bottom: 3rem; display: flex; justify-content: center;">
                     <img src="{{ $article->project->screenshot_url }}" alt="Interface de {{ $article->project->name }}" style="width: 100%; border-radius: 16px; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.15); display: block; border: 1px solid #e2e8f0;" loading="eager">
                 </div>
