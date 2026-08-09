@@ -315,6 +315,14 @@ final class EditorialPlanBuilder
             return $this->reject('weak_angle', $competitorIssue);
         }
 
+        if ($neutralityIssue = $this->informationalNeutralityIssue($project, $blueprint)) {
+            return $this->reject('weak_angle', $neutralityIssue);
+        }
+
+        if ($placeholderIssue = $this->placeholderIssue($project, $blueprint)) {
+            return $this->reject('weak_angle', $placeholderIssue);
+        }
+
         $sourceCoverage = $this->sourceCoverage($project);
         if ($sourceCoverage < 40) {
             return $this->reject('source_gap', 'Les sources vérifiées ne couvrent pas suffisamment ce sujet.', $sourceCoverage);
@@ -697,6 +705,31 @@ final class EditorialPlanBuilder
             ->pluck('fingerprint');
 
         return $articles->merge($ideas)->filter()->unique()->values()->all();
+    }
+
+    private function informationalNeutralityIssue(SeoProject $project, array $blueprint): ?string
+    {
+        if (($blueprint['content_type'] ?? '') !== 'informational') {
+            return null;
+        }
+
+        $title = $blueprint['title'] ?? '';
+        if (preg_match('/\b(?:meilleurs?|recommandé|top\s*\d+|vs|comparatif|avis|alternative|choisir|remplacer)\b/iu', $title)) {
+            return 'Un contenu "informational" (pilier) doit rester neutre dans son titre. Les termes commerciaux ou comparatifs sont interdits.';
+        }
+
+        return null;
+    }
+
+    private function placeholderIssue(SeoProject $project, array $blueprint): ?string
+    {
+        $text = ($blueprint['title'] ?? '') . ' ' . ($blueprint['angle'] ?? '') . ' ' . ($blueprint['unique_promise'] ?? '');
+        
+        if (preg_match('/(?:notre outil|notre produit|\{\{)/iu', $text)) {
+            return 'Le nom de la marque doit être explicite. Les termes génériques ("notre outil", "{{...}}") sont interdits.';
+        }
+
+        return null;
     }
 
     /**

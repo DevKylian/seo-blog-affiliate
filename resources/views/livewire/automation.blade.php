@@ -98,6 +98,34 @@
                             <button class="danger" type="button" wire:click="cancelPlan" wire:loading.attr="disabled" wire:confirm="Annuler cette planification et supprimer ces angles ? Vous pourrez relancer une analyse avec d'autres consignes.">Annuler et recommencer</button>
                         </div>
                     </div>
+                    @php
+                        $centralCount = 0;
+                        $interceptionCount = 0;
+                        if ($project) {
+                            $projectName = strtolower($project->name);
+                            foreach($plan->ideas->where('status', 'accepted') as $idea) {
+                                $text = strtolower($idea->title . ' ' . $idea->primary_keyword . ' ' . $idea->angle . ' ' . $idea->unique_promise);
+                                if (str_contains($text, $projectName)) {
+                                    $centralCount++;
+                                } else {
+                                    $interceptionCount++;
+                                }
+                            }
+                        }
+                    @endphp
+                    @if($project && $plan->accepted_count > 0)
+                    <div style="margin-bottom: 16px; padding: 10px 14px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 13px; display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <strong style="color: #334155;">Répartition stratégique :</strong>
+                            <span style="color: #0369a1; font-weight: 600; margin-left: 8px;">{{ $centralCount }} centrées {{ $project->name }}</span>
+                            <span style="color: #94a3b8; margin: 0 4px;">/</span>
+                            <span style="color: #ca8a04; font-weight: 600;">{{ $interceptionCount }} interception pure</span>
+                        </div>
+                        <div style="font-size: 11px; color: #64748b;">
+                            Ratio : {{ round(($centralCount / $plan->accepted_count) * 100) }}% {{ $project->name }}
+                        </div>
+                    </div>
+                    @endif
                     <button class="launch-button" wire:click="launchRun" wire:loading.attr="disabled" type="button" @disabled($plan->accepted_count !== $plan->requested_count)><span>✦</span><div><strong>Générer les {{ $plan->requested_count }} articles</strong><small>La rédaction suit uniquement les briefs verrouillés ci-dessous.</small></div><b>→</b></button>
                 @elseif($plan && $plan->status === 'failed')
                     <div class="run-progress">
