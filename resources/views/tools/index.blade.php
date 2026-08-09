@@ -145,7 +145,7 @@
                     @foreach($comparisonData as $t)
                         <th class="brand-col" x-show="isVisible('{{ $t['slug'] }}')">
                             <div class="compare-brand-logo" style="padding: 0; overflow: hidden; background: white;">
-                                <img src="https://logo.clearbit.com/{{ $t['domain'] }}" alt="{{ $t['name'] }}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.outerHTML='<span>{{ $t['logo'] }}</span>'">
+                                <img src="https://www.google.com/s2/favicons?domain={{ $t['domain'] }}&sz=128" alt="{{ $t['name'] }}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.outerHTML='<span>{{ $t['logo'] }}</span>'">
                             </div>
                             <a href="{{ route('tools.show', $t['slug']) }}" style="color:var(--tool-primary);text-decoration:none;">{{ $t['name'] }}</a>
                         </th>
