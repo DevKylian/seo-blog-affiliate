@@ -685,6 +685,49 @@ TEXT;
         );
     }
 
+    public function fixPlaceholders(Article $article): bool
+    {
+        if (!str_contains((string) $article->body, '[À VÉRIFIER PAR LE RÉDACTEUR]')) {
+            return true;
+        }
+
+        $prompt = <<<PROMPT
+Voici un article généré contenant des placeholders `[À VÉRIFIER PAR LE RÉDACTEUR]`.
+Ta mission est de nettoyer cet article de façon experte. Tu dois remplacer ces mentions par des données factuelles exactes issues de tes connaissances si tu en es 100% sûr. 
+Si la donnée spécifique n'est pas disponible, reformule gracieusement la phrase pour qu'elle reste fluide, juste, et qu'elle masque l'absence de la donnée, sans jamais utiliser de placeholders.
+Renvoie uniquement le contenu final en Markdown. Ne renvoie AUCUN commentaire avant ou après, uniquement le Markdown corrigé.
+
+ARTICLE À CORRIGER :
+{$article->body}
+PROMPT;
+
+        $response = $this->request()->post($this->endpoint(), [
+            'contents' => [['parts' => [['text' => $prompt]]]],
+            'generationConfig' => [
+                'temperature' => 0.2,
+            ],
+        ]);
+
+        if (!$response->successful()) {
+            return false;
+        }
+
+        $correctedBody = trim((string) $response->json('candidates.0.content.parts.0.text'));
+        if ($correctedBody) {
+            // Strip markdown block quotes if Gemini wraps it
+            if (str_starts_with($correctedBody, '```markdown')) {
+                $correctedBody = preg_replace('/^```markdown\s*/', '', $correctedBody);
+                $correctedBody = preg_replace('/\s*```$/', '', $correctedBody);
+            }
+            
+            $article->body = trim($correctedBody);
+            $article->save();
+            return !str_contains($article->body, '[À VÉRIFIER PAR LE RÉDACTEUR]');
+        }
+
+        return false;
+    }
+
     public function testConnection(?string $key = null, ?string $model = null): bool
     {
         $response = $this->request($key)->post($this->endpoint($model), [

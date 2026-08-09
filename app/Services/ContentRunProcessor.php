@@ -130,9 +130,29 @@ final class ContentRunProcessor
             $hasPlaceholder = str_contains($fullText, '[À VÉRIFIER PAR LE RÉDACTEUR]');
 
             if ($hasPlaceholder) {
-                $article->update([
-                    'status' => 'review',
-                ]);
+                try {
+                    $resolved = $this->generator->fixPlaceholders($article);
+                    if (!$resolved) {
+                        $article->update([
+                            'status' => 'review',
+                        ]);
+                    }
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Erreur lors de la repasse IA pour les placeholders', ['exception' => $e->getMessage()]);
+                    $article->update([
+                        'status' => 'review',
+                    ]);
+                }
+                
+                // Re-check after the attempt
+                $article->refresh();
+                $contentString = is_array($article->content_blocks) ? json_encode($article->content_blocks, JSON_UNESCAPED_UNICODE) : (string) $article->content_blocks;
+                $fullText = $contentString . ' ' . (string) $article->body . ' ' . $article->title . ' ' . $article->excerpt . ' ' . $article->meta_title . ' ' . $article->meta_description;
+                $hasPlaceholder = str_contains($fullText, '[À VÉRIFIER PAR LE RÉDACTEUR]');
+            }
+
+            if ($hasPlaceholder) {
+                // If it STILL has placeholders, we skip publication
             } elseif ($run->publication_days > 0) {
                 $gapInMinutes = (int) round(($run->publication_days * 24 * 60) / max(1, $run->requested_count));
                 $latestDate = \App\Models\Article::query()
