@@ -680,6 +680,8 @@ class Automation extends Component
             $this->instructions = "Objectif : Trafic de Masse & Interception. Ce sont des requêtes navigationnelles. L'angle de l'article doit être l'interception de trafic (ex: faire un avis détaillé, proposer des alternatives, décrypter l'offre). Le ton doit être analytique et comparatif.\nCONTRAINTE DE RIGUEUR : Le brief produit doit exiger du rédacteur une vérification stricte des prix et fonctionnalités à la date de publication." . $diversity;
         } elseif ($type === 'question') {
             $this->instructions = "Objectif : Articles Question / Tutoriel (How-to). Répondre directement aux questions des utilisateurs ('Comment faire XXX avec YYY ?', 'Comment configurer/utiliser XXX ?', 'Quelle méthode pour...'). \nCONTRAINTE STRICTE : Tu DOIS utiliser la valeur 'question' pour le champ content_type. Rédige un guide pas à pas ultra-pratique avec réponse directe Featured Snippet dès l'introduction, étapes chronologiques numérotées, application pratique, pièges à éviter et synthèse finale." . $diversity;
+        } elseif ($type === 'combinatorial') {
+            $this->instructions = "Objectif : Expansion combinatoire (Libre, pas limité aux mots-clés stricts). Générer des sujets de type alternatives, comparatifs ou cas d'usage croisés.\nCONTRAINTE ANTI SCALED ABUSE : Chaque page générée DOIT apporter une valeur différenciée. Tu dois imposer dans le brief au moins 3 éléments factuels propres au produit (positionnement prix, fonctionnalité phare, avis). Interdiction totale de produire des briefs qui se contenteraient de reformuler un même patron générique en changeant juste le nom du concurrent. Le contenu doit être unique et justifiable pour Google." . $diversity;
         }
     }
 

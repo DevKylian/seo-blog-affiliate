@@ -596,7 +596,7 @@ final class EditorialDuplicateDetector
 
     private function fingerprint(array $blueprint): string
     {
-        return implode('|', [
+        $fingerprint = implode('|', [
             $blueprint['entity'],
             $blueprint['topic'],
             $blueprint['intent'],
@@ -604,6 +604,8 @@ final class EditorialDuplicateDetector
             $blueprint['audience'],
             $this->topics->key((string) ($blueprint['expected_outcome'] ?? '')),
         ]);
+
+        return mb_substr($fingerprint, 0, 250);
     }
 
     private function blueprintRepresentation(array $blueprint): string
