@@ -79,6 +79,11 @@
             <p style="font-size: 18px; line-height: 1.6; color: var(--tool-muted); margin-bottom: 24px;">
                 {{ $tool->description ?? 'Découvrez notre analyse détaillée de ce logiciel pour gérer votre activité.' }}
             </p>
+            @if($tool->screenshot_url)
+                <div class="tool-screenshot" style="margin-top: 32px;">
+                    <img src="{{ $tool->screenshot_url }}" alt="Interface de {{ $tool->name }}" style="width: 100%; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid var(--tool-border);" loading="eager">
+                </div>
+            @endif
         </div>
         
         <!-- CTA Card -->
