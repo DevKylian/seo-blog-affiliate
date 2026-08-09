@@ -34,7 +34,7 @@ class SeoProject extends Model
 
     public function getScreenshotUrlAttribute(): ?string
     {
-        return $this->screenshot_path ? \Illuminate\Support\Facades\Storage::disk('public')->url($this->screenshot_path) : null;
+        return $this->screenshot_path ? asset('storage/' . $this->screenshot_path) : null;
     }
 
     public function sourcePages(): HasMany
