@@ -143,11 +143,13 @@
                 <tr>
                     <th>Fonctionnalités</th>
                     @foreach($comparisonData as $t)
-                        <th class="brand-col" x-show="isVisible('{{ $t['slug'] }}')">
-                            <div class="compare-brand-logo" style="padding: 0; overflow: hidden; background: white;">
-                                <img src="https://www.google.com/s2/favicons?domain={{ $t['domain'] }}&sz=128" alt="{{ $t['name'] }}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.outerHTML='<span>{{ $t['logo'] }}</span>'">
-                            </div>
-                            <a href="{{ route('tools.show', $t['slug']) }}" style="color:var(--tool-primary);text-decoration:none;">{{ $t['name'] }}</a>
+                        <th class="brand-col" x-show="isVisible('{{ $t['slug'] }}')" style="text-align: center; vertical-align: top;">
+                            <a href="{{ route('tools.show', $t['slug']) }}" style="color:var(--tool-primary); text-decoration:none; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                                <div class="compare-brand-logo" style="padding: 0; overflow: hidden; background: white; margin: 0 auto;">
+                                    <img src="https://www.google.com/s2/favicons?domain={{ $t['domain'] }}&sz=128" alt="{{ $t['name'] }}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.outerHTML='<span>{{ $t['logo'] }}</span>'">
+                                </div>
+                                <span>{{ $t['name'] }}</span>
+                            </a>
                         </th>
                     @endforeach
                 </tr>
