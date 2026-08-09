@@ -723,10 +723,18 @@ final class EditorialPlanBuilder
 
     private function placeholderIssue(SeoProject $project, array $blueprint): ?string
     {
-        $text = ($blueprint['title'] ?? '') . ' ' . ($blueprint['angle'] ?? '') . ' ' . ($blueprint['unique_promise'] ?? '');
+        $text = mb_strtolower(implode(' ', array_filter([
+            $blueprint['title'] ?? '',
+            $blueprint['angle'] ?? '',
+            $blueprint['unique_promise'] ?? '',
+            $blueprint['problem'] ?? '',
+            $blueprint['expected_outcome'] ?? '',
+            $blueprint['intent'] ?? '',
+            implode(' ', $blueprint['outline'] ?? []),
+        ])));
         
-        if (preg_match('/(?:notre outil|notre produit|\{\{)/iu', $text)) {
-            return 'Le nom de la marque doit être explicite. Les termes génériques ("notre outil", "{{...}}") sont interdits.';
+        if (preg_match('/(?:notre outil|notre produit|\{\{|\[insérer|\[nom|\[marque)/iu', $text)) {
+            return 'Le nom de la marque doit être explicite. Les termes génériques ("notre outil", "{{...}}", "[Insérer]") sont interdits dans tous les champs du blueprint.';
         }
 
         return null;
