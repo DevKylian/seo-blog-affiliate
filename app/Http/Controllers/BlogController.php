@@ -139,9 +139,8 @@ class BlogController extends Controller
             if (auth()->check()) {
                 return $this->preview($draftArticle);
             }
-            // Auto-publish draft/review article if user visits the direct URL
-            $draftArticle->update(['status' => 'published', 'published_at' => now()]);
-            return view('blog.show', ['article' => $draftArticle]);
+            
+            abort(404);
         }
 
         $normalizedSlug = str_replace('-', ' ', $slug);
