@@ -126,7 +126,8 @@ final class ContentRunProcessor
             }
 
             $contentString = is_array($article->content_blocks) ? json_encode($article->content_blocks, JSON_UNESCAPED_UNICODE) : (string) $article->content_blocks;
-            $hasPlaceholder = str_contains($contentString, '[À VÉRIFIER PAR LE RÉDACTEUR]') || str_contains((string) $article->body, '[À VÉRIFIER PAR LE RÉDACTEUR]');
+            $fullText = $contentString . ' ' . (string) $article->body . ' ' . $article->title . ' ' . $article->excerpt . ' ' . $article->meta_title . ' ' . $article->meta_description;
+            $hasPlaceholder = str_contains($fullText, '[À VÉRIFIER PAR LE RÉDACTEUR]');
 
             if ($hasPlaceholder) {
                 $article->update([
