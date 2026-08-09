@@ -385,7 +385,7 @@ final class EditorialPlanBuilder
         }
 
         if ($type === 'best_tools') {
-            $promisesSeveralTools = preg_match('/\b(?:[2-9]|[1-9][0-9]+)\b|\b(?:meilleurs?|sélection|top)\b/iu', $title) === 1;
+            $promisesSeveralTools = preg_match('/\b(?:[2-9]|[1-9][0-9]+)\b|\b(?:meilleurs?|sélection|top|plus\s+utilisés|outils|logiciels|solutions)\b/iu', $title) === 1 || substr_count($title, ',') >= 1 || str_contains(mb_strtolower($title), ' et ');
             if (! $promisesSeveralTools) {
                 return 'Une sélection de meilleurs outils doit annoncer plusieurs solutions ; un titre mono-produit doit utiliser le type test ou guide.';
             }
