@@ -541,7 +541,7 @@ final class EditorialPlanBuilder
         }
 
         $closest = $keywords->sortByDesc(fn (Keyword $keyword) => $this->duplicates->similarity($keyword->keyword, $value))->first();
-        if ($closest && $this->duplicates->similarity($closest->keyword, $value) >= .25) {
+        if ($closest && $this->duplicates->similarity($closest->keyword, $value) >= .65) {
             return $closest;
         }
 

@@ -30,6 +30,6 @@ return [
         'Boursorama', 'Crédit Agricole', 'La Banque Postale', 'Revolut', 'CMB', 'Caisse d\'Épargne', 'La Poste',
     ],
     'other' => [
-        'Indy', 'Ciel', 'Free Pro',
+        'Indy', 'Ciel', 'Free Pro', 'Excel', 'Google Sheets',
     ],
 ];
