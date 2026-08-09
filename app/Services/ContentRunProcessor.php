@@ -125,7 +125,14 @@ final class ContentRunProcessor
                 $article = $this->generator->generate($run->project, $item->content_type, $item->keyword, $instructions);
             }
 
-            if ($run->publication_days > 0) {
+            $contentString = is_array($article->content_blocks) ? json_encode($article->content_blocks, JSON_UNESCAPED_UNICODE) : (string) $article->content_blocks;
+            $hasPlaceholder = str_contains($contentString, '[À VÉRIFIER PAR LE RÉDACTEUR]') || str_contains((string) $article->body, '[À VÉRIFIER PAR LE RÉDACTEUR]');
+
+            if ($hasPlaceholder) {
+                $article->update([
+                    'status' => 'review',
+                ]);
+            } elseif ($run->publication_days > 0) {
                 $gapInMinutes = (int) round(($run->publication_days * 24 * 60) / max(1, $run->requested_count));
                 $latestDate = \App\Models\Article::query()
                     ->where('seo_project_id', $run->seo_project_id)
