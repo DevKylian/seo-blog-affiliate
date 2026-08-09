@@ -242,7 +242,6 @@ final class EditorialDuplicateDetector
         // création du premier article rendait celui-ci invisible aux suivants.
         $articles = Article::query()
             ->with(['project', 'keyword', 'brief'])
-            ->where('seo_project_id', $project->id)
             ->whereIn('status', ['draft', 'review', 'scheduled', 'published'])
             ->when($ignoreArticleId, fn ($query) => $query->whereKeyNot($ignoreArticleId))
             ->get();

@@ -103,7 +103,7 @@ final class EditorialPlanBuilder
         }
 
         $priorIdeas = EditorialIdea::query()
-            ->whereHas('plan', fn ($query) => $query->where('seo_project_id', $project->id)->whereKeyNot($plan->id))
+            ->whereHas('plan', fn ($query) => $query->whereKeyNot($plan->id))
             ->where(fn ($query) => $this->reusableEditorialIdeas($query))
             ->with('closestArticle')
             ->get();
@@ -699,8 +699,8 @@ final class EditorialPlanBuilder
 
     private function existingFingerprints(SeoProject $project): array
     {
-        $articles = $project->articles()->whereIn('status', ['draft', 'review', 'scheduled', 'published'])->pluck('topic_fingerprint')->filter();
-        $ideas = EditorialIdea::query()->whereHas('plan', fn ($query) => $query->where('seo_project_id', $project->id))
+        $articles = Article::query()->whereIn('status', ['draft', 'review', 'scheduled', 'published'])->pluck('topic_fingerprint')->filter();
+        $ideas = EditorialIdea::query()
             ->where(fn ($query) => $this->reusableEditorialIdeas($query))
             ->pluck('fingerprint');
 
