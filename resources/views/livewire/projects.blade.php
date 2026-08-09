@@ -27,6 +27,22 @@
             <div class="field full"><label>Concurrents reels (un par ligne)</label><textarea wire:model="competitorsText" rows="4" placeholder="Pennylane&#10;Abby&#10;Freebe&#10;Henrri"></textarea><p class="field-help">Utilise pour les vrais comparatifs. Format accepte aussi : Abby | https://.../tarifs.</p></div>
             <div class="field full"><label>Pages tarifs concurrents</label><textarea wire:model="competitorPricingUrlsText" rows="3" placeholder="Abby | https://.../tarifs&#10;Freebe | https://.../tarifs"></textarea><p class="field-help">Collectees avec le meme pipeline que la page tarifs affiliee.</p></div>
             <div class="field"><label>Points forts (un par ligne)</label><textarea wire:model="strengthsText" rows="5"></textarea></div><div class="field"><label>Limites (une par ligne)</label><textarea wire:model="limitationsText" rows="5"></textarea></div>
+            <div class="field full">
+                <label>Capture d'écran de l'interface (Optionnel)</label>
+                <input type="file" wire:model="screenshot" accept="image/*">
+                <div wire:loading wire:target="screenshot">Téléchargement en cours...</div>
+                @if ($screenshot)
+                    <div style="margin-top: 10px;">
+                        <p>Aperçu (Nouvelle image) :</p>
+                        <img src="{{ $screenshot->temporaryUrl() }}" style="max-width: 200px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    </div>
+                @elseif($editingId && \App\Models\SeoProject::find($editingId)->screenshot_url)
+                    <div style="margin-top: 10px;">
+                        <p>Aperçu actuel :</p>
+                        <img src="{{ \App\Models\SeoProject::find($editingId)->screenshot_url }}" style="max-width: 200px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    </div>
+                @endif
+            </div>
             <button class="primary-button form-submit" type="submit"><span wire:loading.remove wire:target="createProject">{{ $editingId ? 'Enregistrer les modifications' : 'Créer le projet' }} →</span><span wire:loading wire:target="createProject">Enregistrement…</span></button>
         </form>
     </details>

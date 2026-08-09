@@ -9,11 +9,13 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.admin')]
 class Projects extends Component
 {
     use WithBulkSelection;
+    use WithFileUploads;
 
     public ?int $editingId = null;
 
@@ -46,6 +48,8 @@ class Projects extends Component
     public string $competitorsText = '';
 
     public string $competitorPricingUrlsText = '';
+    
+    public $screenshot;
 
     public string $message = '';
 
@@ -69,6 +73,7 @@ class Projects extends Component
             'currency' => ['required', 'string', 'size:3'],
             'competitorsText' => ['nullable', 'string', 'max:5000'],
             'competitorPricingUrlsText' => ['nullable', 'string', 'max:10000'],
+            'screenshot' => ['nullable', 'image', 'max:2048'], // 2MB Max
         ]);
         
         $faq = collect(preg_split('/\R/', $this->faqText))->map(fn ($line) => trim($line))->filter()
@@ -103,9 +108,19 @@ class Projects extends Component
         } else {
             $project = SeoProject::query()->create(['slug' => $this->uniqueSlug($data['name']), ...$payload]);
         }
+        
+        if ($this->screenshot) {
+            // Delete old screenshot if it exists
+            if ($project->screenshot_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($project->screenshot_path);
+            }
+            $path = $this->screenshot->store('projects/screenshots', 'public');
+            $project->update(['screenshot_path' => $path]);
+        }
+        
         app(\App\Services\AffiliateSeoDefaults::class)->ensureForProject($project);
 
-        $this->reset(['editingId', 'name', 'websiteUrl', 'pricingUrl', 'affiliateUrl', 'description', 'positioning', 'featuresText', 'strengthsText', 'limitationsText', 'bestForText', 'faqText', 'competitorsText', 'competitorPricingUrlsText']);
+        $this->reset(['editingId', 'name', 'websiteUrl', 'pricingUrl', 'affiliateUrl', 'description', 'positioning', 'featuresText', 'strengthsText', 'limitationsText', 'bestForText', 'faqText', 'competitorsText', 'competitorPricingUrlsText', 'screenshot']);
         $this->message = 'Le projet a été enregistré. Vous pouvez maintenant collecter ses sources.';
     }
 

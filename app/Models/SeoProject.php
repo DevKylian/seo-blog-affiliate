@@ -12,6 +12,15 @@ class SeoProject extends Model
 
     protected $guarded = [];
 
+    protected static function booted(): void
+    {
+        static::deleting(function (SeoProject $project) {
+            if ($project->screenshot_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($project->screenshot_path);
+            }
+        });
+    }
+
     protected $casts = [
         'last_crawled_at' => 'datetime',
         'features' => 'array',
@@ -22,6 +31,11 @@ class SeoProject extends Model
         'competitors' => 'array',
         'competitor_pricing_urls' => 'array',
     ];
+
+    public function getScreenshotUrlAttribute(): ?string
+    {
+        return $this->screenshot_path ? \Illuminate\Support\Facades\Storage::disk('public')->url($this->screenshot_path) : null;
+    }
 
     public function sourcePages(): HasMany
     {
