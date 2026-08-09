@@ -200,7 +200,7 @@ TEXT;
     {
         $text = $this->key((string) $context);
 
-        return preg_match('/\b(?:btp|batiment|chantier|chantiers|travaux|artisan(?:s)?\s+batiment|construction)\b/u', $text) === 1
+        return preg_match('/\b(?:btp|batiment|chantier|chantiers|travaux|artisan(?:s)?(?:\s+(?:du|en))?\s+(?:batiment|btp)|construction)\b/u', $text) === 1
             && preg_match('/\b(?:logiciel|outils?|application|devis|factures?|facturation|comparatif|meilleurs?|solution)\b/u', $text) === 1;
     }
 
