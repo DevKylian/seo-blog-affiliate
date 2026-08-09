@@ -699,7 +699,7 @@ final class EditorialPlanBuilder
 
     private function existingFingerprints(SeoProject $project): array
     {
-        $articles = Article::query()->whereIn('status', ['draft', 'review', 'scheduled', 'published'])->pluck('topic_fingerprint')->filter();
+        $articles = \App\Models\Article::query()->whereIn('status', ['draft', 'review', 'scheduled', 'published'])->pluck('topic_fingerprint')->filter();
         $ideas = EditorialIdea::query()
             ->where(fn ($query) => $this->reusableEditorialIdeas($query))
             ->pluck('fingerprint');
