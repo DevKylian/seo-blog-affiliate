@@ -53,7 +53,7 @@ class EnhancedMarkdownParser
                 }
             }
             
-            $html .= "</div>\n";
+            $html .= "</div>\n\n";
             
             return $html;
         }, $markdown);
@@ -67,7 +67,7 @@ class EnhancedMarkdownParser
             return "<div class=\"blog-block quick-answer\">
                 <div class=\"block-header\">⚡ Réponse rapide</div>
                 <div class=\"block-content\">{$content}</div>
-            </div>";
+            </div>\n\n";
         }, $markdown);
 
         // takeaway block
@@ -76,7 +76,7 @@ class EnhancedMarkdownParser
             return "<div class=\"blog-block takeaway\">
                 <div class=\"block-header\">✅ En résumé</div>
                 <div class=\"block-content\">{$content}</div>
-            </div>";
+            </div>\n\n";
         }, $markdown);
 
         // case block
@@ -85,7 +85,7 @@ class EnhancedMarkdownParser
             return "<div class=\"blog-block concrete-case\">
                 <div class=\"block-header\">🎯 Cas concret</div>
                 <div class=\"block-content\">{$content}</div>
-            </div>";
+            </div>\n\n";
         }, $markdown);
 
         // faq block
@@ -106,7 +106,7 @@ class EnhancedMarkdownParser
                     </details>";
                 }
             }
-            $html .= '</div>';
+            $html .= '</div>' . "\n\n";
             return $html;
         }, $markdown);
 
