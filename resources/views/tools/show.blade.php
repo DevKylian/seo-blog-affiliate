@@ -87,7 +87,7 @@
         </div>
         
         <!-- CTA Card -->
-        <div class="review-cta-card">
+        <div class="review-cta-card" style="align-self: start; height: fit-content;">
             <div style="font-size: 24px; font-weight: 800; color: var(--tool-primary); margin-bottom: 16px;">
                 À partir de 0 € <span style="font-size: 14px; color: var(--tool-muted); font-weight: 400;">/mois</span>
             </div>
