@@ -18,6 +18,7 @@ final class GeminiEditorialIdeaGenerator
         SeoProject $project,
         Collection $keywords,
         Collection $strategicSubjects,
+        array $entityGapMatrix,
         int $desiredCount,
         array $excludedFingerprints = [],
         string $instructions = '',
@@ -47,6 +48,7 @@ final class GeminiEditorialIdeaGenerator
         $keywordsJson = json_encode($keywordData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         $strategicJson = json_encode($strategicSubjects->toArray(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         $excludedJson = json_encode(array_values(array_unique($excludedFingerprints)), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $matrixJson = json_encode($entityGapMatrix, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         $competitorDirective = app(CompetitorCatalog::class)->promptDirective($project);
         $publishedPillars = $project->articles()
             ->where('status', 'published')
@@ -102,6 +104,9 @@ ORIENTATIONS ET PRÉFÉRENCES (Le filtre déterministe côté code assurera la v
   * Banques pro : Qonto, Shine, BNP Paribas, Société Générale, LCL, Boursorama, Crédit Agricole, La Banque Postale, Revolut, CMB
   Ne propose jamais de titre générique type "les meilleures options" ou "alternatives à Indy" sans nommer précisément lequel de ces concurrents est comparé.
 
+- MATRICE ENTITÉS / GAPS (NOUVEAU) :
+  Avant de considérer qu'un sujet est épuisé, vérifie non seulement si le mot-clé a été utilisé, mais si l'ENTITÉ qu'il désigne a déjà son propre article dédié selon la matrice des entités fournie plus bas. Comble en priorité les cases vides (ex: si une marque n'a pas son 'vs Indy' ou son 'Avis complet'). Une marque citée uniquement dans des comparatifs n'a pas forcément sa page 'avis' dédiée — c'est un gap à combler !
+
 - COMPARATIFS DÉJÀ PUBLIÉS (INTERDICTION DE REPROPOSER CES PAIRES) :
   Indy vs Pennylane · Indy vs Dougs · Indy vs Abby
   Priorise activement les combinaisons encore inexplorées en comparatif direct avec Indy : Shine, Qonto, Tiime, Freebe, ainsi que les banques (BNP Paribas, Société Générale, LCL, Boursorama, Crédit Agricole, La Banque Postale, Revolut, CMB) et les outils BTP spécialisés.
@@ -137,6 +142,9 @@ Pour chaque idée, fournis un brief autonome au format JSON, structuré selon la
 
 Empreintes déjà couvertes ou refusées (fournies pour t'aider à t'orienter, sans bloquer ta créativité) :
 {$excludedJson}
+
+Matrice Entité/Gap (Marques croisées avec leurs formats déjà publiés) :
+{$matrixJson}
 
 Sujets Stratégiques (Knowledge Graph) :
 {$strategicJson}

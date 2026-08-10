@@ -123,11 +123,13 @@ final class EditorialPlanBuilder
         $desired = min(6, max(3, $missing));
         
         $strategicSubjects = $this->knowledgeGraph->generateSubjects($project);
+        $entityGapMatrix = $this->buildEntityGapMatrix($project);
 
         $rawIdeas = $this->generator->generate(
             $project,
             $generationKeywords->take(100)->values(),
             $strategicSubjects,
+            $entityGapMatrix,
             $desired,
             $excluded,
             (string) $plan->instructions,
@@ -242,12 +244,14 @@ final class EditorialPlanBuilder
         }
 
         $strategicSubjects = $this->knowledgeGraph->generateSubjects($project);
+        $entityGapMatrix = $this->buildEntityGapMatrix($project);
 
         for ($attempt = 1; $attempt <= 1; $attempt++) {
             $rawIdeas = $this->generator->generate(
                 $project,
                 $generationKeywords->take(100)->values(),
                 $strategicSubjects,
+                $entityGapMatrix,
                 3,
                 $excluded,
                 (string) $plan->instructions,
@@ -752,5 +756,66 @@ final class EditorialPlanBuilder
                 $rejected->where('status', 'rejected')
                     ->where('rejection_reason', 'like', 'Doublon retiré automatiquement%');
             });
+    }
+
+    private function buildEntityGapMatrix(SeoProject $project): array
+    {
+        $brandGroups = config('known_brands', []);
+        $brands = [];
+        foreach ($brandGroups as $group) {
+            $brands = array_merge($brands, $group);
+        }
+        $brands = array_unique($brands);
+
+        $articles = \App\Models\Article::query()
+            ->whereIn('status', ['published', 'scheduled'])
+            ->get(['title', 'type', 'slug']);
+        
+        $matrix = [];
+        foreach ($brands as $brand) {
+            $matrix[$brand] = [];
+        }
+
+        foreach ($articles as $article) {
+            $title = mb_strtolower((string) $article->title);
+            $slug = mb_strtolower((string) $article->slug);
+            
+            foreach ($brands as $brand) {
+                $brandLower = mb_strtolower($brand);
+                
+                // Vérifier si la marque est mentionnée dans le titre ou le slug
+                if (preg_match('/\b' . preg_quote($brandLower, '/') . '\b/iu', $title) || str_contains($slug, '-' . $brandLower) || str_contains($slug, $brandLower . '-')) {
+                    $format = $article->type;
+                    if ($format === 'review' || str_contains($slug, 'avis')) {
+                        $formatName = 'Avis complet';
+                    } elseif ($format === 'comparison' || str_contains($slug, '-vs-')) {
+                        $formatName = 'Comparatif (vs ' . (str_contains($title, mb_strtolower($project->name)) ? $project->name : 'Autre') . ')';
+                    } elseif ($format === 'pricing' || str_contains($slug, 'tarif') || str_contains($slug, 'prix')) {
+                        $formatName = 'Tarifs';
+                    } elseif ($format === 'alternatives') {
+                        $formatName = 'Alternatives';
+                    } else {
+                        $formatName = 'Guide/Autre';
+                    }
+                    
+                    if (!in_array($formatName, $matrix[$brand])) {
+                        $matrix[$brand][] = $formatName;
+                    }
+                }
+            }
+        }
+
+        // Filtrer les marques qui n'ont aucune page pour alléger le prompt,
+        // SAUF si c'est un concurrent déclaré du projet (on veut absolument combler leurs trous)
+        $competitors = array_map('mb_strtolower', $project->competitors ?? []);
+        
+        $result = [];
+        foreach ($matrix as $brand => $formats) {
+            if (!empty($formats) || in_array(mb_strtolower($brand), $competitors, true)) {
+                $result[$brand] = empty($formats) ? ['Aucun format publié'] : $formats;
+            }
+        }
+
+        return $result;
     }
 }
