@@ -1767,9 +1767,6 @@ TEXT;
             && (! $btpRequest || ($multiProductType && $hasCompetitorPricing))) {
             $blocks[] = ['type' => 'pricing_table', 'project_id' => $project->id, 'display' => 'monthly_and_yearly', 'version' => 'v5.4'];
         }
-        if (in_array($intentType, ['solution', 'money'], true)) {
-            $blocks[] = ['type' => 'affiliate_cta', 'position' => 'after_intro'];
-        }
         $blocks[] = ['type' => 'affiliate_disclosure'];
         $blocks[] = ['type' => 'last_verified', 'date' => ($verifiedAt ? Carbon::instance($verifiedAt) : now())->toDateString()];
 

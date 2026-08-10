@@ -43,7 +43,12 @@ class SeoProject extends Model
             return '';
         }
         
-        $host = parse_url($this->website_url, PHP_URL_HOST);
+        $url = $this->website_url;
+        if (!preg_match('#^https?://#i', $url)) {
+            $url = 'https://' . $url;
+        }
+        
+        $host = parse_url($url, PHP_URL_HOST);
         if (!$host) {
             return '';
         }

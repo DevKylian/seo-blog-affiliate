@@ -1,78 +1,29 @@
 <?php
-require 'vendor/autoload.php';
-$app = require_once 'bootstrap/app.php';
-$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
-$kernel->bootstrap();
+require __DIR__.'/vendor/autoload.php';
+$app = require_once __DIR__.'/bootstrap/app.php';
+$app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
-try {
-    $project = App\Models\SeoProject::first();
-    $gen = app(App\Services\GeminiSeedKeywordGenerator::class);
-    
-    $scrapedData = '';
-    $homepage = App\Models\SourcePage::query()
-        ->where('seo_project_id', $project->id)
-        ->where('type', 'homepage')
-        ->where('status', 'verified')
-        ->first();
+$builder = app(\App\Services\EditorialPlanBuilder::class);
+$reflection = new \ReflectionClass($builder);
+$method1 = $reflection->getMethod('informationalNeutralityIssue');
+$method1->setAccessible(true);
+$method2 = $reflection->getMethod('placeholderIssue');
+$method2->setAccessible(true);
 
-    if ($homepage) {
-        $scrapedData = $homepage->evidenceChunks()->take(15)->pluck('value')->implode("\n");
-    }
+$project = new \App\Models\SeoProject(['name' => 'Indy']);
 
-    $features = implode(', ', (array) $project->features);
-    $positioning = $project->positioning ?? '';
-    $name = $project->name;
-    $url = $project->website_url ?? $project->affiliate_url ?? '';
+$bp1 = ['content_type' => 'informational', 'title' => 'Le meilleur guide pour Indy'];
+echo "Neutrality Issue (meilleur): " . ($method1->invoke($builder, $project, $bp1) ?? 'NULL') . "\n";
 
-    $prompt = <<<PROMPT
-Tu es un expert SEO senior chargé de définir la stratégie de mots-clés d'un site d'affiliation B2B/SaaS.
-Ton objectif est de générer une liste de "Seed Keywords" (requêtes racines très courtes et larges) pertinents pour le projet suivant :
+$bp2 = ['content_type' => 'informational', 'title' => 'Guide complet sur la TVA'];
+echo "Neutrality Issue (guide): " . ($method1->invoke($builder, $project, $bp2) ?? 'NULL') . "\n";
 
-Nom du projet (Produit cible) : {$name}
-URL : {$url}
-Positionnement : {$positioning}
-Fonctionnalités clés : {$features}
+$bp3 = ['title' => 'Notre Outil est génial', 'angle' => '', 'unique_promise' => ''];
+echo "Placeholder Issue (Notre Outil): " . ($method2->invoke($builder, $project, $bp3) ?? 'NULL') . "\n";
 
-Données extraites du site (Optionnel) :
-{$scrapedData}
+$bp4 = ['title' => 'Comment {{brand}} aide', 'angle' => '', 'unique_promise' => ''];
+echo "Placeholder Issue ({{): " . ($method2->invoke($builder, $project, $bp4) ?? 'NULL') . "\n";
 
-À partir de ces informations, fournis exactement 10 termes de recherche larges (Seed Keywords) que je pourrai copier-coller dans l'outil de recherche de Semrush pour générer des idées de mots-clés de longue traîne.
-Exemples de Seed Keywords pertinents pour un outil comptable : "logiciel facturation", "comptabilité en ligne", "comparatif compte pro", "devis artisan", etc.
+$bp5 = ['title' => 'Indy est génial', 'angle' => '', 'unique_promise' => ''];
+echo "Placeholder Issue (Indy): " . ($method2->invoke($builder, $project, $bp5) ?? 'NULL') . "\n";
 
-RÈGLES BLOQUANTES :
-- Ne fournis QUE des requêtes racines courtes (1 à 3 mots, rarement 4).
-- Les requêtes doivent avoir un fort potentiel de volume de recherche.
-- N'inclus aucune longue traîne spécifique (pas de questions).
-- Assure-toi que les thématiques couvrent tout le périmètre fonctionnel du produit (ex: si le produit fait devis, factures, et CRM, donne des seeds pour ces trois domaines).
-PROMPT;
-
-    $key = App\Models\Setting::value('gemini_api_key', config('services.gemini.key'));
-
-    $response = Illuminate\Support\Facades\Http::withoutVerifying()->withHeaders([
-        'x-goog-api-key' => trim($key),
-        'Content-Type' => 'application/json',
-    ])->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', [
-        'contents' => [['role' => 'user', 'parts' => [['text' => $prompt]]]],
-        'generationConfig' => [
-            'temperature' => 0.7,
-            'maxOutputTokens' => 1024,
-            'responseMimeType' => 'application/json',
-            'responseJsonSchema' => [
-                'type' => 'object',
-                'properties' => [
-                    'seeds' => [
-                        'type' => 'array',
-                        'items' => ['type' => 'string'],
-                    ],
-                ],
-                'required' => ['seeds'],
-            ],
-        ],
-    ]);
-    
-    file_put_contents('debug_full.json', $response->body());
-    dump("Saved full response to debug_full.json");
-    
-} catch (\Throwable $e) {
-    dump("Error: " . $e->getMessage());
-}
