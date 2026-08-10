@@ -687,6 +687,18 @@ class Automation extends Component
                 "RÈGLE LISTICLES : Dans tout article de type guide comparatif multi-outils ou 'top X outils', le produit promu doit être positionné en première recommandation avec justification, sauf si le brief argumente explicitement pourquoi un concurrent serait objectivement plus adapté pour un cas d'usage précis — auquel cas il doit apparaître en alternative avec CTA.\n" .
                 "CONTRAINTE ANTI SCALED ABUSE : Chaque page générée DOIT apporter une valeur différenciée. Tu dois imposer dans le brief au moins 3 éléments factuels propres au produit (positionnement prix, fonctionnalité phare, avis). Interdiction totale de produire des briefs qui se contenteraient de reformuler un même patron générique en changeant juste le nom du concurrent. Le contenu doit être unique et justifiable pour Google.\n" .
                 "ATTENTION HALLUCINATIONS : Si tu ne disposes pas d'une donnée factuelle vérifiée pour un concurrent, indique [À VÉRIFIER PAR LE RÉDACTEUR] plutôt que de l'inventer." . $diversity;
+        } elseif ($type === 'priorities') {
+            $this->instructions = "Objectif : Combler les lacunes prioritaires identifiées (Gaps manuels).\n" .
+                "CONTRAINTE STRICTE : Tu dois générer UNIQUEMENT des idées qui correspondent aux priorités suivantes, en adaptant le content_type et l'angle de manière experte :\n" .
+                "- Un comparatif direct 'Indy vs Sage' (comparison, Level 5)\n" .
+                "- Un comparatif direct 'Indy vs EBP' (comparison, Level 5)\n" .
+                "- Un avis complet et dédié sur la banque 'Qonto' (tool_review, Level 2)\n" .
+                "- Un guide complet sur le thème 'Logiciel comptabilité agricole' (informational, Level 1)\n" .
+                "- Un tutoriel pratique 'Comment faire le lettrage comptable avec un logiciel ?' (question, Level 7)\n" .
+                "- Une sélection des meilleurs logiciels comptables pour 'freelance' (best_tools, Level 2)\n" .
+                "- Une sélection des meilleurs logiciels comptables pour 'micro-entreprise' (best_tools, Level 2)\n" .
+                "Si la quantité de contenus demandée dépasse ces 7 priorités, utilise le reste pour combler d'autres entités manquantes (ex: Tiime, Freebe) en te basant sur la Matrice Entité/Gap.\n" .
+                $diversity;
         }
     }
 

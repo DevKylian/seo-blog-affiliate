@@ -56,6 +56,7 @@
                             <button type="button" wire:click="setPreset('money')" style="background: #fce7f3; color: #db2777; border: 1px solid #fbcfe8; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;">Money Pages (Quick Wins)</button>
                             <button type="button" wire:click="setPreset('interception')" style="background: #fef9c3; color: #ca8a04; border: 1px solid #fef08a; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;">Trafic de masse (Interception)</button>
                             <button type="button" wire:click="setPreset('combinatorial')" style="background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;">Combinatoire / Masse sans mot-clé</button>
+                            <button type="button" wire:click="setPreset('priorities')" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;">Gaps Manuels (Priorités)</button>
                         </div>
                     </label>
                     <textarea wire:model="instructions" rows="4" placeholder="Ton expert accessible, audience PME, longueur souhaitée…"></textarea>
