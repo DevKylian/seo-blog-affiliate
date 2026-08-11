@@ -124,69 +124,22 @@ class UpdatePennylanePricingCommand extends Command
 
         $count = 0;
         foreach ($articles as $article) {
-            $modified = false;
-            
-            // Règles de remplacement prudentes
-            $replacements = [
-                // Dépôt de capital
-                '/Dépôt de capital.*?(?:69|69\s*€|69€)/ui' => 'Dépôt de capital à 1 € HT (avec un abonnement Pennylane)',
-                '/69\s*€\s*pour\s*le\s*dépôt\s*de\s*capital/ui' => '1 € HT pour le dépôt de capital',
-                
-                // TPE
-                '/TPE.*?à partir de\s*(?:99|99\s*€|99€)/ui' => 'TPE à partir de 89€',
-                
-                // Starter plan
-                '/Starter.*?(?:14|14\s*€|14€)/ui' => 'Starter (7 € HT/mois)',
-                
-                // Pricing "à partir de"
-                '/à partir de 14\s*€/ui' => 'à partir de 7 €',
-                '/dès 14\s*€/ui' => 'dès 7 €',
-            ];
-
-            // 1. Process Body
-            if (!empty($article->body)) {
-                $newBody = $article->body;
-                foreach ($replacements as $pattern => $replacement) {
-                    $newBody = preg_replace($pattern, $replacement, $newBody);
-                }
-                if ($newBody !== $article->body) {
-                    $article->body = $newBody;
-                    $modified = true;
-                }
-            }
-
-            // 2. Process Content Blocks (JSON)
-            if (is_array($article->content_blocks)) {
-                $newBlocks = $article->content_blocks;
-                $blocksModified = false;
-                
-                array_walk_recursive($newBlocks, function (&$value, $key) use ($replacements, &$blocksModified) {
-                    if (is_string($value)) {
-                        $original = $value;
-                        foreach ($replacements as $pattern => $replacement) {
-                            $value = preg_replace($pattern, $replacement, $value);
-                        }
-                        if ($original !== $value) {
-                            $blocksModified = true;
-                        }
-                    }
-                });
-
-                if ($blocksModified) {
-                    $article->content_blocks = $newBlocks;
-                    $modified = true;
-                }
-            }
-            
-            if ($modified) {
-                // Remove verified_at to force re-verification if needed
-                $article->verified_at = null;
-                $article->save();
-                $count++;
-            }
+            \App\Models\ContentRefreshTask::firstOrCreate([
+                'article_id' => $article->id,
+                'reason' => 'Mise à jour des tarifs et offres Pennylane 2026',
+                'status' => 'queued',
+            ], [
+                'seo_project_id' => $article->seo_project_id,
+                'priority' => 80,
+                'scheduled_at' => now(),
+                'payload' => [
+                    'context' => 'Update Pennylane pricing: Starter 7€, Basique 14€, Essentiel 24€, Premium 79€. TPE 89€. Dépôt capital 1€.'
+                ]
+            ]);
+            $count++;
         }
 
-        $this->info("✔️  {$count} articles ont été mis à jour dans leur contenu (body/content_blocks).");
-        $this->info("ℹ️  Note : " . $articles->count() . " articles au total parlent de Pennylane. Pensez à relancer des audits de contenu ou rafraîchissements si nécessaire.");
+        $this->info("✔️  {$count} articles ont été mis en file d'attente pour un rafraîchissement de contenu (ContentRefreshTask).");
+        $this->info("ℹ️  Note : L'IA va repasser sur ces articles pour corriger les prix automatiquement.");
     }
 }
