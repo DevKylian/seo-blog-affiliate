@@ -28,7 +28,6 @@ final class SearchEngineIndexingService
     {
         return [
             ...$this->submitSitemapToGoogle($reason),
-            ...$this->submitUrlToIndexNow($this->sitemapUrl(), null, $reason.'_sitemap_hint'),
         ];
     }
 
@@ -123,7 +122,7 @@ final class SearchEngineIndexingService
                 .rawurlencode($siteUrl)
                 .'/sitemaps/'
                 .rawurlencode($sitemap);
-            $response = Http::timeout(10)->withToken($token)->put($endpoint);
+            $response = Http::timeout(10)->withToken($token)->send('PUT', $endpoint);
 
             return [$this->recordResponse('google_search_console', 'sitemap', $sitemap, $response, $article, ['reason' => $reason])->toArray()];
         } catch (Throwable $exception) {
