@@ -74,6 +74,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/', Dashboard::class)->name('admin.dashboard');
     Route::get('/automation', Automation::class)->name('admin.automation');
     Route::get('/scheduler', ContentSchedulerDashboard::class)->name('admin.scheduler');
+    Route::get('/editorial-pipeline', \App\Livewire\Admin\EditorialPipelineDashboard::class)->name('admin.editorial-pipeline');
+    Route::get('/editorial-pipeline/{id}', \App\Livewire\Admin\EditorialPipelineShow::class)->name('admin.editorial-pipeline.show');
     Route::get('/projects', Projects::class)->name('admin.projects');
     Route::get('/research', Research::class)->name('admin.research');
     Route::get('/keywords', Keywords::class)->name('admin.keywords');

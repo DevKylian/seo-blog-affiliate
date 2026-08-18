@@ -316,7 +316,7 @@
                                     <input type="checkbox" wire:model.live="selectedIds" value="{{ $recent->id }}" aria-label="Sélectionner {{ $recent->name }}">
                                 </td>
                                 <td><strong class="table-title">{{ $recent->name }}</strong></td>
-                                <td><span style="display: inline-block; padding: 3px 8px; border-radius: 6px; background: #1e293b; color: #94a3b8; font-size: 11px; font-weight: 600;">{{ $recent->project->name }}</span></td>
+                                <td><span style="display: inline-block; padding: 3px 8px; border-radius: 6px; background: #1e293b; color: #94a3b8; font-size: 11px; font-weight: 600;">{{ $recent->project?->name ?? 'Projet supprimé' }}</span></td>
                                 <td style="text-align: center;">
                                     <span class="state-badge {{ $recent->status }}">
                                         {{ match($recent->status) {

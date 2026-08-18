@@ -204,6 +204,24 @@
 
                 <p class="field-help">Ces données alimentent SEO Intelligence : gaps, refreshs, CTR et briefs anti-doublon.</p>
             </section>
+
+            <section class="panel settings-provider-card">
+                <header>
+                    <div>
+                        <span class="settings-kicker">Brave</span>
+                        <h2>Brave Search</h2>
+                    </div>
+                    <span class="connection-state connected">
+                        <i></i>Manuel
+                    </span>
+                </header>
+
+                <p style="margin-bottom: 15px; font-size: 14px; color: var(--os-text-muted);">Soumettez vos nouvelles pages manuellement sur le moteur de recherche Brave.</p>
+                
+                <div style="margin-top: auto; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.05);">
+                    <a href="https://search.brave.com/submit-url" target="_blank" rel="noopener" class="secondary-button" style="text-decoration: none; text-align: center; display: block; width: 100%; box-sizing: border-box;">Soumettre une URL ↗</a>
+                </div>
+            </section>
         </div>
 
         <div class="settings-action-bar">
