@@ -15,7 +15,9 @@ use Throwable;
 #[Layout('layouts.admin')]
 class Articles extends Component
 {
-    use WithBulkSelection, WithPagination;\n\n    protected $listeners = ['articlesImported' => '$refresh'];
+    use WithBulkSelection, WithPagination;
+
+    protected $listeners = ['articlesImported' => '$refresh'];
 
     public string $search = '';
 
