@@ -2,11 +2,7 @@
     <h3 style="margin-top: 0; font-size: 1.1rem; color: #1e293b;">Importer des articles générés (.md)</h3>
     <form wire:submit="importFiles" style="display: flex; align-items: center; gap: 15px;">
         
-        <select wire:model="projectId" style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px; background: white;">
-            @foreach($projects as $project)
-                <option value="{{ $project->id }}">{{ $project->name }}</option>
-            @endforeach
-        </select>
+        
     
         <input type="file" wire:model="markdownFiles" multiple accept=".md" style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px; background: white;">
         

@@ -22,8 +22,6 @@ class ArticleEditor extends Component
 {
     public ?Article $article = null;
 
-    public ?int $projectId = null;
-
     public string $title = '';
 
     public ?string $thumbnailTitle = null;
@@ -74,12 +72,8 @@ class ArticleEditor extends Component
     {
         $this->article = $article?->exists ? $article->load(['categories', 'tags', 'tools']) : null;
         if (! $this->article) {
-            $this->projectId = SeoProject::query()->value('id');
-            $this->toolIds = $this->projectId ? [(string) $this->projectId] : [];
-
             return;
         }
-        $this->projectId = $this->article->seo_project_id;
         foreach (['title', 'slug', 'excerpt', 'body', 'status', 'type'] as $field) {
             $this->{$field} = (string) $this->article->{$field};
         }
@@ -112,7 +106,6 @@ class ArticleEditor extends Component
     {
         $this->body = $sanitizer->sanitize($this->body);
         $this->validate([
-            'projectId' => ['required', 'exists:seo_projects,id'],
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['required', 'alpha_dash', 'max:255', Rule::unique('articles', 'slug')->ignore($this->article?->id), function ($attribute, $value, $fail): void {
                 if ($this->looksLikeDuplicateNumericSlug((string) $value)) {
@@ -134,7 +127,7 @@ class ArticleEditor extends Component
             'excludedTopicsText' => ['nullable', 'string', 'max:3000'],
         ]);
 
-        $project = SeoProject::query()->findOrFail($this->projectId);
+        $project = new \App\Models\SeoProject();
         $virtualKeyword = new Keyword(['keyword' => $this->primaryKeyword ?: $this->title, 'intent' => $this->searchIntent]);
         $blueprint = $duplicates->blueprint($project, $virtualKeyword, $this->type);
         $blueprint = $duplicates->customizeBlueprint(
@@ -169,10 +162,6 @@ class ArticleEditor extends Component
         
         $blocks[] = ['type' => 'markdown', 'content' => $this->body];
         
-        if ($this->includePricing) {
-            $blocks[] = ['type' => 'pricing_table', 'project_id' => $this->projectId, 'display' => 'monthly_and_yearly'];
-        }
-        
         if ($ctaBlocks->count() > 1) {
             $blocks[] = ['type' => 'affiliate_cta', 'position' => 'after_intro']; // Force bottom CTA to use after_intro style
         }
@@ -181,7 +170,6 @@ class ArticleEditor extends Component
         $blocks[] = ['type' => 'last_verified', 'date' => now()->toDateString()];
 
         $data = [
-            'seo_project_id' => $this->projectId,
             'author_id' => auth()->id(),
             'title' => $this->title,
             'slug' => $this->slug,
@@ -223,7 +211,7 @@ class ArticleEditor extends Component
             return Tag::query()->firstOrCreate(['slug' => Str::slug($tag)], ['name' => $tag])->id;
         })->all();
         $this->article->tags()->sync($tagIds);
-        $this->article->tools()->sync(collect($this->toolIds)->mapWithKeys(fn ($id) => [$id => ['role' => ((int) $id === (int) $this->projectId ? 'featured' : 'compared')]])->all());
+        $this->article->tools()->sync(collect($this->toolIds)->mapWithKeys(fn ($id) => [$id => ['role' => 'compared']])->all());
         $audit = $audits->audit($this->article->fresh());
         if (in_array($this->status, ['published', 'scheduled'], true) && $audit->status === 'blocked') {
             $this->article->update([
@@ -240,7 +228,6 @@ class ArticleEditor extends Component
         }
 
         if ($this->article->status === 'published') {
-            $links->refreshProject($this->article->seo_project_id);
             try {
                 $indexing->launch($this->article->id);
             } catch (\Throwable $exception) {
@@ -295,7 +282,7 @@ class ArticleEditor extends Component
     public function render()
     {
         return view('livewire.article-editor', [
-            'projects' => SeoProject::query()->orderBy('name')->get(),
+            
             'versions' => $this->article?->versions()->latest('version')->limit(10)->get() ?? collect(),
         ])->title($this->article ? 'Modifier l’article' : 'Nouvel article');
     }

@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 class MarkdownImportService
 {
-    public function import(string $content, int $projectId): Article
+    public function import(string $content): Article
     {
         $yaml = [];
         $body = $content;
@@ -65,7 +65,6 @@ class MarkdownImportService
         }
 
         $article = Article::create([
-            'seo_project_id' => $projectId,
             'title' => $title,
             'slug' => $slug,
             'body' => trim($body),
