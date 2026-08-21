@@ -1,6 +1,13 @@
 <div style="background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px dashed #cbd5e1; margin-bottom: 20px;">
     <h3 style="margin-top: 0; font-size: 1.1rem; color: #1e293b;">Importer des articles générés (.md)</h3>
     <form wire:submit="importFiles" style="display: flex; align-items: center; gap: 15px;">
+        
+        <select wire:model="projectId" style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px; background: white;">
+            @foreach($projects as $project)
+                <option value="{{ $project->id }}">{{ $project->name }}</option>
+            @endforeach
+        </select>
+    
         <input type="file" wire:model="markdownFiles" multiple accept=".md" style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px; background: white;">
         
         <button type="submit" style="background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600;" wire:loading.attr="disabled">

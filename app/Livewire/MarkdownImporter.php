@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Services\MarkdownImportService;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use App\Models\SeoProject;
 
 class MarkdownImporter extends Component
 {
@@ -12,6 +13,11 @@ class MarkdownImporter extends Component
 
     public $markdownFiles = [];
     public $message = '';
+    public $projectId;
+
+    public function mount() {
+        $this->projectId = SeoProject::first()->id ?? null;
+    }
 
     public function importFiles(MarkdownImportService $service)
     {
@@ -22,7 +28,7 @@ class MarkdownImporter extends Component
         $count = 0;
         foreach ($this->markdownFiles as $file) {
             $content = file_get_contents($file->getRealPath());
-            $service->import($content);
+            $service->import($content, $this->projectId);
             $count++;
         }
 
@@ -35,6 +41,6 @@ class MarkdownImporter extends Component
 
     public function render()
     {
-        return view('livewire.markdown-importer');
+        return view('livewire.markdown-importer', ['projects' => SeoProject::orderBy('name')->get()]);
     }
 }
