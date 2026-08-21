@@ -7,7 +7,6 @@ use App\Models\Article;
 use App\Models\Keyword;
 use App\Models\SeoProject;
 use App\Models\Setting;
-use App\Models\SourcePage;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -19,7 +18,6 @@ class Dashboard extends Component
         return view('livewire.dashboard', [
             'stats' => [
                 'projects' => SeoProject::count(),
-                'sources' => SourcePage::where('status', 'verified')->count(),
                 'keywords' => Keyword::count(),
                 'articles' => Article::count(),
             ],

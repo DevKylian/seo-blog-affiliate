@@ -12,15 +12,7 @@ class Article extends Model
 {
     protected $guarded = [];
 
-    protected static function booted(): void
-    {
-        static::updated(function (Article $article) {
-            if ($article->wasChanged('status') && $article->status === 'published') {
-                app(\App\Services\InternalLinkService::class)->refreshProject($article->seo_project_id);
-                app(\App\Services\InternalLinkService::class)->refresh($article);
-            }
-        });
-    }
+    
 
     protected $casts = [
         'source_ids' => 'array',

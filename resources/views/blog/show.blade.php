@@ -94,11 +94,7 @@
             </div>
             <div class="meta-item">
                 <span class="meta-icon">📚</span>
-                <div>
-                    <strong>Sources vérifiées</strong>
-                    <span>{{ $article->sources->count() }} références</span>
                 </div>
-            </div>
             
         </div>
     </div>

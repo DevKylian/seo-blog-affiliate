@@ -42,14 +42,6 @@ class ArticleEditor extends Component
 
     public string $searchIntent = '';
 
-    public string $contentAngle = '';
-
-    public string $editorialAudience = '';
-
-    public string $uniquePromise = '';
-
-    public string $excludedTopicsText = '';
-
     public string $type = 'informational';
 
     public string $status = 'draft';
@@ -63,8 +55,6 @@ class ArticleEditor extends Component
     public array $toolIds = [];
 
     public bool $includePricing = false;
-
-    public string $changeNote = '';
 
     public string $message = '';
 
@@ -84,10 +74,6 @@ class ArticleEditor extends Component
         $this->canonicalUrl = (string) $this->article->canonical_url;
         $this->primaryKeyword = (string) $this->article->primary_keyword;
         $this->searchIntent = (string) $this->article->search_intent;
-        $this->contentAngle = (string) $this->article->content_angle;
-        $this->editorialAudience = (string) $this->article->editorial_audience;
-        $this->uniquePromise = (string) $this->article->unique_promise;
-        $this->excludedTopicsText = implode("\n", $this->article->excluded_topics ?? []);
         $this->scheduledAt = $this->article->scheduled_at?->format('Y-m-d\TH:i') ?? '';
         $this->categoryName = (string) $this->article->categories->first()?->name;
         $this->tagsText = $this->article->tags->pluck('name')->implode(', ');
@@ -142,15 +128,7 @@ class ArticleEditor extends Component
         $hasDuplicateWarning = $similarArticle && $duplicateAnalysis['decision'] !== 'allow';
 
         if ($this->article) {
-            $this->article->versions()->create([
-                'user_id' => auth()->id(),
-                'version' => ($this->article->versions()->max('version') ?? 0) + 1,
-                'title' => $this->article->title,
-                'body' => $this->article->body,
-                'content_blocks' => $this->article->content_blocks,
-                'change_note' => $this->changeNote ?: 'Modification éditoriale',
-            ]);
-        }
+            }
 
         $existingBlocks = $this->article?->content_blocks ?? [];
         $ctaBlocks = collect($existingBlocks)->filter(fn($b) => ($b['type'] ?? '') === 'affiliate_cta')->values();
@@ -283,7 +261,7 @@ class ArticleEditor extends Component
     {
         return view('livewire.article-editor', [
             
-            'versions' => $this->article?->versions()->latest('version')->limit(10)->get() ?? collect(),
+            
         ])->title($this->article ? 'Modifier l’article' : 'Nouvel article');
     }
 
