@@ -93,8 +93,12 @@
                 </div>
             </div>
             <div class="meta-item">
-                <span class="meta-icon">📚</span>
+                <span class="meta-icon">👨‍💻</span>
+                <div>
+                    <strong>Auteur</strong>
+                    <span>Kylian Dev.</span>
                 </div>
+            </div>
             
         </div>
     </div>
@@ -131,6 +135,22 @@
 
         </div>
     </div>
+
+    
+    <!-- Encart Auteur (SEO EEAT) -->
+    <section class="hp-author-block" style="margin-top: 60px; margin-bottom: 20px;">
+        <div class="hp-author-avatar" style="font-size: 48px;">👨‍💻</div>
+        <div class="hp-author-info">
+            <div style="font-size:12px; font-weight:700; color:var(--home-muted); margin-bottom:4px; text-transform:uppercase; letter-spacing:1px;">L'Expert derrière BusinessKit</div>
+            <h3>Kylian Dev.</h3>
+            <p style="margin: 8px 0; line-height: 1.6; color: #475569;">Créateur de BusinessKit, développeur Laravel et indépendant. Je teste, compare et analyse les logiciels destinés aux freelances et petites entreprises afin de proposer des recommandations transparentes et régulièrement mises à jour.</p>
+            <div class="hp-author-tags">
+                <span class="hp-author-tag">Basé en France</span>
+                <span class="hp-author-tag">Spécialiste outils SaaS</span>
+                <a href="{{ route('author.show') }}" style="font-size:13px; font-weight:700; color:var(--home-accent); text-decoration:none; margin-left:8px; align-self:center;">Voir la méthodologie complète ↗</a>
+            </div>
+        </div>
+    </section>
 
     <section class="article-end-panel" aria-label="Informations editoriales">
         @if($footerBlocks)
