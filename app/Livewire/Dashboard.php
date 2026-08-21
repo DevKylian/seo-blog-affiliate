@@ -24,7 +24,7 @@ class Dashboard extends Component
                 'articles' => Article::count(),
             ],
             'projects' => SeoProject::query()->withCount(['sourcePages', 'keywords'])->latest()->limit(5)->get(),
-            'articles' => Article::query()->->latest()->limit(5)->get(),
+            'articles' => Article::query()->latest()->limit(5)->get(),
             'logs' => AdminAccessLog::query()->with('user')->latest('created_at')->limit(5)->get(),
             'hasApiKey' => (bool) Setting::value('gemini_api_key', config('services.gemini.key')),
         ])->title('Tableau de bord');
