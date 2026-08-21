@@ -23,6 +23,8 @@ class Articles extends Component
 
     public string $status = '';
 
+    public string $typeFilter = '';
+
     public string $duplicateFilter = '';
 
     public bool $massView = false;
@@ -51,6 +53,12 @@ class Articles extends Component
     }
 
     public function updatedSearch(): void
+    {
+        $this->resetPage();
+        $this->resetBulkSelection();
+    }
+
+    public function updatedTypeFilter(): void
     {
         $this->resetPage();
         $this->resetBulkSelection();
@@ -174,6 +182,7 @@ class Articles extends Component
         return Article::query()
             ->when($this->search, fn ($query) => $query->where('title', 'like', '%'.$this->search.'%'))
             ->when($this->status, fn ($query) => $query->where('status', $this->status))
+            ->when($this->typeFilter, fn ($query) => $query->where('type', $this->typeFilter))
             ->when($this->duplicateFilter === 'potential', fn ($query) => $query->whereIn('duplicate_status', ['potential', 'needs_differentiation']))
             ->when($this->duplicateFilter === 'merged', fn ($query) => $query->where('duplicate_status', 'merged'))
             ->when($this->duplicateFilter === 'ignored', fn ($query) => $query->where('duplicate_status', 'ignored'))

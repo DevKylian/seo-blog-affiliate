@@ -48,6 +48,7 @@ Route::get('/alternatives/{slug}', [BlogController::class, 'alternatives'])->nam
 Route::get('/meilleurs-outils/{slug}', [BlogController::class, 'bestTools'])->name('best-tools.show');
 Route::get('/avis/{slug}', [BlogController::class, 'review'])->name('reviews.show');
 Route::get('/guides/{slug}', [BlogController::class, 'guide'])->name('guides.show');
+Route::get('/hubs/{slug}', [BlogController::class, 'show'])->name('hubs.show');
 Route::get('/categorie/{slug}', [BlogController::class, 'show'])->name('blog.category');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/go/{project:slug}', AffiliateRedirectController::class)->name('affiliate.redirect');

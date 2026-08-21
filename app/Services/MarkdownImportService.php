@@ -68,6 +68,7 @@ class MarkdownImportService
 
         $article = Article::create([
             'title' => $title,
+            'type' => strtolower($yaml['type'] ?? 'article'),
             'slug' => $slug,
             'body' => trim($body),
             'content_blocks' => $blocks,
