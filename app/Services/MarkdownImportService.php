@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\Article;
+use App\Models\Category;
+use App\Models\Tag;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
@@ -74,7 +76,34 @@ class MarkdownImportService
             'published_at' => $status === 'published' ? $scheduledAt : null,
             'search_intent' => $yaml['intention'] ?? null,
             'primary_keyword' => $yaml['mot-cle'] ?? null,
+            'meta_title' => $yaml['meta-title'] ?? null,
+            'meta_description' => $yaml['meta-description'] ?? null,
         ]);
+
+        // Attachement de la catégorie (silo)
+        if (!empty($yaml['silo'])) {
+            $categoryName = trim($yaml['silo']);
+            $category = Category::query()->firstOrCreate(
+                ['slug' => Str::slug($categoryName)],
+                ['name' => $categoryName]
+            );
+            $article->categories()->sync([$category->id]);
+        }
+
+        // Attachement des tags
+        if (!empty($yaml['tags'])) {
+            $tagIds = collect(explode(',', $yaml['tags']))
+                ->map(fn ($tag) => trim($tag))
+                ->filter()
+                ->unique()
+                ->map(function ($tag) {
+                    return Tag::query()->firstOrCreate(
+                        ['slug' => Str::slug($tag)],
+                        ['name' => $tag]
+                    )->id;
+                })->all();
+            $article->tags()->sync($tagIds);
+        }
 
         return $article;
     }
