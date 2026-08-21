@@ -18,6 +18,7 @@ class Dashboard extends Component
         return view('livewire.dashboard', [
             'stats' => [
                 'projects' => SeoProject::count(),
+                'sources' => \App\Models\SourcePage::count(),
                 'keywords' => Keyword::count(),
                 'articles' => Article::count(),
             ],

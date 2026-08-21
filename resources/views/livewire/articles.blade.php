@@ -19,7 +19,8 @@
                     <span>Aujourd'hui</span>
                 </button>
                 <select wire:model.live="duplicateFilter"><option value="">Tous les contenus</option><option value="potential">Doublons potentiels</option><option value="merged">Doublons fusionnés</option><option value="ignored">Exceptions ignorées</option></select>
-                <select wire:model.live="status"><option value="">Tous les statuts</option><option value="draft">Brouillon</option><option value="review">À relire</option><option value="scheduled">Programmé</option><option value="published">Publié</option><option value="archived">Archivé</option></select>
+                <select wire:model.live="typeFilter"><option value="">Tous les types</option><option value="article">Article classique</option><option value="pilier">Page Pilier (Hub)</option><option value="guide">Guide</option><option value="review">Avis</option><option value="comparison">Comparatif</option></select>
+<select wire:model.live="status"><option value="">Tous les statuts</option><option value="draft">Brouillon</option><option value="review">À relire</option><option value="scheduled">Programmé</option><option value="published">Publié</option><option value="archived">Archivé</option></select>
                 <div class="search-box"><span>⌕</span><input wire:model.live.debounce.300ms="search" type="search" placeholder="Rechercher…"></div>
             </div>
         </div>
