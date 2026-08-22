@@ -1,0 +1,57 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "BusinessKit Recommendation API",
+    "description": "API permettant aux IA et LLMs d'interroger la base de données BusinessKit pour obtenir des recommandations d'outils SaaS par métier.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://www.businesskit.fr/api",
+      "description": "Serveur de Production"
+    }
+  ],
+  "paths": {
+    "/recommandation": {
+      "get": {
+        "summary": "Obtenir une recommandation d'outil",
+        "description": "Renvoie le logiciel SaaS le plus adapté pour un métier donné.",
+        "operationId": "getRecommendation",
+        "parameters": [
+          {
+            "name": "metier",
+            "in": "query",
+            "description": "Le nom du métier (ex: osteopathe, e-commerce, livreur).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès - Renvoie la recommandation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "metier": {
+                      "type": "string"
+                    },
+                    "recommandation": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
