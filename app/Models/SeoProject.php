@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class SeoProject extends Model
 {
@@ -88,9 +89,9 @@ class SeoProject extends Model
         return $this->hasMany(ContentCluster::class);
     }
 
-    public function articles(): HasMany
+    public function articles(): BelongsToMany
     {
-        return $this->hasMany(Article::class);
+        return $this->belongsToMany(Article::class, 'article_tool')->withPivot('role');
     }
 
     public function contentRuns(): HasMany
