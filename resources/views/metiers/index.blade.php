@@ -102,7 +102,7 @@
                         </div>
                     </div>
 
-                    <div style="margin-bottom: 24px; flex-grow: 1;">
+                    <div style="margin-bottom: 24px;">
                         <p style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px; margin-bottom: 8px;">Besoins Spécifiques</p>
                         <ul style="margin: 0; padding-left: 16px; color: #334155; font-size: 13px;">
                             <template x-for="besoin in job.besoins_specifiques">
@@ -111,7 +111,7 @@
                         </ul>
                     </div>
 
-                    <div :style="`background: ${getToolColor(job.outils_recommandes[0]?.nom).bg}; border: 1px solid ${getToolColor(job.outils_recommandes[0]?.nom).border}; border-radius: 12px; padding: 16px; position: relative; display: flex; flex-direction: column; height: 100%;`">
+                    <div :style="`background: ${getToolColor(job.outils_recommandes[0]?.nom).bg}; border: 1px solid ${getToolColor(job.outils_recommandes[0]?.nom).border}; border-radius: 12px; padding: 16px; position: relative; display: flex; flex-direction: column; flex-grow: 1;`">
                         <div :style="`position: absolute; top: -10px; right: 16px; background: ${getToolColor(job.outils_recommandes[0]?.nom).badge}; color: white; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.5px;`">Recommandé</div>
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
                             <span :style="`color: ${getToolColor(job.outils_recommandes[0]?.nom).badge};`"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg></span>
@@ -122,7 +122,7 @@
                         <a :href="getAffiliateLink(job.outils_recommandes[0]?.nom)" target="_blank" rel="sponsored nofollow"
                            :style="`display: block; width: 100%; text-align: center; background: ${getToolColor(job.outils_recommandes[0]?.nom).badge}; color: white; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none; transition: opacity 0.2s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);`"
                            onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
-                            Accéder à l'outil →
+                            Essayer gratuitement →
                         </a>
                     </div>
 
@@ -163,14 +163,14 @@
             },
 
             getToolColor(toolName) {
-                if (!toolName) return { bg: '#eff6ff', border: '#bfdbfe', text: '#1e3a8a', badge: '#2563eb' };
+                if (!toolName) return { bg: '#f8fafc', border: '#e2e8f0', text: '#0f172a', badge: '#64748b' };
                 const name = toolName.toLowerCase();
-                if (name.includes('indy')) return { bg: '#eff6ff', border: '#bfdbfe', text: '#1e3a8a', badge: '#005fef' };
-                if (name.includes('pennylane')) return { bg: '#f0fdf4', border: '#bbf7d0', text: '#14532d', badge: '#16a34a' };
-                if (name.includes('dougs')) return { bg: '#fff1f2', border: '#fecdd3', text: '#881337', badge: '#e11d48' };
-                if (name.includes('tiime')) return { bg: '#fdf4ff', border: '#f5d0fe', text: '#701a75', badge: '#c026d3' };
-                if (name.includes('abby')) return { bg: '#f5f3ff', border: '#ede9fe', text: '#4c1d95', badge: '#7c3aed' };
-                return { bg: '#eff6ff', border: '#bfdbfe', text: '#1e3a8a', badge: '#2563eb' };
+                if (name.includes('indy')) return { bg: '#fff1f2', border: '#fecdd3', text: '#881337', badge: '#f43f5e' }; // Rose
+                if (name.includes('pennylane')) return { bg: '#ecfdf5', border: '#a7f3d0', text: '#064e3b', badge: '#10b981' }; // Vert
+                if (name.includes('abby')) return { bg: '#eff6ff', border: '#bfdbfe', text: '#1e3a8a', badge: '#1d4ed8' }; // Bleu foncé
+                if (name.includes('dougs')) return { bg: '#f5f3ff', border: '#ede9fe', text: '#4c1d95', badge: '#8b5cf6' }; // Violet
+                if (name.includes('tiime')) return { bg: '#fdf4ff', border: '#f5d0fe', text: '#701a75', badge: '#c026d3' }; // Fuchsia
+                return { bg: '#f8fafc', border: '#e2e8f0', text: '#0f172a', badge: '#64748b' };
             },
             getAffiliateLink(toolName) {
                 if (!toolName) return '#';
