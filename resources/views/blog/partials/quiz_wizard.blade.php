@@ -1,5 +1,5 @@
     <!-- Super-Wizard (AlpineJS) V2 (Maintenant juste sous le Hero) -->
-    <div class="hp-wizard" x-data="softwareWizardV2()" id="wizard">
+    <div class="hp-wizard" x-data="softwareWizardV2()" id="wizard" style="{{ isset($isArticle) && $isArticle ? 'margin-top: 20px; margin-bottom: 40px; border-top: none;' : '' }}">
         
         <!-- Écran d'accueil du comparateur -->
         <div x-show="step === 0" style="text-align:center; padding: 12px 0;">

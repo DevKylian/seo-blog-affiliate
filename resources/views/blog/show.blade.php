@@ -109,7 +109,7 @@
     <div class="article-layout">
         <div class="article-main">
 
-            @include('blog.partials.quiz_wizard')
+            @include('blog.partials.quiz_wizard', ['isArticle' => true])
             @include('blog.partials.ai_summary_buttons')
 
             @include('blog.partials.blocks', ['blocks' => $mainBlocks])
