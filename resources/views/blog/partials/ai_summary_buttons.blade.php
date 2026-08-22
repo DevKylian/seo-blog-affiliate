@@ -1,4 +1,4 @@
-﻿<style>
+<style>
 .ai-summary-bar {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
