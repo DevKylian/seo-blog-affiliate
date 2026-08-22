@@ -484,8 +484,7 @@
                     <img src="{{ route('og-image', $article->id) }}" alt="{{ $article->title }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px 16px 0 0;" loading="lazy">
                 </div>
                 <div style="padding: 24px; display: flex; flex-direction: column; flex-grow: 1;">
-                    <div class="hp-card-header" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; align-items: flex-start; text-align: left;">
-                        <span class="hp-card-category" style="font-weight: 600; font-size: 13px;">{{ $article->categories->first()->name ?? 'Comparatif' }}</span>
+                    <div class="hp-card-header" style="margin-bottom: 12px;">
                         <span class="hp-card-date" style="color: #64748b; font-size: 12px;">{{ $article->updated_at->format('M Y') }}</span>
                     </div>
                     <div class="hp-card-title">{{ $article->title }}</div>
@@ -503,8 +502,7 @@
                         <img src="{{ route('og-image', $article->id) }}" alt="{{ $article->title }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px 16px 0 0;" loading="lazy">
                     </div>
                     <div style="padding: 24px; display: flex; flex-direction: column; flex-grow: 1;">
-                        <div class="hp-card-header" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; align-items: flex-start; text-align: left;">
-                        <span class="hp-card-category" style="font-weight: 600; font-size: 13px;">{{ $article->categories->first()->name ?? 'Guide' }}</span>
+                        <div class="hp-card-header" style="margin-bottom: 12px;">
                         <span class="hp-card-date" style="color: #64748b; font-size: 12px;">{{ $article->updated_at->format('M Y') }}</span>
                     </div>
                         <div class="hp-card-title">{{ $article->title }}</div>
