@@ -1,64 +1,6 @@
     <!-- Super-Wizard (AlpineJS) V2 (Maintenant juste sous le Hero) -->
     <div class="hp-wizard" x-data="softwareWizardV2()" id="wizard" style="{{ isset($isArticle) && $isArticle ? 'margin-top: 20px; margin-bottom: 40px; border-top: none;' : '' }}">
         
-        <!-- Écran d'accueil du comparateur -->
-        <div x-show="step === 0" style="text-align:center; padding: 12px 0;">
-            <div style="display:inline-flex; align-items:center; gap:8px; padding:6px 14px; background:rgba(37, 99, 235, 0.08); color:#2563eb; border-radius:100px; font-size:13px; font-weight:800; margin-bottom:20px; border:1px solid rgba(37, 99, 235, 0.2); box-shadow: 0 2px 8px rgba(37,99,235,0.06);">
-                <span style="display:inline-block; width:8px; height:8px; background:#2563eb; border-radius:50%; box-shadow:0 0 8px #2563eb;"></span>
-                SIMULATEUR INTERACTIF GRATUIT
-            </div>
-
-            <h3 style="font-size:clamp(26px, 4vw, 34px); font-weight:900; color:#0f172a; margin-bottom:14px; font-family:'Manrope', sans-serif; letter-spacing:-0.5px; line-height:1.25;">
-                Quel logiciel est <span style="background: linear-gradient(135deg, #2563eb, #4f46e5); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">fait pour vous ?</span>
-            </h3>
-            
-            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 24px; font-weight: 800; font-size: 14px; color: var(--home-primary);">
-                <span style="background: #f1f5f9; padding: 8px 16px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">▶ Freelance</span>
-                <span style="background: #f1f5f9; padding: 8px 16px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">▶ Auto-entrepreneur</span>
-                <span style="background: #f1f5f9; padding: 8px 16px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">▶ SASU</span>
-                <span style="background: #f1f5f9; padding: 8px 16px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">▶ EURL</span>
-            </div>
-
-            <p style="color:var(--home-muted); font-size:16px; margin:0 auto 28px; max-width:560px; line-height:1.6; font-weight:500;">
-                Répondez à 4 questions rapides et obtenez un <strong>résultat 100% personnalisé</strong>.
-            </p>
-
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:32px; text-align:left;">
-                <div style="padding:14px 16px; background:#f8fafc; border:1px solid #f1f5f9; border-radius:14px; display:flex; align-items:center; gap:12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                    <span style="font-size:22px; background:white; width:44px; height:44px; display:flex; align-items:center; justify-content:center; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.04); flex-shrink:0;">⚡</span>
-                    <div>
-                        <div style="font-size:13px; font-weight:800; color:#0f172a;">4 questions</div>
-                        <div style="font-size:12px; color:#64748b;">Moins de 30 sec</div>
-                    </div>
-                </div>
-                <div style="padding:14px 16px; background:#f8fafc; border:1px solid #f1f5f9; border-radius:14px; display:flex; align-items:center; gap:12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                    <span style="font-size:22px; background:white; width:44px; height:44px; display:flex; align-items:center; justify-content:center; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.04); flex-shrink:0;">🎯</span>
-                    <div>
-                        <div style="font-size:13px; font-weight:800; color:#0f172a;">Sur-mesure</div>
-                        <div style="font-size:12px; color:#64748b;">Selon votre statut</div>
-                    </div>
-                </div>
-                <div style="padding:14px 16px; background:#f8fafc; border:1px solid #f1f5f9; border-radius:14px; display:flex; align-items:center; gap:12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                    <span style="font-size:22px; background:white; width:44px; height:44px; display:flex; align-items:center; justify-content:center; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.04); flex-shrink:0;">🛡️</span>
-                    <div>
-                        <div style="font-size:13px; font-weight:800; color:#0f172a;">100 % Objectif</div>
-                        <div style="font-size:12px; color:#64748b;">Tests vérifiés</div>
-                    </div>
-                </div>
-            </div>
-
-            <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
-                <button @click="step = 1" style="background: linear-gradient(135deg, #2563eb, #4f46e5); color:white; font-size:17px; font-weight:800; padding:18px 42px; border:none; cursor:pointer; border-radius:14px; box-shadow:0 10px 25px -5px rgba(37,99,235,0.4); transition:all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display:inline-flex; align-items:center; gap:10px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 15px 30px -5px rgba(37,99,235,0.5)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 25px -5px rgba(37,99,235,0.4)';">
-                    <span>Trouver mon logiciel</span>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-                </button>
-                <span style="font-size:12px; font-weight:600; color:#64748b; display:inline-flex; align-items:center; gap:5px;">
-                    <svg width="14" height="14" fill="#10b981" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></svg>
-                    Instantané & sans inscription
-                </span>
-            </div>
-        </div>
-
         <div class="hp-wizard-header" x-show="step > 0 && step < 5" style="display:none;">
             <h3 class="hp-wizard-title">Trouvez le logiciel idéal en 4 questions</h3>
             <div class="hp-wizard-progress">
@@ -192,7 +134,7 @@
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('softwareWizardV2', () => ({
-                step: 0,
+                step: 1,
                 answers: {},
                 resultTool: '',
                 resultProfile: '',
@@ -235,7 +177,7 @@
                 },
                 
                 reset() {
-                    this.step = 0;
+                    this.step = 1;
                     this.answers = {};
                 }
             }))
