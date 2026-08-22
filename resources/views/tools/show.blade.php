@@ -42,14 +42,23 @@
             'automation' => '9.0',
             'reviews_count' => '76'
         ],
-        'abby' => [
+                'abby' => [
             'score' => '8.8',
-            'stars' => '★★★★☆',
+            'stars' => '⭐⭐⭐⭐⭐',
             'simplicity' => '9.0',
             'price' => '9.5',
             'support' => '8.0',
             'automation' => '8.0',
             'reviews_count' => '42'
+        ],
+        'shine' => [
+            'score' => '9.3',
+            'stars' => '⭐⭐⭐⭐⭐',
+            'simplicity' => '9.5',
+            'price' => '9.0',
+            'support' => '9.0',
+            'automation' => '8.5',
+            'reviews_count' => '115'
         ]
     ];
     $slug = $tool->slug;
