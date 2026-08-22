@@ -1,0 +1,1809 @@
+{
+    "mapping_outils_comptabilite": {
+        "version": "3.0",
+        "description": "Base de données relationnelle massive Métiers <> Statuts <> Outils, incluant les exclusions strictes d'Indy (Acomptes, Restauration, TVA sur marge, Hors UE).",
+        "secteurs": [
+            {
+                "id": "sante-medical",
+                "label": "Santé & Médical (BNC)",
+                "metiers": [
+                    {
+                        "nom": "Médecin Généraliste",
+                        "statuts_compatibles": [
+                            "EI (BNC)",
+                            "SELARL",
+                            "SELAS"
+                        ],
+                        "besoins_specifiques": [
+                            "Liasse 2035",
+                            "Rétrocessions honoraires",
+                            "URSSAF PAMC"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Pensé pour le médical. Automatise la liasse 2035 et l'agrégation bancaire sécurisée (ACPR)."
+                            }
+                        ],
+                        "emoji": "🩺"
+                    },
+                    {
+                        "nom": "Infirmier Libéral (IDEL)",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "EI (BNC)",
+                            "SELARL"
+                        ],
+                        "besoins_specifiques": [
+                            "Liasse 2035",
+                            "Tournée des patients (IK)"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Le standard pour les IDEL. Zéro saisie et gestion parfaite des indemnités kilométriques."
+                            }
+                        ],
+                        "emoji": "💉"
+                    },
+                    {
+                        "nom": "Kinésithérapeute",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "EI (BNC)",
+                            "SELARL"
+                        ],
+                        "besoins_specifiques": [
+                            "Liasse 2035",
+                            "Frais kilométriques"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Automatise le rapprochement bancaire et la 2035 pour les kinés."
+                            }
+                        ],
+                        "emoji": "🦴"
+                    },
+                    {
+                        "nom": "Ostéopathe",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "EI (BNC)"
+                        ],
+                        "besoins_specifiques": [
+                            "Liasse 2035",
+                            "Exonération TVA"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Parfait pour la gestion BNC exonérée de TVA. App à partir de 0€."
+                            }
+                        ],
+                        "emoji": "💆"
+                    },
+                    {
+                        "nom": "Psychologue",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "EI (BNC)"
+                        ],
+                        "besoins_specifiques": [
+                            "Liasse 2035",
+                            "Abonnements Doctolib"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Catégorise automatiquement les frais récurrents comme Doctolib."
+                            }
+                        ],
+                        "emoji": "🧠"
+                    },
+                    {
+                        "nom": "Orthophoniste",
+                        "statuts_compatibles": [
+                            "EI (BNC)"
+                        ],
+                        "besoins_specifiques": [
+                            "Liasse 2035",
+                            "Matériel pédagogique"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Gestion simplifiée des dépenses déductibles BNC sans paperasse."
+                            }
+                        ],
+                        "emoji": "🗣️"
+                    },
+                    {
+                        "nom": "Sage-femme libérale",
+                        "statuts_compatibles": [
+                            "EI (BNC)",
+                            "Micro-entreprise"
+                        ],
+                        "besoins_specifiques": [
+                            "Liasse 2035",
+                            "URSSAF PAMC"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Gère parfaitement les tournées à domicile et la déclaration 2035."
+                            }
+                        ],
+                        "emoji": "👶"
+                    },
+                    {
+                        "nom": "Chirurgien-dentiste",
+                        "statuts_compatibles": [
+                            "EI (BNC)",
+                            "SELARL"
+                        ],
+                        "besoins_specifiques": [
+                            "Liasse 2035",
+                            "Amortissements matériels lourds"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Amortissements faciles pour les fauteuils et équipements."
+                            }
+                        ],
+                        "emoji": "🦷"
+                    },
+                    {
+                        "nom": "Vétérinaire",
+                        "emoji": "🐕",
+                        "statuts_compatibles": [
+                            "BNC",
+                            "SELARL",
+                            "SCP"
+                        ],
+                        "besoins_specifiques": [
+                            "Gestion des stocks cliniques",
+                            "TVA sur ventes accessoires",
+                            "Déclarations BNC complexes"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "statut_requis": "BNC/SELARL",
+                                "argumentaire": "Automatisation parfaite pour les BNC classiques, liasse 2035 générée en 1 clic.",
+                                "rang": 1
+                            },
+                            {
+                                "nom": "Pennylane",
+                                "statut_requis": "SELARL complexe / Clinique",
+                                "argumentaire": "Idéal si vous avez des associés, des salariés ou de gros stocks à gérer.",
+                                "rang": 2
+                            }
+                        ]
+                    },
+                    {
+                        "nom": "Pédicure-Podologue",
+                        "emoji": "🦶",
+                        "statuts_compatibles": [
+                            "BNC",
+                            "Micro-BNC"
+                        ],
+                        "besoins_specifiques": [
+                            "Déclaration 2035",
+                            "Frais kilométriques"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "statut_requis": "BNC/Micro",
+                                "argumentaire": "Le standard absolu pour gérer sa 2035 sans expert-comptable.",
+                                "rang": 1
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "bien-etre-therapies",
+                "label": "Bien-être & Thérapies",
+                "metiers": [
+                    {
+                        "nom": "Coach Sportif",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "EI (BNC)"
+                        ],
+                        "besoins_specifiques": [
+                            "Location de salle",
+                            "Frais kilométriques"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Idéal pour déduire les locations de salle. Justificatifs numérisés certifiés."
+                            },
+                            {
+                                "nom": "Abby",
+                                "rang": 2,
+                                "statut_requis": "Micro-entreprise",
+                                "argumentaire": "Parfait si besoin unique de facturer des particuliers sur mobile."
+                            }
+                        ],
+                        "emoji": "🏋️"
+                    },
+                    {
+                        "nom": "Sophrologue",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "EI (BNC)"
+                        ],
+                        "besoins_specifiques": [
+                            "Gestion B2C",
+                            "URSSAF simplifiée"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Automatisation des déclarations sociales avec compte pro gratuit inclus."
+                            }
+                        ],
+                        "emoji": "🧘"
+                    },
+                    {
+                        "nom": "Diététicien",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "EI (BNC)"
+                        ],
+                        "besoins_specifiques": [
+                            "Téléconsultations"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Compta 100% en ligne adaptée aux téléconsultations, 0 saisie."
+                            }
+                        ],
+                        "emoji": "🥗"
+                    },
+                    {
+                        "nom": "Psychothérapeute",
+                        "emoji": "🛋️",
+                        "statuts_compatibles": [
+                            "BNC",
+                            "Micro-BNC"
+                        ],
+                        "besoins_specifiques": [
+                            "Suivi des séances",
+                            "Urssaf"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "statut_requis": "BNC/Micro",
+                                "argumentaire": "Zero paperasse, synchronisation bancaire directe.",
+                                "rang": 1
+                            }
+                        ]
+                    },
+                    {
+                        "nom": "Chiropracteur",
+                        "emoji": "🦴",
+                        "statuts_compatibles": [
+                            "BNC",
+                            "Micro-BNC"
+                        ],
+                        "besoins_specifiques": [
+                            "Rapprochement bancaire",
+                            "Facturation sans TVA (actes de soin)"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "statut_requis": "Tous BNC",
+                                "argumentaire": "Synchronisation bancaire parfaite et gestion URSSAF automatisée.",
+                                "rang": 1
+                            }
+                        ]
+                    },
+                    {
+                        "nom": "Naturopathe / Art-Thérapeute / Musicothérapeute",
+                        "emoji": "🌿",
+                        "statuts_compatibles": [
+                            "Micro-BNC",
+                            "BNC"
+                        ],
+                        "besoins_specifiques": [
+                            "Suivi des séances clients",
+                            "Pas de TVA (si franchise)"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "statut_requis": "Micro-BNC / BNC",
+                                "argumentaire": "Gère parfaitement la liasse 2035 et le compte bancaire dédié.",
+                                "rang": 1
+                            }
+                        ]
+                    },
+                    {
+                        "nom": "Psychanalyste",
+                        "emoji": "🧠",
+                        "statuts_compatibles": [
+                            "BNC",
+                            "Micro-BNC"
+                        ],
+                        "besoins_specifiques": [
+                            "Confidentialité stricte",
+                            "Suivi URSSAF"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "statut_requis": "BNC",
+                                "argumentaire": "Synchronisation bancaire fiable et catégorisation des recettes sans dévoiler l'identité patient.",
+                                "rang": 1
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "tech-it-data",
+                "label": "Tech, Informatique & Data",
+                "metiers": [
+                    {
+                        "nom": "Développeur Freelance",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "EI",
+                            "EURL",
+                            "SASU"
+                        ],
+                        "besoins_specifiques": [
+                            "Facturation TJM",
+                            "Optimisation dividendes",
+                            "Achats SaaS"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Le meilleur pour piloter sa SASU/EURL, détecter la TVA des SaaS et générer le bilan."
+                            }
+                        ],
+                        "emoji": "💻"
+                    },
+                    {
+                        "nom": "Data Scientist",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "EURL",
+                            "SASU"
+                        ],
+                        "besoins_specifiques": [
+                            "Frais serveurs AWS/GCP",
+                            "TVA intracommunautaire"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Gère parfaitement la TVA intracommunautaire sur les services Cloud."
+                            }
+                        ],
+                        "emoji": "📊"
+                    },
+                    {
+                        "nom": "Expert Cybersécurité",
+                        "statuts_compatibles": [
+                            "EURL",
+                            "SASU"
+                        ],
+                        "besoins_specifiques": [
+                            "Licences logicielles"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Zéro saisie manuelle pour les dizaines de petites licences mensuelles."
+                            }
+                        ],
+                        "emoji": "🔒"
+                    },
+                    {
+                        "nom": "Administrateur Réseau / DevOps",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "SASU",
+                            "EURL"
+                        ],
+                        "besoins_specifiques": [
+                            "Astreintes"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Tableau de bord financier en temps réel."
+                            }
+                        ],
+                        "emoji": "⚙️"
+                    }
+                ]
+            },
+            {
+                "id": "marketing-communication-web",
+                "label": "Marketing, Web & Créatifs",
+                "metiers": [
+                    {
+                        "nom": "Consultant SEO",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "EI",
+                            "EURL",
+                            "SASU"
+                        ],
+                        "besoins_specifiques": [
+                            "Abonnements SaaS",
+                            "Sous-traitance"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Reconnait automatiquement Semrush/Ahrefs et gère les factures sous-traitants."
+                            }
+                        ],
+                        "emoji": "🔍"
+                    },
+                    {
+                        "nom": "Rédacteur Web",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "EI (BNC)"
+                        ],
+                        "besoins_specifiques": [
+                            "Volume élevé de petites factures"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Facturation illimitée gratuite et déclarations URSSAF automatisées."
+                            }
+                        ],
+                        "emoji": "✍️"
+                    },
+                    {
+                        "nom": "Graphiste / UX-UI",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "MDA/Agessa",
+                            "EURL",
+                            "SASU"
+                        ],
+                        "besoins_specifiques": [
+                            "Matériel Apple",
+                            "Licences Adobe"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Amortissement automatique du matériel informatique coûteux."
+                            }
+                        ],
+                        "emoji": "🎨"
+                    },
+                    {
+                        "nom": "Traffic Manager / Media Buyer",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "SASU"
+                        ],
+                        "besoins_specifiques": [
+                            "TVA sur Google/Meta Ads"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Détecte et remplit automatiquement la TVA CA3 sur les dépenses Ads (TVA intraco)."
+                            }
+                        ],
+                        "emoji": "📈"
+                    },
+                    {
+                        "nom": "Traducteur / Interprète",
+                        "emoji": "🌍",
+                        "statuts_compatibles": [
+                            "Micro-BNC",
+                            "BNC"
+                        ],
+                        "besoins_specifiques": [
+                            "Facturation internationale",
+                            "TVA intracommunautaire",
+                            "Débours de voyage"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "statut_requis": "BNC",
+                                "argumentaire": "Gère facilement la facturation HT hors de France et les déclarations DES.",
+                                "rang": 1
+                            }
+                        ]
+                    },
+                    {
+                        "nom": "Correcteur / Lecteur / Écrivain Public",
+                        "emoji": "✍️",
+                        "statuts_compatibles": [
+                            "Micro-BNC",
+                            "BNC"
+                        ],
+                        "besoins_specifiques": [
+                            "Petites factures fréquentes",
+                            "Pas de gros frais"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Abby",
+                                "statut_requis": "Micro",
+                                "argumentaire": "Le meilleur outil de facturation pour les micro-entrepreneurs de ce secteur.",
+                                "rang": 1
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "conseil-formation",
+                "label": "Conseil & Formation",
+                "metiers": [
+                    {
+                        "nom": "Consultant en Management",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "SASU",
+                            "EURL"
+                        ],
+                        "besoins_specifiques": [
+                            "Notes de frais",
+                            "Repas d'affaires"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Application mobile avec photo des reçus : jetez vos tickets de restaurant légalement."
+                            }
+                        ],
+                        "emoji": "💼"
+                    },
+                    {
+                        "nom": "Formateur Indépendant",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "EI",
+                            "SASU"
+                        ],
+                        "besoins_specifiques": [
+                            "Exonération TVA (Qualiopi)"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Gère la facturation sans TVA et les données pour le BPF."
+                            }
+                        ],
+                        "emoji": "🎓"
+                    },
+                    {
+                        "nom": "Assistant(e) Virtuel(le)",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "EI"
+                        ],
+                        "besoins_specifiques": [
+                            "Prestation B2B"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Outil 100% gratuit suffisant pour les flux simples en micro."
+                            },
+                            {
+                                "nom": "Abby",
+                                "rang": 2,
+                                "statut_requis": "Micro",
+                                "argumentaire": "Idéal pour éditer des devis propres rapidement."
+                            }
+                        ],
+                        "emoji": "📱"
+                    }
+                ]
+            },
+            {
+                "id": "immobilier-sci",
+                "label": "Immobilier & Patrimoine",
+                "metiers": [
+                    {
+                        "nom": "Agent Commercial Immobilier",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "EI (BNC)"
+                        ],
+                        "besoins_specifiques": [
+                            "Frais kilométriques intenses",
+                            "Revenus irréguliers"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Le meilleur pour déduire les IK des visites immobilières."
+                            }
+                        ],
+                        "emoji": "🏠"
+                    },
+                    {
+                        "nom": "Gestionnaire SCI / LMNP",
+                        "statuts_compatibles": [
+                            "SCI",
+                            "LMNP"
+                        ],
+                        "besoins_specifiques": [
+                            "Liasse 2072",
+                            "Liasse 2031"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Idéal pour les loueurs en meublé (LMNP) et les SCI à l'IS ou IR."
+                            }
+                        ],
+                        "emoji": "🏢"
+                    }
+                ]
+            },
+            {
+                "id": "mobilite-logistique",
+                "label": "Mobilité & Logistique",
+                "metiers": [
+                    {
+                        "nom": "Chauffeur VTC",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "EURL",
+                            "SASU"
+                        ],
+                        "besoins_specifiques": [
+                            "TVA sur carburant",
+                            "Péages",
+                            "Amortissement véhicule"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Détection auto de la TVA sur l'essence et amortissement du véhicule."
+                            }
+                        ],
+                        "emoji": "🚘"
+                    },
+                    {
+                        "nom": "Livreur Indépendant (Deliveroo/UberEats)",
+                        "statuts_compatibles": [
+                            "Micro-entreprise"
+                        ],
+                        "besoins_specifiques": [
+                            "Simplicité extrême"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Abby",
+                                "rang": 1,
+                                "statut_requis": "Micro-entreprise",
+                                "argumentaire": "Top pour la facturation en micro sans besoin de récupérer la TVA."
+                            },
+                            {
+                                "nom": "Indy",
+                                "rang": 2,
+                                "statut_requis": "Micro-entreprise",
+                                "argumentaire": "Formule gratuite parfaite pour automatiser l'URSSAF."
+                            }
+                        ],
+                        "emoji": "🛵"
+                    }
+                ]
+            },
+            {
+                "id": "commerce-detail",
+                "label": "Commerce de détail (Boutiques physiques)",
+                "metiers": [
+                    {
+                        "nom": "Librairie / Cave à vin / Fleuriste",
+                        "statuts_compatibles": [
+                            "SASU",
+                            "EURL",
+                            "SARL",
+                            "SAS",
+                            "Micro-entreprise"
+                        ],
+                        "besoins_specifiques": [
+                            "Vente de biens neufs",
+                            "Caisse"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Solution très intuitive pour les petits commerces avec un faible volume de facturation directe."
+                            },
+                            {
+                                "nom": "Pennylane",
+                                "rang": 2,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Si gestion de caisse poussée nécessaire."
+                            }
+                        ],
+                        "emoji": "🛍️"
+                    },
+                    {
+                        "nom": "Coiffeur / Institut de beauté",
+                        "statuts_compatibles": [
+                            "SASU",
+                            "EURL",
+                            "Micro-entreprise"
+                        ],
+                        "besoins_specifiques": [
+                            "Prestation + Vente produits neufs"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Société IS ou Micro",
+                                "argumentaire": "Gère parfaitement les salons de coiffure et instituts avec vente de produits annexes."
+                            }
+                        ],
+                        "emoji": "✂️"
+                    },
+                    {
+                        "nom": "Friperie / Revendeur Occasion",
+                        "statuts_compatibles": [
+                            "Toutes sociétés"
+                        ],
+                        "besoins_specifiques": [
+                            "TVA sur marge (produits occasion)"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Pennylane",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Obligatoire : Indy ne gère pas la TVA sur marge. Pennylane est indispensable ici."
+                            }
+                        ],
+                        "emoji": "👕"
+                    },
+                    {
+                        "nom": "Restauration / Food Truck",
+                        "statuts_compatibles": [
+                            "Toutes sociétés"
+                        ],
+                        "besoins_specifiques": [
+                            "Caisse complexe",
+                            "TVA multiples repas"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Société à l'IS",
+                                "argumentaire": "Indy gère parfaitement la restauration, à la stricte condition d'être en société à l'IS (utilisation des bilans de commerce)."
+                            },
+                            {
+                                "nom": "Pennylane",
+                                "rang": 2,
+                                "statut_requis": "Autres statuts",
+                                "argumentaire": "Recommandé si vous n'êtes pas à l'IS, car Indy ne vous prendra pas en charge."
+                            }
+                        ],
+                        "emoji": "🍔"
+                    }
+                ]
+            },
+            {
+                "id": "ecommerce-vente",
+                "label": "E-Commerce & Vente en ligne",
+                "metiers": [
+                    {
+                        "nom": "Créateur Etsy / Petits Objets Neufs",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "SASU"
+                        ],
+                        "besoins_specifiques": [
+                            "Ventes France + UE (<10 000€)"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Société IS ou Micro",
+                                "argumentaire": "Parfait si vos ventes européennes sont inférieures à 10 000€/an et 0 vente hors UE."
+                            }
+                        ],
+                        "emoji": "🧶"
+                    },
+                    {
+                        "nom": "Dropshipper / E-commerçant International",
+                        "statuts_compatibles": [
+                            "EURL",
+                            "SASU",
+                            "SARL"
+                        ],
+                        "besoins_specifiques": [
+                            "Ventes hors UE",
+                            "Ventes UE > 10 000€",
+                            "Shopify/Stripe massif"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "E-commerçant classique (Guichet OSS)",
+                                "argumentaire": "Indy accompagne l'inscription au guichet OSS pour les ventes intra-UE (sauf entre deux mêmes pays)."
+                            },
+                            {
+                                "nom": "Pennylane",
+                                "rang": 2,
+                                "statut_requis": "Dropshipping pur (IOSS)",
+                                "argumentaire": "Si vous importez massivement de hors UE (Dropshipping IOSS), la prise en charge d'Indy n'est pas confirmée. Pennylane offre plus de garanties."
+                            }
+                        ],
+                        "emoji": "🌍"
+                    },
+                    {
+                        "nom": "Reseller Vinted / Achat-Revente",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "SASU",
+                            "EURL"
+                        ],
+                        "besoins_specifiques": [
+                            "Volume élevé de transactions",
+                            "TVA sur marge (si dépassement seuil ou société)"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Pennylane",
+                                "rang": 1,
+                                "statut_requis": "Sociétés (TVA sur marge)",
+                                "argumentaire": "Indispensable si vous êtes assujetti à la TVA, car Indy ne gère pas la TVA sur marge spécifique aux biens d'occasion."
+                            },
+                            {
+                                "nom": "Indy",
+                                "rang": 2,
+                                "statut_requis": "Micro-entreprise (franchise en base de TVA)",
+                                "argumentaire": "Excellent pour automatiser vos déclarations URSSAF tant que vous ne dépassez pas le seuil de TVA."
+                            }
+                        ],
+                        "emoji": "👟"
+                    }
+                ]
+            },
+            {
+                "id": "artisanat-btp",
+                "label": "Artisanat lourd & BTP",
+                "metiers": [
+                    {
+                        "nom": "Plombier / Électricien / Maçon (Gros chantiers)",
+                        "statuts_compatibles": [
+                            "SARL",
+                            "SASU",
+                            "EURL"
+                        ],
+                        "besoins_specifiques": [
+                            "Factures d'acompte (30%/Solde)",
+                            "Retenue de garantie"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Indy gère parfaitement l'édition de factures d'acompte et de solde, idéal pour les chantiers."
+                            },
+                            {
+                                "nom": "Pennylane",
+                                "rang": 2,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Excellente alternative si vous gérez des retenues de garantie complexes."
+                            }
+                        ],
+                        "emoji": "🏗️"
+                    },
+                    {
+                        "nom": "Dépanneur Express / Petit Bricolage",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "SASU"
+                        ],
+                        "besoins_specifiques": [
+                            "Facturation directe après intervention (sans acompte)"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Parfait pour l'artisanat de dépannage sans gestion d'acomptes."
+                            },
+                            {
+                                "nom": "Abby",
+                                "rang": 2,
+                                "statut_requis": "Micro-entreprise",
+                                "argumentaire": "Très pratique pour facturer sur smartphone chez le client."
+                            }
+                        ],
+                        "emoji": "🛠️"
+                    }
+                ]
+            },
+            {
+                "id": "creator-economy",
+                "label": "La \"Creator Economy\" & l'Audiovisuel 2.0",
+                "metiers": [
+                    {
+                        "nom": "Influenceur / Créateur TikTok & Instagram",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "SASU",
+                            "EURL"
+                        ],
+                        "besoins_specifiques": [
+                            "Revenus publicitaires étrangers (TikTok Creator Fund, Adsense)",
+                            "Sponsoring B2B"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Gère très bien les revenus publicitaires et les factures B2B."
+                            }
+                        ],
+                        "emoji": "📱"
+                    },
+                    {
+                        "nom": "Créateur UGC (User Generated Content)",
+                        "statuts_compatibles": [
+                            "Micro-entreprise"
+                        ],
+                        "besoins_specifiques": [
+                            "Facturation rapide à la vidéo",
+                            "Volume d'éditions B2B"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Micro-entreprise",
+                                "argumentaire": "Parfait pour automatiser l'URSSAF et éditer des factures sans frais."
+                            },
+                            {
+                                "nom": "Abby",
+                                "rang": 2,
+                                "statut_requis": "Micro-entreprise",
+                                "argumentaire": "Alternative très ergonomique pour les petits flux de facturation sur mobile."
+                            }
+                        ],
+                        "emoji": "🤳"
+                    },
+                    {
+                        "nom": "Streamer Twitch / YouTubeur",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "SASU",
+                            "EURL"
+                        ],
+                        "besoins_specifiques": [
+                            "Abonnements (Subs), dons (Bits, Tipeee)",
+                            "Achats matériel lourd (PC, Caméras)"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Parfait pour gérer l'amortissement du matériel onéreux (caméras, setup PC)."
+                            }
+                        ],
+                        "emoji": "🎮"
+                    },
+                    {
+                        "nom": "Monteur Vidéo \"Short-Form\" (Reels, TikTok)",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "EI (BNC)"
+                        ],
+                        "besoins_specifiques": [
+                            "Prestation de service B2B",
+                            "Revenus irréguliers"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Idéal pour piloter l'irrégularité des revenus avec une vision claire de la trésorerie."
+                            }
+                        ],
+                        "emoji": "🎬"
+                    },
+                    {
+                        "nom": "Podcasteur Pro",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "SASU"
+                        ],
+                        "besoins_specifiques": [
+                            "Revenus de sponsoring (Ausha, Patreon)",
+                            "Espaces publicitaires audio"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Automatisation efficace de la facturation des régies publicitaires."
+                            }
+                        ],
+                        "emoji": "🎙️"
+                    }
+                ]
+            },
+            {
+                "id": "tech-nouveaux-metiers",
+                "label": "Les Nouveaux Métiers du Web (Tech & Vente)",
+                "metiers": [
+                    {
+                        "nom": "Expert / Développeur No-Code",
+                        "statuts_compatibles": [
+                            "SASU",
+                            "EURL",
+                            "Micro-entreprise"
+                        ],
+                        "besoins_specifiques": [
+                            "Abonnements logiciels en dollars (SaaS)",
+                            "TJM élevé"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Reconnaissance automatique des factures SaaS étrangères et gestion fluide du passage en société."
+                            }
+                        ],
+                        "emoji": "⚡"
+                    },
+                    {
+                        "nom": "Closer B2B (Commercial indépendant)",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "EI (BNC)"
+                        ],
+                        "besoins_specifiques": [
+                            "Rémunération à la commission",
+                            "Apport d'affaires"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Interface claire pour facturer vos pourcentages et commissions."
+                            },
+                            {
+                                "nom": "Abby",
+                                "rang": 2,
+                                "statut_requis": "Micro-entreprise",
+                                "argumentaire": "Très pratique si vous êtes uniquement en statut micro."
+                            }
+                        ],
+                        "emoji": "🤝"
+                    },
+                    {
+                        "nom": "Prompt Engineer / Consultant IA",
+                        "statuts_compatibles": [
+                            "SASU",
+                            "EURL",
+                            "Micro-entreprise"
+                        ],
+                        "besoins_specifiques": [
+                            "Prestations intellectuelles B2B de pointe"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Outil innovant parfaitement aligné avec l'esprit tech des consultants IA."
+                            }
+                        ],
+                        "emoji": "🤖"
+                    },
+                    {
+                        "nom": "Growth Hacker / Acheteur Média",
+                        "statuts_compatibles": [
+                            "SASU",
+                            "EURL",
+                            "Micro-entreprise"
+                        ],
+                        "besoins_specifiques": [
+                            "TVA intracommunautaire massive sur les dépenses publicitaires (Meta, Google)"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Automatise la déclaration de TVA (CA3) sur ces milliers d'euros de dépenses spécifiques."
+                            }
+                        ],
+                        "emoji": "🚀"
+                    }
+                ]
+            },
+            {
+                "id": "infoprenariat-savoir",
+                "label": "L'Infoprenariat & La Vente de Savoir",
+                "metiers": [
+                    {
+                        "nom": "Vendeur de Formations en Ligne (Infopreneur)",
+                        "statuts_compatibles": [
+                            "SASU",
+                            "EURL",
+                            "SARL"
+                        ],
+                        "besoins_specifiques": [
+                            "Centaines de petites transactions Stripe/PayPal",
+                            "TVA OSS selon le pays de l'acheteur"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Pennylane",
+                                "rang": 1,
+                                "statut_requis": "Sociétés (Fort volume)",
+                                "argumentaire": "Indispensable ici si fort volume, car Indy va saturer avec trop de lignes de paiement Stripe."
+                            }
+                        ],
+                        "emoji": "🎓"
+                    },
+                    {
+                        "nom": "Auteur de Newsletter Payante (Substack)",
+                        "statuts_compatibles": [
+                            "Micro-entreprise"
+                        ],
+                        "besoins_specifiques": [
+                            "Revenus d'abonnements récurrents B2C"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Micro-entreprise",
+                                "argumentaire": "Parfait pour un volume modéré de souscriptions récurrentes."
+                            },
+                            {
+                                "nom": "Abby",
+                                "rang": 2,
+                                "statut_requis": "Micro-entreprise",
+                                "argumentaire": "Très pratique pour débuter sans aucun frais."
+                            }
+                        ],
+                        "emoji": "✉️"
+                    }
+                ]
+            },
+            {
+                "id": "coaching-premium",
+                "label": "Le Coaching Spécialisé & Services Premium",
+                "metiers": [
+                    {
+                        "nom": "Business Coach / Mindset Coach",
+                        "statuts_compatibles": [
+                            "EI (BNC)",
+                            "Micro-entreprise"
+                        ],
+                        "besoins_specifiques": [
+                            "Facturation de forfaits mensuels récurrents",
+                            "Zéro frais de matériel"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Le standard absolu pour les professions libérales et de conseil en BNC."
+                            }
+                        ],
+                        "emoji": "🧠"
+                    },
+                    {
+                        "nom": "Consultant en Sommeil Bébé / Périnatalité",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "EI (BNC)"
+                        ],
+                        "besoins_specifiques": [
+                            "Prestation de conseil aux particuliers (B2C)"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Solution idéale pour se libérer de la paperasse et se concentrer sur les clients."
+                            },
+                            {
+                                "nom": "Abby",
+                                "rang": 2,
+                                "statut_requis": "Micro-entreprise",
+                                "argumentaire": "Une excellente alternative pour les micro-entrepreneurs."
+                            }
+                        ],
+                        "emoji": "👶"
+                    },
+                    {
+                        "nom": "Wedding Planner",
+                        "statuts_compatibles": [
+                            "SASU",
+                            "EURL",
+                            "Micro-entreprise"
+                        ],
+                        "besoins_specifiques": [
+                            "Gestion de trésorerie complexe",
+                            "Acomptes clients pour payer les prestataires"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Pennylane",
+                                "rang": 1,
+                                "statut_requis": "Mandataire (Flux pour compte de tiers)",
+                                "argumentaire": "Obligatoire si vous encaissez des acomptes globaux pour payer d'autres prestataires (trésorerie complexe)."
+                            },
+                            {
+                                "nom": "Indy",
+                                "rang": 2,
+                                "statut_requis": "Honoraires purs",
+                                "argumentaire": "Idéal si vous ne facturez que vos stricts honoraires d'organisation."
+                            }
+                        ],
+                        "emoji": "💍"
+                    }
+                ]
+            },
+            {
+                "id": "ecosysteme-airbnb",
+                "label": "L'Écosystème Airbnb",
+                "metiers": [
+                    {
+                        "nom": "Loueur en Meublé Non Professionnel (LMNP)",
+                        "statuts_compatibles": [
+                            "LMNP"
+                        ],
+                        "besoins_specifiques": [
+                            "Amortissement du bien immobilier",
+                            "Déclaration 2031",
+                            "Exonération impôts sur loyers"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "LMNP",
+                                "argumentaire": "Ils ont un module LMNP spécifique qui cartonne pour amortir le bien et réduire ses impôts à 0€."
+                            }
+                        ],
+                        "emoji": "🏠"
+                    },
+                    {
+                        "nom": "Conciergerie Airbnb",
+                        "statuts_compatibles": [
+                            "SASU",
+                            "EURL"
+                        ],
+                        "besoins_specifiques": [
+                            "Facturation de frais de ménage",
+                            "Commissions sur loyers"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Pilote très bien la facturation de services (ménage, accueil) et les commissions."
+                            }
+                        ],
+                        "emoji": "🔑"
+                    },
+                    {
+                        "nom": "Sous-location Professionnelle",
+                        "statuts_compatibles": [
+                            "SASU"
+                        ],
+                        "besoins_specifiques": [
+                            "Bail professionnel",
+                            "Volume de loyers entrants/sortants"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "rang": 1,
+                                "statut_requis": "Sociétés",
+                                "argumentaire": "Rapprochement bancaire fluide pour suivre les marges entre le loyer payé et les nuitées encaissées."
+                            }
+                        ],
+                        "emoji": "🛏️"
+                    }
+                ]
+            },
+            {
+                "id": "droit-chiffre",
+                "label": "Professions du Droit et du Chiffre",
+                "metiers": [
+                    {
+                        "nom": "Avocat",
+                        "emoji": "⚖️",
+                        "statuts_compatibles": [
+                            "BNC",
+                            "SELARL",
+                            "AARPI"
+                        ],
+                        "besoins_specifiques": [
+                            "Gestion des fonds CARPA",
+                            "TVA sur encaissements",
+                            "Débours"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "statut_requis": "BNC",
+                                "argumentaire": "Gère parfaitement la TVA sur encaissements et la 2035.",
+                                "rang": 1
+                            },
+                            {
+                                "nom": "Pennylane",
+                                "statut_requis": "AARPI / SELARL",
+                                "argumentaire": "Plus puissant pour les cabinets d'avocats structurés avec salariés.",
+                                "rang": 2
+                            }
+                        ]
+                    },
+                    {
+                        "nom": "Commissaire aux comptes / Auditeur",
+                        "emoji": "📊",
+                        "statuts_compatibles": [
+                            "BNC",
+                            "Société"
+                        ],
+                        "besoins_specifiques": [
+                            "Notes de frais intenses",
+                            "Facturation au temps passé"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "statut_requis": "BNC",
+                                "argumentaire": "Pour le CAC indépendant qui veut faire sa 2035 seul.",
+                                "rang": 1
+                            }
+                        ]
+                    },
+                    {
+                        "nom": "Administrateur & Mandataire Judiciaire",
+                        "emoji": "🏛️",
+                        "statuts_compatibles": [
+                            "BNC",
+                            "Société"
+                        ],
+                        "besoins_specifiques": [
+                            "Comptabilité fiduciaire rigoureuse",
+                            "Gros volumes bancaires"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Pennylane",
+                                "statut_requis": "Société",
+                                "argumentaire": "Obligatoire pour ce type de structure complexe nécessitant un expert-comptable.",
+                                "rang": 1
+                            }
+                        ]
+                    },
+                    {
+                        "nom": "Actuaire",
+                        "emoji": "📈",
+                        "statuts_compatibles": [
+                            "BNC",
+                            "Micro-BNC"
+                        ],
+                        "besoins_specifiques": [
+                            "Frais de mission",
+                            "Peu de charges"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "statut_requis": "BNC",
+                                "argumentaire": "Le plus rapide pour les consultants en actuariat.",
+                                "rang": 1
+                            }
+                        ]
+                    },
+                    {
+                        "nom": "Conseil en Investissements Financiers (CIF)",
+                        "emoji": "💼",
+                        "statuts_compatibles": [
+                            "BNC",
+                            "SARL",
+                            "SASU"
+                        ],
+                        "besoins_specifiques": [
+                            "Commissions multiples",
+                            "Rétrocessions"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "statut_requis": "BNC",
+                                "argumentaire": "Parfait si vous exercez en nom propre.",
+                                "rang": 1
+                            },
+                            {
+                                "nom": "Pennylane",
+                                "statut_requis": "Société",
+                                "argumentaire": "Idéal si vous êtes en SASU/SARL avec un expert-comptable.",
+                                "rang": 2
+                            }
+                        ]
+                    },
+                    {
+                        "nom": "Conseil en Propriété Industrielle",
+                        "emoji": "©️",
+                        "statuts_compatibles": [
+                            "BNC",
+                            "Société"
+                        ],
+                        "besoins_specifiques": [
+                            "Frais de dépôt INPI",
+                            "Honoraires internationaux"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "statut_requis": "BNC",
+                                "argumentaire": "Gestion simplifiée de vos honoraires et débours.",
+                                "rang": 1
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "technique-ingenierie",
+                "label": "Expertise Technique Réglementée",
+                "metiers": [
+                    {
+                        "nom": "Architecte",
+                        "emoji": "📐",
+                        "statuts_compatibles": [
+                            "BNC",
+                            "SELARL"
+                        ],
+                        "besoins_specifiques": [
+                            "Gestion des sous-traitants",
+                            "TVA sur encaissements",
+                            "Refacturation de frais"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "statut_requis": "BNC",
+                                "argumentaire": "Parfait pour l'architecte indépendant avec peu de charges complexes.",
+                                "rang": 1
+                            },
+                            {
+                                "nom": "Pennylane",
+                                "statut_requis": "Cabinet / Agence",
+                                "argumentaire": "Idéal pour une agence d'architecture avec salariés et experts-comptables.",
+                                "rang": 2
+                            }
+                        ]
+                    },
+                    {
+                        "nom": "Géomètre-Expert",
+                        "emoji": "🗺️",
+                        "statuts_compatibles": [
+                            "BNC",
+                            "SELARL"
+                        ],
+                        "besoins_specifiques": [
+                            "Frais kilométriques intenses",
+                            "Matériel amortissable onéreux"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "statut_requis": "BNC",
+                                "argumentaire": "Amortissement du matériel de topographie géré automatiquement.",
+                                "rang": 1
+                            }
+                        ]
+                    },
+                    {
+                        "nom": "Expert Agricole & Foncier",
+                        "emoji": "🚜",
+                        "statuts_compatibles": [
+                            "BNC"
+                        ],
+                        "besoins_specifiques": [
+                            "Déplacements ruraux",
+                            "Expertises longues"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "statut_requis": "BNC",
+                                "argumentaire": "Gestion complète du barème kilométrique et de la 2035.",
+                                "rang": 1
+                            }
+                        ]
+                    },
+                    {
+                        "nom": "Agent d'assurances",
+                        "emoji": "🛡️",
+                        "statuts_compatibles": [
+                            "BNC",
+                            "Société"
+                        ],
+                        "besoins_specifiques": [
+                            "Commissions récurrentes",
+                            "Pas de TVA sur les commissions d'assurance"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "statut_requis": "BNC",
+                                "argumentaire": "Catégorisation intelligente de vos bordereaux de commissions sans TVA.",
+                                "rang": 1
+                            }
+                        ]
+                    },
+                    {
+                        "nom": "Maître d'œuvre / Économiste de la construction",
+                        "emoji": "🏗️",
+                        "statuts_compatibles": [
+                            "BNC",
+                            "Société"
+                        ],
+                        "besoins_specifiques": [
+                            "Refacturation de frais",
+                            "TVA sur encaissements",
+                            "Assurance décennale"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "statut_requis": "BNC",
+                                "argumentaire": "Parfait pour gérer vos honoraires de maîtrise d'œuvre et la TVA afférente.",
+                                "rang": 1
+                            }
+                        ]
+                    },
+                    {
+                        "nom": "Urbaniste / Paysagiste (Bureau d'études)",
+                        "emoji": "🌳",
+                        "statuts_compatibles": [
+                            "BNC",
+                            "Micro-BNC"
+                        ],
+                        "besoins_specifiques": [
+                            "Notes de frais",
+                            "Logiciels DAO amortissables"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "statut_requis": "BNC",
+                                "argumentaire": "Amortissement automatique de vos licences et matériels informatiques.",
+                                "rang": 1
+                            }
+                        ]
+                    },
+                    {
+                        "nom": "Ingénieur Conseil",
+                        "emoji": "⚙️",
+                        "statuts_compatibles": [
+                            "BNC",
+                            "SASU",
+                            "EURL"
+                        ],
+                        "besoins_specifiques": [
+                            "Missions longues",
+                            "Frais de déplacement professionnels"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "statut_requis": "BNC",
+                                "argumentaire": "Le plus rapide pour suivre la facturation des missions de conseil.",
+                                "rang": 1
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "services-divers",
+                "label": "Services Divers Réglementés",
+                "metiers": [
+                    {
+                        "nom": "Auto-École",
+                        "emoji": "🚗",
+                        "statuts_compatibles": [
+                            "BIC",
+                            "SARL",
+                            "SASU"
+                        ],
+                        "besoins_specifiques": [
+                            "Amortissement des véhicules",
+                            "TVA",
+                            "Salariés"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Pennylane",
+                                "statut_requis": "Société",
+                                "argumentaire": "L'outil parfait pour gérer la flotte de véhicules et collaborer avec son expert-comptable.",
+                                "rang": 1
+                            }
+                        ]
+                    },
+                    {
+                        "nom": "Accompagnateur de groupe / Guide",
+                        "emoji": "🏔️",
+                        "statuts_compatibles": [
+                            "Micro-entreprise",
+                            "BNC"
+                        ],
+                        "besoins_specifiques": [
+                            "Saisonnalité forte",
+                            "Déplacements"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Abby",
+                                "statut_requis": "Micro-entreprise",
+                                "argumentaire": "Idéal pour piloter ses factures avec les plafonds auto-entrepreneur.",
+                                "rang": 1
+                            },
+                            {
+                                "nom": "Indy",
+                                "statut_requis": "BNC",
+                                "argumentaire": "Pour générer sa 2035 très facilement en fin d'année.",
+                                "rang": 2
+                            }
+                        ]
+                    },
+                    {
+                        "nom": "Agent Privé de Recherches / Enquêteur",
+                        "emoji": "🕵️",
+                        "statuts_compatibles": [
+                            "BNC",
+                            "Micro-BNC"
+                        ],
+                        "besoins_specifiques": [
+                            "Frais de mission",
+                            "Secret professionnel strict"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "statut_requis": "BNC",
+                                "argumentaire": "Vos frais professionnels sont catégorisés automatiquement sans dévoiler le détail de vos affaires à un tiers humain.",
+                                "rang": 1
+                            }
+                        ]
+                    },
+                    {
+                        "nom": "Guide Conférencier / Guide Touristique",
+                        "emoji": "🗺️",
+                        "statuts_compatibles": [
+                            "Micro-BNC",
+                            "BNC"
+                        ],
+                        "besoins_specifiques": [
+                            "Frais kilométriques intenses",
+                            "Repas hors domicile"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "statut_requis": "BNC",
+                                "argumentaire": "Idéal pour déduire un maximum de frais de repas et de déplacement.",
+                                "rang": 1
+                            }
+                        ]
+                    },
+                    {
+                        "nom": "Généalogiste",
+                        "emoji": "📜",
+                        "statuts_compatibles": [
+                            "BNC",
+                            "Société"
+                        ],
+                        "besoins_specifiques": [
+                            "Frais de recherche et archives",
+                            "Déplacements"
+                        ],
+                        "outils_recommandes": [
+                            {
+                                "nom": "Indy",
+                                "statut_requis": "BNC",
+                                "argumentaire": "Facturation fluide des forfaits de recherche généalogique.",
+                                "rang": 1
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

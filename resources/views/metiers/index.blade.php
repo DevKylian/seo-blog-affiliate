@@ -1,0 +1,134 @@
+@extends('layouts.blog')
+
+@section('title', 'Annuaire des métiers indépendants - Outils recommandés')
+@section('meta_description', 'Découvrez les meilleurs logiciels de facturation et de comptabilité recommandés spécifiquement pour votre métier indépendant (BNC, artisan, tech, santé...).')
+
+@section('content')
+<div class="hp-hero" style="padding-top: 40px; padding-bottom: 40px;">
+    <div class="hp-hero-content" style="max-width: 800px; margin: 0 auto; text-align: center;">
+        <h1 class="hp-hero-title" style="margin-bottom: 20px;">
+            Trouvez l'outil <span class="hp-hero-highlight">parfait</span> pour votre métier
+        </h1>
+        <p class="hp-hero-subtitle" style="margin-bottom: 40px;">
+            Nous avons analysé les besoins spécifiques de chaque profession pour vous recommander le meilleur logiciel de comptabilité et de facturation.
+        </p>
+    </div>
+</div>
+
+<div x-data="metierDirectory()" class="article-layout" style="margin-top: 0; padding-top: 40px; background: #f8fafc;">
+    <div class="article-main" style="max-width: 1200px;">
+        
+        <!-- Search & Filter Bar -->
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 24px; margin-bottom: 40px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <!-- Search Input -->
+                <div style="position: relative;">
+                    <span style="position: absolute; left: 16px; top: 14px; color: #94a3b8;">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </span>
+                    <input type="text" x-model="searchQuery" placeholder="Rechercher un métier (ex: Infirmier, Développeur...)" style="width: 100%; padding: 14px 16px 14px 48px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 16px; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#cbd5e1'">
+                </div>
+
+                <!-- Sectors Filter -->
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    <button @click="selectedSector = 'all'" 
+                            :style="selectedSector === 'all' ? 'background: #2563eb; color: white; border-color: #2563eb;' : 'background: white; color: #475569; border-color: #e2e8f0;'"
+                            style="padding: 8px 16px; border: 1px solid; border-radius: 100px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                        Tous
+                    </button>
+                    <template x-for="sector in sectors" :key="sector.id">
+                        <button @click="selectedSector = sector.id" 
+                                :style="selectedSector === sector.id ? 'background: #2563eb; color: white; border-color: #2563eb;' : 'background: white; color: #475569; border-color: #e2e8f0;'"
+                                style="padding: 8px 16px; border: 1px solid; border-radius: 100px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                            <span x-text="sector.label"></span>
+                        </button>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- Job Cards Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; padding-bottom: 80px;">
+            <template x-for="job in filteredJobs" :key="job.nom">
+                <div style="background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; transition: all 0.3s; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 6px -1px rgba(0, 0, 0, 0.05)';">
+                    
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                        <div style="font-size: 32px; width: 56px; height: 56px; background: #f8fafc; border-radius: 16px; display: flex; align-items: center; justify-content: center;" x-text="job.emoji"></div>
+                        <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.3;" x-text="job.nom"></h3>
+                    </div>
+
+                    <div style="margin-bottom: 16px;">
+                        <p style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px; margin-bottom: 8px;">Statuts compatibles</p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                            <template x-for="statut in job.statuts_compatibles">
+                                <span style="background: #f1f5f9; color: #475569; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;" x-text="statut"></span>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 24px; flex-grow: 1;">
+                        <p style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px; margin-bottom: 8px;">Besoins Spécifiques</p>
+                        <ul style="margin: 0; padding-left: 16px; color: #334155; font-size: 13px;">
+                            <template x-for="besoin in job.besoins_specifiques">
+                                <li style="margin-bottom: 4px;" x-text="besoin"></li>
+                            </template>
+                        </ul>
+                    </div>
+
+                    <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 16px; position: relative;">
+                        <div style="position: absolute; top: -10px; right: 16px; background: #2563eb; color: white; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Recommandé</div>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                            <span style="color: #2563eb;"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg></span>
+                            <span style="font-size: 18px; font-weight: 900; color: #1e3a8a;" x-text="job.outils_recommandes[0]?.nom"></span>
+                        </div>
+                        <p style="margin: 0; font-size: 13px; color: #1e40af; line-height: 1.4;" x-text="job.outils_recommandes[0]?.argumentaire"></p>
+                    </div>
+
+                </div>
+            </template>
+        </div>
+        
+        <!-- Empty State -->
+        <div x-show="filteredJobs.length === 0" style="display: none; text-align: center; padding: 60px 20px;">
+            <div style="font-size: 48px; margin-bottom: 16px;">🔍</div>
+            <h3 style="font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">Aucun métier trouvé</h3>
+            <p style="color: #64748b; font-size: 16px;">Essayez d'autres termes de recherche ou sélectionnez un autre secteur.</p>
+            <button @click="searchQuery = ''; selectedSector = 'all'" style="margin-top: 16px; background: #f1f5f9; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;">Réinitialiser les filtres</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('metierDirectory', () => ({
+            searchQuery: '',
+            selectedSector: 'all',
+            sectors: @json($secteurs),
+            
+            get allJobs() {
+                let jobs = [];
+                this.sectors.forEach(sector => {
+                    sector.metiers.forEach(m => {
+                        jobs.push({
+                            ...m,
+                            sector_id: sector.id,
+                            sector_label: sector.label
+                        });
+                    });
+                });
+                return jobs;
+            },
+
+            get filteredJobs() {
+                return this.allJobs.filter(job => {
+                    const matchesSearch = job.nom.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
+                                        job.statuts_compatibles.some(s => s.toLowerCase().includes(this.searchQuery.toLowerCase()));
+                    const matchesSector = this.selectedSector === 'all' || job.sector_id === this.selectedSector;
+                    return matchesSearch && matchesSector;
+                });
+            }
+        }));
+    });
+</script>
+@endsection

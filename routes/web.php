@@ -40,6 +40,7 @@ Route::redirect('/home', '/admin');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/outils-gratuits', [BlogController::class, 'freeTools'])->name('free-tools.index');
 Route::get('/outils-gratuits/{slug}', [BlogController::class, 'freeTool'])->name('free-tools.show');
+Route::get('/metiers', [\App\Http\Controllers\MetierController::class, 'index'])->name('metiers.index');
 Route::get('/outils', [BlogController::class, 'tools'])->name('tools.index');
 Route::get('/outils/{slug}/tarifs', [BlogController::class, 'pricing'])->name('tools.pricing');
 Route::get('/outils/{slug}', [BlogController::class, 'tool'])->name('tools.show');

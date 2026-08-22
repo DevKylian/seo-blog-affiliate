@@ -79,6 +79,7 @@
             <nav class="main-nav" :class="{ 'mobile-open': mobileMenuOpen }" aria-label="Navigation publique">
                 <a href="{{ route('home') }}" class="nav-link">Accueil</a>
                 <a href="{{ route('blog.index') }}" class="nav-link">Guides</a>
+                <a href="{{ route('metiers.index') }}" class="nav-link">Métiers</a>
                 <a href="{{ route('free-tools.index') }}" class="nav-link">Outils gratuits</a>
                 <a href="{{ route('tools.index') }}" class="nav-link">Comparateur</a>
                 <a href="{{ route('affiliate.redirect', 'indy') }}" class="nav-cta" target="_blank" rel="sponsored nofollow">Profiter de l'offre gratuite Indy</a>
@@ -103,6 +104,7 @@
                 <div style="display: flex; flex-direction: column; gap: 12px;">
                     <h4 style="color: white; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Ressources</h4>
                     <a href="{{ route('blog.index') }}" style="color: #cbd5e1; text-decoration: none; font-size: 14px; transition: color 0.2s;">Guides SEO</a>
+                    <a href="{{ route('metiers.index') }}" style="color: #cbd5e1; text-decoration: none; font-size: 14px; transition: color 0.2s;">Métiers</a>
                     <a href="{{ route('free-tools.index') }}" style="color: #cbd5e1; text-decoration: none; font-size: 14px; transition: color 0.2s;">Outils gratuits</a>
                     <a href="{{ route('tools.index') }}" style="color: #cbd5e1; text-decoration: none; font-size: 14px; transition: color 0.2s;">Comparatif logiciels</a>
                 </div>
