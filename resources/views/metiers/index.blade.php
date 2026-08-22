@@ -111,16 +111,16 @@
                         </ul>
                     </div>
 
-                    <div :style="`background: ${getToolColor(job.outils_recommandes[0]?.nom).bg}; border: 1px solid ${getToolColor(job.outils_recommandes[0]?.nom).border}; border-radius: 12px; padding: 16px; position: relative; display: flex; flex-direction: column; flex-grow: 1;`">
-                        <div :style="`position: absolute; top: -10px; right: 16px; background: ${getToolColor(job.outils_recommandes[0]?.nom).badge}; color: white; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.5px;`">Recommandé</div>
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; position: relative; display: flex; flex-direction: column; flex-grow: 1;">
+                        <div style="position: absolute; top: -10px; right: 16px; background: white; color: #475569; border: 1px solid #e2e8f0; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Recommandé</div>
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
                             <span :style="`color: ${getToolColor(job.outils_recommandes[0]?.nom).badge};`"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg></span>
-                            <span style="font-size: 18px; font-weight: 900;" :style="`color: ${getToolColor(job.outils_recommandes[0]?.nom).text};`" x-text="job.outils_recommandes[0]?.nom"></span>
+                            <span style="font-size: 18px; font-weight: 900; color: #0f172a;" x-text="job.outils_recommandes[0]?.nom"></span>
                         </div>
-                        <p style="margin: 0 0 16px 0; font-size: 13px; line-height: 1.4; flex-grow: 1;" :style="`color: ${getToolColor(job.outils_recommandes[0]?.nom).text};`" x-text="job.outils_recommandes[0]?.argumentaire"></p>
+                        <p style="margin: 0 0 16px 0; font-size: 13px; color: #475569; line-height: 1.4;" x-text="job.outils_recommandes[0]?.argumentaire"></p>
                         
                         <a :href="getAffiliateLink(job.outils_recommandes[0]?.nom)" target="_blank" rel="sponsored nofollow"
-                           :style="`display: block; width: 100%; text-align: center; background: ${getToolColor(job.outils_recommandes[0]?.nom).badge}; color: white; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none; transition: opacity 0.2s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);`"
+                           :style="`display: block; width: 100%; text-align: center; background: ${getToolColor(job.outils_recommandes[0]?.nom).badge}; color: white; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none; transition: opacity 0.2s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-top: auto;`"
                            onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
                             Essayer gratuitement →
                         </a>
@@ -163,14 +163,14 @@
             },
 
             getToolColor(toolName) {
-                if (!toolName) return { bg: '#f8fafc', border: '#e2e8f0', text: '#0f172a', badge: '#64748b' };
+                if (!toolName) return { badge: '#64748b' };
                 const name = toolName.toLowerCase();
-                if (name.includes('indy')) return { bg: '#fff1f2', border: '#fecdd3', text: '#881337', badge: '#f43f5e' }; // Rose
-                if (name.includes('pennylane')) return { bg: '#ecfdf5', border: '#a7f3d0', text: '#064e3b', badge: '#10b981' }; // Vert
-                if (name.includes('abby')) return { bg: '#eff6ff', border: '#bfdbfe', text: '#1e3a8a', badge: '#1d4ed8' }; // Bleu foncé
-                if (name.includes('dougs')) return { bg: '#f5f3ff', border: '#ede9fe', text: '#4c1d95', badge: '#8b5cf6' }; // Violet
-                if (name.includes('tiime')) return { bg: '#fdf4ff', border: '#f5d0fe', text: '#701a75', badge: '#c026d3' }; // Fuchsia
-                return { bg: '#f8fafc', border: '#e2e8f0', text: '#0f172a', badge: '#64748b' };
+                if (name.includes('indy')) return { badge: '#F75A77' }; // Rose header
+                if (name.includes('pennylane')) return { badge: '#10b981' }; // Vert
+                if (name.includes('abby')) return { badge: '#1e3a8a' }; // Bleu foncé
+                if (name.includes('dougs')) return { badge: '#8b5cf6' }; // Violet
+                if (name.includes('tiime')) return { badge: '#c026d3' }; // Fuchsia
+                return { badge: '#64748b' };
             },
             getAffiliateLink(toolName) {
                 if (!toolName) return '#';
