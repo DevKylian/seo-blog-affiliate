@@ -103,10 +103,11 @@
             'isMicro' => true,
             'hasBank' => true,
             'score' => '9.3',
-            'urssaf' => false,
+            'urssaf' => true,
+            'urssaf_label' => '✅ (Micro)',
             'accounting' => false,
             'liasse' => false,
-            'iaFeature' => false
+            'iaFeature' => true
         ]
     ];
 @endphp
@@ -181,7 +182,7 @@
                 <tr>
                     <td>Déclaration URSSAF Auto</td>
                     @foreach($comparisonData as $t)
-                        <td class="{{ $t['urssaf'] ? 'check' : 'cross' }}" x-show="isVisible('{{ $t['slug'] }}')">{{ $t['urssaf'] ? '✅' : '❌' }}</td>
+                        <td class="{{ $t['urssaf'] ? 'check' : 'cross' }}" x-show="isVisible('{{ $t['slug'] }}')">{{ $t['urssaf_label'] ?? ($t['urssaf'] ? '✅' : '❌') }}</td>
                     @endforeach
                 </tr>
                 <tr>
