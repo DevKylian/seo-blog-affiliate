@@ -3,6 +3,42 @@
 @section('title', 'Annuaire des métiers indépendants - Outils recommandés')
 @section('meta_description', 'Découvrez les meilleurs logiciels de facturation et de comptabilité recommandés spécifiquement pour votre métier indépendant (BNC, artisan, tech, santé...).')
 
+
+@push('head')
+<style>
+    .sector-btn {
+        padding: 10px 22px;
+        border: 1px solid #e2e8f0;
+        border-radius: 100px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        background: white;
+        color: #475569;
+    }
+    .sector-btn:hover {
+        border-color: #cbd5e1;
+        background: #f8fafc;
+        color: #0f172a;
+        transform: translateY(-1px);
+    }
+    .sector-btn.active {
+        background: #2563eb;
+        color: white;
+        border-color: #2563eb;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+    .sector-btn.active:hover {
+        background: #1d4ed8;
+        border-color: #1d4ed8;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="hp-hero" style="padding-top: 40px; padding-bottom: 40px;">
     <div class="hp-hero-content" style="max-width: 800px; margin: 0 auto; text-align: center;">
@@ -15,8 +51,8 @@
     </div>
 </div>
 
-<div x-data="metierDirectory()" class="article-layout" style="margin-top: 0; padding-top: 40px; background: #f8fafc;">
-    <div class="article-main" style="max-width: 1200px;">
+<div x-data="metierDirectory()" style="margin-top: 0; padding-top: 40px; padding-bottom: 80px; background: #f8fafc; padding-inline: 24px;">
+    <div style="max-width: 1200px; margin: 0 auto; width: 100%;">
         
         <!-- Search & Filter Bar -->
         <div style="background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 24px; margin-bottom: 40px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
@@ -30,16 +66,16 @@
                 </div>
 
                 <!-- Sectors Filter -->
-                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
                     <button @click="selectedSector = 'all'" 
-                            :style="selectedSector === 'all' ? 'background: #2563eb; color: white; border-color: #2563eb;' : 'background: white; color: #475569; border-color: #e2e8f0;'"
-                            style="padding: 8px 16px; border: 1px solid; border-radius: 100px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                            :class="{'active': selectedSector === 'all'}"
+                            class="sector-btn">
                         Tous
                     </button>
                     <template x-for="sector in sectors" :key="sector.id">
                         <button @click="selectedSector = sector.id" 
-                                :style="selectedSector === sector.id ? 'background: #2563eb; color: white; border-color: #2563eb;' : 'background: white; color: #475569; border-color: #e2e8f0;'"
-                                style="padding: 8px 16px; border: 1px solid; border-radius: 100px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                                :class="{'active': selectedSector === sector.id}"
+                                class="sector-btn">
                             <span x-text="sector.label"></span>
                         </button>
                     </template>
