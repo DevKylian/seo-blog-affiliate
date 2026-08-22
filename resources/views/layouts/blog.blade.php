@@ -126,5 +126,6 @@
             <span style="color: #64748b; font-size: 13px; font-weight: 500;">Conçu pour les freelances en France 🇫🇷</span>
         </div>
     </footer>
+    @livewireScripts
 </body>
 </html>
