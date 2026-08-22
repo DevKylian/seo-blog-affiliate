@@ -48,7 +48,15 @@ class BlogThumbnailService
 
     public static function formatThumbnailTitle(?string $thumbnailTitle, string $fullTitle): string
     {
-        $raw = trim($thumbnailTitle ?: $fullTitle);
+        if (!empty($thumbnailTitle)) {
+            $formatted = trim($thumbnailTitle);
+            if (mb_strtolower($formatted) === $formatted) {
+                $formatted = mb_convert_case($formatted, MB_CASE_TITLE, 'UTF-8');
+            }
+            return $formatted;
+        }
+
+        $raw = trim($fullTitle);
 
         // 1. If contains colon or dash, extract first part if it's punchy
         if (str_contains($raw, ':')) {

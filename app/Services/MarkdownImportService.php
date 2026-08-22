@@ -78,6 +78,7 @@ class MarkdownImportService
             'search_intent' => $yaml['intention'] ?? null,
             'primary_keyword' => $yaml['mot-cle'] ?? null,
             'meta_title' => $yaml['meta-title'] ?? null,
+            'thumbnail_title' => $yaml['titre-miniature'] ?? null,
             'meta_description' => $yaml['meta-description'] ?? null,
         ]);
 
