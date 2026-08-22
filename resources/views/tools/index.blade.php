@@ -90,6 +90,23 @@
             'accounting' => false,
             'liasse' => false,
             'iaFeature' => false
+        ],
+        [
+            'slug' => 'shine',
+            'name' => 'Shine',
+            'logo' => 'S',
+            'domain' => 'shine.fr',
+            'price' => '7,90€ / mois',
+            'isFree' => false,
+            'hasIa' => false,
+            'isSasu' => true,
+            'isMicro' => true,
+            'hasBank' => true,
+            'score' => '9.3',
+            'urssaf' => true,
+            'accounting' => false,
+            'liasse' => false,
+            'iaFeature' => false
         ]
     ];
 @endphp
