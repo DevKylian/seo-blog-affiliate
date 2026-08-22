@@ -1,7 +1,7 @@
-@extends('layouts.blog')
+﻿@extends('layouts.blog')
 
 @section('title', $article->meta_title ?: $article->title)
-@section('description', $article->meta_description ?: $article->excerpt ?: 'Analyse logicielle vérifiée par BusinessKit.')
+@section('description', $article->meta_description ?: $article->excerpt ?: 'Analyse logicielle vÃ©rifiÃ©e par BusinessKit.')
 @section('canonical', $article->canonical_url ?: $article->public_url)
 @section('og_image', route('og-image', $article->id))
 
@@ -28,7 +28,7 @@
         $markdownIndex = $articleBlocks->search(fn($b) => ($b['type'] ?? '') === 'markdown');
         if ($markdownIndex !== false) {
             $mdContent = $articleBlocks[$markdownIndex]['content'] ?? '';
-            if (preg_match('/(##\s+[^#\n]*(?:erreur|piège|attention|limite|choisir|pourquoi)[^#\n]*\n(?:[^#].*\n)+)/ui', $mdContent, $matches, PREG_OFFSET_CAPTURE)) {
+            if (preg_match('/(##\s+[^#\n]*(?:erreur|piÃ¨ge|attention|limite|choisir|pourquoi)[^#\n]*\n(?:[^#].*\n)+)/ui', $mdContent, $matches, PREG_OFFSET_CAPTURE)) {
                 $splitPos = $matches[0][1] + strlen($matches[0][0]);
                 $part1 = substr($mdContent, 0, $splitPos);
                 $part2 = substr($mdContent, $splitPos);
@@ -72,28 +72,28 @@
     <div class="article-hero-inner">
         <div class="article-breadcrumbs">
             <a href="{{ route('blog.index') }}">Tous les guides</a>
-            <span>›</span>
+            <span>â€º</span>
             <span>{{ str_replace('_', ' ', $article->type) }}</span>
         </div>
         <h1>{{ $article->title }}</h1>
         <p class="article-lead">{{ $article->meta_description ?: $article->excerpt }}</p>
         <div class="article-meta-strip">
             <div class="meta-item">
-                <span class="meta-icon">⏱</span>
+                <span class="meta-icon">â±</span>
                 <div>
                     <strong>Temps de lecture</strong>
                     <span>{{ $article->reading_time }} minutes</span>
                 </div>
             </div>
             <div class="meta-item">
-                <span class="meta-icon">📅</span>
+                <span class="meta-icon">ðŸ“…</span>
                 <div>
-                    <strong>Mise à jour</strong>
+                    <strong>Mise Ã  jour</strong>
                     <span>{{ $article->verified_at?->translatedFormat('d F Y') ?? $article->updated_at->translatedFormat('d F Y') }}</span>
                 </div>
             </div>
             <div class="meta-item">
-                <span class="meta-icon">👨‍💻</span>
+                <span class="meta-icon">ðŸ‘¨â€ðŸ’»</span>
                 <div>
                     <strong>Auteur</strong>
                     <span>Kylian Dev.</span>
@@ -118,6 +118,12 @@
                 </div>
             @endif
 
+            
+
+
+
+            @include('blog.partials.ai_summary_buttons')
+
             @include('blog.partials.blocks', ['blocks' => $mainBlocks])
 
             @if($article->internalLinks->count() > 0)
@@ -126,7 +132,7 @@
                     <ul style="list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
                         @foreach($article->internalLinks as $link)
                             @if($link->target && !str_contains($article->body, $link->target->public_url) && !str_contains($article->body, $link->target->public_path))
-                                <li><a href="{{ $link->target->public_url }}" style="color: #2563eb; text-decoration: none; font-weight: 600;">→ {{ $link->anchor_text ?: $link->target->title }}</a></li>
+                                <li><a href="{{ $link->target->public_url }}" style="color: #2563eb; text-decoration: none; font-weight: 600;">â†’ {{ $link->anchor_text ?: $link->target->title }}</a></li>
                             @endif
                         @endforeach
                     </ul>
@@ -139,15 +145,15 @@
     
     <!-- Encart Auteur (SEO EEAT) -->
     <section class="hp-author-block" style="margin-top: 60px; margin-bottom: 20px;">
-        <div class="hp-author-avatar" style="font-size: 48px;">👨‍💻</div>
+        <div class="hp-author-avatar" style="font-size: 48px; padding: 0; overflow: hidden; background: none; border: none; box-shadow: none;"><img src="/images/author-kylian.png" alt="Kylian" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" /></div>
         <div class="hp-author-info">
-            <div style="font-size:12px; font-weight:700; color:var(--home-muted); margin-bottom:4px; text-transform:uppercase; letter-spacing:1px;">L'Expert derrière BusinessKit</div>
+            <div style="font-size:12px; font-weight:700; color:var(--home-muted); margin-bottom:4px; text-transform:uppercase; letter-spacing:1px;">L'Expert derriÃ¨re BusinessKit</div>
             <h3>Kylian Dev.</h3>
-            <p style="margin: 8px 0; line-height: 1.6; color: #475569;">Créateur de BusinessKit, développeur Laravel et indépendant. Je teste, compare et analyse les logiciels destinés aux freelances et petites entreprises afin de proposer des recommandations transparentes et régulièrement mises à jour.</p>
+            <p style="margin: 8px 0; line-height: 1.6; color: #475569;">CrÃ©ateur de BusinessKit, dÃ©veloppeur Laravel et indÃ©pendant. Je teste, compare et analyse les logiciels destinÃ©s aux freelances et petites entreprises afin de proposer des recommandations transparentes et rÃ©guliÃ¨rement mises Ã  jour.</p>
             <div class="hp-author-tags">
-                <span class="hp-author-tag">Basé en France</span>
-                <span class="hp-author-tag">Spécialiste outils SaaS</span>
-                <a href="{{ route('author.show') }}" style="font-size:13px; font-weight:700; color:var(--home-accent); text-decoration:none; margin-left:8px; align-self:center;">Voir la méthodologie complète ↗</a>
+                <span class="hp-author-tag">BasÃ© en France</span>
+                <span class="hp-author-tag">SpÃ©cialiste outils SaaS</span>
+                <a href="{{ route('author.show') }}" style="font-size:13px; font-weight:700; color:var(--home-accent); text-decoration:none; margin-left:8px; align-self:center;">Voir la mÃ©thodologie complÃ¨te â†—</a>
             </div>
         </div>
     </section>
@@ -158,8 +164,8 @@
         @endif
 
         <footer class="article-footer">
-            <strong>Méthode de vérification</strong>
-            <p>Les informations factuelles reposent sur les sources officielles collectées à la date indiquée. Les prix, limites et fonctionnalités peuvent évoluer : vérifiez toujours les conditions sur le site de l'éditeur avant de vous engager.</p>
+            <strong>MÃ©thode de vÃ©rification</strong>
+            <p>Les informations factuelles reposent sur les sources officielles collectÃ©es Ã  la date indiquÃ©e. Les prix, limites et fonctionnalitÃ©s peuvent Ã©voluer : vÃ©rifiez toujours les conditions sur le site de l'Ã©diteur avant de vous engager.</p>
         </footer>
     </section>
 </article>
@@ -190,3 +196,11 @@
 </script>
 @endpush
 @endsection
+
+
+
+
+
+
+
+
