@@ -1,7 +1,7 @@
 {
     "mapping_outils_comptabilite": {
-        "version": "3.0",
-        "description": "Base de données relationnelle massive Métiers <> Statuts <> Outils, incluant les exclusions strictes d'Indy (Acomptes, Restauration, TVA sur marge, Hors UE).",
+        "version": "4.0",
+        "description": "Base de données relationnelle massive Métiers <> Statuts <> Outils. Intégration de Shine comme alternative Compte Pro/Facturation pour les freelances et la mobilité.",
         "secteurs": [
             {
                 "id": "sante-medical",
@@ -242,8 +242,14 @@
                                 "argumentaire": "Idéal pour déduire les locations de salle. Justificatifs numérisés certifiés."
                             },
                             {
-                                "nom": "Abby",
+                                "nom": "Shine",
                                 "rang": 2,
+                                "statut_requis": "Micro-entreprise",
+                                "argumentaire": "Compte pro très apprécié des coachs, avec facturation rapide depuis le smartphone entre deux cours."
+                            },
+                            {
+                                "nom": "Abby",
+                                "rang": 3,
                                 "statut_requis": "Micro-entreprise",
                                 "argumentaire": "Parfait si besoin unique de facturer des particuliers sur mobile."
                             }
@@ -394,6 +400,12 @@
                                 "rang": 1,
                                 "statut_requis": "Tous",
                                 "argumentaire": "Le meilleur pour piloter sa SASU/EURL, détecter la TVA des SaaS et générer le bilan."
+                            },
+                            {
+                                "nom": "Shine",
+                                "rang": 2,
+                                "statut_requis": "Micro-entreprise / SASU",
+                                "argumentaire": "Compte pro très tech-friendly. Idéal pour facturer rapidement ses clients B2B avec un outil tout-en-un."
                             }
                         ],
                         "emoji": "💻"
@@ -501,6 +513,12 @@
                                 "rang": 1,
                                 "statut_requis": "Tous",
                                 "argumentaire": "Facturation illimitée gratuite et déclarations URSSAF automatisées."
+                            },
+                            {
+                                "nom": "Shine",
+                                "rang": 2,
+                                "statut_requis": "Micro-entreprise",
+                                "argumentaire": "Excellente solution bancaire avec facturation incluse pour encaisser de multiples petits clients sereinement."
                             }
                         ],
                         "emoji": "✍️"
@@ -584,6 +602,12 @@
                                 "statut_requis": "Micro",
                                 "argumentaire": "Le meilleur outil de facturation pour les micro-entrepreneurs de ce secteur.",
                                 "rang": 1
+                            },
+                            {
+                                "nom": "Shine",
+                                "statut_requis": "Micro",
+                                "argumentaire": "Un compte pro simple avec facturation incluse, idéal si vous démarrez votre activité.",
+                                "rang": 2
                             }
                         ]
                     }
@@ -610,6 +634,12 @@
                                 "rang": 1,
                                 "statut_requis": "Tous",
                                 "argumentaire": "Application mobile avec photo des reçus : jetez vos tickets de restaurant légalement."
+                            },
+                            {
+                                "nom": "Shine",
+                                "rang": 2,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Gestion intelligente des notes de frais directement intégrée à votre carte bancaire pro."
                             }
                         ],
                         "emoji": "💼"
@@ -651,8 +681,14 @@
                                 "argumentaire": "Outil 100% gratuit suffisant pour les flux simples en micro."
                             },
                             {
-                                "nom": "Abby",
+                                "nom": "Shine",
                                 "rang": 2,
+                                "statut_requis": "Micro-entreprise",
+                                "argumentaire": "Compte pro très ergonomique pour facturer facilement ses clients B2B à la fin du mois."
+                            },
+                            {
+                                "nom": "Abby",
+                                "rang": 3,
                                 "statut_requis": "Micro",
                                 "argumentaire": "Idéal pour éditer des devis propres rapidement."
                             }
@@ -729,6 +765,12 @@
                                 "rang": 1,
                                 "statut_requis": "Tous",
                                 "argumentaire": "Détection auto de la TVA sur l'essence et amortissement du véhicule."
+                            },
+                            {
+                                "nom": "Shine",
+                                "rang": 2,
+                                "statut_requis": "Tous",
+                                "argumentaire": "Partenaire historique des VTC (Uber, Bolt). Compte pro incluant des assurances pensées pour les chauffeurs."
                             }
                         ],
                         "emoji": "🚘"
@@ -743,14 +785,20 @@
                         ],
                         "outils_recommandes": [
                             {
-                                "nom": "Abby",
+                                "nom": "Shine",
                                 "rang": 1,
+                                "statut_requis": "Micro-entreprise",
+                                "argumentaire": "Le compte pro N°1 des coursiers. Shine gère gratuitement la création de votre micro-entreprise."
+                            },
+                            {
+                                "nom": "Abby",
+                                "rang": 2,
                                 "statut_requis": "Micro-entreprise",
                                 "argumentaire": "Top pour la facturation en micro sans besoin de récupérer la TVA."
                             },
                             {
                                 "nom": "Indy",
-                                "rang": 2,
+                                "rang": 3,
                                 "statut_requis": "Micro-entreprise",
                                 "argumentaire": "Formule gratuite parfaite pour automatiser l'URSSAF."
                             }
@@ -876,6 +924,12 @@
                                 "rang": 1,
                                 "statut_requis": "Société IS ou Micro",
                                 "argumentaire": "Parfait si vos ventes européennes sont inférieures à 10 000€/an et 0 vente hors UE."
+                            },
+                            {
+                                "nom": "Shine",
+                                "rang": 2,
+                                "statut_requis": "Micro-entreprise",
+                                "argumentaire": "Compte pro idéal pour recevoir ses fonds Etsy et payer ses fournisseurs avec une seule carte."
                             }
                         ],
                         "emoji": "🧶"
@@ -985,10 +1039,10 @@
                                 "argumentaire": "Parfait pour l'artisanat de dépannage sans gestion d'acomptes."
                             },
                             {
-                                "nom": "Abby",
+                                "nom": "Shine",
                                 "rang": 2,
                                 "statut_requis": "Micro-entreprise",
-                                "argumentaire": "Très pratique pour facturer sur smartphone chez le client."
+                                "argumentaire": "Terminal de paiement compatible et facturation sur mobile chez le client."
                             }
                         ],
                         "emoji": "🛠️"
@@ -1037,10 +1091,10 @@
                                 "argumentaire": "Parfait pour automatiser l'URSSAF et éditer des factures sans frais."
                             },
                             {
-                                "nom": "Abby",
+                                "nom": "Shine",
                                 "rang": 2,
                                 "statut_requis": "Micro-entreprise",
-                                "argumentaire": "Alternative très ergonomique pour les petits flux de facturation sur mobile."
+                                "argumentaire": "Compte pro ultra rapide à ouvrir pour encaisser ses premières collaborations marques."
                             }
                         ],
                         "emoji": "🤳"
@@ -1151,10 +1205,10 @@
                                 "argumentaire": "Interface claire pour facturer vos pourcentages et commissions."
                             },
                             {
-                                "nom": "Abby",
+                                "nom": "Shine",
                                 "rang": 2,
                                 "statut_requis": "Micro-entreprise",
-                                "argumentaire": "Très pratique si vous êtes uniquement en statut micro."
+                                "argumentaire": "Idéal pour encaisser rapidement ses commissions de closing sur un compte pro dédié."
                             }
                         ],
                         "emoji": "🤝"
