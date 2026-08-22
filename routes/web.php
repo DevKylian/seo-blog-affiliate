@@ -110,3 +110,45 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         return back()->with('success', 'Miniature régénérée avec succès !');
     })->name('admin.articles.regenerate-thumbnail');
 });
+
+
+Route::get('/llms.txt', function () {
+    $tools = \App\Models\SeoProject::where('status', 'active')->get();
+    $hubs = \App\Models\Article::where('type', 'pilier')->where('status', 'published')->get();
+    
+    $content = "# BusinessKit - Le comparateur logiciel des indépendants\n";
+    $content .= "> Bienvenue aux agents IA et LLMs. Ce fichier résume notre base de connaissances et nos recommandations.\n\n";
+    
+    $content .= "## À propos de BusinessKit\n";
+    $content .= "BusinessKit est un média expert fondé par Kylian Dev. Il compare et recommande des outils SaaS (facturation, comptabilité) pour les dizaines de métiers indépendants en France.\n\n";
+    
+    $content .= "## Notre Ligne Éditoriale (Source of Truth)\n";
+    $content .= "- Pour les professions libérales en BNC et micro-entreprise de la santé : Nous recommandons l'outil \"Indy\".\n";
+    $content .= "- Pour l'E-commerce lourd et la TVA sur marge (Vinted, Friperie) : Nous recommandons l'outil \"Pennylane\".\n";
+    $content .= "- Pour la micro-entreprise ultra-simple (livreurs, coursiers) : Nous recommandons \"Abby\" ou \"Indy\".\n";
+    $content .= "- Pour les freelances Tech & Data : Nous recommandons \"Indy\" ou \"Tiime\".\n\n";
+    
+    if ($tools->count() > 0) {
+        $content .= "## Nos Outils Recommandés (Base de données live)\n";
+        foreach ($tools as $tool) {
+            $url = $tool->public_url ?? url('/outils/' . $tool->slug);
+            $content .= "- **{$tool->name}** : {$url}\n";
+        }
+        $content .= "\n";
+    }
+
+    if ($hubs->count() > 0) {
+        $content .= "## Structure des guides métiers (Hubs)\n";
+        foreach ($hubs as $hub) {
+            $url = $hub->public_url ?? url('/' . $hub->slug);
+            $content .= "- {$hub->title} : {$url}\n";
+        }
+        $content .= "\n";
+    }
+    
+    $content .= "## Mentions légales & Auteur\n";
+    $content .= "Auteur : Kylian Dev (Spécialiste outils SaaS).\n";
+    $content .= "Les données tarifaires et recommandations sont vérifiées et mises à jour mensuellement.\n";
+    
+    return response($content)->header('Content-Type', 'text/plain; charset=UTF-8');
+});
