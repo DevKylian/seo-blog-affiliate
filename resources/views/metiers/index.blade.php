@@ -4,40 +4,7 @@
 @section('meta_description', 'Découvrez les meilleurs logiciels de facturation et de comptabilité recommandés spécifiquement pour votre métier indépendant (BNC, artisan, tech, santé...).')
 
 
-@push('head')
-<style>
-    .sector-btn {
-        padding: 10px 22px;
-        border: 1px solid #e2e8f0;
-        border-radius: 100px;
-        font-size: 14px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        white-space: nowrap;
-        background: white;
-        color: #475569;
-    }
-    .sector-btn:hover {
-        border-color: #cbd5e1;
-        background: #f8fafc;
-        color: #0f172a;
-        transform: translateY(-1px);
-    }
-    .sector-btn.active {
-        background: #2563eb;
-        color: white;
-        border-color: #2563eb;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
-    }
-    .sector-btn.active:hover {
-        background: #1d4ed8;
-        border-color: #1d4ed8;
-        transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
-    }
-</style>
-@endpush
+
 
 @section('content')
 <div class="hp-hero" style="padding-top: 40px; padding-bottom: 40px;">
@@ -54,32 +21,13 @@
 <div x-data="metierDirectory()" style="margin-top: 0; padding-top: 40px; padding-bottom: 80px; background: #f8fafc; padding-inline: 24px;">
     <div style="max-width: 1200px; margin: 0 auto; width: 100%;">
         
-        <!-- Search & Filter Bar -->
+                <!-- Search & Filter Bar -->
         <div style="background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 24px; margin-bottom: 40px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
-            <div style="display: flex; flex-direction: column; gap: 20px;">
-                <!-- Search Input -->
-                <div style="position: relative;">
-                    <span style="position: absolute; left: 16px; top: 14px; color: #94a3b8;">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    </span>
-                    <input type="text" x-model="searchQuery" placeholder="Rechercher un métier (ex: Infirmier, Développeur...)" style="width: 100%; padding: 14px 16px 14px 48px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 16px; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#cbd5e1'">
-                </div>
-
-                <!-- Sectors Filter -->
-                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-                    <button @click="selectedSector = 'all'" 
-                            :class="{'active': selectedSector === 'all'}"
-                            class="sector-btn">
-                        Tous
-                    </button>
-                    <template x-for="sector in sectors" :key="sector.id">
-                        <button @click="selectedSector = sector.id" 
-                                :class="{'active': selectedSector === sector.id}"
-                                class="sector-btn">
-                            <span x-text="sector.label"></span>
-                        </button>
-                    </template>
-                </div>
+            <div style="position: relative;">
+                <span style="position: absolute; left: 16px; top: 14px; color: #94a3b8;">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </span>
+                <input type="text" x-model="searchQuery" placeholder="Rechercher un métier (ex: Infirmier, Développeur...)" style="width: 100%; padding: 14px 16px 14px 48px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 16px; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#cbd5e1'">
             </div>
         </div>
 
@@ -135,7 +83,7 @@
             <div style="font-size: 48px; margin-bottom: 16px;">🔍</div>
             <h3 style="font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">Aucun métier trouvé</h3>
             <p style="color: #64748b; font-size: 16px;">Essayez d'autres termes de recherche ou sélectionnez un autre secteur.</p>
-            <button @click="searchQuery = ''; selectedSector = 'all'" style="margin-top: 16px; background: #f1f5f9; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;">Réinitialiser les filtres</button>
+            <button @click="searchQuery = ''" style="margin-top: 16px; background: #f1f5f9; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;">Réinitialiser la recherche</button>
         </div>
 
     </div>
