@@ -88,7 +88,10 @@ class SeoProject extends Model
         return $this->hasMany(ContentCluster::class);
     }
 
-    
+    public function articles(): HasMany
+    {
+        return $this->hasMany(Article::class);
+    }
 
     public function contentRuns(): HasMany
     {
