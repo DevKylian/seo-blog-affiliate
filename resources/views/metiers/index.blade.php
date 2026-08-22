@@ -111,13 +111,19 @@
                         </ul>
                     </div>
 
-                    <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 16px; position: relative;">
-                        <div style="position: absolute; top: -10px; right: 16px; background: #2563eb; color: white; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Recommandé</div>
+                    <div :style="`background: ${getToolColor(job.outils_recommandes[0]?.nom).bg}; border: 1px solid ${getToolColor(job.outils_recommandes[0]?.nom).border}; border-radius: 12px; padding: 16px; position: relative; display: flex; flex-direction: column; height: 100%;`">
+                        <div :style="`position: absolute; top: -10px; right: 16px; background: ${getToolColor(job.outils_recommandes[0]?.nom).badge}; color: white; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.5px;`">Recommandé</div>
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                            <span style="color: #2563eb;"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg></span>
-                            <span style="font-size: 18px; font-weight: 900; color: #1e3a8a;" x-text="job.outils_recommandes[0]?.nom"></span>
+                            <span :style="`color: ${getToolColor(job.outils_recommandes[0]?.nom).badge};`"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg></span>
+                            <span style="font-size: 18px; font-weight: 900;" :style="`color: ${getToolColor(job.outils_recommandes[0]?.nom).text};`" x-text="job.outils_recommandes[0]?.nom"></span>
                         </div>
-                        <p style="margin: 0; font-size: 13px; color: #1e40af; line-height: 1.4;" x-text="job.outils_recommandes[0]?.argumentaire"></p>
+                        <p style="margin: 0 0 16px 0; font-size: 13px; line-height: 1.4; flex-grow: 1;" :style="`color: ${getToolColor(job.outils_recommandes[0]?.nom).text};`" x-text="job.outils_recommandes[0]?.argumentaire"></p>
+                        
+                        <a :href="getAffiliateLink(job.outils_recommandes[0]?.nom)" target="_blank" rel="sponsored nofollow"
+                           :style="`display: block; width: 100%; text-align: center; background: ${getToolColor(job.outils_recommandes[0]?.nom).badge}; color: white; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none; transition: opacity 0.2s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);`"
+                           onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                            Accéder à l'outil →
+                        </a>
                     </div>
 
                 </div>
@@ -156,6 +162,22 @@
                 return jobs;
             },
 
+            getToolColor(toolName) {
+                if (!toolName) return { bg: '#eff6ff', border: '#bfdbfe', text: '#1e3a8a', badge: '#2563eb' };
+                const name = toolName.toLowerCase();
+                if (name.includes('indy')) return { bg: '#eff6ff', border: '#bfdbfe', text: '#1e3a8a', badge: '#005fef' };
+                if (name.includes('pennylane')) return { bg: '#f0fdf4', border: '#bbf7d0', text: '#14532d', badge: '#16a34a' };
+                if (name.includes('dougs')) return { bg: '#fff1f2', border: '#fecdd3', text: '#881337', badge: '#e11d48' };
+                if (name.includes('tiime')) return { bg: '#fdf4ff', border: '#f5d0fe', text: '#701a75', badge: '#c026d3' };
+                if (name.includes('abby')) return { bg: '#f5f3ff', border: '#ede9fe', text: '#4c1d95', badge: '#7c3aed' };
+                return { bg: '#eff6ff', border: '#bfdbfe', text: '#1e3a8a', badge: '#2563eb' };
+            },
+            getAffiliateLink(toolName) {
+                if (!toolName) return '#';
+                const name = toolName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+                return `/go/${name}`;
+            },
+            
             get filteredJobs() {
                 return this.allJobs.filter(job => {
                     const matchesSearch = job.nom.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
