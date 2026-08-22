@@ -15,7 +15,9 @@
 <section class="blog-listing">
     <div class="category-chips" aria-label="Categories">
         @foreach($categories as $category)
-            <a href="{{ route('blog.show', $category->slug) }}">{{ $category->name }} <span>{{ $category->articles_count }}</span></a>
+            @if($category->articles_count > 0)
+                <a href="{{ route('blog.show', $category->slug) }}">{{ $category->name }} <span>{{ $category->articles_count }}</span></a>
+            @endif
         @endforeach
     </div>
 
@@ -33,9 +35,9 @@
                     <img src="{{ route('og-image', $article->id) }}" alt="{{ $article->title }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px 16px 0 0;" loading="lazy">
                 </div>
                 <div style="padding: 24px; display: flex; flex-direction: column; flex-grow: 1;">
-                    <div class="hp-card-header">
-                        <span class="hp-card-category">{{ $article->categories->first()->name ?? str_replace('_', ' ', $article->type) }}</span>
-                        <span class="hp-card-date">{{ $article->published_at?->translatedFormat('d M Y') ?: $article->updated_at->format('M Y') }}</span>
+                    <div class="hp-card-header" style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px; font-size: 13px;">
+                        <span class="hp-card-category" style="background: #e2e8f0; color: #334155; padding: 4px 10px; border-radius: 6px; font-weight: 600;">{{ $article->categories->first()->name ?? str_replace('_', ' ', $article->type) }}</span>
+                        <span class="hp-card-date" style="color: #64748b; font-weight: 500;">{{ $article->published_at?->translatedFormat('d M Y') ?: $article->updated_at->format('M Y') }}</span>
                     </div>
                     <div class="hp-card-title">{{ $article->title }}</div>
                     <div class="hp-card-desc">{{ Str::limit($article->meta_description ?: ($article->excerpt ?? 'Découvrez notre analyse détaillée et nos conseils d\'experts.'), 110) }}</div>

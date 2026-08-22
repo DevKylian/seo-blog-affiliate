@@ -484,9 +484,9 @@
                     <img src="{{ route('og-image', $article->id) }}" alt="{{ $article->title }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px 16px 0 0;" loading="lazy">
                 </div>
                 <div style="padding: 24px; display: flex; flex-direction: column; flex-grow: 1;">
-                    <div class="hp-card-header">
-                        <span class="hp-card-category">{{ $article->categories->first()->name ?? 'Comparatif' }}</span>
-                        <span class="hp-card-date">{{ $article->updated_at->format('M Y') }}</span>
+                    <div class="hp-card-header" style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px; font-size: 13px;">
+                        <span class="hp-card-category" style="background: #e2e8f0; color: #334155; padding: 4px 10px; border-radius: 6px; font-weight: 600;">{{ $article->categories->first()->name ?? 'Comparatif' }}</span>
+                        <span class="hp-card-date" style="color: #64748b; font-weight: 500;">{{ $article->updated_at->format('M Y') }}</span>
                     </div>
                     <div class="hp-card-title">{{ $article->title }}</div>
                     <div class="hp-card-desc">{{ Str::limit($article->excerpt ?? 'Découvrez notre analyse détaillée et notre classement pour choisir la meilleure solution adaptée à vos besoins.', 110) }}</div>
@@ -503,10 +503,10 @@
                         <img src="{{ route('og-image', $article->id) }}" alt="{{ $article->title }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px 16px 0 0;" loading="lazy">
                     </div>
                     <div style="padding: 24px; display: flex; flex-direction: column; flex-grow: 1;">
-                        <div class="hp-card-header">
-                            <span class="hp-card-category">{{ $article->categories->first()->name ?? 'Guide' }}</span>
-                            <span class="hp-card-date">{{ $article->updated_at->format('M Y') }}</span>
-                        </div>
+                        <div class="hp-card-header" style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px; font-size: 13px;">
+                        <span class="hp-card-category" style="background: #e2e8f0; color: #334155; padding: 4px 10px; border-radius: 6px; font-weight: 600;">{{ $article->categories->first()->name ?? 'Guide' }}</span>
+                        <span class="hp-card-date" style="color: #64748b; font-weight: 500;">{{ $article->updated_at->format('M Y') }}</span>
+                    </div>
                         <div class="hp-card-title">{{ $article->title }}</div>
                         <div class="hp-card-desc">{{ Str::limit($article->excerpt ?? 'Découvrez notre analyse détaillée et nos conseils d\'experts.', 110) }}</div>
                         <div class="hp-card-footer" style="margin-top: auto;">
