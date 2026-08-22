@@ -110,8 +110,8 @@
                 </div>
 
                 <!-- Tool Icon -->
-                <div style="margin: 0 auto 20px; width: 56px; height: 56px; background: #eff6ff; color: #2563eb; border-radius: 16px; display: flex; align-items: center; justify-content: center;">
-                    <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                <div style="margin: 0 auto 20px; width: 64px; height: 64px; background: white; border: 1px solid #e2e8f0; border-radius: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+                    <img :src="`https://www.google.com/s2/favicons?domain=${resultDomain}&sz=128`" :alt="resultTool" style="width: 70%; height: 70%; object-fit: contain; border-radius: 4px;">
                 </div>
 
                 <!-- Title -->
@@ -165,6 +165,7 @@
                 answers: {},
                 resultTool: '',
                 resultSubtitle: '',
+                resultDomain: '',
                 resultProfile: '',
                 resultReasons: [],
                 resultUrl: '',
@@ -186,21 +187,25 @@
 
                     if (this.answers[1] === 'micro' && this.answers[4] === 'argent') {
                         this.resultTool = 'Abby';
+                        this.resultDomain = 'abby.fr';
                         this.resultSubtitle = 'L\'alternative 100% gratuite pour gérer votre facturation sans limites.';
                         this.resultReasons = ['100% gratuit pour la facturation', 'Parfait pour les micro-entrepreneurs', 'Idéal pour limiter les frais de départ'];
                         this.resultUrl = '{{ route('affiliate.redirect', 'abby') }}';
                     } else if (this.answers[3] === 'expert' || this.answers[4] === 'conseil') {
                         this.resultTool = 'Dougs';
+                        this.resultDomain = 'dougs.fr';
                         this.resultSubtitle = 'L\'expert-comptable en ligne avec un vrai conseil et une app intuitive.';
                         this.resultReasons = ['Accompagnement par de vrais comptables', 'Conseil illimité inclus', 'Plateforme ultra-intuitive'];
                         this.resultUrl = '{{ route('affiliate.redirect', 'dougs') }}';
                     } else if (this.answers[4] === 'allinone') {
                         this.resultTool = 'Pennylane';
+                        this.resultDomain = 'pennylane.com';
                         this.resultSubtitle = 'La solution tout-en-un réunissant compte pro et comptabilité.';
                         this.resultReasons = ['Outil tout-en-un (Banque + Compta)', 'Connectable avec votre expert-comptable', 'Gestion financière puissante'];
                         this.resultUrl = '{{ route('affiliate.redirect', 'pennylane') }}';
                     } else {
                         this.resultTool = 'Indy';
+                        this.resultDomain = 'indy.fr';
                         this.resultSubtitle = 'L\'outil préféré des indépendants pour tout automatiser de A à Z.';
                         this.resultReasons = ['Simple à prendre en main', 'Adapté aux indépendants seuls', 'Automatisation maximale (TVA, URSSAF)'];
                         this.resultUrl = '{{ route('affiliate.redirect', 'indy') }}';
