@@ -15,9 +15,7 @@
 <main style="max-width: 800px; margin: 60px auto; padding: 0 24px;">
     
     <div style="display: flex; gap: 40px; align-items: flex-start; margin-bottom: 60px;">
-        <div style="flex-shrink: 0; width: 150px; height: 150px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 48px;">
-            👋
-        </div>
+        <div style="flex-shrink: 0; width: 150px; height: 150px; border-radius: 50%; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"><img src="/images/author-kylian.png" alt="Kylian" style="width: 100%; height: 100%; object-fit: cover;" /></div>
         <div>
             <h2 style="font-family: 'Manrope', sans-serif; font-size: 28px; font-weight: 800; margin-bottom: 8px;">Kylian Dev.</h2>
             <p style="color: var(--home-accent); font-weight: 700; margin-bottom: 16px;">Créateur de BusinessKit</p>
