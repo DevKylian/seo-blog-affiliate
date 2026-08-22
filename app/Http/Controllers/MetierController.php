@@ -13,7 +13,15 @@ class MetierController extends Controller
         
         $secteurs = $data['mapping_outils_comptabilite']['secteurs'] ?? [];
         
-        $brandColors = \App\Models\SeoProject::whereNotNull('brand_color')->pluck('brand_color', 'slug');
+                $projectsWithColors = \App\Models\SeoProject::whereNotNull('brand_color')->get();
+        $brandColors = [];
+        foreach ($projectsWithColors as $project) {
+            $brandColors[$project->slug] = [
+                'badge' => $project->brand_color,
+                'text' => $project->brand_text_color,
+                'icon' => $project->brand_color
+            ];
+        }
 
         return view('metiers.index', [
             'secteurs' => $secteurs,

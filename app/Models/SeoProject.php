@@ -153,4 +153,29 @@ class SeoProject extends Model
     {
         return $this->hasMany(SerpDifferentiationBrief::class);
     }
+
+    public function getBrandTextColorAttribute(): string
+    {
+        if (!$this->brand_color) {
+            return '#ffffff';
+        }
+
+        $hex = str_replace('#', '', $this->brand_color);
+
+        if (strlen($hex) == 3) {
+            $hex = str_repeat(substr($hex,0,1), 2) . str_repeat(substr($hex,1,1), 2) . str_repeat(substr($hex,2,1), 2);
+        }
+
+        if (strlen($hex) != 6) {
+             return '#ffffff';
+        }
+
+        $r = hexdec(substr($hex,0,2));
+        $g = hexdec(substr($hex,2,2));
+        $b = hexdec(substr($hex,4,2));
+
+        $yiq = (($r*299)+($g*587)+($b*114))/1000;
+
+        return ($yiq >= 128) ? '#0f172a' : '#ffffff';
+    }
 }
