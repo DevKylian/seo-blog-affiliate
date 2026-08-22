@@ -19,7 +19,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
-use Illuminate\Http\Request;
+
 
 Route::get('/recommandation', function (Request $request) {
     $metier = $request->query('metier', 'indépendant');
