@@ -31,6 +31,8 @@ class Projects extends Component
 
     public string $currency = 'EUR';
 
+    public ?string $brand_color = null;
+
     public string $description = '';
 
     public string $positioning = '';
@@ -71,6 +73,7 @@ class Projects extends Component
             'affiliateUrl' => ['nullable', 'url', 'max:2000'],
             'country' => ['required', 'string', 'size:2'],
             'currency' => ['required', 'string', 'size:3'],
+            'brand_color' => ['nullable', 'string', 'max:20'],
             'competitorsText' => ['nullable', 'string', 'max:5000'],
             'competitorPricingUrlsText' => ['nullable', 'string', 'max:10000'],
             'screenshot' => ['nullable', 'image', 'max:2048'], // 2MB Max
@@ -91,6 +94,7 @@ class Projects extends Component
             'affiliate_url' => $data['affiliateUrl'] ?: null,
             'country' => strtoupper($data['country']),
             'currency' => strtoupper($data['currency']),
+            'brand_color' => $data['brand_color'] ?? null,
             'description' => $this->description ?: null,
             'positioning' => $this->positioning ?: null,
             'features' => $this->lines($this->featuresText),

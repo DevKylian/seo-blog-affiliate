@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('articles', function (Blueprint $table) {
-            $table->dropForeign(['seo_project_id']);
+            // $table->dropForeign(['seo_project_id']);
             $table->dropColumn('seo_project_id');
         });
     }
@@ -21,3 +21,4 @@ return new class extends Migration
         });
     }
 };
+
