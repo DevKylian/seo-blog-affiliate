@@ -176,6 +176,6 @@ class SeoProject extends Model
 
         $yiq = (($r*299)+($g*587)+($b*114))/1000;
 
-        return ($yiq >= 128) ? '#0f172a' : '#ffffff';
+        return ($yiq >= 160) ? '#0f172a' : '#ffffff';
     }
 }
