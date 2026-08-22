@@ -521,7 +521,7 @@
 
     <!-- Encart Auteur (SEO EEAT) -->
     <section class="hp-author-block">
-        <div class="hp-author-avatar">👋</div>
+        <div class="hp-author-avatar" style="padding: 0; overflow: hidden; background: none; border: none; box-shadow: none;"><img src="/images/author-kylian.png" alt="Kylian" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" /></div>
         <div class="hp-author-info">
             <div style="font-size:12px; font-weight:700; color:var(--home-muted); margin-bottom:4px; text-transform:uppercase; letter-spacing:1px;">L'Expert derrière BusinessKit</div>
             <h3>Kylian Dev.</h3>
