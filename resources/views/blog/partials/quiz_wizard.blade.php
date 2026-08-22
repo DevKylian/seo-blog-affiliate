@@ -100,34 +100,61 @@
         </div>
 
         <!-- Result -->
-        <div x-show="step === 5" style="display: none;" class="hp-wizard-result">
-            <div style="font-size: 48px; margin-bottom:16px;">🎯</div>
-            
-            <p style="color:var(--home-muted); font-size:12px; margin-bottom:4px; text-transform:uppercase; font-weight:800; letter-spacing:1px;">Votre profil :</p>
-            <p style="font-size:20px; font-weight:800; color:var(--home-accent); margin-bottom:32px; font-family:'Manrope';" x-text="resultProfile"></p>
+        <div x-show="step === 5" style="display: none; text-align: center;" class="hp-wizard-result">
+            <div style="background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 40px 24px; display: inline-block; text-align: center; width: 100%; max-width: 600px; box-shadow: 0 10px 25px rgba(37,99,235,0.05);">
+                
+                <!-- Badge "Notre recommandation" -->
+                <div style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; color: #2563eb; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 24px;">
+                    <span style="display: inline-block; width: 6px; height: 6px; background: #2563eb; border-radius: 50%;"></span>
+                    NOTRE RECOMMANDATION
+                </div>
 
-            <div style="background:white; border:1px solid rgba(37, 99, 235, 0.15); border-radius:20px; padding:32px; display:inline-block; text-align:left; min-width:320px; max-width:500px; box-shadow:0 20px 40px rgba(37,99,235,0.06);">
-                <p style="color:var(--home-muted); font-size:11px; margin-bottom:8px; text-transform:uppercase; font-weight:800; letter-spacing:1px;">Notre recommandation :</p>
-                <h3 class="hp-selection-title" style="margin-bottom:20px; font-size:28px;">🥇 <span x-text="resultTool"></span></h3>
+                <!-- Tool Icon -->
+                <div style="margin: 0 auto 20px; width: 56px; height: 56px; background: #eff6ff; color: #2563eb; border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+
+                <!-- Title -->
+                <h3 style="font-size: 32px; font-weight: 900; color: #0f172a; margin: 0 0 12px; font-family: 'Manrope', sans-serif;" x-text="resultTool"></h3>
                 
-                <p style="font-weight:800; color: #0f172a; font-size:15px; margin-bottom:14px; font-family:'Manrope';">Pourquoi ce choix ?</p>
-                <ul style="list-style:none; padding:0; margin:0 0 28px 0; color:var(--home-text); font-size:15px; display:flex; flex-direction:column; gap:10px;">
+                <!-- Subtitle -->
+                <p style="font-size: 15px; color: #475569; margin: 0 auto 28px; line-height: 1.5; font-weight: 500; max-width: 400px;" x-text="resultSubtitle"></p>
+
+                <!-- Pills / Features -->
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 32px;">
                     <template x-for="reason in resultReasons">
-                        <li style="display:flex; gap:10px; align-items:center;">
-                            <span style="color:#10b981; display:flex; align-items:center;">
-                                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                            </span>
-                            <span x-text="reason" style="font-weight: 500;"></span>
-                        </li>
+                        <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 100px; font-size: 13px; font-weight: 600; color: #334155;">
+                            <svg width="14" height="14" viewBox="0 0 20 20" fill="#2563eb"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            <span x-text="reason"></span>
+                        </span>
                     </template>
-                </ul>
-                
-                <div style="text-align:center;">
-                    <a :href="resultUrl" target="_blank" rel="sponsored nofollow" class="hp-hero-cta" style="padding: 16px 32px; font-size:16px; display:inline-block; width:100%; text-align:center; border-radius:10px;">Voir <span x-text="resultTool"></span> gratuitement →</a>
+                </div>
+
+                <!-- CTA Button -->
+                <a :href="resultUrl" target="_blank" rel="sponsored nofollow" style="display: block; width: 100%; text-align: center; background: #005fef; color: white; font-size: 16px; font-weight: 800; padding: 18px 24px; border-radius: 8px; text-decoration: none; transition: all 0.2s; box-shadow: 0 4px 12px rgba(37,99,235,0.2);" onmouseover="this.style.backgroundColor='#004bbf';" onmouseout="this.style.backgroundColor='#005fef';">
+                    Essayer <span x-text="resultTool"></span> gratuitement →
+                </a>
+
+                <!-- Trust Stars -->
+                <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 16px; font-size: 13px; font-weight: 600; color: #64748b;">
+                    <div style="display: flex; color: #facc15;">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    </div>
+                    <span>4,8/5 · 500+ clients · Sans carte requise</span>
                 </div>
             </div>
 
-            <p style="margin-top:24px;"><a href="#" @click.prevent="reset()" style="color:var(--home-muted); font-size:14px; font-weight:600; text-decoration:underline;">Refaire le test</a></p>
+            <!-- Reset Quiz -->
+            <div style="margin-top: 24px;">
+                <a href="#" @click.prevent="reset()" style="display: inline-flex; align-items: center; gap: 8px; color: #94a3b8; font-size: 14px; font-weight: 600; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    Recommencer le quiz
+                </a>
+            </div>
         </div>
     </div>
 
@@ -137,6 +164,7 @@
                 step: 1,
                 answers: {},
                 resultTool: '',
+                resultSubtitle: '',
                 resultProfile: '',
                 resultReasons: [],
                 resultUrl: '',
@@ -158,18 +186,22 @@
 
                     if (this.answers[1] === 'micro' && this.answers[4] === 'argent') {
                         this.resultTool = 'Abby';
+                        this.resultSubtitle = 'L\'alternative 100% gratuite pour gérer votre facturation sans limites.';
                         this.resultReasons = ['100% gratuit pour la facturation', 'Parfait pour les micro-entrepreneurs', 'Idéal pour limiter les frais de départ'];
                         this.resultUrl = '{{ route('affiliate.redirect', 'abby') }}';
                     } else if (this.answers[3] === 'expert' || this.answers[4] === 'conseil') {
                         this.resultTool = 'Dougs';
+                        this.resultSubtitle = 'L\'expert-comptable en ligne avec un vrai conseil et une app intuitive.';
                         this.resultReasons = ['Accompagnement par de vrais comptables', 'Conseil illimité inclus', 'Plateforme ultra-intuitive'];
                         this.resultUrl = '{{ route('affiliate.redirect', 'dougs') }}';
                     } else if (this.answers[4] === 'allinone') {
                         this.resultTool = 'Pennylane';
+                        this.resultSubtitle = 'La solution tout-en-un réunissant compte pro et comptabilité.';
                         this.resultReasons = ['Outil tout-en-un (Banque + Compta)', 'Connectable avec votre expert-comptable', 'Gestion financière puissante'];
                         this.resultUrl = '{{ route('affiliate.redirect', 'pennylane') }}';
                     } else {
                         this.resultTool = 'Indy';
+                        this.resultSubtitle = 'L\'outil préféré des indépendants pour tout automatiser de A à Z.';
                         this.resultReasons = ['Simple à prendre en main', 'Adapté aux indépendants seuls', 'Automatisation maximale (TVA, URSSAF)'];
                         this.resultUrl = '{{ route('affiliate.redirect', 'indy') }}';
                     }
