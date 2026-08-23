@@ -14,109 +14,21 @@
                 Comparatifs & Outils mis à jour en continu · 2026
             </div>
 
-            <h1 style="font-size: clamp(32px, 5vw, 56px); line-height: 1.1; margin-bottom: 24px;">Trouvez le logiciel de gestion parfait pour <span class="highlight">VOTRE métier.</span></h1>
+            <h1 style="font-size: clamp(32px, 5vw, 56px); line-height: 1.1; margin-bottom: 24px;">
+                Trouvez le meilleur logiciel de <span class="highlight">comptabilité</span>, <span class="highlight">facturation</span> ou <span class="highlight">banque pro</span>
+            </h1>
 
             <p class="hp-hero-subtitle">
                 Comparez les meilleures solutions conçues spécifiquement pour les freelances, auto-entrepreneurs et indépendants.
             </p>
 
             <div class="hp-hero-trust">
-                <span>⭐⭐⭐⭐⭐</span> +5900 indépendants nous font confiance
-                <div style="font-size: 14px; color: #64748b; margin-top: 8px; font-weight: 500;">
-                    Déjà adopté par des centaines de professionnels de santé, freelances tech, e-commerçants et artisans pour faire le bon choix.
-                </div>
+                <span>★★★★★</span> +5900 indépendants nous font confiance
             </div>
         </div>
-        
-        <!-- CRO Moteur de Recherche Magique -->
-        <div style="max-width: 800px; margin: -40px auto 40px; position: relative; z-index: 10; padding: 0 20px;">
-            <div style="background: white; border-radius: 100px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); display: flex; padding: 8px; border: 1px solid #e2e8f0; position: relative;">
-                <div style="display: flex; align-items: center; padding-left: 16px; color: #64748b;">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                </div>
-                <input type="text" id="cro-search-input" placeholder="Quel est votre métier ? (ex: Kiné, Développeur...)" style="flex: 1; border: none; padding: 16px; font-size: 18px; outline: none; border-radius: 100px; color: #1e293b; background: transparent;" autocomplete="off">
-            </div>
-            
-            <!-- Autocomplete Dropdown -->
-            <div id="cro-search-results" style="display: none; position: absolute; top: 100%; left: 20px; right: 20px; background: white; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); margin-top: 8px; overflow: hidden; border: 1px solid #e2e8f0; max-height: 400px; overflow-y: auto;">
-            </div>
-        </div>
-        
-        <!-- CRO Modal Recommendation -->
-        <div id="cro-modal" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(15,23,42,0.8); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px;">
-            <div style="background: white; border-radius: 24px; max-width: 500px; width: 100%; padding: 40px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); position: relative;">
-                <button onclick="document.getElementById('cro-modal').style.display='none'" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b;">&times;</button>
-                <div id="cro-modal-emoji" style="font-size: 48px; margin-bottom: 16px;">💼</div>
-                <h3 style="font-size: 24px; font-weight: 800; color: #0f172a; margin-bottom: 8px;" id="cro-modal-title">Notre recommandation</h3>
-                <p style="font-size: 16px; color: #64748b; margin-bottom: 24px; line-height: 1.6;" id="cro-modal-desc">Description de l'outil</p>
-                <a href="#" id="cro-modal-cta" style="display: inline-block; width: 100%; background: #F75A77; color: white; padding: 16px; border-radius: 12px; font-weight: 700; font-size: 18px; text-decoration: none; transition: transform 0.2s; box-shadow: 0 4px 14px rgba(247, 90, 119, 0.4);">Voir l'offre exclusive</a>
-            </div>
-        </div>
-
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                const searchInput = document.getElementById('cro-search-input');
-                const searchResults = document.getElementById('cro-search-results');
-                const modal = document.getElementById('cro-modal');
-                let metiersData = [];
-
-                fetch('/metiers.json')
-                    .then(res => res.json())
-                    .then(data => { metiersData = data; })
-                    .catch(e => console.error(e));
-
-                searchInput.addEventListener('input', function() {
-                    const query = this.value.toLowerCase().trim();
-                    if(query.length < 2) {
-                        searchResults.style.display = 'none';
-                        return;
-                    }
-                    
-                    const filtered = metiersData.filter(m => m.nom.toLowerCase().includes(query));
-                    if(filtered.length === 0) {
-                        searchResults.style.display = 'none';
-                        return;
-                    }
-                    
-                    let html = '';
-                    filtered.slice(0, 8).forEach(m => {
-                        html += `<div class="cro-search-item" data-tool="${m.tool_name}" data-arg="${m.tool_arg}" data-link="${m.tool_link}" data-emoji="${m.emoji}" data-nom="${m.nom}" style="padding: 16px 24px; cursor: pointer; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #f1f5f9; transition: background 0.2s;">
-                            <span style="font-size: 24px;">${m.emoji}</span>
-                            <span style="font-size: 16px; font-weight: 600; color: #1e293b;">${m.nom}</span>
-                        </div>`;
-                    });
-                    searchResults.innerHTML = html;
-                    searchResults.style.display = 'block';
-                    
-                    document.querySelectorAll('.cro-search-item').forEach(item => {
-                        item.addEventListener('click', function() {
-                            const nom = this.getAttribute('data-nom');
-                            const tool = this.getAttribute('data-tool');
-                            const arg = this.getAttribute('data-arg');
-                            const link = this.getAttribute('data-link');
-                            const emoji = this.getAttribute('data-emoji');
-                            
-                            document.getElementById('cro-modal-emoji').innerText = emoji;
-                            document.getElementById('cro-modal-title').innerHTML = `Pour les <span class="highlight" style="color: #F75A77;">${nom}</span>, nous recommandons ${tool}`;
-                            document.getElementById('cro-modal-desc').innerText = arg;
-                            document.getElementById('cro-modal-cta').href = link;
-                            
-                            searchResults.style.display = 'none';
-                            modal.style.display = 'flex';
-                        });
-                        item.addEventListener('mouseover', function() { this.style.background = '#f8fafc'; });
-                        item.addEventListener('mouseout', function() { this.style.background = 'transparent'; });
-                    });
-                });
-                
-                document.addEventListener('click', function(e) {
-                    if(!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
-                        searchResults.style.display = 'none';
-                    }
-                });
-            });
-        </script>
     </section>
+
+    @include('blog.partials.quiz_wizard')
 
     <!-- Trust Banner (Honest claims) -->
     <div class="hp-trust-banner">
@@ -124,36 +36,6 @@
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
             Guides actualisés régulièrement
         </div>
-
-    <!-- Grid Nos recommandations par métier -->
-    <section class="home-section" style="margin-top: 60px; padding: 0 20px; max-width: 1200px; margin-left: auto; margin-right: auto;">
-        <h2 style="font-family: 'Manrope', sans-serif; font-size: 32px; font-weight: 800; text-align: center; margin-bottom: 40px; color: #0f172a;">Explorez nos guides par profession :</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 40px;">
-            <a href="/hubs/le-guide-ultime-des-metiers-de-la-sante-et-du-medical-liberal" style="background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; display: flex; align-items: center; gap: 16px; text-decoration: none; color: #0f172a; font-weight: 700; font-size: 18px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 15px -3px rgba(0, 0, 0, 0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 6px -1px rgba(0, 0, 0, 0.05)';">
-                <span style="font-size: 32px; background: #f8fafc; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 12px;">🩺</span>
-                Santé & Médical
-            </a>
-            <a href="/hubs/le-guide-des-freelances-tech-developpeur-et-data" style="background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; display: flex; align-items: center; gap: 16px; text-decoration: none; color: #0f172a; font-weight: 700; font-size: 18px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 15px -3px rgba(0, 0, 0, 0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 6px -1px rgba(0, 0, 0, 0.05)';">
-                <span style="font-size: 32px; background: #f8fafc; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 12px;">💻</span>
-                Tech & Développeurs
-            </a>
-            <a href="/hubs/le-guide-complet-des-metiers-du-transport-et-de-la-logistique" style="background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; display: flex; align-items: center; gap: 16px; text-decoration: none; color: #0f172a; font-weight: 700; font-size: 18px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 15px -3px rgba(0, 0, 0, 0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 6px -1px rgba(0, 0, 0, 0.05)';">
-                <span style="font-size: 32px; background: #f8fafc; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 12px;">🚘</span>
-                VTC & Logistique
-            </a>
-            <a href="/hubs/le-guide-complet-de-l-ecommerce-et-de-la-vente-en-ligne" style="background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; display: flex; align-items: center; gap: 16px; text-decoration: none; color: #0f172a; font-weight: 700; font-size: 18px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 15px -3px rgba(0, 0, 0, 0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 6px -1px rgba(0, 0, 0, 0.05)';">
-                <span style="font-size: 32px; background: #f8fafc; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 12px;">🛍️</span>
-                E-commerce & Vinted
-            </a>
-            <a href="/hubs/le-guide-complet-des-metiers-du-bien-etre-et-du-soin" style="background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; display: flex; align-items: center; gap: 16px; text-decoration: none; color: #0f172a; font-weight: 700; font-size: 18px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 15px -3px rgba(0, 0, 0, 0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 6px -1px rgba(0, 0, 0, 0.05)';">
-                <span style="font-size: 32px; background: #f8fafc; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 12px;">🧠</span>
-                Coaching & Bien-être
-            </a>
-            <a href="/metiers" style="background: #0f172a; color: white; border-radius: 16px; padding: 24px; display: flex; align-items: center; justify-content: center; gap: 12px; text-decoration: none; font-weight: 700; font-size: 18px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); transition: transform 0.2s, background 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.background='#1e293b';" onmouseout="this.style.transform='none'; this.style.background='#0f172a';">
-                Voir les 78 métiers analysés <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-            </a>
-        </div>
-    </section>
         <div class="hp-trust-banner-item">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
             Grille d'évaluation publique
@@ -207,8 +89,8 @@
         <div class="home-softwares-list">
             
             <!-- Notre sélection 1: Indy -->
-            <div class="hp-selection-card" style="--home-accent: #10b981; --home-accent-hover: #059669; --home-primary: #10b981; border-color: var(--home-accent);">
-                <div class="hp-selection-badge" style="background: var(--home-accent);">🏆 Le Choix N°1 des BNC et Professions Libérales</div>
+            <div class="hp-selection-card" style="--home-accent: #F75A77; --home-accent-hover: #e04b67; --home-primary: #F75A77; border-color: var(--home-accent);">
+                <div class="hp-selection-badge" style="background: var(--home-accent);">🏆 Notre meilleure recommandation pour les indépendants</div>
                 <div class="hp-selection-content" style="display:flex; flex-wrap:wrap; gap:32px; align-items:center;">
                     <div style="flex: 1 1 300px;">
                         <h3 class="hp-selection-title" style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Indy ⭐</h3>
@@ -233,74 +115,65 @@
             </div>
 
             <!-- 2. Pennylane -->
-            <div class="hp-selection-card" style="--home-accent: #3b82f6; --home-accent-hover: #2563eb; --home-primary: #3b82f6; border-color: var(--home-accent); margin-top: 24px;">
-                <div class="hp-selection-badge" style="background: var(--home-accent);">🏢 Indispensable pour l'E-commerce, les TPE et la TVA sur marge</div>
-                <div class="hp-selection-content" style="display:flex; flex-wrap:wrap; gap:32px; align-items:center;">
-                    <div style="flex: 1 1 300px;">
-                        <h3 class="hp-selection-title" style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Pennylane <span style="font-size:10px; padding:2px 8px; background:#f1f5f9; border-radius:4px; color:var(--home-muted); text-transform:uppercase; font-weight:700;">Compta + Banque</span></h3>
-                        <p style="color:var(--home-muted); font-size:15px; margin-bottom:16px;">Une solution unifiée pour la gestion financière et comptable des PME.</p>
-                        <ul class="hp-clean-list">
-                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Compte Pro intégré</li>
-                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Devis & Facturation</li>
-                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Partage Expert-Comptable</li>
-                        </ul>
+            <div class="home-software-card">
+                <div class="home-software-info">
+                    <h3 style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Pennylane <span style="font-size:10px; padding:2px 8px; background:#f1f5f9; border-radius:4px; color:var(--home-muted); text-transform:uppercase; font-weight:700;">Compta + Banque</span></h3>
+                    <p style="color:var(--home-muted); font-size:14px; margin-bottom:16px;">Une solution unifiée pour la gestion financière et comptable des PME.</p>
+                    <ul class="hp-clean-list">
+                        <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Compte Pro intégré</li>
+                        <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Devis & Facturation</li>
+                        <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Partage Expert-Comptable</li>
+                    </ul>
+                </div>
+                <div class="home-software-action">
+                    <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:16px;">
+                        <div style="font-size:16px; font-weight:900; color:var(--home-text); display:flex; align-items:center; gap:6px;">💰 Dès 14€/mois</div>
+                        <div style="font-size:13px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 4.7/5</div>
                     </div>
-                    <div class="home-software-action" style="flex: 0 0 220px; display:flex; flex-direction:column;">
-                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-bottom:16px;">
-                            <div style="font-size:18px; font-weight:900; color:var(--home-primary); display:flex; align-items:center; gap:6px;">💰 Dès 14€/mois</div>
-                            <div style="font-size:14px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 4.7/5</div>
-                        </div>
-                        <a href="{{ route('tools.show', 'pennylane') }}" class="home-software-btn" style="margin-bottom:12px; width:100%; text-align:center; box-sizing:border-box;">Lire le test complet</a>
-                        <a href="{{ route('affiliate.redirect', 'pennylane') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box;">Découvrir l'offre</a>
-                    </div>
+                    <a href="{{ route('tools.show', 'pennylane') }}" class="home-software-btn" style="margin-bottom:8px;">Lire le test complet</a>
+                    <a href="{{ route('affiliate.redirect', 'pennylane') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary">Découvrir l'offre</a>
                 </div>
             </div>
 
-            <!-- 3. Abby -->
-            <div class="hp-selection-card" style="--home-accent: #a855f7; --home-accent-hover: #9333ea; --home-primary: #a855f7; border-color: var(--home-accent); margin-top: 24px;">
-                <div class="hp-selection-badge" style="background: var(--home-accent);">🚀 L'outil gratuit parfait pour les Micro-entrepreneurs purs</div>
-                <div class="hp-selection-content" style="display:flex; flex-wrap:wrap; gap:32px; align-items:center;">
-                    <div style="flex: 1 1 300px;">
-                        <h3 class="hp-selection-title" style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Abby <span style="font-size:10px; padding:2px 8px; background:#f1f5f9; border-radius:4px; color:var(--home-muted); text-transform:uppercase; font-weight:700;">Spécial Micro</span></h3>
-                        <p style="color:var(--home-muted); font-size:15px; margin-bottom:16px;">L'application tout-en-un conçue spécifiquement pour les auto-entrepreneurs.</p>
-                        <ul class="hp-clean-list">
-                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Facturation gratuite</li>
-                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Déclaration URSSAF en 1 clic</li>
-                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Paiement en ligne Stripe</li>
-                        </ul>
+            <!-- 3. Dougs -->
+            <div class="home-software-card">
+                <div class="home-software-info">
+                    <h3 style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Dougs <span style="font-size:10px; padding:2px 8px; background:#f1f5f9; border-radius:4px; color:var(--home-muted); text-transform:uppercase; font-weight:700;">Expert-Comptable en ligne</span></h3>
+                    <p style="color:var(--home-muted); font-size:14px; margin-bottom:16px;">L'expert-comptable en ligne qui simplifie la vie des dirigeants.</p>
+                    <ul class="hp-clean-list">
+                        <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Vrai cabinet comptable</li>
+                        <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Bilan & Liasse Fiscale</li>
+                        <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Outil de pilotage inclus</li>
+                    </ul>
+                </div>
+                <div class="home-software-action">
+                    <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:16px;">
+                        <div style="font-size:16px; font-weight:900; color:var(--home-text); display:flex; align-items:center; gap:6px;">💰 Dès 49€/mois</div>
+                        <div style="font-size:13px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 4.6/5</div>
                     </div>
-                    <div class="home-software-action" style="flex: 0 0 220px; display:flex; flex-direction:column;">
-                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-bottom:16px;">
-                            <div style="font-size:18px; font-weight:900; color:var(--home-primary); display:flex; align-items:center; gap:6px;">💰 Dès 0€/mois</div>
-                            <div style="font-size:14px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 4.8/5</div>
-                        </div>
-                        <a href="{{ route('tools.show', 'abby') }}" class="home-software-btn" style="margin-bottom:12px; width:100%; text-align:center; box-sizing:border-box;">Lire le test complet</a>
-                        <a href="{{ route('affiliate.redirect', 'abby') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box;">Découvrir l'offre</a>
-                    </div>
+                    <a href="{{ route('tools.show', 'dougs') }}" class="home-software-btn" style="margin-bottom:8px;">Lire le test complet</a>
+                    <a href="{{ route('affiliate.redirect', 'dougs') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary">Découvrir l'offre</a>
                 </div>
             </div>
-
-            <!-- 4. Shine -->
-            <div class="hp-selection-card" style="--home-accent: #f97316; --home-accent-hover: #ea580c; --home-primary: #f97316; border-color: var(--home-accent); margin-top: 24px;">
-                <div class="hp-selection-badge" style="background: var(--home-accent);">💳 La meilleure banque pro pour VTC, Livreurs et Freelances</div>
-                <div class="hp-selection-content" style="display:flex; flex-wrap:wrap; gap:32px; align-items:center;">
-                    <div style="flex: 1 1 300px;">
-                        <h3 class="hp-selection-title" style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Shine <span style="font-size:10px; padding:2px 8px; background:#f1f5f9; border-radius:4px; color:var(--home-muted); text-transform:uppercase; font-weight:700;">Compte Pro & Facturation</span></h3>
-                        <p style="color:var(--home-muted); font-size:15px; margin-bottom:16px;">Le compte pro qui offre un outil de facturation intégré et un support premium.</p>
-                        <ul class="hp-clean-list">
-                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Carte Mastercard Business</li>
-                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Outil de devis et facturation inclus</li>
-                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Assurances professionnelles</li>
-                        </ul>
+            
+            <!-- 4. Abby -->
+            <div class="home-software-card">
+                <div class="home-software-info">
+                    <h3 style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Abby <span style="font-size:10px; padding:2px 8px; background:#f1f5f9; border-radius:4px; color:var(--home-muted); text-transform:uppercase; font-weight:700;">Pour micro-entrepreneurs</span></h3>
+                    <p style="color:var(--home-muted); font-size:14px; margin-bottom:16px;">L'application tout-en-un conçue spécifiquement pour les auto-entrepreneurs.</p>
+                    <ul class="hp-clean-list">
+                        <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Facturation gratuite</li>
+                        <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Déclaration URSSAF</li>
+                        <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Paiement en ligne</li>
+                    </ul>
+                </div>
+                <div class="home-software-action">
+                    <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:16px;">
+                        <div style="font-size:16px; font-weight:900; color:var(--home-text); display:flex; align-items:center; gap:6px;">💰 Dès 0€/mois</div>
+                        <div style="font-size:13px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 4.5/5</div>
                     </div>
-                    <div class="home-software-action" style="flex: 0 0 220px; display:flex; flex-direction:column;">
-                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-bottom:16px;">
-                            <div style="font-size:18px; font-weight:900; color:var(--home-primary); display:flex; align-items:center; gap:6px;">💰 Dès 7.90€/mois</div>
-                            <div style="font-size:14px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 4.8/5</div>
-                        </div>
-                        <a href="{{ route('tools.show', 'shine') }}" class="home-software-btn" style="margin-bottom:12px; width:100%; text-align:center; box-sizing:border-box;">Lire le test complet</a>
-                        <a href="{{ route('affiliate.redirect', 'shine') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box;">Découvrir l'offre</a>
-                    </div>
+                    <a href="{{ route('tools.show', 'abby') }}" class="home-software-btn" style="margin-bottom:8px;">Lire le test complet</a>
+                    <a href="{{ route('affiliate.redirect', 'abby') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary">Découvrir l'offre</a>
                 </div>
             </div>
         </div>
@@ -360,26 +233,45 @@
     </section>
 
     <!-- Comparatifs les plus lus -->
-        <section class="home-section">
-        <h2 class="home-section-title">Les guides spécialisés par métier</h2>
-        <div class="hp-grid-3">
-            @foreach($hubs->take(18) as $article)
-            <a href="{{ $article->public_url ?? route('hubs.show', $article->slug) }}" class="hp-article-card" style="padding: 0; display: flex; flex-direction: column; overflow: hidden; border-radius: 16px;">
+    <section class="home-section">
+        <h2 class="home-section-title">Les comparatifs les plus lus</h2>
+                <div class="hp-grid-3">
+            @foreach($latestArticles->where('type', 'comparison')->take(3) as $article)
+            <a href="{{ $article->public_url }}" class="hp-article-card" style="padding: 0; display: flex; flex-direction: column; overflow: hidden; border-radius: 16px;">
                 <div style="width: 100%; aspect-ratio: 1200/630; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; overflow: hidden;">
                     <img src="{{ route('og-image', $article->id) }}" alt="{{ $article->title }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px 16px 0 0;" loading="lazy">
                 </div>
                 <div style="padding: 24px; display: flex; flex-direction: column; flex-grow: 1;">
                     <div class="hp-card-header" style="margin-bottom: 12px;">
-                        <span class="hp-card-date" style="color: #F75A77; font-weight: 700; font-size: 12px; text-transform: uppercase;">Hub Spécialisé</span>
+                        <span class="hp-card-date" style="color: #64748b; font-size: 12px;">{{ $article->updated_at->format('M Y') }}</span>
                     </div>
-                    <div class="hp-card-title" style="font-size: 18px;">{{ $article->title }}</div>
-                    <div class="hp-card-desc">{{ Str::limit($article->excerpt ?? 'Découvrez notre guide complet, les spécificités de votre statut et nos recommandations de logiciels.', 110) }}</div>
-                    <div class="hp-card-footer" style="margin-top: auto; color: #0f172a; font-weight: 700;">
-                        Consulter le guide <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    <div class="hp-card-title">{{ $article->title }}</div>
+                    <div class="hp-card-desc">{{ Str::limit($article->excerpt ?? 'Découvrez notre analyse détaillée et notre classement pour choisir la meilleure solution adaptée à vos besoins.', 110) }}</div>
+                    <div class="hp-card-footer" style="margin-top: auto;">
+                        Lire l'article <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                     </div>
                 </div>
             </a>
             @endforeach
+            @if($latestArticles->where('type', 'comparison')->count() == 0)
+                @foreach($latestArticles->take(3) as $article)
+                <a href="{{ $article->public_url }}" class="hp-article-card" style="padding: 0; display: flex; flex-direction: column; overflow: hidden; border-radius: 16px;">
+                    <div style="width: 100%; aspect-ratio: 1200/630; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; overflow: hidden;">
+                        <img src="{{ route('og-image', $article->id) }}" alt="{{ $article->title }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px 16px 0 0;" loading="lazy">
+                    </div>
+                    <div style="padding: 24px; display: flex; flex-direction: column; flex-grow: 1;">
+                        <div class="hp-card-header" style="margin-bottom: 12px;">
+                        <span class="hp-card-date" style="color: #64748b; font-size: 12px;">{{ $article->updated_at->format('M Y') }}</span>
+                    </div>
+                        <div class="hp-card-title">{{ $article->title }}</div>
+                        <div class="hp-card-desc">{{ Str::limit($article->excerpt ?? 'Découvrez notre analyse détaillée et nos conseils d\'experts.', 110) }}</div>
+                        <div class="hp-card-footer" style="margin-top: auto;">
+                            Lire l'article <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                        </div>
+                    </div>
+                </a>
+                @endforeach
+            @endif
         </div>
     </section>
 
