@@ -52,58 +52,6 @@
 
 
 
-    <!-- DATA Section: Le marché en chiffres -->
-    <section class="home-section" style="position: relative; overflow: hidden; border-radius: 32px; padding: 80px 40px; margin: 60px 0; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; text-align: center; box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.5);">
-        <!-- Decorative background elements -->
-        <div style="position: absolute; top: -100px; left: -100px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(15, 23, 42, 0) 70%); border-radius: 50%;"></div>
-        <div style="position: absolute; bottom: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(167, 139, 250, 0.15) 0%, rgba(15, 23, 42, 0) 70%); border-radius: 50%;"></div>
-        
-        <div style="position: relative; z-index: 10;">
-            <div style="font-size: 14px; font-weight: 800; color: #38bdf8; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px;">📈 Notre Base de Données</div>
-            <h2 style="font-family: 'Manrope', sans-serif; font-size: 42px; font-weight: 900; margin-bottom: 24px; color: #ffffff; line-height: 1.2;">Le marché au peigne fin</h2>
-            <p style="color: #94a3b8; font-size: 20px; max-width: 650px; margin: 0 auto 56px; line-height: 1.6;">Nous analysons et actualisons les données du marché en continu pour vous fournir la comparaison la plus fiable et exhaustive de France.</p>
-            
-            <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 24px;">
-                
-                <!-- Stat 1 -->
-                <div style="flex: 1 1 180px; max-width: 220px; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); padding: 32px 24px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.08); transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;" onmouseover="this.style.transform='translateY(-8px)'; this.style.background='rgba(255, 255, 255, 0.06)'; this.style.borderColor='rgba(56, 189, 248, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.background='rgba(255, 255, 255, 0.03)'; this.style.borderColor='rgba(255, 255, 255, 0.08)';">
-                    <div style="font-size: 32px; margin-bottom: 16px;">💻</div>
-                    <div style="font-size: 48px; font-weight: 900; background: linear-gradient(to right, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;">312</div>
-                    <div style="font-size: 15px; color: #cbd5e1; font-weight: 700; letter-spacing: 0.5px;">Logiciels</div>
-                </div>
-                
-                <!-- Stat 2 -->
-                <div style="flex: 1 1 180px; max-width: 220px; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); padding: 32px 24px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.08); transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;" onmouseover="this.style.transform='translateY(-8px)'; this.style.background='rgba(255, 255, 255, 0.06)'; this.style.borderColor='rgba(167, 139, 250, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.background='rgba(255, 255, 255, 0.03)'; this.style.borderColor='rgba(255, 255, 255, 0.08)';">
-                    <div style="font-size: 32px; margin-bottom: 16px;">📂</div>
-                    <div style="font-size: 48px; font-weight: 900; background: linear-gradient(to right, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;">18</div>
-                    <div style="font-size: 15px; color: #cbd5e1; font-weight: 700; letter-spacing: 0.5px;">Catégories</div>
-                </div>
-                
-                <!-- Stat 3 -->
-                <div style="flex: 1 1 180px; max-width: 220px; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); padding: 32px 24px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.08); transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;" onmouseover="this.style.transform='translateY(-8px)'; this.style.background='rgba(255, 255, 255, 0.06)'; this.style.borderColor='rgba(52, 211, 153, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.background='rgba(255, 255, 255, 0.03)'; this.style.borderColor='rgba(255, 255, 255, 0.08)';">
-                    <div style="font-size: 32px; margin-bottom: 16px;">💰</div>
-                    <div style="font-size: 48px; font-weight: 900; background: linear-gradient(to right, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;">4.2k</div>
-                    <div style="font-size: 15px; color: #cbd5e1; font-weight: 700; letter-spacing: 0.5px;">Tarifs analysés</div>
-                </div>
-                
-                <!-- Stat 4 -->
-                <div style="flex: 1 1 180px; max-width: 220px; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); padding: 32px 24px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.08); transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;" onmouseover="this.style.transform='translateY(-8px)'; this.style.background='rgba(255, 255, 255, 0.06)'; this.style.borderColor='rgba(251, 191, 36, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.background='rgba(255, 255, 255, 0.03)'; this.style.borderColor='rgba(255, 255, 255, 0.08)';">
-                    <div style="font-size: 32px; margin-bottom: 16px;">⚙️</div>
-                    <div style="font-size: 48px; font-weight: 900; background: linear-gradient(to right, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;">850</div>
-                    <div style="font-size: 15px; color: #cbd5e1; font-weight: 700; letter-spacing: 0.5px;">Fonctionnalités</div>
-                </div>
-                
-                <!-- Stat 5 -->
-                <div style="flex: 1 1 180px; max-width: 220px; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); padding: 32px 24px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.08); transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;" onmouseover="this.style.transform='translateY(-8px)'; this.style.background='rgba(255, 255, 255, 0.06)'; this.style.borderColor='rgba(244, 63, 94, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.background='rgba(255, 255, 255, 0.03)'; this.style.borderColor='rgba(255, 255, 255, 0.08)';">
-                    <div style="font-size: 32px; margin-bottom: 16px;">🔄</div>
-                    <div style="font-size: 48px; font-weight: 900; background: linear-gradient(to right, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;">12k+</div>
-                    <div style="font-size: 15px; color: #cbd5e1; font-weight: 700; letter-spacing: 0.5px;">Modifications</div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
     <!-- Top Selection Section (avec Badges) -->
     <section class="home-section" id="selection">
         
@@ -231,59 +179,6 @@
             </div>
         </div>
     </section>
-
-    <!-- Outils Gratuits SEO (V3 style) -->
-    <section class="hp-tools-mega-block">
-        <h2 class="hp-tools-mega-title">Les outils gratuits les plus utilisés</h2>
-        <p class="hp-tools-mega-subtitle">Ne sortez plus votre calculatrice. Nos générateurs font le travail à votre place.</p>
-        <ul style="list-style:none; padding:0; margin: 16px 0 32px 0; display:flex; justify-content:center; gap:24px; color:#cbd5e1; font-size:14px; flex-wrap:wrap; font-weight:700;">
-            <li>✓ 100% gratuits</li>
-            <li>✓ Sans inscription</li>
-            <li>✓ Mis à jour automatiquement</li>
-            <li>✓ Conformes à la réglementation française</li>
-        </ul>
-                <div class="hp-tools-mega-grid">
-            @php 
-                $toolIcons = ['calculateur-tva' => '🧮', 'calculateur-tjm' => '💰', 'simulateur-micro' => '📈'];
-            @endphp
-            @foreach(collect($freeTools)->take(3) as $tool)
-            <a href="{{ route('free-tools.show', $tool['slug']) }}" class="hp-tool-mega-card" style="display:flex; flex-direction:column; justify-content:space-between; height:100%;">
-                <div>
-                    <div class="hp-tool-mega-card-icon" style="font-size:48px;">{{ $toolIcons[$tool['type']] ?? '🛠️' }}</div>
-                    <div class="hp-tool-mega-card-title" style="font-size:20px;">{{ $tool['title'] }}</div>
-                    <div style="font-size:14px; color:#cbd5e1; margin-top:12px; line-height:1.5;">{{ $tool['description'] }}</div>
-                </div>
-                <div style="margin-top:24px; padding:10px; text-align:center; background:rgba(255,255,255,0.1); border-radius:8px; font-weight:700;">Utiliser l'outil</div>
-            </a>
-            @endforeach
-            <a href="{{ route('free-tools.index') }}" class="hp-tool-mega-card" style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; border: 2px dashed rgba(255,255,255,0.25); background: rgba(255,255,255,0.03); text-align: center; padding: 24px; transition: all 0.3s ease; border-radius: 16px; text-decoration: none;">
-                <div style="font-size:32px; margin-bottom:12px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));">🛠️</div>
-                <div style="font-weight:800; font-size: 18px; color: #ffffff; margin-bottom: 6px;">Voir les 6 outils gratuits</div>
-                <div style="font-size: 13px; color: #cbd5e1; font-weight: 600;">Accès immédiat et sans inscription →</div>
-            </a>
-        </div>
-    </section>
-
-    {{-- <!-- Hubs (Recherches fréquentes) -->
-    <section class="home-section">
-        <h2 class="home-section-title">Les catégories les plus recherchées</h2>
-        <div class="home-categories-grid">
-            @php 
-                $categoryIcons = [
-                    'comptabilite' => '📊', 'facturation' => '📄', 'banque-pro' => '💳',
-                    'compte-pro' => '💼', 'crm' => '🤝', 'signature-electronique' => '✍️',
-                    'notes-de-frais' => '🧾', 'paiement-en-ligne' => '💰'
-                ];
-            @endphp
-            @foreach($categories->take(8) as $cat)
-            <a href="{{ route('blog.show', $cat->slug) }}" class="home-category-card" style="display:flex; flex-direction:column; align-items:center;">
-                <div class="home-category-icon" style="background: rgba(37, 99, 235, 0.08); color: var(--home-accent);">{{ $categoryIcons[$cat->slug] ?? '📁' }}</div>
-                <div style="font-weight: 800;">{{ $cat->name }}</div>
-                <div style="font-size: 13px; color: var(--home-muted); margin-top: 4px; font-weight: 700;">→ {{ $cat->articles_count }} guides</div>
-            </a>
-            @endforeach
-        </div>
-    </section> --}}
 
     <!-- Sélecteur de Métiers Interactif (Alpine.js) -->
     <section class="home-section" id="metiers-selector" x-data="professionSelector()">
@@ -441,6 +336,59 @@
     })
     </script>
 
+    <!-- Outils Gratuits SEO (V3 style) -->
+    <section class="hp-tools-mega-block">
+        <h2 class="hp-tools-mega-title">Les outils gratuits les plus utilisés</h2>
+        <p class="hp-tools-mega-subtitle">Ne sortez plus votre calculatrice. Nos générateurs font le travail à votre place.</p>
+        <ul style="list-style:none; padding:0; margin: 16px 0 32px 0; display:flex; justify-content:center; gap:24px; color:#cbd5e1; font-size:14px; flex-wrap:wrap; font-weight:700;">
+            <li>✓ 100% gratuits</li>
+            <li>✓ Sans inscription</li>
+            <li>✓ Mis à jour automatiquement</li>
+            <li>✓ Conformes à la réglementation française</li>
+        </ul>
+                <div class="hp-tools-mega-grid">
+            @php 
+                $toolIcons = ['calculateur-tva' => '🧮', 'calculateur-tjm' => '💰', 'simulateur-micro' => '📈'];
+            @endphp
+            @foreach(collect($freeTools)->take(3) as $tool)
+            <a href="{{ route('free-tools.show', $tool['slug']) }}" class="hp-tool-mega-card" style="display:flex; flex-direction:column; justify-content:space-between; height:100%;">
+                <div>
+                    <div class="hp-tool-mega-card-icon" style="font-size:48px;">{{ $toolIcons[$tool['type']] ?? '🛠️' }}</div>
+                    <div class="hp-tool-mega-card-title" style="font-size:20px;">{{ $tool['title'] }}</div>
+                    <div style="font-size:14px; color:#cbd5e1; margin-top:12px; line-height:1.5;">{{ $tool['description'] }}</div>
+                </div>
+                <div style="margin-top:24px; padding:10px; text-align:center; background:rgba(255,255,255,0.1); border-radius:8px; font-weight:700;">Utiliser l'outil</div>
+            </a>
+            @endforeach
+            <a href="{{ route('free-tools.index') }}" class="hp-tool-mega-card" style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; border: 2px dashed rgba(255,255,255,0.25); background: rgba(255,255,255,0.03); text-align: center; padding: 24px; transition: all 0.3s ease; border-radius: 16px; text-decoration: none;">
+                <div style="font-size:32px; margin-bottom:12px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));">🛠️</div>
+                <div style="font-weight:800; font-size: 18px; color: #ffffff; margin-bottom: 6px;">Voir les 6 outils gratuits</div>
+                <div style="font-size: 13px; color: #cbd5e1; font-weight: 600;">Accès immédiat et sans inscription →</div>
+            </a>
+        </div>
+    </section>
+
+    {{-- <!-- Hubs (Recherches fréquentes) -->
+    <section class="home-section">
+        <h2 class="home-section-title">Les catégories les plus recherchées</h2>
+        <div class="home-categories-grid">
+            @php 
+                $categoryIcons = [
+                    'comptabilite' => '📊', 'facturation' => '📄', 'banque-pro' => '💳',
+                    'compte-pro' => '💼', 'crm' => '🤝', 'signature-electronique' => '✍️',
+                    'notes-de-frais' => '🧾', 'paiement-en-ligne' => '💰'
+                ];
+            @endphp
+            @foreach($categories->take(8) as $cat)
+            <a href="{{ route('blog.show', $cat->slug) }}" class="home-category-card" style="display:flex; flex-direction:column; align-items:center;">
+                <div class="home-category-icon" style="background: rgba(37, 99, 235, 0.08); color: var(--home-accent);">{{ $categoryIcons[$cat->slug] ?? '📁' }}</div>
+                <div style="font-weight: 800;">{{ $cat->name }}</div>
+                <div style="font-size: 13px; color: var(--home-muted); margin-top: 4px; font-weight: 700;">→ {{ $cat->articles_count }} guides</div>
+            </a>
+            @endforeach
+        </div>
+    </section> --}}
+
     <!-- Encart Auteur (SEO EEAT) -->
     <section class="hp-author-block">
         <div class="hp-author-avatar" style="padding: 0; overflow: hidden; background: none; border: none; box-shadow: none;"><img src="/images/author-kylian.png" alt="Kylian" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" /></div>
@@ -452,6 +400,58 @@
                 <span class="hp-author-tag">Basé en France</span>
                 <span class="hp-author-tag">Spécialiste outils SaaS</span>
                 <a href="{{ route('author.show') }}" style="font-size:13px; font-weight:700; color:var(--home-accent); text-decoration:none; margin-left:8px; align-self:center;">Voir la méthodologie complète →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- DATA Section: Le marché en chiffres -->
+    <section class="home-section" style="position: relative; overflow: hidden; border-radius: 32px; padding: 80px 40px; margin: 60px 0; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; text-align: center; box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.5);">
+        <!-- Decorative background elements -->
+        <div style="position: absolute; top: -100px; left: -100px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(15, 23, 42, 0) 70%); border-radius: 50%;"></div>
+        <div style="position: absolute; bottom: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(167, 139, 250, 0.15) 0%, rgba(15, 23, 42, 0) 70%); border-radius: 50%;"></div>
+        
+        <div style="position: relative; z-index: 10;">
+            <div style="font-size: 14px; font-weight: 800; color: #38bdf8; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px;">📈 Notre Base de Données</div>
+            <h2 style="font-family: 'Manrope', sans-serif; font-size: 42px; font-weight: 900; margin-bottom: 24px; color: #ffffff; line-height: 1.2;">Le marché au peigne fin</h2>
+            <p style="color: #94a3b8; font-size: 20px; max-width: 650px; margin: 0 auto 56px; line-height: 1.6;">Nous analysons et actualisons les données du marché en continu pour vous fournir la comparaison la plus fiable et exhaustive de France.</p>
+            
+            <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 24px;">
+                
+                <!-- Stat 1 -->
+                <div style="flex: 1 1 180px; max-width: 220px; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); padding: 32px 24px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.08); transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;" onmouseover="this.style.transform='translateY(-8px)'; this.style.background='rgba(255, 255, 255, 0.06)'; this.style.borderColor='rgba(56, 189, 248, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.background='rgba(255, 255, 255, 0.03)'; this.style.borderColor='rgba(255, 255, 255, 0.08)';">
+                    <div style="font-size: 32px; margin-bottom: 16px;">💻</div>
+                    <div style="font-size: 48px; font-weight: 900; background: linear-gradient(to right, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;">312</div>
+                    <div style="font-size: 15px; color: #cbd5e1; font-weight: 700; letter-spacing: 0.5px;">Logiciels</div>
+                </div>
+                
+                <!-- Stat 2 -->
+                <div style="flex: 1 1 180px; max-width: 220px; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); padding: 32px 24px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.08); transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;" onmouseover="this.style.transform='translateY(-8px)'; this.style.background='rgba(255, 255, 255, 0.06)'; this.style.borderColor='rgba(167, 139, 250, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.background='rgba(255, 255, 255, 0.03)'; this.style.borderColor='rgba(255, 255, 255, 0.08)';">
+                    <div style="font-size: 32px; margin-bottom: 16px;">📂</div>
+                    <div style="font-size: 48px; font-weight: 900; background: linear-gradient(to right, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;">18</div>
+                    <div style="font-size: 15px; color: #cbd5e1; font-weight: 700; letter-spacing: 0.5px;">Catégories</div>
+                </div>
+                
+                <!-- Stat 3 -->
+                <div style="flex: 1 1 180px; max-width: 220px; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); padding: 32px 24px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.08); transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;" onmouseover="this.style.transform='translateY(-8px)'; this.style.background='rgba(255, 255, 255, 0.06)'; this.style.borderColor='rgba(52, 211, 153, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.background='rgba(255, 255, 255, 0.03)'; this.style.borderColor='rgba(255, 255, 255, 0.08)';">
+                    <div style="font-size: 32px; margin-bottom: 16px;">💰</div>
+                    <div style="font-size: 48px; font-weight: 900; background: linear-gradient(to right, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;">4.2k</div>
+                    <div style="font-size: 15px; color: #cbd5e1; font-weight: 700; letter-spacing: 0.5px;">Tarifs analysés</div>
+                </div>
+                
+                <!-- Stat 4 -->
+                <div style="flex: 1 1 180px; max-width: 220px; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); padding: 32px 24px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.08); transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;" onmouseover="this.style.transform='translateY(-8px)'; this.style.background='rgba(255, 255, 255, 0.06)'; this.style.borderColor='rgba(251, 191, 36, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.background='rgba(255, 255, 255, 0.03)'; this.style.borderColor='rgba(255, 255, 255, 0.08)';">
+                    <div style="font-size: 32px; margin-bottom: 16px;">⚙️</div>
+                    <div style="font-size: 48px; font-weight: 900; background: linear-gradient(to right, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;">850</div>
+                    <div style="font-size: 15px; color: #cbd5e1; font-weight: 700; letter-spacing: 0.5px;">Fonctionnalités</div>
+                </div>
+                
+                <!-- Stat 5 -->
+                <div style="flex: 1 1 180px; max-width: 220px; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); padding: 32px 24px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.08); transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;" onmouseover="this.style.transform='translateY(-8px)'; this.style.background='rgba(255, 255, 255, 0.06)'; this.style.borderColor='rgba(244, 63, 94, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.background='rgba(255, 255, 255, 0.03)'; this.style.borderColor='rgba(255, 255, 255, 0.08)';">
+                    <div style="font-size: 32px; margin-bottom: 16px;">🔄</div>
+                    <div style="font-size: 48px; font-weight: 900; background: linear-gradient(to right, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;">12k+</div>
+                    <div style="font-size: 15px; color: #cbd5e1; font-weight: 700; letter-spacing: 0.5px;">Modifications</div>
+                </div>
+
             </div>
         </div>
     </section>
