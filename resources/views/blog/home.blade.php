@@ -241,7 +241,7 @@
         </div>
     </section>
 
-    <!-- Hubs (Recherches fréquentes) -->
+    {{-- <!-- Hubs (Recherches fréquentes) -->
     <section class="home-section">
         <h2 class="home-section-title">Les catégories les plus recherchées</h2>
         <div class="home-categories-grid">
@@ -260,7 +260,7 @@
             </a>
             @endforeach
         </div>
-    </section>
+    </section> --}}
 
     <!-- Sélecteur de Métiers Interactif (Alpine.js) -->
     <section class="home-section" id="metiers-selector" x-data="professionSelector()">
