@@ -277,13 +277,39 @@
                 <input x-model="search" type="text" placeholder="Rechercher un métier (ex: IDEL, Développeur, Ostéopathe, VTC...)" style="width: 100%; padding: 16px 16px 16px 48px; border-radius: 12px; border: 2px solid #e2e8f0; font-size: 16px; font-family: inherit; font-weight: 600; outline: none; transition: border-color 0.3s;" onfocus="this.style.borderColor='var(--home-accent)'" onblur="this.style.borderColor='#e2e8f0'">
             </div>
             
-            <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
+            <style>
+.metier-tag {
+    padding: 10px 20px;
+    border-radius: 30px;
+    border: 1px solid #cbd5e1;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #ffffff;
+    color: #475569;
+}
+.metier-tag:hover {
+    border-color: var(--home-accent);
+    color: var(--home-accent);
+    background: #f8fafc;
+}
+.metier-tag.active {
+    background: var(--home-accent);
+    color: #ffffff;
+    border-color: var(--home-accent);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+.metier-tag.active:hover {
+    background: var(--home-accent);
+    color: #ffffff;
+}
+</style>
+<div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
                 <template x-for="cat in categories" :key="cat">
                     <button @click="category = cat; showAll = true" 
-                            :style="category === cat ? 'background: #0f172a; color: #ffffff; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2); transform: translateY(-2px); border-color: #0f172a;' : 'background: #ffffff; color: #475569; border-color: #e2e8f0;'"
-                            style="padding: 10px 20px; border-radius: 30px; border: 1px solid; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;"
-                            onmouseover="if(this.style.backgroundColor !== 'rgb(15, 23, 42)') { this.style.borderColor='var(--home-accent)'; this.style.color='var(--home-accent)'; this.style.backgroundColor='#f8fafc'; }"
-                            onmouseout="if(this.style.backgroundColor !== 'rgb(15, 23, 42)') { this.style.borderColor='#e2e8f0'; this.style.color='#475569'; this.style.backgroundColor='#ffffff'; }"
+                            :class="{'metier-tag': true, 'active': category === cat}"
                             x-text="cat === 'all' ? '🌍 Tous (' + metiers.length + ')' : cat">
                     </button>
                 </template>
