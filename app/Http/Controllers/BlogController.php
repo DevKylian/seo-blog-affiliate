@@ -28,6 +28,7 @@ class BlogController extends Controller
         return view('blog.home', [
             'intention' => $intention,
             'latestArticles' => Article::query()->with(['project', 'categories'])->where('status', 'published')->latest('published_at')->limit(6)->get(),
+            'hubs' => Article::where('type', 'pilier')->where('status', 'published')->get(),
             'categories' => $this->getCategoriesWithCounts(),
             'freeTools' => $this->freeToolCatalog(),
             'projects' => SeoProject::where('status', 'active')->get()
