@@ -316,10 +316,13 @@
             </template>
             
             <!-- Carte 9 : Voir tout -->
-            <div x-show="!showAll && hasMore" @click="showAll = true" style="padding: 32px 24px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; border-radius: 16px; border: 2px dashed #cbd5e1; background: #f8fafc; transition: all 0.2s ease; min-height: 250px;" onmouseover="this.style.borderColor='var(--home-accent)'; this.style.backgroundColor='#ffffff'; this.style.transform='translateY(-4px)';" onmouseout="this.style.borderColor='#cbd5e1'; this.style.backgroundColor='#f8fafc'; this.style.transform='translateY(0)';">
-                <div style="font-size: 40px; margin-bottom: 16px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='scale(1)'">🚀</div>
-                <div style="font-size: 20px; font-weight: 800; color: #0f172a; text-align: center; margin-bottom: 8px;">Voir les <span x-text="totalFiltered"></span> métiers</div>
-                <div style="font-size: 15px; color: var(--home-accent); font-weight: 700; background: #f1f5f9; padding: 6px 16px; border-radius: 20px;">Afficher tout &rarr;</div>
+            <div x-show="!showAll && hasMore" @click="showAll = true" style="padding: 32px 24px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; border-radius: 16px; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid #e2e8f0; transition: all 0.3s ease; min-height: 250px; text-align: center;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 25px -5px rgba(0, 0, 0, 0.1)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                <div style="width: 56px; height: 56px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </div>
+                <div style="font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 12px;">Voir les <span x-text="totalFiltered"></span> métiers</div>
+                <div style="color: #64748b; font-size: 14px; margin-bottom: 24px; padding: 0 16px;">Découvrez toutes nos analyses et trouvez l'outil idéal.</div>
+                <div style="background: #0f172a; color: #ffffff; font-weight: 700; padding: 10px 24px; border-radius: 8px; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.2);">Afficher tout</div>
             </div>
         </div>
         
