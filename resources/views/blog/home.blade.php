@@ -405,10 +405,7 @@
     </section>
 
     <!-- DATA Section: Le marché en chiffres -->
-    <section class="home-section" style="position: relative; overflow: hidden; border-radius: 32px; padding: 80px 40px; margin: 60px 0; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); color: #0f172a; text-align: center; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);">
-        <!-- Decorative background elements -->
-        <div style="position: absolute; top: -100px; left: -100px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(56, 189, 248, 0.1) 0%, rgba(248, 250, 252, 0) 70%); border-radius: 50%;"></div>
-        <div style="position: absolute; bottom: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(167, 139, 250, 0.1) 0%, rgba(248, 250, 252, 0) 70%); border-radius: 50%;"></div>
+    <section class="home-section" style="text-align: center;">
         
         <div style="position: relative; z-index: 10;">
             <div style="font-size: 14px; font-weight: 800; color: var(--home-accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px;">📈 Notre Base de Données</div>
