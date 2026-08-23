@@ -25,13 +25,22 @@ class BlogController extends Controller
             $intention = 'deductions';
         }
 
+        $metiers = json_decode(file_get_contents(public_path('metiers.json')), true);
+
         return view('blog.home', [
             'intention' => $intention,
             'latestArticles' => Article::query()->with(['project', 'categories'])->where('status', 'published')->latest('published_at')->limit(6)->get(),
             'hubs' => Article::where('type', 'pilier')->where('status', 'published')->get(),
             'categories' => $this->getCategoriesWithCounts(),
             'freeTools' => $this->freeToolCatalog(),
-            'projects' => SeoProject::where('status', 'active')->get()
+            'projects' => SeoProject::where('status', 'active')->get(),
+            'metiers' => collect($metiers)->map(function ($m) {
+                // Generate slug from the title to construct URLs properly
+                $slug = \Illuminate\Support\Str::slug($m['nom']);
+                $m['slug'] = $slug;
+                $m['url'] = route('hubs.show', $slug);
+                return $m;
+            })->toArray()
         ]);
     }
 

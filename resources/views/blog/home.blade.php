@@ -262,29 +262,88 @@
         </div>
     </section>
 
-    <!-- Hubs Métiers (Pages Piliers) -->
-    <section class="home-section">
-        <h2 class="home-section-title">Les guides spécialisés par profession</h2>
+    <!-- Sélecteur de Métiers Interactif (Alpine.js) -->
+    <section class="home-section" id="metiers-selector" x-data="professionSelector()">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <div style="font-size: 13px; font-weight: 800; color: var(--home-accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">🧭 Trouvez la solution sur-mesure pour votre métier</div>
+            <h2 class="home-section-title" style="margin-bottom: 16px;">Choisissez parmi nos 78 professions analysées</h2>
+            <p style="color: var(--home-muted); font-size: 18px; max-width: 600px; margin: 0 auto;">Obtenez votre comparatif personnalisé et découvrez les statuts et liasses adaptés à votre activité.</p>
+        </div>
+
+        <!-- Recherche et Catégories -->
+        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); margin-bottom: 32px;">
+            <div style="position: relative; margin-bottom: 24px;">
+                <div style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 20px; color: #94a3b8;">🔍</div>
+                <input x-model="search" type="text" placeholder="Rechercher un métier (ex: IDEL, Développeur, Ostéopathe, VTC...)" style="width: 100%; padding: 16px 16px 16px 48px; border-radius: 12px; border: 2px solid #e2e8f0; font-size: 16px; font-family: inherit; font-weight: 600; outline: none; transition: border-color 0.3s;" onfocus="this.style.borderColor='var(--home-accent)'" onblur="this.style.borderColor='#e2e8f0'">
+            </div>
+            
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
+                <template x-for="cat in categories" :key="cat">
+                    <button @click="category = cat" 
+                            :style="category === cat ? 'background: var(--home-accent); color: white; border-color: var(--home-accent);' : 'background: #f8fafc; color: #475569; border-color: #e2e8f0;'"
+                            style="padding: 8px 16px; border-radius: 20px; border-width: 1px; border-style: solid; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s;"
+                            x-text="cat === 'all' ? 'Tous (78)' : cat">
+                    </button>
+                </template>
+            </div>
+        </div>
+
+        <!-- Grille des Résultats -->
         <div class="hp-grid-3">
-            @foreach($hubs->take(18) as $article)
-            <a href="{{ $article->public_url ?? route('hubs.show', $article->slug) }}" class="hp-article-card" style="padding: 0; display: flex; flex-direction: column; overflow: hidden; border-radius: 16px;">
-                <div style="width: 100%; aspect-ratio: 1200/630; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; overflow: hidden;">
-                    <img src="{{ route('og-image', $article->id) }}" alt="{{ $article->title }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px 16px 0 0;" loading="lazy">
-                </div>
-                <div style="padding: 24px; display: flex; flex-direction: column; flex-grow: 1;">
-                    <div class="hp-card-header" style="margin-bottom: 12px;">
-                        <span class="hp-card-date" style="color: #F75A77; font-weight: 700; font-size: 12px; text-transform: uppercase;">Hub Spécialisé</span>
+            <template x-for="metier in filteredMetiers" :key="metier.nom">
+                <a :href="metier.url" class="hp-article-card" style="padding: 0; display: flex; flex-direction: column; overflow: hidden; border-radius: 16px; text-decoration: none; border: 1px solid #e2e8f0; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 25px -5px rgba(0, 0, 0, 0.1)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                    <div style="padding: 24px; display: flex; flex-direction: column; flex-grow: 1; background: #ffffff;">
+                        <div style="font-size: 32px; margin-bottom: 12px;" x-text="metier.emoji"></div>
+                        <div class="hp-card-title" style="font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 16px; line-height: 1.3;" x-text="metier.nom"></div>
+                        
+                        <div style="font-size: 13px; color: #475569; margin-bottom: 12px;">
+                            <strong style="color: #0f172a;">Statuts :</strong> <span x-text="metier.statuts.join(', ')"></span>
+                        </div>
+                        
+                        <div style="font-size: 13px; color: #475569; margin-bottom: 16px; flex-grow: 1;">
+                            <strong style="color: #0f172a;">Outil recommandé :</strong> 
+                            <span style="display: inline-block; padding: 2px 8px; background: #f1f5f9; border-radius: 4px; font-weight: 700; color: var(--home-accent);" x-text="'🏆 ' + metier.tool_name"></span>
+                        </div>
+                        
+                        <div class="hp-card-footer" style="margin-top: auto; color: var(--home-accent); font-weight: 700; border-top: 1px solid #f1f5f9; padding-top: 16px; display: flex; align-items: center; justify-content: space-between;">
+                            Voir le guide complet 
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                        </div>
                     </div>
-                    <div class="hp-card-title">{{ $article->title }}</div>
-                    <div class="hp-card-desc">{{ Str::limit($article->excerpt ?? 'Découvrez notre guide complet, les spécificités de votre statut et nos recommandations de logiciels.', 110) }}</div>
-                    <div class="hp-card-footer" style="margin-top: auto; color: #0f172a; font-weight: 700;">
-                        Consulter le guide <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                    </div>
-                </div>
-            </a>
-            @endforeach
+                </a>
+            </template>
+        </div>
+        
+        <div x-show="filteredMetiers.length === 0" style="text-align: center; padding: 40px; background: #f8fafc; border-radius: 16px; color: #64748b; font-weight: 600; border: 1px dashed #cbd5e1; margin-top: 24px;">
+            <div style="font-size: 32px; margin-bottom: 12px;">🔍</div>
+            Aucun métier trouvé pour "<span x-text="search"></span>". <br>Essayez un autre terme ou explorez par catégorie.
         </div>
     </section>
+
+    <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('professionSelector', () => ({
+            search: '',
+            category: 'all',
+            metiers: @json($metiers ?? []),
+            
+            get categories() {
+                const cats = new Set(this.metiers.map(m => m.category).filter(c => c));
+                return ['all', ...Array.from(cats)].sort();
+            },
+            
+            get filteredMetiers() {
+                return this.metiers.filter(m => {
+                    const matchSearch = m.nom.toLowerCase().includes(this.search.toLowerCase()) || 
+                                        m.statuts.some(s => s.toLowerCase().includes(this.search.toLowerCase())) ||
+                                        m.tool_name.toLowerCase().includes(this.search.toLowerCase());
+                    const matchCat = this.category === 'all' || m.category === this.category;
+                    return matchSearch && matchCat;
+                });
+            }
+        }))
+    })
+    </script>
 
     <!-- Encart Auteur (SEO EEAT) -->
     <section class="hp-author-block">
