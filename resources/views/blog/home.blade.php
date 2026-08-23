@@ -91,22 +91,26 @@
                 $indyProject = $projects->firstWhere('slug', 'indy');
                 $indyColor = $indyProject->brand_color ?? '#F75A77';
                 $indyTextColor = $indyProject ? $indyProject->brand_text_color : '#ffffff';
+                $indyTextOnWhite = ($indyTextColor === '#0f172a') ? '#0f172a' : $indyColor;
                 
                 $pennylaneProject = $projects->firstWhere('slug', 'pennylane');
                 $pennylaneColor = $pennylaneProject->brand_color ?? '#3b82f6';
                 $pennylaneTextColor = $pennylaneProject ? $pennylaneProject->brand_text_color : '#ffffff';
+                $pennylaneTextOnWhite = ($pennylaneTextColor === '#0f172a') ? '#0f172a' : $pennylaneColor;
                 
                 $abbyProject = $projects->firstWhere('slug', 'abby');
                 $abbyColor = $abbyProject->brand_color ?? '#a855f7';
                 $abbyTextColor = $abbyProject ? $abbyProject->brand_text_color : '#ffffff';
+                $abbyTextOnWhite = ($abbyTextColor === '#0f172a') ? '#0f172a' : $abbyColor;
                 
                 $shineProject = $projects->firstWhere('slug', 'shine');
                 $shineColor = $shineProject->brand_color ?? '#f97316';
                 $shineTextColor = $shineProject ? $shineProject->brand_text_color : '#ffffff';
+                $shineTextOnWhite = ($shineTextColor === '#0f172a') ? '#0f172a' : $shineColor;
             @endphp
             
             <!-- Notre sélection 1: Indy -->
-            <div class="hp-selection-card" style="--home-accent: {{ $indyColor }}; --home-accent-hover: {{ $indyColor }}; --home-primary: {{ $indyColor }}; border-color: var(--home-accent);">
+            <div class="hp-selection-card" style="--home-accent: {{ $indyColor }}; --home-accent-hover: {{ $indyColor }}; --home-primary: {{ $indyTextOnWhite }}; border-color: var(--home-accent);">
                 <div class="hp-selection-badge" style="background: var(--home-accent); color: {{ $indyTextColor }};">🏆 Notre meilleure recommandation pour les indépendants</div>
                 <div class="hp-selection-content" style="display:flex; flex-wrap:wrap; gap:32px; align-items:center;">
                     <div style="flex: 1 1 300px;">
@@ -126,13 +130,13 @@
                             <div style="font-size:14px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 9.7/10</div>
                         </div>
                         <a href="{{ route('tools.show', 'indy') }}" class="home-software-btn" style="margin-bottom:12px; width:100%; text-align:center; box-sizing:border-box;">Lire le test complet</a>
-                        <a href="{{ route('affiliate.redirect', 'indy') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: var(--home-primary); color: {{ $indyTextColor }};">Profiter de l'offre gratuite</a>
+                        <a href="{{ route('affiliate.redirect', 'indy') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: {{ $indyColor }}; color: {{ $indyTextColor }};">Profiter de l'offre gratuite</a>
                     </div>
                 </div>
             </div>
 
             <!-- 2. Pennylane -->
-            <div class="hp-selection-card" style="--home-accent: {{ $pennylaneColor }}; --home-accent-hover: {{ $pennylaneColor }}; --home-primary: {{ $pennylaneColor }}; border-color: var(--home-accent); margin-top: 24px;">
+            <div class="hp-selection-card" style="--home-accent: {{ $pennylaneColor }}; --home-accent-hover: {{ $pennylaneColor }}; --home-primary: {{ $pennylaneTextOnWhite }}; border-color: var(--home-accent); margin-top: 24px;">
                 <div class="hp-selection-badge" style="background: var(--home-accent); color: {{ $pennylaneTextColor }};">🏢 Indispensable pour l'E-commerce, les TPE et la TVA sur marge</div>
                 <div class="hp-selection-content" style="display:flex; flex-wrap:wrap; gap:32px; align-items:center;">
                     <div style="flex: 1 1 300px;">
@@ -150,13 +154,13 @@
                             <div style="font-size:14px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 9.4/10</div>
                         </div>
                         <a href="{{ route('tools.show', 'pennylane') }}" class="home-software-btn" style="margin-bottom:12px; width:100%; text-align:center; box-sizing:border-box;">Lire le test complet</a>
-                        <a href="{{ route('affiliate.redirect', 'pennylane') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: var(--home-primary); color: {{ $pennylaneTextColor }};">Découvrir l'offre</a>
+                        <a href="{{ route('affiliate.redirect', 'pennylane') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: {{ $pennylaneColor }}; color: {{ $pennylaneTextColor }};">Découvrir l'offre</a>
                     </div>
                 </div>
             </div>
 
             <!-- 3. Abby -->
-            <div class="hp-selection-card" style="--home-accent: {{ $abbyColor }}; --home-accent-hover: {{ $abbyColor }}; --home-primary: {{ $abbyColor }}; border-color: var(--home-accent); margin-top: 24px;">
+            <div class="hp-selection-card" style="--home-accent: {{ $abbyColor }}; --home-accent-hover: {{ $abbyColor }}; --home-primary: {{ $abbyTextOnWhite }}; border-color: var(--home-accent); margin-top: 24px;">
                 <div class="hp-selection-badge" style="background: var(--home-accent); color: {{ $abbyTextColor }};">🚀 L'outil gratuit parfait pour les Micro-entrepreneurs purs</div>
                 <div class="hp-selection-content" style="display:flex; flex-wrap:wrap; gap:32px; align-items:center;">
                     <div style="flex: 1 1 300px;">
@@ -174,13 +178,13 @@
                             <div style="font-size:14px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 8.8/10</div>
                         </div>
                         <a href="{{ route('tools.show', 'abby') }}" class="home-software-btn" style="margin-bottom:12px; width:100%; text-align:center; box-sizing:border-box;">Lire le test complet</a>
-                        <a href="{{ route('affiliate.redirect', 'abby') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: var(--home-primary); color: {{ $abbyTextColor }};">Découvrir l'offre</a>
+                        <a href="{{ route('affiliate.redirect', 'abby') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: {{ $abbyColor }}; color: {{ $abbyTextColor }};">Découvrir l'offre</a>
                     </div>
                 </div>
             </div>
 
             <!-- 4. Shine -->
-            <div class="hp-selection-card" style="--home-accent: {{ $shineColor }}; --home-accent-hover: {{ $shineColor }}; --home-primary: {{ $shineColor }}; border-color: var(--home-accent); margin-top: 24px;">
+            <div class="hp-selection-card" style="--home-accent: {{ $shineColor }}; --home-accent-hover: {{ $shineColor }}; --home-primary: {{ $shineTextOnWhite }}; border-color: var(--home-accent); margin-top: 24px;">
                 <div class="hp-selection-badge" style="background: var(--home-accent); color: {{ $shineTextColor }};">💳 La meilleure banque pro pour VTC, Livreurs et Freelances</div>
                 <div class="hp-selection-content" style="display:flex; flex-wrap:wrap; gap:32px; align-items:center;">
                     <div style="flex: 1 1 300px;">
@@ -198,7 +202,7 @@
                             <div style="font-size:14px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 9.3/10</div>
                         </div>
                         <a href="{{ route('tools.show', 'shine') }}" class="home-software-btn" style="margin-bottom:12px; width:100%; text-align:center; box-sizing:border-box;">Lire le test complet</a>
-                        <a href="{{ route('affiliate.redirect', 'shine') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: var(--home-primary); color: {{ $shineTextColor }};">Découvrir l'offre</a>
+                        <a href="{{ route('affiliate.redirect', 'shine') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: {{ $shineColor }}; color: {{ $shineTextColor }};">Découvrir l'offre</a>
                     </div>
                 </div>
             </div>
