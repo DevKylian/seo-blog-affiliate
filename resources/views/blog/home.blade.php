@@ -88,15 +88,26 @@
         
         <div class="home-softwares-list">
             @php
-                $indyColor = $projects->firstWhere('slug', 'indy')->brand_color ?? '#F75A77';
-                $pennylaneColor = $projects->firstWhere('slug', 'pennylane')->brand_color ?? '#3b82f6';
-                $abbyColor = $projects->firstWhere('slug', 'abby')->brand_color ?? '#a855f7';
-                $shineColor = $projects->firstWhere('slug', 'shine')->brand_color ?? '#f97316';
+                $indyProject = $projects->firstWhere('slug', 'indy');
+                $indyColor = $indyProject->brand_color ?? '#F75A77';
+                $indyTextColor = $indyProject ? $indyProject->brand_text_color : '#ffffff';
+                
+                $pennylaneProject = $projects->firstWhere('slug', 'pennylane');
+                $pennylaneColor = $pennylaneProject->brand_color ?? '#3b82f6';
+                $pennylaneTextColor = $pennylaneProject ? $pennylaneProject->brand_text_color : '#ffffff';
+                
+                $abbyProject = $projects->firstWhere('slug', 'abby');
+                $abbyColor = $abbyProject->brand_color ?? '#a855f7';
+                $abbyTextColor = $abbyProject ? $abbyProject->brand_text_color : '#ffffff';
+                
+                $shineProject = $projects->firstWhere('slug', 'shine');
+                $shineColor = $shineProject->brand_color ?? '#f97316';
+                $shineTextColor = $shineProject ? $shineProject->brand_text_color : '#ffffff';
             @endphp
             
             <!-- Notre sélection 1: Indy -->
             <div class="hp-selection-card" style="--home-accent: {{ $indyColor }}; --home-accent-hover: {{ $indyColor }}; --home-primary: {{ $indyColor }}; border-color: var(--home-accent);">
-                <div class="hp-selection-badge" style="background: var(--home-accent);">🏆 Notre meilleure recommandation pour les indépendants</div>
+                <div class="hp-selection-badge" style="background: var(--home-accent); color: {{ $indyTextColor }};">🏆 Notre meilleure recommandation pour les indépendants</div>
                 <div class="hp-selection-content" style="display:flex; flex-wrap:wrap; gap:32px; align-items:center;">
                     <div style="flex: 1 1 300px;">
                         <h3 class="hp-selection-title" style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Indy ⭐</h3>
@@ -115,14 +126,14 @@
                             <div style="font-size:14px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 4.9/5</div>
                         </div>
                         <a href="{{ route('tools.show', 'indy') }}" class="home-software-btn" style="margin-bottom:12px; width:100%; text-align:center; box-sizing:border-box;">Lire le test complet</a>
-                        <a href="{{ route('affiliate.redirect', 'indy') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: var(--home-primary); color: #fff;">Profiter de l'offre gratuite</a>
+                        <a href="{{ route('affiliate.redirect', 'indy') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: var(--home-primary); color: {{ $indyTextColor }};">Profiter de l'offre gratuite</a>
                     </div>
                 </div>
             </div>
 
             <!-- 2. Pennylane -->
             <div class="hp-selection-card" style="--home-accent: {{ $pennylaneColor }}; --home-accent-hover: {{ $pennylaneColor }}; --home-primary: {{ $pennylaneColor }}; border-color: var(--home-accent); margin-top: 24px;">
-                <div class="hp-selection-badge" style="background: var(--home-accent);">🏢 Indispensable pour l'E-commerce, les TPE et la TVA sur marge</div>
+                <div class="hp-selection-badge" style="background: var(--home-accent); color: {{ $pennylaneTextColor }};">🏢 Indispensable pour l'E-commerce, les TPE et la TVA sur marge</div>
                 <div class="hp-selection-content" style="display:flex; flex-wrap:wrap; gap:32px; align-items:center;">
                     <div style="flex: 1 1 300px;">
                         <h3 class="hp-selection-title" style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Pennylane <span style="font-size:10px; padding:2px 8px; background:#f1f5f9; border-radius:4px; color:var(--home-muted); text-transform:uppercase; font-weight:700;">Compta + Banque</span></h3>
@@ -139,14 +150,14 @@
                             <div style="font-size:14px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 4.7/5</div>
                         </div>
                         <a href="{{ route('tools.show', 'pennylane') }}" class="home-software-btn" style="margin-bottom:12px; width:100%; text-align:center; box-sizing:border-box;">Lire le test complet</a>
-                        <a href="{{ route('affiliate.redirect', 'pennylane') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: var(--home-primary); color: #fff;">Découvrir l'offre</a>
+                        <a href="{{ route('affiliate.redirect', 'pennylane') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: var(--home-primary); color: {{ $pennylaneTextColor }};">Découvrir l'offre</a>
                     </div>
                 </div>
             </div>
 
             <!-- 3. Abby -->
             <div class="hp-selection-card" style="--home-accent: {{ $abbyColor }}; --home-accent-hover: {{ $abbyColor }}; --home-primary: {{ $abbyColor }}; border-color: var(--home-accent); margin-top: 24px;">
-                <div class="hp-selection-badge" style="background: var(--home-accent);">🚀 L'outil gratuit parfait pour les Micro-entrepreneurs purs</div>
+                <div class="hp-selection-badge" style="background: var(--home-accent); color: {{ $abbyTextColor }};">🚀 L'outil gratuit parfait pour les Micro-entrepreneurs purs</div>
                 <div class="hp-selection-content" style="display:flex; flex-wrap:wrap; gap:32px; align-items:center;">
                     <div style="flex: 1 1 300px;">
                         <h3 class="hp-selection-title" style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Abby <span style="font-size:10px; padding:2px 8px; background:#f1f5f9; border-radius:4px; color:var(--home-muted); text-transform:uppercase; font-weight:700;">Pour micro-entrepreneurs</span></h3>
@@ -163,14 +174,14 @@
                             <div style="font-size:14px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 4.5/5</div>
                         </div>
                         <a href="{{ route('tools.show', 'abby') }}" class="home-software-btn" style="margin-bottom:12px; width:100%; text-align:center; box-sizing:border-box;">Lire le test complet</a>
-                        <a href="{{ route('affiliate.redirect', 'abby') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: var(--home-primary); color: #fff;">Découvrir l'offre</a>
+                        <a href="{{ route('affiliate.redirect', 'abby') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: var(--home-primary); color: {{ $abbyTextColor }};">Découvrir l'offre</a>
                     </div>
                 </div>
             </div>
 
             <!-- 4. Shine -->
             <div class="hp-selection-card" style="--home-accent: {{ $shineColor }}; --home-accent-hover: {{ $shineColor }}; --home-primary: {{ $shineColor }}; border-color: var(--home-accent); margin-top: 24px;">
-                <div class="hp-selection-badge" style="background: var(--home-accent);">💳 La meilleure banque pro pour VTC, Livreurs et Freelances</div>
+                <div class="hp-selection-badge" style="background: var(--home-accent); color: {{ $shineTextColor }};">💳 La meilleure banque pro pour VTC, Livreurs et Freelances</div>
                 <div class="hp-selection-content" style="display:flex; flex-wrap:wrap; gap:32px; align-items:center;">
                     <div style="flex: 1 1 300px;">
                         <h3 class="hp-selection-title" style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Shine <span style="font-size:10px; padding:2px 8px; background:#f1f5f9; border-radius:4px; color:var(--home-muted); text-transform:uppercase; font-weight:700;">Compte Pro & Facturation</span></h3>
@@ -187,7 +198,7 @@
                             <div style="font-size:14px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 4.8/5</div>
                         </div>
                         <a href="{{ route('tools.show', 'shine') }}" class="home-software-btn" style="margin-bottom:12px; width:100%; text-align:center; box-sizing:border-box;">Lire le test complet</a>
-                        <a href="{{ route('affiliate.redirect', 'shine') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: var(--home-primary); color: #fff;">Découvrir l'offre</a>
+                        <a href="{{ route('affiliate.redirect', 'shine') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: var(--home-primary); color: {{ $shineTextColor }};">Découvrir l'offre</a>
                     </div>
                 </div>
             </div>
