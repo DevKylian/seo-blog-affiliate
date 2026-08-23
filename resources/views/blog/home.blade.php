@@ -87,9 +87,15 @@
         <h2 class="home-section-title">Notre recommandation selon votre situation</h2>
         
         <div class="home-softwares-list">
+            @php
+                $indyColor = $projects->firstWhere('slug', 'indy')->brand_color ?? '#F75A77';
+                $pennylaneColor = $projects->firstWhere('slug', 'pennylane')->brand_color ?? '#3b82f6';
+                $abbyColor = $projects->firstWhere('slug', 'abby')->brand_color ?? '#a855f7';
+                $shineColor = $projects->firstWhere('slug', 'shine')->brand_color ?? '#f97316';
+            @endphp
             
             <!-- Notre sélection 1: Indy -->
-            <div class="hp-selection-card" style="--home-accent: #F75A77; --home-accent-hover: #e04b67; --home-primary: #F75A77; border-color: var(--home-accent);">
+            <div class="hp-selection-card" style="--home-accent: {{ $indyColor }}; --home-accent-hover: {{ $indyColor }}; --home-primary: {{ $indyColor }}; border-color: var(--home-accent);">
                 <div class="hp-selection-badge" style="background: var(--home-accent);">🏆 Notre meilleure recommandation pour les indépendants</div>
                 <div class="hp-selection-content" style="display:flex; flex-wrap:wrap; gap:32px; align-items:center;">
                     <div style="flex: 1 1 300px;">
@@ -109,71 +115,80 @@
                             <div style="font-size:14px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 4.9/5</div>
                         </div>
                         <a href="{{ route('tools.show', 'indy') }}" class="home-software-btn" style="margin-bottom:12px; width:100%; text-align:center; box-sizing:border-box;">Lire le test complet</a>
-                        <a href="{{ route('affiliate.redirect', 'indy') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box;">Profiter de l'offre gratuite</a>
+                        <a href="{{ route('affiliate.redirect', 'indy') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: var(--home-primary); color: #fff;">Profiter de l'offre gratuite</a>
                     </div>
                 </div>
             </div>
 
             <!-- 2. Pennylane -->
-            <div class="home-software-card">
-                <div class="home-software-info">
-                    <h3 style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Pennylane <span style="font-size:10px; padding:2px 8px; background:#f1f5f9; border-radius:4px; color:var(--home-muted); text-transform:uppercase; font-weight:700;">Compta + Banque</span></h3>
-                    <p style="color:var(--home-muted); font-size:14px; margin-bottom:16px;">Une solution unifiée pour la gestion financière et comptable des PME.</p>
-                    <ul class="hp-clean-list">
-                        <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Compte Pro intégré</li>
-                        <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Devis & Facturation</li>
-                        <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Partage Expert-Comptable</li>
-                    </ul>
-                </div>
-                <div class="home-software-action">
-                    <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:16px;">
-                        <div style="font-size:16px; font-weight:900; color:var(--home-text); display:flex; align-items:center; gap:6px;">💰 Dès 14€/mois</div>
-                        <div style="font-size:13px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 4.7/5</div>
+            <div class="hp-selection-card" style="--home-accent: {{ $pennylaneColor }}; --home-accent-hover: {{ $pennylaneColor }}; --home-primary: {{ $pennylaneColor }}; border-color: var(--home-accent); margin-top: 24px;">
+                <div class="hp-selection-badge" style="background: var(--home-accent);">🏢 Indispensable pour l'E-commerce, les TPE et la TVA sur marge</div>
+                <div class="hp-selection-content" style="display:flex; flex-wrap:wrap; gap:32px; align-items:center;">
+                    <div style="flex: 1 1 300px;">
+                        <h3 class="hp-selection-title" style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Pennylane <span style="font-size:10px; padding:2px 8px; background:#f1f5f9; border-radius:4px; color:var(--home-muted); text-transform:uppercase; font-weight:700;">Compta + Banque</span></h3>
+                        <p style="color:var(--home-muted); font-size:14px; margin-bottom:16px;">Une solution unifiée pour la gestion financière et comptable des PME.</p>
+                        <ul class="hp-clean-list">
+                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Compte Pro intégré</li>
+                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Devis & Facturation</li>
+                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Partage Expert-Comptable</li>
+                        </ul>
                     </div>
-                    <a href="{{ route('tools.show', 'pennylane') }}" class="home-software-btn" style="margin-bottom:8px;">Lire le test complet</a>
-                    <a href="{{ route('affiliate.redirect', 'pennylane') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary">Découvrir l'offre</a>
+                    <div class="home-software-action" style="flex: 0 0 220px; display:flex; flex-direction:column;">
+                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-bottom:16px;">
+                            <div style="font-size:18px; font-weight:900; color:var(--home-primary); display:flex; align-items:center; gap:6px;">💰 Dès 14€/mois</div>
+                            <div style="font-size:14px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 4.7/5</div>
+                        </div>
+                        <a href="{{ route('tools.show', 'pennylane') }}" class="home-software-btn" style="margin-bottom:12px; width:100%; text-align:center; box-sizing:border-box;">Lire le test complet</a>
+                        <a href="{{ route('affiliate.redirect', 'pennylane') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: var(--home-primary); color: #fff;">Découvrir l'offre</a>
+                    </div>
                 </div>
             </div>
 
-            <!-- 3. Dougs -->
-            <div class="home-software-card">
-                <div class="home-software-info">
-                    <h3 style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Dougs <span style="font-size:10px; padding:2px 8px; background:#f1f5f9; border-radius:4px; color:var(--home-muted); text-transform:uppercase; font-weight:700;">Expert-Comptable en ligne</span></h3>
-                    <p style="color:var(--home-muted); font-size:14px; margin-bottom:16px;">L'expert-comptable en ligne qui simplifie la vie des dirigeants.</p>
-                    <ul class="hp-clean-list">
-                        <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Vrai cabinet comptable</li>
-                        <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Bilan & Liasse Fiscale</li>
-                        <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Outil de pilotage inclus</li>
-                    </ul>
-                </div>
-                <div class="home-software-action">
-                    <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:16px;">
-                        <div style="font-size:16px; font-weight:900; color:var(--home-text); display:flex; align-items:center; gap:6px;">💰 Dès 49€/mois</div>
-                        <div style="font-size:13px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 4.6/5</div>
+            <!-- 3. Abby -->
+            <div class="hp-selection-card" style="--home-accent: {{ $abbyColor }}; --home-accent-hover: {{ $abbyColor }}; --home-primary: {{ $abbyColor }}; border-color: var(--home-accent); margin-top: 24px;">
+                <div class="hp-selection-badge" style="background: var(--home-accent);">🚀 L'outil gratuit parfait pour les Micro-entrepreneurs purs</div>
+                <div class="hp-selection-content" style="display:flex; flex-wrap:wrap; gap:32px; align-items:center;">
+                    <div style="flex: 1 1 300px;">
+                        <h3 class="hp-selection-title" style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Abby <span style="font-size:10px; padding:2px 8px; background:#f1f5f9; border-radius:4px; color:var(--home-muted); text-transform:uppercase; font-weight:700;">Pour micro-entrepreneurs</span></h3>
+                        <p style="color:var(--home-muted); font-size:14px; margin-bottom:16px;">L'application tout-en-un conçue spécifiquement pour les auto-entrepreneurs.</p>
+                        <ul class="hp-clean-list">
+                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Facturation gratuite</li>
+                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Déclaration URSSAF</li>
+                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Paiement en ligne</li>
+                        </ul>
                     </div>
-                    <a href="{{ route('tools.show', 'dougs') }}" class="home-software-btn" style="margin-bottom:8px;">Lire le test complet</a>
-                    <a href="{{ route('affiliate.redirect', 'dougs') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary">Découvrir l'offre</a>
+                    <div class="home-software-action" style="flex: 0 0 220px; display:flex; flex-direction:column;">
+                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-bottom:16px;">
+                            <div style="font-size:18px; font-weight:900; color:var(--home-primary); display:flex; align-items:center; gap:6px;">💰 Dès 0€/mois</div>
+                            <div style="font-size:14px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 4.5/5</div>
+                        </div>
+                        <a href="{{ route('tools.show', 'abby') }}" class="home-software-btn" style="margin-bottom:12px; width:100%; text-align:center; box-sizing:border-box;">Lire le test complet</a>
+                        <a href="{{ route('affiliate.redirect', 'abby') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: var(--home-primary); color: #fff;">Découvrir l'offre</a>
+                    </div>
                 </div>
             </div>
-            
-            <!-- 4. Abby -->
-            <div class="home-software-card">
-                <div class="home-software-info">
-                    <h3 style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Abby <span style="font-size:10px; padding:2px 8px; background:#f1f5f9; border-radius:4px; color:var(--home-muted); text-transform:uppercase; font-weight:700;">Pour micro-entrepreneurs</span></h3>
-                    <p style="color:var(--home-muted); font-size:14px; margin-bottom:16px;">L'application tout-en-un conçue spécifiquement pour les auto-entrepreneurs.</p>
-                    <ul class="hp-clean-list">
-                        <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Facturation gratuite</li>
-                        <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Déclaration URSSAF</li>
-                        <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Paiement en ligne</li>
-                    </ul>
-                </div>
-                <div class="home-software-action">
-                    <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:16px;">
-                        <div style="font-size:16px; font-weight:900; color:var(--home-text); display:flex; align-items:center; gap:6px;">💰 Dès 0€/mois</div>
-                        <div style="font-size:13px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 4.5/5</div>
+
+            <!-- 4. Shine -->
+            <div class="hp-selection-card" style="--home-accent: {{ $shineColor }}; --home-accent-hover: {{ $shineColor }}; --home-primary: {{ $shineColor }}; border-color: var(--home-accent); margin-top: 24px;">
+                <div class="hp-selection-badge" style="background: var(--home-accent);">💳 La meilleure banque pro pour VTC, Livreurs et Freelances</div>
+                <div class="hp-selection-content" style="display:flex; flex-wrap:wrap; gap:32px; align-items:center;">
+                    <div style="flex: 1 1 300px;">
+                        <h3 class="hp-selection-title" style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Shine <span style="font-size:10px; padding:2px 8px; background:#f1f5f9; border-radius:4px; color:var(--home-muted); text-transform:uppercase; font-weight:700;">Compte Pro & Facturation</span></h3>
+                        <p style="color:var(--home-muted); font-size:14px; margin-bottom:16px;">Le compte pro qui offre un outil de facturation intégré et un support premium.</p>
+                        <ul class="hp-clean-list">
+                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Carte Mastercard Business</li>
+                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Outil de devis et facturation inclus</li>
+                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Assurances professionnelles</li>
+                        </ul>
                     </div>
-                    <a href="{{ route('tools.show', 'abby') }}" class="home-software-btn" style="margin-bottom:8px;">Lire le test complet</a>
-                    <a href="{{ route('affiliate.redirect', 'abby') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary">Découvrir l'offre</a>
+                    <div class="home-software-action" style="flex: 0 0 220px; display:flex; flex-direction:column;">
+                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-bottom:16px;">
+                            <div style="font-size:18px; font-weight:900; color:var(--home-primary); display:flex; align-items:center; gap:6px;">💰 Dès 7.90€/mois</div>
+                            <div style="font-size:14px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 4.8/5</div>
+                        </div>
+                        <a href="{{ route('tools.show', 'shine') }}" class="home-software-btn" style="margin-bottom:12px; width:100%; text-align:center; box-sizing:border-box;">Lire le test complet</a>
+                        <a href="{{ route('affiliate.redirect', 'shine') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: var(--home-primary); color: #fff;">Découvrir l'offre</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -232,46 +247,27 @@
         </div>
     </section>
 
-    <!-- Comparatifs les plus lus -->
+    <!-- Hubs Métiers (Pages Piliers) -->
     <section class="home-section">
-        <h2 class="home-section-title">Les comparatifs les plus lus</h2>
-                <div class="hp-grid-3">
-            @foreach($latestArticles->where('type', 'comparison')->take(3) as $article)
-            <a href="{{ $article->public_url }}" class="hp-article-card" style="padding: 0; display: flex; flex-direction: column; overflow: hidden; border-radius: 16px;">
+        <h2 class="home-section-title">Les guides spécialisés par profession</h2>
+        <div class="hp-grid-3">
+            @foreach($hubs->take(18) as $article)
+            <a href="{{ $article->public_url ?? route('hubs.show', $article->slug) }}" class="hp-article-card" style="padding: 0; display: flex; flex-direction: column; overflow: hidden; border-radius: 16px;">
                 <div style="width: 100%; aspect-ratio: 1200/630; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; overflow: hidden;">
                     <img src="{{ route('og-image', $article->id) }}" alt="{{ $article->title }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px 16px 0 0;" loading="lazy">
                 </div>
                 <div style="padding: 24px; display: flex; flex-direction: column; flex-grow: 1;">
                     <div class="hp-card-header" style="margin-bottom: 12px;">
-                        <span class="hp-card-date" style="color: #64748b; font-size: 12px;">{{ $article->updated_at->format('M Y') }}</span>
+                        <span class="hp-card-date" style="color: #F75A77; font-weight: 700; font-size: 12px; text-transform: uppercase;">Hub Spécialisé</span>
                     </div>
                     <div class="hp-card-title">{{ $article->title }}</div>
-                    <div class="hp-card-desc">{{ Str::limit($article->excerpt ?? 'Découvrez notre analyse détaillée et notre classement pour choisir la meilleure solution adaptée à vos besoins.', 110) }}</div>
-                    <div class="hp-card-footer" style="margin-top: auto;">
-                        Lire l'article <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    <div class="hp-card-desc">{{ Str::limit($article->excerpt ?? 'Découvrez notre guide complet, les spécificités de votre statut et nos recommandations de logiciels.', 110) }}</div>
+                    <div class="hp-card-footer" style="margin-top: auto; color: #0f172a; font-weight: 700;">
+                        Consulter le guide <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                     </div>
                 </div>
             </a>
             @endforeach
-            @if($latestArticles->where('type', 'comparison')->count() == 0)
-                @foreach($latestArticles->take(3) as $article)
-                <a href="{{ $article->public_url }}" class="hp-article-card" style="padding: 0; display: flex; flex-direction: column; overflow: hidden; border-radius: 16px;">
-                    <div style="width: 100%; aspect-ratio: 1200/630; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; overflow: hidden;">
-                        <img src="{{ route('og-image', $article->id) }}" alt="{{ $article->title }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px 16px 0 0;" loading="lazy">
-                    </div>
-                    <div style="padding: 24px; display: flex; flex-direction: column; flex-grow: 1;">
-                        <div class="hp-card-header" style="margin-bottom: 12px;">
-                        <span class="hp-card-date" style="color: #64748b; font-size: 12px;">{{ $article->updated_at->format('M Y') }}</span>
-                    </div>
-                        <div class="hp-card-title">{{ $article->title }}</div>
-                        <div class="hp-card-desc">{{ Str::limit($article->excerpt ?? 'Découvrez notre analyse détaillée et nos conseils d\'experts.', 110) }}</div>
-                        <div class="hp-card-footer" style="margin-top: auto;">
-                            Lire l'article <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                        </div>
-                    </div>
-                </a>
-                @endforeach
-            @endif
         </div>
     </section>
 
