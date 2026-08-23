@@ -198,7 +198,7 @@
                     </div>
                     <div class="home-software-action" style="flex: 0 0 220px; display:flex; flex-direction:column;">
                         <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-bottom:16px;">
-                            <div style="font-size:18px; font-weight:900; color:var(--home-primary); display:flex; align-items:center; gap:6px;">💰 Dès 7.90€/mois</div>
+                            <div style="font-size:18px; font-weight:900; color:var(--home-primary); display:flex; align-items:center; gap:6px;">💰 Dès 0€/mois</div>
                             <div style="font-size:14px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 9.3/10</div>
                         </div>
                         <a href="{{ route('tools.show', 'shine') }}" class="home-software-btn" style="margin-bottom:12px; width:100%; text-align:center; box-sizing:border-box;">Lire le test complet</a>
