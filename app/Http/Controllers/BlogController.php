@@ -12,16 +12,28 @@ use Illuminate\Http\Response;
 
 class BlogController extends Controller
 {
-    public function home(): View
+        public function home(): View
     {
-        // Détection de l'intention (CRO dynamique)
-        $referer = request()->headers->get('referer', '');
-        $utmCampaign = request('utm_campaign', '');
-        $intention = 'general';
+        // DǸtection de l'intention (CRO dynamique)
+         = request()->headers->get('referer', '');
+         = request('utm_campaign', '');
+         = 'general';
 
-        if (str_contains(strtolower($referer . $utmCampaign), 'tva') || str_contains(strtolower($referer . $utmCampaign), 'sasu')) {
-            $intention = 'tva_sasu';
-        } elseif (str_contains(strtolower($referer . $utmCampaign), 'deduire')) {
+        if (str_contains(strtolower( . ), 'tva') || str_contains(strtolower( . ), 'sasu')) {
+             = 'tva_sasu';
+        } elseif (str_contains(strtolower( . ), 'deduire')) {
+             = 'deductions';
+        }
+
+        return view('blog.home', [
+            'intention' => ,
+            'latestArticles' => Article::query()->with(['project', 'categories'])->where('status', 'published')->latest('published_at')->limit(6)->get(),
+            'hubs' => Article::where('type', 'pilier')->where('status', 'published')->get(),
+            'categories' => ->getCategoriesWithCounts(),
+            'freeTools' => ->freeToolCatalog(),
+            'projects' => SeoProject::where('status', 'active')->get()
+        ]);
+    } elseif (str_contains(strtolower($referer . $utmCampaign), 'deduire')) {
             $intention = 'deductions';
         }
 
