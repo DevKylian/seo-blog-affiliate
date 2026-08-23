@@ -280,10 +280,10 @@
             <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
                 <template x-for="cat in categories" :key="cat">
                     <button @click="category = cat; showAll = true" 
-                            :style="category === cat ? 'background: var(--home-accent); color: white; border-color: var(--home-accent); box-shadow: 0 6px 12px rgba(0,0,0,0.15); transform: translateY(-2px);' : 'background: #ffffff; color: #475569; border-color: #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);'"
-                            style="padding: 10px 20px; border-radius: 30px; border-width: 1px; border-style: solid; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;"
-                            onmouseover="if(this.style.color !== 'white') { this.style.borderColor='var(--home-accent)'; this.style.color='var(--home-accent)'; }"
-                            onmouseout="if(this.style.color !== 'white') { this.style.borderColor='#cbd5e1'; this.style.color='#475569'; }"
+                            :style="category === cat ? 'background: #0f172a; color: #ffffff; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2); transform: translateY(-2px);' : 'background: #f1f5f9; color: #475569;'"
+                            style="padding: 10px 20px; border-radius: 30px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;"
+                            onmouseover="if(this.style.backgroundColor !== 'rgb(15, 23, 42)') { this.style.backgroundColor='#e2e8f0'; this.style.color='#0f172a'; }"
+                            onmouseout="if(this.style.backgroundColor !== 'rgb(15, 23, 42)') { this.style.backgroundColor='#f1f5f9'; this.style.color='#475569'; }"
                             x-text="cat === 'all' ? '🌍 Tous (' + metiers.length + ')' : cat">
                     </button>
                 </template>
