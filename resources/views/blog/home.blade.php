@@ -280,10 +280,10 @@
             <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
                 <template x-for="cat in categories" :key="cat">
                     <button @click="category = cat; showAll = true" 
-                            :style="category === cat ? 'background: #0f172a; color: #ffffff; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2); transform: translateY(-2px);' : 'background: #f1f5f9; color: #475569;'"
-                            style="padding: 10px 20px; border-radius: 30px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;"
-                            onmouseover="if(this.style.backgroundColor !== 'rgb(15, 23, 42)') { this.style.backgroundColor='#e2e8f0'; this.style.color='#0f172a'; }"
-                            onmouseout="if(this.style.backgroundColor !== 'rgb(15, 23, 42)') { this.style.backgroundColor='#f1f5f9'; this.style.color='#475569'; }"
+                            :style="category === cat ? 'background: #0f172a; color: #ffffff; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2); transform: translateY(-2px); border-color: #0f172a;' : 'background: #ffffff; color: #475569; border-color: #e2e8f0;'"
+                            style="padding: 10px 20px; border-radius: 30px; border: 1px solid; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;"
+                            onmouseover="if(this.style.backgroundColor !== 'rgb(15, 23, 42)') { this.style.borderColor='var(--home-accent)'; this.style.color='var(--home-accent)'; this.style.backgroundColor='#f8fafc'; }"
+                            onmouseout="if(this.style.backgroundColor !== 'rgb(15, 23, 42)') { this.style.borderColor='#e2e8f0'; this.style.color='#475569'; this.style.backgroundColor='#ffffff'; }"
                             x-text="cat === 'all' ? '🌍 Tous (' + metiers.length + ')' : cat">
                     </button>
                 </template>
@@ -317,7 +317,7 @@
             
             <!-- Carte 9 : Voir tout -->
             <div x-show="!showAll && hasMore" @click="showAll = true" style="padding: 32px 24px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; border-radius: 16px; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid #e2e8f0; transition: all 0.3s ease; min-height: 250px; text-align: center;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 25px -5px rgba(0, 0, 0, 0.1)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-                <div style="width: 56px; height: 56px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                <div style="width: 56px; height: 56px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 </div>
                 <div style="font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 12px;">Voir les <span x-text="totalFiltered"></span> métiers</div>
@@ -362,7 +362,23 @@
             },
             
             get displayedMetiers() {
-                return this.showAll ? this.filteredMetiers : this.filteredMetiers.slice(0, 8);
+                if (this.showAll) return this.filteredMetiers;
+                
+                if (this.search === '' && this.category === 'all') {
+                    const featuredNames = [
+                        'Médecin Généraliste', 
+                        'Développeur Freelance', 
+                        'Consultant en Management', 
+                        'Graphiste / UX-UI', 
+                        'Chauffeur VTC', 
+                        'Kinésithérapeute', 
+                        'Dropshipper / E-commerçant International', 
+                        'Architecte'
+                    ];
+                    return this.metiers.filter(m => featuredNames.includes(m.nom));
+                }
+                
+                return this.filteredMetiers.slice(0, 8);
             },
             
             get totalFiltered() {
