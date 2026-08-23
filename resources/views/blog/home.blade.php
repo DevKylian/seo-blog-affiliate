@@ -279,10 +279,12 @@
             
             <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
                 <template x-for="cat in categories" :key="cat">
-                    <button @click="category = cat" 
-                            :style="category === cat ? 'background: var(--home-accent); color: white; border-color: var(--home-accent);' : 'background: #f8fafc; color: #475569; border-color: #e2e8f0;'"
-                            style="padding: 8px 16px; border-radius: 20px; border-width: 1px; border-style: solid; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s;"
-                            x-text="cat === 'all' ? 'Tous (78)' : cat">
+                    <button @click="category = cat; showAll = true" 
+                            :style="category === cat ? 'background: var(--home-accent); color: white; border-color: var(--home-accent); box-shadow: 0 6px 12px rgba(0,0,0,0.15); transform: translateY(-2px);' : 'background: #ffffff; color: #475569; border-color: #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);'"
+                            style="padding: 10px 20px; border-radius: 30px; border-width: 1px; border-style: solid; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;"
+                            onmouseover="if(this.style.color !== 'white') { this.style.borderColor='var(--home-accent)'; this.style.color='var(--home-accent)'; }"
+                            onmouseout="if(this.style.color !== 'white') { this.style.borderColor='#cbd5e1'; this.style.color='#475569'; }"
+                            x-text="cat === 'all' ? '🌍 Tous (' + metiers.length + ')' : cat">
                     </button>
                 </template>
             </div>
@@ -290,7 +292,7 @@
 
         <!-- Grille des Résultats -->
         <div class="hp-grid-3">
-            <template x-for="metier in filteredMetiers" :key="metier.nom">
+            <template x-for="metier in displayedMetiers" :key="metier.nom">
                 <a :href="metier.url" class="hp-article-card" style="padding: 0; display: flex; flex-direction: column; overflow: hidden; border-radius: 16px; text-decoration: none; border: 1px solid #e2e8f0; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 25px -5px rgba(0, 0, 0, 0.1)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
                     <div style="padding: 24px; display: flex; flex-direction: column; flex-grow: 1; background: #ffffff;">
                         <div style="font-size: 32px; margin-bottom: 12px;" x-text="metier.emoji"></div>
@@ -312,6 +314,13 @@
                     </div>
                 </a>
             </template>
+            
+            <!-- Carte 9 : Voir tout -->
+            <div x-show="!showAll && hasMore" @click="showAll = true" style="padding: 32px 24px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; border-radius: 16px; border: 2px dashed #cbd5e1; background: #f8fafc; transition: all 0.2s ease; min-height: 250px;" onmouseover="this.style.borderColor='var(--home-accent)'; this.style.backgroundColor='#ffffff'; this.style.transform='translateY(-4px)';" onmouseout="this.style.borderColor='#cbd5e1'; this.style.backgroundColor='#f8fafc'; this.style.transform='translateY(0)';">
+                <div style="font-size: 40px; margin-bottom: 16px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='scale(1)'">🚀</div>
+                <div style="font-size: 20px; font-weight: 800; color: #0f172a; text-align: center; margin-bottom: 8px;">Voir les <span x-text="totalFiltered"></span> métiers</div>
+                <div style="font-size: 15px; color: var(--home-accent); font-weight: 700; background: #f1f5f9; padding: 6px 16px; border-radius: 20px;">Afficher tout &rarr;</div>
+            </div>
         </div>
         
         <div x-show="filteredMetiers.length === 0" style="text-align: center; padding: 40px; background: #f8fafc; border-radius: 16px; color: #64748b; font-weight: 600; border: 1px dashed #cbd5e1; margin-top: 24px;">
@@ -325,7 +334,14 @@
         Alpine.data('professionSelector', () => ({
             search: '',
             category: 'all',
+            showAll: false,
             metiers: @json($metiers ?? []),
+            
+            init() {
+                this.$watch('search', value => {
+                    if (value.length > 0) this.showAll = true;
+                });
+            },
             
             get categories() {
                 const cats = new Set(this.metiers.map(m => m.category).filter(c => c));
@@ -340,6 +356,18 @@
                     const matchCat = this.category === 'all' || m.category === this.category;
                     return matchSearch && matchCat;
                 });
+            },
+            
+            get displayedMetiers() {
+                return this.showAll ? this.filteredMetiers : this.filteredMetiers.slice(0, 8);
+            },
+            
+            get totalFiltered() {
+                return this.filteredMetiers.length;
+            },
+            
+            get hasMore() {
+                return this.totalFiltered > 8;
             }
         }))
     })
