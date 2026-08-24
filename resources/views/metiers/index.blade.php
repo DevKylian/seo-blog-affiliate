@@ -7,16 +7,13 @@
 
 
 @section('content')
-<div class="hp-hero" style="padding-top: 40px; padding-bottom: 40px;">
-    <div class="hp-hero-content" style="max-width: 800px; margin: 0 auto; text-align: center;">
-        <h1 class="hp-hero-title" style="margin-bottom: 20px;">
-            Trouvez l'outil <span class="hp-hero-highlight">parfait</span> pour votre métier
-        </h1>
-        <p class="hp-hero-subtitle" style="margin-bottom: 40px;">
-            Nous avons analysé les besoins spécifiques de chaque profession pour vous recommander le meilleur logiciel de comptabilité et de facturation.
-        </p>
+<section class="pro-hero" style="padding: 100px 20px; background: linear-gradient(135deg, #020617, #0f172a, #1e1b4b); color: white;">
+    <div class="pro-hero-inner" style="max-width: 800px; margin: 0 auto; text-align: center;">
+        <span class="pro-eyebrow" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 100px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; display: inline-block; margin-bottom: 24px;">Annuaire des professions</span>
+        <h1 style="color: white; font-size: 48px; font-weight: 900; margin-bottom: 20px; line-height: 1.1; letter-spacing: -1px; font-family: 'Manrope', sans-serif;">Trouvez l'outil idéal pour votre métier.</h1>
+        <p style="color: #cbd5e1; font-size: 18px; line-height: 1.6; font-weight: 500; max-width: 600px; margin: 0 auto;">Nous avons analysé les besoins spécifiques de chaque profession pour vous recommander le meilleur logiciel de comptabilité et de facturation.</p>
     </div>
-</div>
+</section>
 
 <div x-data="metierDirectory()" style="margin-top: 0; padding-top: 40px; padding-bottom: 80px; background: #f8fafc; padding-inline: 24px;">
     <div style="max-width: 1200px; margin: 0 auto; width: 100%;">
