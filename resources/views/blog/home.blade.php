@@ -248,7 +248,7 @@
                         
                         <div style="font-size: 13px; color: #475569; margin-bottom: 16px; flex-grow: 1;">
                             <strong style="color: #0f172a;">Outil recommandé :</strong> 
-                            <span :style="'display: inline-block; padding: 2px 8px; background: color-mix(in srgb, ' + getToolColor(metier.tool_name) + ' 15%, transparent); border-radius: 4px; font-weight: 700; color: ' + getToolColor(metier.tool_name)" x-text="'🏆 ' + metier.tool_name"></span>
+                            <span :style="'display: inline-block; padding: 2px 8px; background: color-mix(in srgb, ' + getToolColor(metier.tool_name) + ' 15%, transparent); border-radius: 4px; font-weight: 700; color: ' + getToolTextColor(metier.tool_name)" x-text="'🏆 ' + metier.tool_name"></span>
                         </div>
                         
                         <div class="hp-card-footer" style="margin-top: auto; color: var(--home-accent); font-weight: 700; border-top: 1px solid #f1f5f9; padding-top: 16px; display: flex; align-items: center; justify-content: space-between;">
@@ -291,9 +291,21 @@
                 'Dougs': '#10b981',
                 'Tiime': '#ec4899',
             },
+            toolTextColors: {
+                'Indy': '{{ $indyTextOnWhite ?? '#e11d48' }}',
+                'Pennylane': '{{ $pennylaneTextOnWhite ?? '#1d4ed8' }}',
+                'Abby': '{{ $abbyTextOnWhite ?? '#7e22ce' }}',
+                'Shine': '{{ $shineTextOnWhite ?? '#c2410c' }}', // Darker orange/brown for readability
+                'Dougs': '#047857',
+                'Tiime': '#be185d',
+            },
             
             getToolColor(toolName) {
                 return this.toolColors[toolName] || 'var(--home-accent)';
+            },
+            
+            getToolTextColor(toolName) {
+                return this.toolTextColors[toolName] || this.getToolColor(toolName);
             },
             
             init() {
