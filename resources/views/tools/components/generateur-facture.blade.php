@@ -207,6 +207,21 @@
 </div>
 
 <style>
+@media (min-width: 1024px) {
+    .tool-calculator-layout.generateur-facture {
+        max-width: 100% !important;
+        display: grid !important;
+        grid-template-columns: 400px 1fr !important;
+        gap: 48px !important;
+        align-items: flex-start !important;
+    }
+    .invoice-preview.print-area {
+        margin-top: 0 !important;
+        position: sticky;
+        top: 100px;
+    }
+}
+
 @media print {
     /* Cache les éléments de navigation et de layout global du site */
     header, footer, nav, aside, .blog-footer, .site-header {
