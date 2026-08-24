@@ -60,6 +60,32 @@
     <script defer src="https://cloud.umami.is/script.js" data-website-id="f009de17-3390-42ab-8741-cc2362bd5cc1"></script>
 </head>
 <body class="blog-body">
+    <!-- Top Alert Banner for Mobile -->
+    <style>
+        .mobile-top-cta {
+            display: none;
+            background: #F75A77;
+            color: white;
+            padding: 8px 16px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        @media (max-width: 900px) {
+            .mobile-top-cta {
+                display: flex !important;
+            }
+        }
+    </style>
+    <a href="{{ route('affiliate.redirect', 'indy') }}" target="_blank" rel="sponsored nofollow" class="mobile-top-cta no-print">
+        <span>🎯 Indy : Compta 100% gratuite</span>
+        <span style="text-decoration: underline; margin-left: 6px;">Voir l'offre</span>
+    </a>
     <div class="no-print" style="position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(226, 232, 240, 0.8); width: 100%;">
         <header x-data="{ mobileMenuOpen: false }" style="display: flex; align-items: center; justify-content: space-between; max-width: 1050px; margin: 0 auto; flex-wrap: wrap; height: auto; min-height: 78px; padding: 16px 24px;">
             
