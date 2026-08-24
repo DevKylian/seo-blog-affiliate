@@ -67,11 +67,9 @@
             background: #F75A77;
             color: white;
             padding: 8px 16px;
-            text-align: center;
             font-size: 13px;
             font-weight: 700;
-            text-decoration: none;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
             width: 100%;
             box-sizing: border-box;
@@ -82,10 +80,15 @@
             }
         }
     </style>
-    <a href="{{ route('affiliate.redirect', 'indy') }}" target="_blank" rel="sponsored nofollow" class="mobile-top-cta no-print">
-        <span>🎯 Indy : Compta 100% gratuite</span>
-        <span style="text-decoration: underline; margin-left: 6px;">Voir l'offre</span>
-    </a>
+    <div class="mobile-top-cta no-print" x-data="{ showAlert: true }" x-show="showAlert">
+        <a href="{{ route('affiliate.redirect', 'indy') }}" target="_blank" rel="sponsored nofollow" style="display: flex; justify-content: center; align-items: center; gap: 6px; flex: 1; color: white; text-decoration: none;">
+            <span>🎯 Indy : Compta 100% gratuite</span>
+            <span style="text-decoration: underline; margin-left: 6px;">Voir l'offre</span>
+        </a>
+        <button type="button" @click="showAlert = false" aria-label="Fermer" style="background: transparent; border: none; color: white; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; opacity: 0.8;">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+    </div>
     <div class="no-print" style="position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(226, 232, 240, 0.8); width: 100%;">
         <header x-data="{ mobileMenuOpen: false }" style="display: flex; align-items: center; justify-content: space-between; max-width: 1050px; margin: 0 auto; flex-wrap: wrap; height: auto; min-height: 78px; padding: 16px 24px;">
             
@@ -158,25 +161,28 @@
     <style>
         .desktop-sticky-cta {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(226, 232, 240, 0.8);
-            padding: 12px 24px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            padding: 12px 12px 12px 24px;
+            border-radius: 100px;
             z-index: 100;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 24px;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            width: max-content;
+            max-width: 90vw;
         }
         .desktop-sticky-cta-btn {
             background: #F75A77;
             color: white;
             padding: 10px 24px;
-            border-radius: 8px;
+            border-radius: 100px;
             font-weight: 800;
             font-size: 15px;
             text-decoration: none;
@@ -189,7 +195,7 @@
             box-shadow: 0 6px 15px rgba(247, 90, 119, 0.4);
         }
         @media (min-width: 901px) {
-            body { padding-bottom: 65px; } /* Prevent footer overlap */
+            body { padding-bottom: 90px; } /* Prevent footer overlap */
         }
         @media (max-width: 900px) {
             .desktop-sticky-cta {
@@ -199,8 +205,8 @@
     </style>
     <div class="desktop-sticky-cta no-print">
         <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="background: #fdf2f8; color: #F75A77; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 12px; text-transform: uppercase;">🎯 Notre recommandation n°1</div>
-            <strong style="color: #0f172a; font-size: 15px;">Indy automatise votre compta et vos déclarations — gratuit sans limite de temps, sans engagement</strong>
+            <div style="background: #fdf2f8; color: #F75A77; padding: 4px 10px; border-radius: 100px; font-weight: 800; font-size: 12px; text-transform: uppercase;">🎯 Notre recommandation n°1</div>
+            <strong style="color: #0f172a; font-size: 14px;">Indy automatise votre compta et vos déclarations — gratuit sans limite de temps, sans engagement</strong>
         </div>
         <a href="{{ route('affiliate.redirect', 'indy') }}" class="desktop-sticky-cta-btn" target="_blank" rel="sponsored nofollow">
             Créer mon compte gratuit &rarr;
