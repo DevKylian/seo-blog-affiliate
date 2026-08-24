@@ -13,7 +13,6 @@
 @php
     $articleBlocks = collect($article->content_blocks ?: [['type' => 'markdown', 'content' => $article->body]]);
 
-    if ($article->project) {
         $articleBlocks = $articleBlocks->reject(function ($block) {
             return ($block['type'] ?? '') === 'affiliate_cta' && ($block['position'] ?? '') === 'final';
         })->values();
@@ -51,7 +50,6 @@
                 }
             }
         }
-    }
 
     $footerBlockTypes = ['affiliate_disclosure', 'last_verified'];
     $mainBlocks = $articleBlocks

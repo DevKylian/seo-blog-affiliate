@@ -11,6 +11,39 @@ final class AffiliateBlockService
     public function resolveBlock(Article $article, string $position): ?AffiliateBlock
     {
         $article->loadMissing(['project', 'keyword']);
+        
+        if (! $article->project) {
+            $recommendedProject = null;
+            if (method_exists($article, 'tools')) {
+                $recommendedProject = $article->tools()->first();
+            }
+            if (!$recommendedProject) {
+                $slug = $article->slug ?? '';
+                $projectName = '';
+                if (str_contains($slug, 'pennylane')) {
+                    $projectName = 'pennylane';
+                } elseif (str_contains($slug, 'shine')) {
+                    $projectName = 'shine';
+                } elseif (str_contains($slug, 'qonto')) {
+                    $projectName = 'qonto';
+                } elseif (str_contains($slug, 'blank')) {
+                    $projectName = 'blank';
+                } elseif (str_contains($slug, 'tiime')) {
+                    $projectName = 'tiime';
+                } elseif (str_contains($slug, 'abby')) {
+                    $projectName = 'abby';
+                } else {
+                    $projectName = 'indy'; // Default fallback
+                }
+                $recommendedProject = SeoProject::where('slug', $projectName)->first();
+            }
+            
+            if ($recommendedProject) {
+                $article->setRelation('project', $recommendedProject);
+                $article->seo_project_id = $recommendedProject->id;
+            }
+        }
+
         if (! $article->project || ! $this->targetUrl($article->project)) {
             return null;
         }
