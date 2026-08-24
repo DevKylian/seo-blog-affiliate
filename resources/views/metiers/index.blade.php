@@ -8,10 +8,10 @@
 
 @section('content')
 <section class="pro-hero" style="padding: 100px 20px; background: linear-gradient(135deg, #020617, #0f172a, #1e1b4b); color: white;">
-    <div class="pro-hero-inner" style="max-width: 800px; margin: 0 auto; text-align: center;">
-        <span class="pro-eyebrow" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 100px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; display: inline-block; margin-bottom: 24px;">Annuaire des professions</span>
-        <h1 style="color: white; font-size: 48px; font-weight: 900; margin-bottom: 20px; line-height: 1.1; letter-spacing: -1px; font-family: 'Manrope', sans-serif;">Trouvez l'outil idéal pour votre métier.</h1>
-        <p style="color: #cbd5e1; font-size: 18px; line-height: 1.6; font-weight: 500; max-width: 600px; margin: 0 auto;">Nous avons analysé les besoins spécifiques de chaque profession pour vous recommander le meilleur logiciel de comptabilité et de facturation.</p>
+    <div class="pro-hero-inner">
+        <span class="pro-eyebrow">Annuaire des métiers</span>
+        <h1 style="color: white; background: none; -webkit-text-fill-color: white;">Trouvez l'outil parfait pour votre métier.</h1>
+        <p>Nous avons analysé les besoins spécifiques de chaque profession pour vous recommander le meilleur logiciel de comptabilité et de facturation.</p>
     </div>
 </section>
 
