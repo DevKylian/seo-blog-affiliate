@@ -18,22 +18,35 @@ final class AffiliateBlockService
                 $recommendedProject = $article->tools()->first();
             }
             if (!$recommendedProject) {
-                $slug = $article->slug ?? '';
+                $content = mb_strtolower($article->title . ' ' . ($article->body ?? ''));
+                $tools = ['pennylane', 'shine', 'qonto', 'blank', 'tiime', 'abby', 'indy'];
+                $counts = [];
+                foreach ($tools as $tool) {
+                    $counts[$tool] = substr_count($content, $tool);
+                }
+                arsort($counts);
+                $bestTool = key($counts);
+                
                 $projectName = '';
-                if (str_contains($slug, 'pennylane')) {
-                    $projectName = 'pennylane';
-                } elseif (str_contains($slug, 'shine')) {
-                    $projectName = 'shine';
-                } elseif (str_contains($slug, 'qonto')) {
-                    $projectName = 'qonto';
-                } elseif (str_contains($slug, 'blank')) {
-                    $projectName = 'blank';
-                } elseif (str_contains($slug, 'tiime')) {
-                    $projectName = 'tiime';
-                } elseif (str_contains($slug, 'abby')) {
-                    $projectName = 'abby';
+                if ($counts[$bestTool] > 0) {
+                    $projectName = $bestTool;
                 } else {
-                    $projectName = 'indy'; // Default fallback
+                    $slug = $article->slug ?? '';
+                    if (str_contains($slug, 'pennylane')) {
+                        $projectName = 'pennylane';
+                    } elseif (str_contains($slug, 'shine')) {
+                        $projectName = 'shine';
+                    } elseif (str_contains($slug, 'qonto')) {
+                        $projectName = 'qonto';
+                    } elseif (str_contains($slug, 'blank')) {
+                        $projectName = 'blank';
+                    } elseif (str_contains($slug, 'tiime')) {
+                        $projectName = 'tiime';
+                    } elseif (str_contains($slug, 'abby')) {
+                        $projectName = 'abby';
+                    } else {
+                        $projectName = 'indy'; // Default fallback
+                    }
                 }
                 $recommendedProject = SeoProject::where('slug', $projectName)->first();
             }

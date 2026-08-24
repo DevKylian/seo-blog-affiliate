@@ -27,27 +27,21 @@
         $markdownIndex = $articleBlocks->search(fn($b) => ($b['type'] ?? '') === 'markdown');
         if ($markdownIndex !== false) {
             $mdContent = $articleBlocks[$markdownIndex]['content'] ?? '';
-            if (preg_match('/(##\s+[^#\n]*(?:erreur|piège|attention|limite|choisir|pourquoi)[^#\n]*\n(?:[^#].*\n)+)/ui', $mdContent, $matches, PREG_OFFSET_CAPTURE)) {
-                $splitPos = $matches[0][1] + strlen($matches[0][0]);
-                $part1 = substr($mdContent, 0, $splitPos);
-                $part2 = substr($mdContent, $splitPos);
+            $parts = preg_split('/(?=^##\s+)/m', $mdContent);
+            if (count($parts) > 2) {
+                // If there are at least 3 parts (intro + 2 H2s), put it in the middle
+                $middleIndex = (int) ceil(count($parts) / 2);
+                $part1 = implode('', array_slice($parts, 0, $middleIndex));
+                $part2 = implode('', array_slice($parts, $middleIndex));
+                
+                // Ensure there is some trailing whitespace so the CTA doesn't stick to the previous text
+                $part1 = rtrim($part1) . "\n\n";
+
                 $articleBlocks->splice($markdownIndex, 1, [
                     ['type' => 'markdown', 'content' => $part1],
                     ['type' => 'affiliate_cta', 'position' => 'middle'],
                     ['type' => 'markdown', 'content' => $part2],
                 ]);
-            } else {
-                $parts = preg_split('/(?=^##\s+)/m', $mdContent);
-                if (count($parts) > 3) {
-                    $middleIndex = (int) floor(count($parts) / 2);
-                    $part1 = implode('', array_slice($parts, 0, $middleIndex));
-                    $part2 = implode('', array_slice($parts, $middleIndex));
-                    $articleBlocks->splice($markdownIndex, 1, [
-                        ['type' => 'markdown', 'content' => $part1],
-                        ['type' => 'affiliate_cta', 'position' => 'middle'],
-                        ['type' => 'markdown', 'content' => $part2],
-                    ]);
-                }
             }
         }
 
