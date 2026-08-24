@@ -101,10 +101,20 @@
         <h2 style="font-size: 28px; font-weight: 900; color: #0f172a; margin-bottom: 32px;">Pour aller plus loin</h2>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
             @foreach($latestArticles as $article)
-                <a href="{{ route('blog.show', $article->slug) }}" style="display: block; background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 25px -5px rgba(0, 0, 0, 0.1)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-                    <div style="font-size: 12px; font-weight: 800; color: var(--home-accent); text-transform: uppercase; margin-bottom: 8px;">{{ $article->categories->first()?->name ?? 'Guide' }}</div>
-                    <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin-bottom: 12px; line-height: 1.4;">{{ $article->title }}</h3>
-                    <p style="font-size: 14px; color: #475569; margin: 0; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">{{ $article->meta_description ?? \Illuminate\Support\Str::limit(strip_tags($article->content), 120) }}</p>
+                <a href="{{ $article->public_url }}" class="hp-article-card" style="padding: 0; display: flex; flex-direction: column; overflow: hidden; border-radius: 16px; background: white; border: 1px solid #e2e8f0; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 25px -5px rgba(0, 0, 0, 0.1)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                    <div style="width: 100%; aspect-ratio: 1200/630; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; overflow: hidden;">
+                        <img src="{{ route('og-image', $article->id) }}" alt="{{ $article->title }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px 16px 0 0;" loading="lazy">
+                    </div>
+                    <div style="padding: 24px; display: flex; flex-direction: column; flex-grow: 1;">
+                        <div class="hp-card-header" style="margin-bottom: 12px;">
+                            <span class="hp-card-date" style="color: #64748b; font-size: 12px;">{{ $article->published_at?->translatedFormat('d M Y') ?: $article->updated_at->format('M Y') }}</span>
+                        </div>
+                        <div class="hp-card-title">{{ $article->title }}</div>
+                        <div class="hp-card-desc">{{ \Illuminate\Support\Str::limit($article->meta_description ?: ($article->excerpt ?? 'Découvrez notre analyse détaillée et nos conseils d\'experts.'), 110) }}</div>
+                        <div class="hp-card-footer" style="margin-top: auto;">
+                            Lire l'article <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                        </div>
+                    </div>
                 </a>
             @endforeach
         </div>
