@@ -72,11 +72,11 @@
 
         $recommendedProject = null;
 
-        if (isset($article) && $article->project) {
+        if (isset($article) && is_object($article) && $article->project) {
             $recommendedProject = $article->project;
-        } elseif (isset($tool)) {
+        } elseif (isset($tool) && is_object($tool)) {
             $recommendedProject = $tool;
-        } elseif (isset($article) && method_exists($article, 'tools')) {
+        } elseif (isset($article) && is_object($article) && method_exists($article, 'tools')) {
             $recommendedProject = $article->tools()->first();
         }
 
@@ -84,10 +84,10 @@
         $name = '';
         $slug = '';
 
-        if ($recommendedProject) {
-            $slug = strtolower($recommendedProject->slug);
-            $name = strtolower($recommendedProject->name);
-        } else {
+        if ($recommendedProject && is_object($recommendedProject)) {
+            $slug = strtolower($recommendedProject->slug ?? '');
+            $name = strtolower($recommendedProject->name ?? '');
+        } elseif (isset($article)) {
             if (str_contains($currentUrl, 'pennylane')) {
                 $name = 'pennylane';
                 $slug = 'pennylane';
@@ -106,7 +106,13 @@
             } elseif (str_contains($currentUrl, 'abby')) {
                 $name = 'abby';
                 $slug = 'abby';
+            } else {
+                $name = 'indy';
+                $slug = 'indy';
             }
+        } else {
+            $name = 'indy';
+            $slug = 'indy';
         }
 
         if ($name) {
