@@ -1,4 +1,4 @@
-﻿@extends('layouts.blog')
+@extends('layouts.blog')
 
 @section('title', $tool['title'] . ' - Outil gratuit BusinessKit')
 @section('description', $tool['description'])
@@ -28,11 +28,11 @@
 
     <aside class="tool-conversion" style="margin-top: 80px; padding: 60px 0 40px; border-top: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 32px; align-items: center; text-align: center; margin-bottom: 60px;">
         <div>
-            <strong style="display: block; font: 900 32px 'Manrope', sans-serif; color: #0f172a; margin-bottom: 16px; letter-spacing:-0.02em;">Gagnez (encore) plus de temps</strong>
-            <p style="font-size: 18px; color: #475569; margin: 0; line-height: 1.6; max-width: 600px; font-weight: 500;">Découvrez comment les meilleurs logiciels pour indépendants automatisent vos devis, factures, et calculs de cotisations en un clic.</p>
+            <strong style="display: block; font: 900 32px 'Manrope', sans-serif; color: #0f172a; margin-bottom: 16px; letter-spacing:-0.02em;">{{ $tool['conversion_title'] ?? 'Gagnez (encore) plus de temps' }}</strong>
+            <p style="font-size: 18px; color: #475569; margin: 0; line-height: 1.6; max-width: 600px; font-weight: 500;">{{ $tool['conversion_text'] ?? 'Découvrez comment les meilleurs logiciels pour indépendants automatisent vos devis, factures, et calculs de cotisations en un clic.' }}</p>
         </div>
-        <a href="{{ route('home') }}#wizard" style="display: inline-flex; align-items: center; gap: 8px; background: #2563eb; color: white; padding: 18px 40px; border-radius: 12px; font-weight: 800; font-size: 16px; text-decoration: none; box-shadow: 0 4px 12px rgba(37,99,235,0.25); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 16px rgba(37,99,235,0.3)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 12px rgba(37,99,235,0.25)';">
-            Trouver mon logiciel idéal
+        <a href="{{ $tool['conversion_link'] ?? route('home') . '#wizard' }}" style="display: inline-flex; align-items: center; gap: 8px; background: {{ $tool['conversion_color'] ?? '#2563eb' }}; color: white; padding: 18px 40px; border-radius: 12px; font-weight: 800; font-size: 16px; text-decoration: none; box-shadow: 0 4px 12px color-mix(in srgb, {{ $tool['conversion_color'] ?? '#2563eb' }} 40%, transparent); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 16px color-mix(in srgb, {{ $tool['conversion_color'] ?? '#2563eb' }} 60%, transparent)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 12px color-mix(in srgb, {{ $tool['conversion_color'] ?? '#2563eb' }} 40%, transparent)';">
+            {{ $tool['conversion_cta'] ?? 'Trouver mon logiciel idéal' }}
             <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
         </a>
     </aside>

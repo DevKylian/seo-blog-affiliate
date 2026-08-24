@@ -36,6 +36,9 @@
                 {{ $tool['cta'] }}
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
             </div>
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #f1f5f9; font-size: 13px; color: #64748b; line-height: 1.5; font-weight: 500;">
+                <strong style="color: {{ $tool['conversion_color'] ?? '#2563eb' }};">💡 Gain de temps :</strong> {{ $tool['conversion_text'] ?? '' }}
+            </div>
         </a>
         @endforeach
 

@@ -290,12 +290,18 @@ class BlogController extends Controller
     private function freeToolCatalog(): array
     {
         return [
+            // EXISTING 6 TOOLS
             [
                 'slug' => 'calculateur-tva',
                 'title' => 'Calculateur de TVA en ligne (HT / TTC)',
                 'description' => 'Convertissez instantanément vos montants HT en TTC avec les taux de 20%, 10%, 5.5% ou 2.1%.',
                 'type' => 'calculateur-tva',
                 'cta' => 'Calculer ma TVA',
+                'conversion_title' => "Envie d'automatiser ce calcul directement sur vos factures ?",
+                'conversion_text' => 'Indy génère vos devis et factures conformes et calcule automatiquement la TVA à déclarer. Fini les erreurs de saisie !',
+                'conversion_cta' => 'Essayer Indy gratuitement',
+                'conversion_link' => '/go/indy',
+                'conversion_color' => '#F75A77',
             ],
             [
                 'slug' => 'calculateur-tjm-freelance',
@@ -303,6 +309,11 @@ class BlogController extends Controller
                 'description' => 'Déterminez le taux journalier idéal pour atteindre votre objectif de salaire net.',
                 'type' => 'calculateur-tjm',
                 'cta' => 'Calculer mon TJM',
+                'conversion_title' => "Pilotez votre rentabilité en temps réel",
+                'conversion_text' => "Une fois votre TJM fixé, suivez l'évolution de votre chiffre d'affaires et de vos charges directement depuis le tableau de bord d'Indy.",
+                'conversion_cta' => 'Découvrir Indy',
+                'conversion_link' => '/go/indy',
+                'conversion_color' => '#F75A77',
             ],
             [
                 'slug' => 'simulateur-cotisations-micro-entreprise',
@@ -310,6 +321,11 @@ class BlogController extends Controller
                 'description' => 'Estimez vos cotisations URSSAF et votre impôt sur le revenu en fonction de votre Chiffre d\'Affaires.',
                 'type' => 'simulateur-micro',
                 'cta' => 'Simuler mes cotisations',
+                'conversion_title' => "Ces calculs vous prennent du temps chaque mois ?",
+                'conversion_text' => 'Un logiciel comme Indy automatise vos déclarations URSSAF et vous alerte avant chaque échéance, 100% gratuitement.',
+                'conversion_cta' => 'Automatiser mon URSSAF avec Indy',
+                'conversion_link' => '/go/indy',
+                'conversion_color' => '#F75A77',
             ],
             [
                 'slug' => 'seuil-tva-micro-entreprise',
@@ -317,6 +333,11 @@ class BlogController extends Controller
                 'description' => 'Vérifiez en 2 clics si vous devez facturer la TVA suite au dépassement des seuils de la franchise en base.',
                 'type' => 'seuil-tva',
                 'cta' => 'Vérifier mes seuils',
+                'conversion_title' => "Peur de rater le passage à la TVA ?",
+                'conversion_text' => "Indy suit votre chiffre d'affaires en temps réel et vous alerte automatiquement quand vous dépassez le seuil de franchise en base.",
+                'conversion_cta' => 'Sécuriser ma facturation avec Indy',
+                'conversion_link' => '/go/indy',
+                'conversion_color' => '#F75A77',
             ],
             [
                 'slug' => 'generateur-penalites-retard',
@@ -324,6 +345,11 @@ class BlogController extends Controller
                 'description' => 'Calculez légalement les indemnités et pénalités de retard applicables sur une facture impayée.',
                 'type' => 'penalites-retard',
                 'cta' => 'Calculer les pénalités',
+                'conversion_title' => "Fatigué de courir après les impayés ?",
+                'conversion_text' => 'Avec Indy, activez le suivi des paiements et relancez vos clients en un clic avec calcul automatique des pénalités.',
+                'conversion_cta' => 'Gérer mes factures avec Indy',
+                'conversion_link' => '/go/indy',
+                'conversion_color' => '#F75A77',
             ],
             [
                 'slug' => 'comparateur-micro-sasu',
@@ -331,7 +357,88 @@ class BlogController extends Controller
                 'description' => 'Pour 50 000€ facturés, découvrez le statut juridique qui vous laisse le plus d\'argent net dans la poche.',
                 'type' => 'comparateur-statuts',
                 'cta' => 'Comparer les statuts',
+                'conversion_title' => "Vous envisagez de passer en société ?",
+                'conversion_text' => 'Indy vous accompagne gratuitement dans la création de votre SASU ou EURL, de la rédaction des statuts au dépôt du capital.',
+                'conversion_cta' => 'Créer ma société avec Indy',
+                'conversion_link' => '/go/indy',
+                'conversion_color' => '#F75A77',
             ],
+
+            // NEW PRIORITY 1
+            [
+                'slug' => 'generateur-facture-devis',
+                'title' => 'Générateur de Devis et Facture PDF gratuit',
+                'description' => 'Créez vos factures et devis conformes en 1 minute. Téléchargez-les directement en PDF.',
+                'type' => 'generateur-facture',
+                'cta' => 'Créer une facture',
+                'conversion_title' => 'Vous venez de faire une facture manuellement...',
+                'conversion_text' => 'Saviez-vous qu\'Indy vous permet d\'en faire en illimité, gratuitement, avec archivage légal et transformation devis -> facture en 1 clic ?',
+                'conversion_cta' => 'Passer à la facturation illimitée',
+                'conversion_link' => '/go/indy',
+                'conversion_color' => '#F75A77',
+            ],
+            [
+                'slug' => 'calculateur-frais-kilometriques',
+                'title' => 'Calculateur de Barème Kilométrique (IK)',
+                'description' => 'Calculez instantanément le montant déductible de vos frais de déplacement selon le barème officiel 2026.',
+                'type' => 'calculateur-ik',
+                'cta' => 'Calculer mes IK',
+                'conversion_title' => 'Automatisez vos frais kilométriques !',
+                'conversion_text' => 'Saisissez simplement vos trajets dans l\'application Indy et le logiciel calcule et déduit vos IK automatiquement.',
+                'conversion_cta' => 'Gérer mes IK avec Indy',
+                'conversion_link' => '/go/indy',
+                'conversion_color' => '#F75A77',
+            ],
+            [
+                'slug' => 'simulateur-micro-vs-reel',
+                'title' => 'Simulateur Micro-Entreprise vs Régime Réel',
+                'description' => 'Comparez l\'abattement forfaitaire de la micro-entreprise avec la déduction de vos charges au réel.',
+                'type' => 'simulateur-micro-vs-reel',
+                'cta' => 'Lancer la simulation',
+                'conversion_title' => 'Le passage au régime réel simplifié',
+                'conversion_text' => 'Passer au régime réel demande une vraie comptabilité. Indy automatise toute votre liasse fiscale sans expert-comptable.',
+                'conversion_cta' => 'Découvrir la compta au réel avec Indy',
+                'conversion_link' => '/go/indy',
+                'conversion_color' => '#F75A77',
+            ],
+
+            // NEW PRIORITY 2
+            [
+                'slug' => 'simulateur-sasu-dividendes',
+                'title' => 'Simulateur SASU : Salaire vs Dividendes',
+                'description' => 'Optimisez votre rémunération en SASU en comparant la distribution de dividendes et le versement d\'un salaire.',
+                'type' => 'simulateur-sasu-dividendes',
+                'cta' => 'Optimiser ma SASU',
+                'conversion_title' => 'Pilotez la comptabilité de votre SASU',
+                'conversion_text' => 'Indy édite vos fiches de paie de dirigeant, gère votre IS et génère le bilan de votre SASU automatiquement.',
+                'conversion_cta' => 'Gérer ma SASU avec Indy',
+                'conversion_link' => '/go/indy',
+                'conversion_color' => '#F75A77',
+            ],
+            [
+                'slug' => 'calculateur-tva-sur-marge',
+                'title' => 'Calculateur de TVA sur marge',
+                'description' => 'Biens d\'occasion, friperies, antiquaires : calculez précisément la TVA à reverser sur votre marge nette.',
+                'type' => 'calculateur-tva-marge',
+                'cta' => 'Calculer ma TVA sur marge',
+                'conversion_title' => 'Besoin d\'un outil qui gère nativement la TVA sur marge ?',
+                'conversion_text' => 'Attention : Indy ne gère pas la TVA sur marge. Pennylane est indispensable pour les vendeurs de seconde main.',
+                'conversion_cta' => 'Découvrir Pennylane',
+                'conversion_link' => '/go/pennylane',
+                'conversion_color' => '#3b82f6', // Pennylane
+            ],
+            [
+                'slug' => 'simulateur-seuil-oss',
+                'title' => 'Simulateur Seuil OSS (Ventes intra-UE)',
+                'description' => 'Vérifiez si vous dépassez le seuil des 10 000€ pour la TVA sur vos ventes à distance en Europe.',
+                'type' => 'simulateur-seuil-oss',
+                'cta' => 'Vérifier mon seuil OSS',
+                'conversion_title' => 'Simplifiez votre comptabilité E-commerce',
+                'conversion_text' => 'Pennylane se connecte directement à Shopify et Stripe pour gérer vos taux de TVA européens sans effort.',
+                'conversion_cta' => 'Connecter ma boutique à Pennylane',
+                'conversion_link' => '/go/pennylane',
+                'conversion_color' => '#3b82f6', // Pennylane
+            ]
         ];
     }
 }
