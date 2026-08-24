@@ -70,12 +70,48 @@
         $ctaHeaderLabel = "Profiter de l'offre gratuite Indy";
         $ctaButtonLabel = "Créer mon compte gratuit &rarr;";
 
+        $recommendedProject = null;
+
         if (isset($article) && $article->project) {
-            $slug = strtolower($article->project->slug);
-            $name = strtolower($article->project->name);
-            
+            $recommendedProject = $article->project;
+        } elseif (isset($tool)) {
+            $recommendedProject = $tool;
+        } elseif (isset($article) && method_exists($article, 'tools')) {
+            $recommendedProject = $article->tools()->first();
+        }
+
+        $currentUrl = request()->url();
+        $name = '';
+        $slug = '';
+
+        if ($recommendedProject) {
+            $slug = strtolower($recommendedProject->slug);
+            $name = strtolower($recommendedProject->name);
+        } else {
+            if (str_contains($currentUrl, 'pennylane')) {
+                $name = 'pennylane';
+                $slug = 'pennylane';
+            } elseif (str_contains($currentUrl, 'shine')) {
+                $name = 'shine';
+                $slug = 'shine';
+            } elseif (str_contains($currentUrl, 'qonto')) {
+                $name = 'qonto';
+                $slug = 'qonto';
+            } elseif (str_contains($currentUrl, 'blank')) {
+                $name = 'blank';
+                $slug = 'blank';
+            } elseif (str_contains($currentUrl, 'tiime')) {
+                $name = 'tiime';
+                $slug = 'tiime';
+            } elseif (str_contains($currentUrl, 'abby')) {
+                $name = 'abby';
+                $slug = 'abby';
+            }
+        }
+
+        if ($name) {
             $ctaLink = route('affiliate.redirect', $slug);
-            $ctaName = $article->project->name;
+            $ctaName = ucfirst($name);
             
             if (str_contains($name, 'pennylane')) {
                 $ctaColor = '#10B981';
