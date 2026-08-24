@@ -173,11 +173,11 @@
     </style>
     <div class="desktop-sticky-cta no-print">
         <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="background: #fdf2f8; color: #F75A77; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 12px; text-transform: uppercase;">Top Choix ⭐</div>
-            <strong style="color: #0f172a; font-size: 15px;">Indy : L'application tout-en-un 100% gratuite pour les indépendants</strong>
+            <div style="background: #fdf2f8; color: #F75A77; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 12px; text-transform: uppercase;">🎯 Notre recommandation n°1</div>
+            <strong style="color: #0f172a; font-size: 15px;">Indy automatise votre compta et vos déclarations — gratuit sans limite de temps, sans engagement</strong>
         </div>
         <a href="{{ route('affiliate.redirect', 'indy') }}" class="desktop-sticky-cta-btn" target="_blank" rel="sponsored nofollow">
-            Créer mon compte gratuit
+            Créer mon compte gratuit &rarr;
         </a>
     </div>
 
