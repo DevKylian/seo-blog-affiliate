@@ -8,28 +8,68 @@
             $position = $block['position'] ?? 'after_intro';
             $positionClass = 'affiliate-cta--' . preg_replace('/[^a-z0-9_-]+/', '-', mb_strtolower($position));
             $affiliateBlock = app(\App\Services\AffiliateBlockService::class)->resolveBlock($article, $position);
-            $isIndy = $affiliateBlock && $affiliateBlock->project && (in_array(mb_strtolower($affiliateBlock->project->slug), ['indy', 'indy-1', 'indy-fr'], true) || in_array(mb_strtolower($affiliateBlock->project->name), ['indy', 'blog & guides généraux', 'blog & guides generaux', 'guides généraux', 'guides generaux'], true));
         @endphp
         @if($affiliateBlock)
-            @if($isIndy)
-                <aside class="premium-cta-indy {{ $positionClass }}">
-                    <div class="premium-cta-indy__badge">🏆 Choix N°1 de la Rédaction</div>
-                    <div class="premium-cta-indy__content">
-                        <div class="premium-cta-indy__text">
-                            <strong>{{ $affiliateBlock->title }}</strong>
-                            <p>{!! nl2br(e($affiliateBlock->description)) !!}</p>
-                        </div>
+            @php
+                $isIndy = $affiliateBlock->project && (in_array(mb_strtolower($affiliateBlock->project->slug), ['indy', 'indy-1', 'indy-fr'], true) || in_array(mb_strtolower($affiliateBlock->project->name), ['indy', 'blog & guides généraux', 'blog & guides generaux', 'guides généraux', 'guides generaux'], true));
+                
+                $themeColor = '#F75A77';
+                $hoverColor = '#e04460';
+                $textColor = '#fff';
+                
+                $slug = $affiliateBlock->project ? mb_strtolower($affiliateBlock->project->slug) : '';
+                if (str_contains($slug, 'pennylane')) {
+                    $themeColor = '#10B981'; $hoverColor = '#059669';
+                } elseif (str_contains($slug, 'shine')) {
+                    $themeColor = '#F59E0B'; $hoverColor = '#d97706'; $textColor = '#0f172a';
+                } elseif (str_contains($slug, 'qonto')) {
+                    $themeColor = '#6366F1'; $hoverColor = '#4f46e5';
+                } elseif (str_contains($slug, 'blank')) {
+                    $themeColor = '#1E293B'; $hoverColor = '#0f172a';
+                } elseif (str_contains($slug, 'tiime')) {
+                    $themeColor = '#F43F5E'; $hoverColor = '#e11d48';
+                } elseif (str_contains($slug, 'abby')) {
+                    $themeColor = '#8B5CF6'; $hoverColor = '#7c3aed';
+                }
+                
+                $lines = array_filter(array_map('trim', explode("\n", $affiliateBlock->description)));
+                $textLines = [];
+                $bullets = [];
+                foreach ($lines as $line) {
+                    if (str_starts_with($line, '✅') || str_starts_with($line, '✓') || str_starts_with($line, '•')) {
+                        $bullets[] = trim(mb_substr($line, 1));
+                    } else {
+                        $textLines[] = $line;
+                    }
+                }
+            @endphp
+            <aside class="premium-cta-indy {{ $positionClass }}" style="--cta-theme: {{ $themeColor }}; --cta-theme-hover: {{ $hoverColor }}; --cta-text: {{ $textColor }}; --cta-shadow: {{ $themeColor }}20; --cta-shadow-btn: {{ $themeColor }}40; --cta-shadow-hover: {{ $themeColor }}59;">
+                @if($isIndy)
+                    <div class="premium-cta-indy__badge" style="color: #fff;">🏆 Choix N°1 de la Rédaction</div>
+                @else
+                    <div class="premium-cta-indy__badge">Top Recommandation</div>
+                @endif
+                <div class="premium-cta-indy__content">
+                    <div class="premium-cta-indy__text">
+                        <strong>{{ $affiliateBlock->title }}</strong>
+                        <p>{!! nl2br(e(implode("\n", $textLines))) !!}</p>
+                    </div>
+                    @if(count($bullets) > 0)
                         <div class="hp-premium-features" style="margin-top: 24px;">
-                            <strong>
-                                Fonctionnalités clés
-                            </strong>
-                            <ul>
-                                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Devis & Facturation illimités</li>
-                                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Déclarations URSSAF & TVA</li>
-                                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Bilan et Liasse fiscale</li>
-                                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Synchronisation bancaire</li>
+                            <strong>Fonctionnalités clés</strong>
+                            <ul class="premium-cta-indy__bullets">
+                                @foreach($bullets as $bullet)
+                                    <li>
+                                        <i style="background: var(--cta-theme); color: var(--cta-text);">
+                                            <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                        </i>
+                                        {{ $bullet }}
+                                    </li>
+                                @endforeach
                             </ul>
                         </div>
+                    @endif
+                    @if($isIndy)
                         <div class="premium-cta-indy__testimonial" style="grid-column: 1 / -1; margin-top: 0; padding: 14px; background: #f8fafc; border-radius: 8px; font-size: 14px; font-style: italic; border-left: 4px solid #3b82f6; width: 100%; box-sizing: border-box; display: block;">
                             <div style="display: flex; align-items: center; margin-bottom: 8px;">
                                 <div style="width: 32px; height: 32px; border-radius: 50%; background: #e2e8f0; margin-right: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #64748b;">M</div>
@@ -41,70 +81,16 @@
                             </div>
                             "Je ne perds plus mes soirées sur ma compta. Tout est synchronisé, c'est un vrai soulagement au quotidien."
                         </div>
-                    </div>
-                    <a href="{{ app(\App\Services\AffiliateBlockService::class)->trackedUrl($article, $affiliateBlock->exists ? $affiliateBlock : null, $position) }}"
-                        target="_blank" rel="sponsored noopener" style="position: relative; display: flex; align-items: center; justify-content: center;" class="w-full px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm transition-colors duration-200 premium-cta-indy__button">
-                        <span style="text-align: center;">{{ $affiliateBlock->cta }}</span>
-                        <svg style="position: absolute; right: 16px; width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                        </svg>
-                    </a>
-                </aside>
-            @else
-                @php
-                    $lowestPrice = null;
-                    $priceText = null;
-                    if ($affiliateBlock->project) {
-                        $lowestPrice = $affiliateBlock->project->plans()->min('monthly_price');
-                        if ($lowestPrice !== null) {
-                            if ((float) $lowestPrice === 0.0) {
-                                $priceText = '✅ Version gratuite disponible';
-                            } else {
-                                $priceText = '💳 À partir de ' . number_format($lowestPrice, 0, ',', ' ') . ' € / mois';
-                            }
-                        }
-                    }
-
-                    $lines = array_filter(array_map('trim', explode("\n", $affiliateBlock->description)));
-                    $textLines = [];
-                    $bullets = [];
-                    foreach ($lines as $line) {
-                        if (str_starts_with($line, '✅') || str_starts_with($line, '✓')) {
-                            $bullets[] = trim(mb_substr($line, 1));
-                        } else {
-                            $textLines[] = $line;
-                        }
-                    }
-                @endphp
-                <aside class="affiliate-cta-pro {{ $positionClass }}">
-                    <div class="affiliate-cta-pro__content">
-                        <div class="affiliate-cta-pro__text">
-                            <strong>{{ $affiliateBlock->title }}</strong>
-                            <p>{!! nl2br(e(implode("\n", $textLines))) !!}</p>
-                        </div>
-                        @if(count($bullets) > 0)
-                            <div class="hp-premium-features" style="margin-top: 24px;">
-                                <strong>
-                                    Fonctionnalités clés
-                                </strong>
-                                <ul>
-                                    @foreach($bullets as $bullet)
-                                        <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> {{ $bullet }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-                    </div>
-                    <div class="affiliate-cta-pro__action" style="width: 100%;">
-                        <a class="affiliate-cta-pro__button" style="display: block; width: 100%; text-align: center; box-sizing: border-box;"
-                            href="{{ app(\App\Services\AffiliateBlockService::class)->trackedUrl($article, $affiliateBlock->exists ? $affiliateBlock : null, $position) }}"
-                            rel="sponsored nofollow">{{ $affiliateBlock->cta }}</a>
-                        @if($priceText)
-                            <div class="affiliate-cta-pro__price">{{ $priceText }}</div>
-                        @endif
-                    </div>
-                </aside>
-            @endif
+                    @endif
+                </div>
+                <a href="{{ app(\App\Services\AffiliateBlockService::class)->trackedUrl($article, $affiliateBlock->exists ? $affiliateBlock : null, $position) }}"
+                    target="_blank" rel="sponsored noopener" class="premium-cta-indy__button" style="position: relative; display: flex; align-items: center; justify-content: center;">
+                    <span style="text-align: center;">{{ $affiliateBlock->cta }}</span>
+                    <svg style="position: absolute; right: 16px; width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </a>
+            </aside>
         @endif
     @elseif($blockType === 'markdown')
         <div class="markdown-body public-markdown">
