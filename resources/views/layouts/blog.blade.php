@@ -60,11 +60,72 @@
     <script defer src="https://cloud.umami.is/script.js" data-website-id="f009de17-3390-42ab-8741-cc2362bd5cc1"></script>
 </head>
 <body class="blog-body">
+    @php
+        $ctaLink = route('affiliate.redirect', 'indy');
+        $ctaName = 'Indy';
+        $ctaColor = '#F75A77';
+        $ctaBgColor = '#fdf2f8';
+        $ctaTextDesktop = "Indy automatise votre compta et vos déclarations — gratuit sans limite de temps, sans engagement";
+        $ctaTextMobile = "🎯 Indy : Compta 100% gratuite";
+        $ctaHeaderLabel = "Profiter de l'offre gratuite Indy";
+        $ctaButtonLabel = "Créer mon compte gratuit &rarr;";
+
+        if (isset($article) && $article->project) {
+            $slug = strtolower($article->project->slug);
+            $name = strtolower($article->project->name);
+            
+            $ctaLink = route('affiliate.redirect', $slug);
+            $ctaName = $article->project->name;
+            
+            if (str_contains($name, 'pennylane')) {
+                $ctaColor = '#10B981';
+                $ctaBgColor = '#ecfdf5';
+                $ctaTextDesktop = "Pennylane : La plateforme tout-en-un pour gérer votre facturation et votre trésorerie";
+                $ctaTextMobile = "🎯 Pennylane : Facturation & Compta intégrées";
+                $ctaHeaderLabel = "Découvrir Pennylane";
+                $ctaButtonLabel = "Essayer Pennylane &rarr;";
+            } elseif (str_contains($name, 'shine')) {
+                $ctaColor = '#F59E0B';
+                $ctaBgColor = '#fffbeb';
+                $ctaTextDesktop = "Shine : Le compte pro en ligne avec outil de facturation intégré pour les indépendants";
+                $ctaTextMobile = "🎯 Shine : Le compte pro qui simplifie tout";
+                $ctaHeaderLabel = "Découvrir le compte pro Shine";
+                $ctaButtonLabel = "Ouvrir un compte Shine &rarr;";
+            } elseif (str_contains($name, 'qonto')) {
+                $ctaColor = '#6366F1';
+                $ctaBgColor = '#eef2ff';
+                $ctaTextDesktop = "Qonto : Le compte pro leader en Europe pour gérer vos finances d'entreprise";
+                $ctaTextMobile = "🎯 Qonto : Le compte pro européen";
+                $ctaHeaderLabel = "Découvrir Qonto";
+                $ctaButtonLabel = "Ouvrir un compte Qonto &rarr;";
+            } elseif (str_contains($name, 'blank')) {
+                $ctaColor = '#1E293B';
+                $ctaBgColor = '#f1f5f9';
+                $ctaTextDesktop = "Blank : Le compte pro du Crédit Agricole pensé pour les indépendants";
+                $ctaTextMobile = "🎯 Blank : Le compte pro par Crédit Agricole";
+                $ctaHeaderLabel = "Découvrir Blank";
+                $ctaButtonLabel = "Ouvrir un compte Blank &rarr;";
+            } elseif (str_contains($name, 'tiime')) {
+                $ctaColor = '#F43F5E';
+                $ctaBgColor = '#fff1f2';
+                $ctaTextDesktop = "Tiime : L'application de facturation et comptabilité ultra simple pour freelances";
+                $ctaTextMobile = "🎯 Tiime : Facturation & Compta simples";
+                $ctaHeaderLabel = "Découvrir Tiime";
+                $ctaButtonLabel = "Essayer Tiime &rarr;";
+            } elseif (str_contains($name, 'abby')) {
+                $ctaColor = '#8B5CF6';
+                $ctaBgColor = '#f5f3ff';
+                $ctaTextDesktop = "Abby : Le copilote ultra-simple pour gérer votre micro-entreprise de A à Z";
+                $ctaTextMobile = "🎯 Abby : La gestion simplifiée";
+                $ctaHeaderLabel = "Découvrir Abby";
+                $ctaButtonLabel = "Essayer Abby &rarr;";
+            }
+        }
+    @endphp
     <!-- Top Alert Banner for Mobile -->
     <style>
         .mobile-top-cta {
             display: none;
-            background: #F75A77;
             color: white;
             padding: 8px 16px;
             font-size: 13px;
@@ -80,9 +141,9 @@
             }
         }
     </style>
-    <div class="mobile-top-cta no-print" x-data="{ showAlert: true }" x-show="showAlert">
-        <a href="{{ route('affiliate.redirect', 'indy') }}" target="_blank" rel="sponsored nofollow" style="display: flex; justify-content: center; align-items: center; gap: 6px; flex: 1; color: white; text-decoration: none;">
-            <span>🎯 Indy : Compta 100% gratuite</span>
+    <div class="mobile-top-cta no-print" x-data="{ showAlert: true }" x-show="showAlert" style="background: {{ $ctaColor }};">
+        <a href="{{ $ctaLink }}" target="_blank" rel="sponsored nofollow" style="display: flex; justify-content: center; align-items: center; gap: 6px; flex: 1; color: white; text-decoration: none;">
+            <span>{{ $ctaTextMobile }}</span>
             <span style="text-decoration: underline; margin-left: 6px;">Voir l'offre</span>
         </a>
         <button type="button" @click="showAlert = false" aria-label="Fermer" style="background: transparent; border: none; color: white; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; opacity: 0.8;">
@@ -111,7 +172,7 @@
                 <a href="{{ route('metiers.index') }}" class="nav-link">Métiers</a>
                 <a href="{{ route('free-tools.index') }}" class="nav-link">Outils gratuits</a>
                 <a href="{{ route('tools.index') }}" class="nav-link">Comparateur</a>
-                <a href="{{ route('affiliate.redirect', 'indy') }}" class="nav-cta" target="_blank" rel="sponsored nofollow">Profiter de l'offre gratuite Indy</a>
+                <a href="{{ $ctaLink }}" class="nav-cta" style="background: {{ $ctaColor }}; box-shadow: 0 4px 6px {{ $ctaColor }}33;" target="_blank" rel="sponsored nofollow">{{ $ctaHeaderLabel }}</a>
             </nav>
         </header>
     </div>
@@ -192,7 +253,6 @@
         }
         .desktop-sticky-cta-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(247, 90, 119, 0.4);
         }
         @media (max-width: 900px) {
             .desktop-sticky-cta {
@@ -200,14 +260,20 @@
             }
         }
     </style>
+    <!-- Dynamic hover style for CTA button -->
+    <style>
+        .desktop-sticky-cta-btn:hover {
+            box-shadow: 0 6px 15px {{ $ctaColor }}66 !important;
+        }
+    </style>
     <div class="desktop-sticky-cta no-print" x-data="{ showDesktopCta: true }" x-show="showDesktopCta">
         <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="background: #fdf2f8; color: #F75A77; padding: 4px 10px; border-radius: 100px; font-weight: 800; font-size: 12px; text-transform: uppercase;">🎯 Notre recommandation n°1</div>
-            <strong style="color: #0f172a; font-size: 14px;">Indy automatise votre compta et vos déclarations — gratuit sans limite de temps, sans engagement</strong>
+            <div style="background: {{ $ctaBgColor }}; color: {{ $ctaColor }}; padding: 4px 10px; border-radius: 100px; font-weight: 800; font-size: 12px; text-transform: uppercase;">🎯 Notre recommandation n°1</div>
+            <strong style="color: #0f172a; font-size: 14px;">{{ $ctaTextDesktop }}</strong>
         </div>
         <div style="display: flex; align-items: center; gap: 12px;">
-            <a href="{{ route('affiliate.redirect', 'indy') }}" class="desktop-sticky-cta-btn" target="_blank" rel="sponsored nofollow">
-                Créer mon compte gratuit &rarr;
+            <a href="{{ $ctaLink }}" class="desktop-sticky-cta-btn" style="background: {{ $ctaColor }}; box-shadow: 0 4px 10px {{ $ctaColor }}4D;" target="_blank" rel="sponsored nofollow">
+                {!! $ctaButtonLabel !!}
             </a>
             <button type="button" @click="showDesktopCta = false" aria-label="Fermer" style="background: #f1f5f9; border: none; color: #64748b; cursor: pointer; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#e2e8f0'; this.style.color='#0f172a';" onmouseout="this.style.background='#f1f5f9'; this.style.color='#64748b';">
                 <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
