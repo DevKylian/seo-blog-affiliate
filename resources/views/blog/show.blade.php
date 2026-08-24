@@ -17,12 +17,7 @@
             return ($block['type'] ?? '') === 'affiliate_cta' && ($block['position'] ?? '') === 'final';
         })->values();
 
-        if (! $articleBlocks->contains('type', 'affiliate_cta')) {
-            $markdownIndex = $articleBlocks->search(fn($b) => ($b['type'] ?? '') === 'markdown');
-            if ($markdownIndex !== false) {
-                $articleBlocks->splice($markdownIndex, 0, [['type' => 'affiliate_cta', 'position' => 'after_intro']]);
-            }
-        }
+
 
         $markdownIndex = $articleBlocks->search(fn($b) => ($b['type'] ?? '') === 'markdown');
         if ($markdownIndex !== false) {
