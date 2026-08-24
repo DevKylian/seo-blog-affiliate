@@ -208,27 +208,38 @@
 
 <style>
 @media print {
-    body * {
-        visibility: hidden;
+    /* Cache les éléments de navigation et de layout global du site */
+    header, footer, nav, aside, .blog-footer, .site-header {
+        display: none !important;
     }
-    .print-area, .print-area * {
-        visibility: visible;
+
+    /* Enlève les marges et contraintes de largeur pour la page d'impression */
+    body, html, main, .home-container, .tool-wrapper, .tool-calculator-layout, .generateur-facture {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+        width: 100% !important;
+        max-width: none !important;
+        border: none !important;
+        box-shadow: none !important;
     }
+
+    /* Cache tout ce qui a la classe no-print (le formulaire de facture, les boutons retour, etc) */
+    .no-print {
+        display: none !important;
+    }
+
+    /* La zone de facture prend 100% de la largeur disponible */
     .print-area {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
         margin: 0 !important;
         padding: 0 !important;
         border: none !important;
         box-shadow: none !important;
+        width: 100% !important;
     }
-    .no-print {
-        display: none !important;
-    }
+    
     @page {
-        margin: 1.5cm;
+        margin: 1cm; /* Marge propre pour l'impression A4 */
     }
 }
 </style>

@@ -6,14 +6,14 @@
 @section('content')
 <main class="home-container" style="padding-bottom: 80px; max-width: 900px; margin: 0 auto;">
     
-    <div style="margin-bottom: 32px; padding-top: 40px;">
+    <div class="no-print" style="margin-bottom: 32px; padding-top: 40px;">
         <a href="{{ route('free-tools.index') }}" class="free-tool-back-link">
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
             Retour aux outils
         </a>
     </div>
 
-    <header style="text-align:center; margin-bottom: 48px;">
+    <header class="no-print" style="text-align:center; margin-bottom: 48px;">
         <h1 style="font-size: clamp(28px, 4vw, 48px); font-weight: 900; color: var(--home-primary); margin-bottom: 16px; letter-spacing: -0.02em; line-height: 1.1;">
             {{ $tool['title'] }}
         </h1>
@@ -22,11 +22,11 @@
         </p>
     </header>
 
-    <div style="background: white; border-radius: 24px; padding: 48px; box-shadow: 0 20px 50px -12px rgba(15, 23, 42, 0.06); border: 1px solid var(--home-border);">
+    <div class="tool-wrapper" style="background: white; border-radius: 24px; padding: 48px; box-shadow: 0 20px 50px -12px rgba(15, 23, 42, 0.06); border: 1px solid var(--home-border);">
         @include('tools.components.' . $tool['type'])
     </div>
 
-    <aside class="tool-conversion" style="margin-top: 80px; padding: 60px 0 40px; border-top: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 32px; align-items: center; text-align: center; margin-bottom: 60px;">
+    <aside class="tool-conversion no-print" style="margin-top: 80px; padding: 60px 0 40px; border-top: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 32px; align-items: center; text-align: center; margin-bottom: 60px;">
         <div>
             <strong style="display: block; font: 900 32px 'Manrope', sans-serif; color: #0f172a; margin-bottom: 16px; letter-spacing:-0.02em;">{{ $tool['conversion_title'] ?? 'Gagnez (encore) plus de temps' }}</strong>
             <p style="font-size: 18px; color: #475569; margin: 0; line-height: 1.6; max-width: 600px; font-weight: 500;">{{ $tool['conversion_text'] ?? 'Découvrez comment les meilleurs logiciels pour indépendants automatisent vos devis, factures, et calculs de cotisations en un clic.' }}</p>
