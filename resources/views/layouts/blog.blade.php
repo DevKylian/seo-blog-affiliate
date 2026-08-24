@@ -128,6 +128,59 @@
             <span style="color: #64748b; font-size: 13px; font-weight: 500;">Conçu pour les freelances en France 🇫🇷</span>
         </div>
     </footer>
+    <!-- Sticky Footer CTA for Desktop -->
+    <style>
+        .desktop-sticky-cta {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(226, 232, 240, 0.8);
+            padding: 12px 24px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+        }
+        .desktop-sticky-cta-btn {
+            background: #F75A77;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 15px;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 10px rgba(247, 90, 119, 0.3);
+            white-space: nowrap;
+        }
+        .desktop-sticky-cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(247, 90, 119, 0.4);
+        }
+        @media (min-width: 901px) {
+            body { padding-bottom: 65px; } /* Prevent footer overlap */
+        }
+        @media (max-width: 900px) {
+            .desktop-sticky-cta {
+                display: none !important;
+            }
+        }
+    </style>
+    <div class="desktop-sticky-cta no-print">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="background: #fdf2f8; color: #F75A77; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 12px; text-transform: uppercase;">Top Choix ⭐</div>
+            <strong style="color: #0f172a; font-size: 15px;">Indy : L'application tout-en-un 100% gratuite pour les indépendants</strong>
+        </div>
+        <a href="{{ route('affiliate.redirect', 'indy') }}" class="desktop-sticky-cta-btn" target="_blank" rel="sponsored nofollow">
+            Créer mon compte gratuit
+        </a>
+    </div>
+
     @livewireScripts
 </body>
 </html>
