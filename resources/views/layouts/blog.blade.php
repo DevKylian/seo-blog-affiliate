@@ -194,9 +194,6 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba(247, 90, 119, 0.4);
         }
-        @media (min-width: 901px) {
-            body { padding-bottom: 90px; } /* Prevent footer overlap */
-        }
         @media (max-width: 900px) {
             .desktop-sticky-cta {
                 display: none !important;
