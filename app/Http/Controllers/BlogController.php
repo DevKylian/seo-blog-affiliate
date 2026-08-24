@@ -274,7 +274,14 @@ class BlogController extends Controller
         $tool = collect($this->freeToolCatalog())->firstWhere('slug', $slug);
         abort_unless($tool, 404);
 
-        return view('tools.free-show', compact('tool'));
+        $latestArticles = Article::query()
+            ->with(['project', 'categories'])
+            ->where('status', 'published')
+            ->latest('published_at')
+            ->limit(3)
+            ->get();
+
+        return view('tools.free-show', compact('tool', 'latestArticles'));
     }
 
     public function sitemap(): Response
@@ -302,6 +309,20 @@ class BlogController extends Controller
                 'conversion_cta' => 'Passer à la facturation illimitée',
                 'conversion_link' => '/go/indy',
                 'conversion_color' => '#F75A77',
+                'faq' => [
+                    [
+                        'question' => 'Ce générateur de facture est-il vraiment gratuit ?',
+                        'answer' => 'Oui, notre outil est 100% gratuit et ne nécessite aucune création de compte. Vous pouvez générer autant de factures et de devis que vous le souhaitez en format PDF.'
+                    ],
+                    [
+                        'question' => 'Les factures générées sont-elles conformes à la loi française ?',
+                        'answer' => 'Absolument. Le modèle intègre toutes les mentions légales obligatoires (SIRET, numérotation, TVA, indemnités de retard) pour les indépendants et entreprises basées en France.'
+                    ],
+                    [
+                        'question' => 'Mes données sont-elles conservées sur vos serveurs ?',
+                        'answer' => 'Non. Tout le traitement se fait localement sur votre navigateur (via Javascript). Aucune de vos données ou données clients n\'est envoyée ni sauvegardée sur nos serveurs, garantissant une totale confidentialité.'
+                    ]
+                ]
             ],
             [
                 'slug' => 'simulateur-cotisations-micro-entreprise',
@@ -315,6 +336,16 @@ class BlogController extends Controller
                 'conversion_cta' => 'Automatiser mon URSSAF avec Indy',
                 'conversion_link' => '/go/indy',
                 'conversion_color' => '#F75A77',
+                'faq' => [
+                    [
+                        'question' => 'Quels sont les taux de cotisations de la micro-entreprise en 2026 ?',
+                        'answer' => 'Les taux officiels 2026 sont de 12,3% pour la vente de marchandises (BIC) et de 21,2% pour les prestations de services (BNC) et les professions libérales. Notre simulateur intègre toujours les taux URSSAF en vigueur les plus récents.'
+                    ],
+                    [
+                        'question' => 'Le versement libératoire est-il pris en compte dans le calcul ?',
+                        'answer' => 'Oui, si vous y êtes éligible, vous pouvez l\'inclure dans vos charges. Le taux varie de 1% à 2,2% supplémentaire selon votre type d\'activité.'
+                    ]
+                ]
             ],
             [
                 'slug' => 'calculateur-tva',
@@ -328,6 +359,16 @@ class BlogController extends Controller
                 'conversion_cta' => 'Essayer Indy gratuitement',
                 'conversion_link' => '/go/indy',
                 'conversion_color' => '#F75A77',
+                'faq' => [
+                    [
+                        'question' => 'Comment calculer le prix TTC à partir du HT ?',
+                        'answer' => 'La formule est simple : Montant HT x (1 + (Taux TVA / 100)). Par exemple, pour 100€ HT avec une TVA à 20%, le calcul est 100 x 1,20 = 120€ TTC.'
+                    ],
+                    [
+                        'question' => 'Comment retrouver le montant HT à partir du TTC (calcul inversé) ?',
+                        'answer' => 'Pour retrouver le HT, divisez le montant TTC par (1 + (Taux TVA / 100)). Par exemple, 120€ TTC / 1,20 = 100€ HT.'
+                    ]
+                ]
             ],
             [
                 'slug' => 'calculateur-tjm-freelance',

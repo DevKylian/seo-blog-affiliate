@@ -6,6 +6,22 @@
 @section('content')
 <main class="home-container" style="padding-bottom: 80px; max-width: 900px; margin: 0 auto;">
     
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "{{ addslashes($tool['title']) }}",
+      "description": "{{ addslashes($tool['description']) }}",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR"
+      }
+    }
+    </script>
+
     <div class="no-print" style="margin-bottom: 32px; padding-top: 40px;">
         <a href="{{ route('free-tools.index') }}" class="free-tool-back-link">
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -13,7 +29,7 @@
         </a>
     </div>
 
-    <header class="no-print" style="text-align:center; margin-bottom: 48px;">
+    <header class="no-print" style="text-align:center; margin-bottom: 32px;">
         <h1 style="font-size: clamp(28px, 4vw, 48px); font-weight: 900; color: var(--home-primary); margin-bottom: 16px; letter-spacing: -0.02em; line-height: 1.1;">
             {{ $tool['title'] }}
         </h1>
@@ -21,6 +37,16 @@
             {{ $tool['description'] }}
         </p>
     </header>
+
+    <div class="no-print" style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid {{ $tool['conversion_color'] ?? '#2563eb' }}; border-radius: 12px; padding: 24px 32px; margin-bottom: 48px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;">
+        <div style="flex: 1 1 300px;">
+            <strong style="display: block; font-size: 18px; color: #0f172a; margin-bottom: 8px;">💡 Mieux que le calcul manuel...</strong>
+            <p style="font-size: 15px; color: #475569; margin: 0; line-height: 1.5;">{{ $tool['conversion_text'] ?? 'Automatisez ces calculs de manière 100% gratuite.' }}</p>
+        </div>
+        <a href="{{ $tool['conversion_link'] ?? route('home') . '#wizard' }}" style="background: {{ $tool['conversion_color'] ?? '#2563eb' }}; color: white; padding: 12px 24px; border-radius: 8px; font-weight: 800; font-size: 14px; text-decoration: none; white-space: nowrap; box-shadow: 0 4px 12px color-mix(in srgb, {{ $tool['conversion_color'] ?? '#2563eb' }} 40%, transparent); transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+            {{ $tool['conversion_cta'] ?? 'Découvrir la solution' }}
+        </a>
+    </div>
 
     <div class="tool-wrapper" style="background: white; border-radius: 24px; padding: 48px; box-shadow: 0 20px 50px -12px rgba(15, 23, 42, 0.06); border: 1px solid var(--home-border);">
         @include('tools.components.' . $tool['type'])
@@ -36,6 +62,54 @@
             <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
         </a>
     </aside>
+
+    @if(isset($tool['faq']) && count($tool['faq']) > 0)
+    <section class="no-print" style="margin-top: 80px; max-width: 800px; margin-left: auto; margin-right: auto; margin-bottom: 80px;">
+        <h2 style="font-size: 32px; font-weight: 900; color: #0f172a; margin-bottom: 32px; text-align: center;">Questions fréquentes</h2>
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+            @foreach($tool['faq'] as $faq)
+            <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px;">
+                <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin-bottom: 12px;">{{ $faq['question'] }}</h3>
+                <p style="font-size: 16px; color: #475569; margin: 0; line-height: 1.6;">{{ $faq['answer'] }}</p>
+            </div>
+            @endforeach
+        </div>
+    </section>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        @foreach($tool['faq'] as $faq)
+        {
+          "@type": "Question",
+          "name": "{{ addslashes($faq['question']) }}",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "{{ addslashes($faq['answer']) }}"
+          }
+        }{{ !$loop->last ? ',' : '' }}
+        @endforeach
+      ]
+    }
+    </script>
+    @endif
+
+    @if(isset($latestArticles) && $latestArticles->count() > 0)
+    <section class="no-print" style="margin-top: 60px;">
+        <h2 style="font-size: 28px; font-weight: 900; color: #0f172a; margin-bottom: 32px;">Pour aller plus loin</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
+            @foreach($latestArticles as $article)
+                <a href="{{ route('blog.show', $article->slug) }}" style="display: block; background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 25px -5px rgba(0, 0, 0, 0.1)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                    <div style="font-size: 12px; font-weight: 800; color: var(--home-accent); text-transform: uppercase; margin-bottom: 8px;">{{ $article->categories->first()?->name ?? 'Guide' }}</div>
+                    <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin-bottom: 12px; line-height: 1.4;">{{ $article->title }}</h3>
+                    <p style="font-size: 14px; color: #475569; margin: 0; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">{{ $article->meta_description ?? \Illuminate\Support\Str::limit(strip_tags($article->content), 120) }}</p>
+                </a>
+            @endforeach
+        </div>
+    </section>
+    @endif
 
 </main>
 @endsection
