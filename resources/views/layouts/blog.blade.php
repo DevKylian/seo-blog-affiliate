@@ -161,7 +161,7 @@
     <style>
         .desktop-sticky-cta {
             position: fixed;
-            bottom: 32px;
+            bottom: 16px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.95);
@@ -203,14 +203,19 @@
             }
         }
     </style>
-    <div class="desktop-sticky-cta no-print">
+    <div class="desktop-sticky-cta no-print" x-data="{ showDesktopCta: true }" x-show="showDesktopCta">
         <div style="display: flex; align-items: center; gap: 12px;">
             <div style="background: #fdf2f8; color: #F75A77; padding: 4px 10px; border-radius: 100px; font-weight: 800; font-size: 12px; text-transform: uppercase;">🎯 Notre recommandation n°1</div>
             <strong style="color: #0f172a; font-size: 14px;">Indy automatise votre compta et vos déclarations — gratuit sans limite de temps, sans engagement</strong>
         </div>
-        <a href="{{ route('affiliate.redirect', 'indy') }}" class="desktop-sticky-cta-btn" target="_blank" rel="sponsored nofollow">
-            Créer mon compte gratuit &rarr;
-        </a>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <a href="{{ route('affiliate.redirect', 'indy') }}" class="desktop-sticky-cta-btn" target="_blank" rel="sponsored nofollow">
+                Créer mon compte gratuit &rarr;
+            </a>
+            <button type="button" @click="showDesktopCta = false" aria-label="Fermer" style="background: #f1f5f9; border: none; color: #64748b; cursor: pointer; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#e2e8f0'; this.style.color='#0f172a';" onmouseout="this.style.background='#f1f5f9'; this.style.color='#64748b';">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
     </div>
 
     @livewireScripts
