@@ -248,7 +248,7 @@
                         
                         <div style="font-size: 13px; color: #475569; margin-bottom: 16px; flex-grow: 1;">
                             <strong style="color: #0f172a;">Outil recommandé :</strong> 
-                            <span style="display: inline-block; padding: 2px 8px; background: #f1f5f9; border-radius: 4px; font-weight: 700; color: var(--home-accent);" x-text="'🏆 ' + metier.tool_name"></span>
+                            <span :style="'display: inline-block; padding: 2px 8px; background: color-mix(in srgb, ' + getToolColor(metier.tool_name) + ' 15%, transparent); border-radius: 4px; font-weight: 700; color: ' + getToolColor(metier.tool_name)" x-text="'🏆 ' + metier.tool_name"></span>
                         </div>
                         
                         <div class="hp-card-footer" style="margin-top: auto; color: var(--home-accent); font-weight: 700; border-top: 1px solid #f1f5f9; padding-top: 16px; display: flex; align-items: center; justify-content: space-between;">
@@ -283,6 +283,18 @@
             category: 'all',
             showAll: false,
             metiers: @json($metiers ?? []),
+            toolColors: {
+                'Indy': '{{ $indyColor ?? '#F75A77' }}',
+                'Pennylane': '{{ $pennylaneColor ?? '#3b82f6' }}',
+                'Abby': '{{ $abbyColor ?? '#a855f7' }}',
+                'Shine': '{{ $shineColor ?? '#f97316' }}',
+                'Dougs': '#10b981',
+                'Tiime': '#ec4899',
+            },
+            
+            getToolColor(toolName) {
+                return this.toolColors[toolName] || 'var(--home-accent)';
+            },
             
             init() {
                 this.$watch('search', value => {
