@@ -38,15 +38,17 @@
         </p>
     </header>
 
-    <div class="no-print" style="background: white; border-radius: 16px; padding: 24px 32px; margin-bottom: 48px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; box-shadow: 0 10px 30px -10px color-mix(in srgb, {{ $tool['conversion_color'] ?? '#2563eb' }} 15%, transparent); border: 1px solid color-mix(in srgb, {{ $tool['conversion_color'] ?? '#2563eb' }} 20%, transparent);">
+    <div class="no-print" style="background: {{ $tool['conversion_color'] ?? '#2563eb' }}; border-radius: 16px; padding: 24px 32px; margin-bottom: 48px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; box-shadow: 0 10px 30px -10px color-mix(in srgb, {{ $tool['conversion_color'] ?? '#2563eb' }} 60%, transparent);">
         <div style="display: flex; gap: 20px; align-items: center; flex: 1 1 300px;">
-            <div style="display: grid; place-items: center; width: 48px; height: 48px; border-radius: 12px; background: color-mix(in srgb, {{ $tool['conversion_color'] ?? '#2563eb' }} 10%, white); color: {{ $tool['conversion_color'] ?? '#2563eb' }}; font-size: 24px;">✨</div>
+            <div style="display: grid; place-items: center; width: 56px; height: 56px; border-radius: 14px; background: rgba(255, 255, 255, 0.15); color: white; flex-shrink: 0;">
+                <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+            </div>
             <div>
-                <strong style="display: block; font-size: 17px; color: #0f172a; margin-bottom: 4px;">{{ $tool['conversion_text'] ?? 'Automatisez ces calculs de manière 100% gratuite.' }}</strong>
-                <p style="font-size: 14px; color: #64748b; margin: 0; line-height: 1.5;">Gagnez du temps avec un logiciel conçu pour votre activité.</p>
+                <strong style="display: block; font-size: 19px; color: white; margin-bottom: 4px; font-weight: 800;">Mieux que le calcul manuel...</strong>
+                <p style="font-size: 15px; color: rgba(255, 255, 255, 0.9); margin: 0; line-height: 1.5;">{{ $tool['conversion_text'] ?? 'Automatisez ces calculs de manière 100% gratuite.' }}</p>
             </div>
         </div>
-        <a href="{{ $tool['conversion_link'] ?? route('home') . '#wizard' }}" style="background: {{ $tool['conversion_color'] ?? '#2563eb' }}; color: white; padding: 14px 28px; border-radius: 10px; font-weight: 800; font-size: 15px; text-decoration: none; white-space: nowrap; box-shadow: 0 4px 15px color-mix(in srgb, {{ $tool['conversion_color'] ?? '#2563eb' }} 30%, transparent); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px color-mix(in srgb, {{ $tool['conversion_color'] ?? '#2563eb' }} 40%, transparent)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px color-mix(in srgb, {{ $tool['conversion_color'] ?? '#2563eb' }} 30%, transparent)';">
+        <a href="{{ $tool['conversion_link'] ?? route('home') . '#wizard' }}" style="background: white; color: {{ $tool['conversion_color'] ?? '#2563eb' }}; padding: 14px 28px; border-radius: 10px; font-weight: 800; font-size: 15px; text-decoration: none; white-space: nowrap; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
             {{ $tool['conversion_cta'] ?? 'Découvrir la solution' }}
         </a>
     </div>
@@ -55,16 +57,15 @@
         @include('tools.components.' . $tool['type'])
     </div>
 
-    <aside class="tool-conversion no-print" style="position: relative; overflow: hidden; margin-top: 60px; padding: 56px 40px; background: white; border: 1px solid color-mix(in srgb, {{ $tool['conversion_color'] ?? '#2563eb' }} 20%, transparent); border-radius: 24px; display: flex; flex-direction: column; gap: 24px; align-items: center; text-align: center; margin-bottom: 60px; box-shadow: 0 20px 40px -15px color-mix(in srgb, {{ $tool['conversion_color'] ?? '#2563eb' }} 10%, transparent);">
-        <div style="position: absolute; top: 0; left: 0; right: 0; height: 6px; background: {{ $tool['conversion_color'] ?? '#2563eb' }};"></div>
-        <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: {{ $tool['conversion_color'] ?? '#2563eb' }}; filter: blur(80px); opacity: 0.15; border-radius: 50%;"></div>
-        <div style="position: absolute; bottom: -50px; left: -50px; width: 150px; height: 150px; background: {{ $tool['conversion_color'] ?? '#2563eb' }}; filter: blur(80px); opacity: 0.15; border-radius: 50%;"></div>
+    <aside class="tool-conversion no-print" style="position: relative; overflow: hidden; margin-top: 60px; padding: 48px 40px; background: {{ $tool['conversion_color'] ?? '#2563eb' }}; border-radius: 24px; display: flex; flex-direction: column; gap: 24px; align-items: center; text-align: center; margin-bottom: 60px; box-shadow: 0 20px 40px -15px color-mix(in srgb, {{ $tool['conversion_color'] ?? '#2563eb' }} 60%, transparent);">
+        <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: white; filter: blur(100px); opacity: 0.15; border-radius: 50%;"></div>
+        <div style="position: absolute; bottom: -50px; left: -50px; width: 200px; height: 200px; background: white; filter: blur(100px); opacity: 0.15; border-radius: 50%;"></div>
         
         <div style="position: relative; z-index: 1;">
-            <strong style="display: block; font: 900 32px 'Manrope', sans-serif; color: #0f172a; margin-bottom: 16px; letter-spacing:-0.02em; line-height: 1.2;">{{ $tool['conversion_title'] ?? 'Gagnez (encore) plus de temps' }}</strong>
-            <p style="font-size: 17px; color: #475569; margin: 0 auto; line-height: 1.6; max-width: 600px; font-weight: 500;">{{ $tool['conversion_text'] ?? 'Découvrez comment les meilleurs logiciels pour indépendants automatisent vos devis, factures, et calculs de cotisations en un clic.' }}</p>
+            <strong style="display: block; font: 900 32px 'Manrope', sans-serif; color: white; margin-bottom: 16px; letter-spacing:-0.02em; line-height: 1.2;">{{ $tool['conversion_title'] ?? 'Gagnez (encore) plus de temps' }}</strong>
+            <p style="font-size: 17px; color: rgba(255, 255, 255, 0.9); margin: 0 auto; line-height: 1.6; max-width: 600px; font-weight: 500;">{{ $tool['conversion_text'] ?? 'Découvrez comment les meilleurs logiciels pour indépendants automatisent vos devis, factures, et calculs de cotisations en un clic.' }}</p>
         </div>
-        <a href="{{ $tool['conversion_link'] ?? route('home') . '#wizard' }}" style="position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 10px; background: {{ $tool['conversion_color'] ?? '#2563eb' }}; color: white; padding: 18px 36px; border-radius: 12px; font-weight: 800; font-size: 16px; text-decoration: none; box-shadow: 0 8px 25px color-mix(in srgb, {{ $tool['conversion_color'] ?? '#2563eb' }} 40%, transparent); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 15px 35px color-mix(in srgb, {{ $tool['conversion_color'] ?? '#2563eb' }} 50%, transparent)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 8px 25px color-mix(in srgb, {{ $tool['conversion_color'] ?? '#2563eb' }} 40%, transparent)';">
+        <a href="{{ $tool['conversion_link'] ?? route('home') . '#wizard' }}" style="position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 10px; background: white; color: {{ $tool['conversion_color'] ?? '#2563eb' }}; padding: 18px 36px; border-radius: 12px; font-weight: 800; font-size: 16px; text-decoration: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 15px 35px rgba(0, 0, 0, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
             {{ $tool['conversion_cta'] ?? 'Trouver mon logiciel idéal' }}
             <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
         </a>
