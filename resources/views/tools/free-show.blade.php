@@ -4,7 +4,7 @@
 @section('description', $tool['description'])
 
 @section('content')
-<main class="home-container" style="padding-bottom: 80px; max-width: 1200px; margin: 0 auto;">
+<main class="home-container" style="padding-bottom: 80px; max-width: 900px; margin: 0 auto;">
     
     <script type="application/ld+json">
     {
