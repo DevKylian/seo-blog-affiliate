@@ -312,10 +312,10 @@
                     const featuredNames = [
                         'Médecin Généraliste', 
                         'Développeur Freelance', 
-                        'Consultant en Management', 
-                        'Graphiste / UX-UI', 
+                        'Correcteur / Lecteur / Écrivain Public', 
+                        'Friperie / Revendeur Occasion', 
                         'Chauffeur VTC', 
-                        'Kinésithérapeute', 
+                        'Livreur Indépendant (Deliveroo/UberEats)', 
                         'Dropshipper / E-commerçant International', 
                         'Architecte'
                     ];
