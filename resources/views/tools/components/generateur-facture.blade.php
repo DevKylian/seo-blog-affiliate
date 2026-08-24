@@ -232,14 +232,16 @@
     /* La zone de facture prend 100% de la largeur disponible */
     .print-area {
         margin: 0 !important;
-        padding: 0 !important;
+        padding: 1cm !important;
+        box-sizing: border-box !important;
         border: none !important;
         box-shadow: none !important;
         width: 100% !important;
     }
     
     @page {
-        margin: 1cm; /* Marge propre pour l'impression A4 */
+        size: auto;
+        margin: 0mm; /* Désactive l'entête et pied de page du navigateur (URL, Date) */
     }
 }
 </style>
