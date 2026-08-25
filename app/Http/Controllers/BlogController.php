@@ -306,6 +306,7 @@ class BlogController extends Controller
                 'cta' => 'Créer une facture',
                 'conversion_title' => 'Vous venez de faire une facture manuellement...',
                 'conversion_text' => 'Saviez-vous qu\'Indy vous permet d\'en faire en illimité, gratuitement, avec archivage légal et transformation devis -> facture en 1 clic ?',
+                'conversion_text_bottom' => 'Cet outil ne garde pas vos clients en mémoire d\'une facture à l\'autre — Indy le fait automatiquement et retrouve vos informations à chaque nouvelle facture. C\'est 100% gratuit.',
                 'conversion_cta' => 'Passer à la facturation 100% gratuite',
                 'conversion_link' => '/go/indy',
                 'conversion_color' => '#F75A77',

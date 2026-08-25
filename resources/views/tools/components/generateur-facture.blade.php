@@ -45,11 +45,11 @@
                 </label>
                 <label class="tool-field-label">
                     Date d'émission
-                    <input type="date" x-model="invoice.date" class="tool-text-input">
+                    <input type="date" lang="fr-FR" x-model="invoice.date" class="tool-text-input">
                 </label>
                 <label class="tool-field-label">
                     Date d'échéance
-                    <input type="date" x-model="invoice.dueDate" class="tool-text-input">
+                    <input type="date" lang="fr-FR" x-model="invoice.dueDate" class="tool-text-input">
                 </label>
             </div>
         </div>
@@ -114,6 +114,26 @@
                 <textarea x-model="invoice.notes" class="tool-text-input" style="min-height: 80px;" placeholder="Pénalités de retard applicables : 3 fois le taux d'intérêt légal..."></textarea>
             </label>
         </div>
+
+        <!-- Capture Email -->
+        <div class="tool-input-group" style="grid-column: 1 / -1; margin-top: 8px; background: #eff6ff; padding: 24px; border-radius: 12px; border: 1px solid #bfdbfe;">
+            <h4 style="font-size: 15px; font-weight: 800; color: #1e3a8a; margin-bottom: 8px;">Recevoir cette facture par email (+ notre Kit de Démarrage Gratuit)</h4>
+            <p style="font-size: 13px; color: #3b82f6; margin-bottom: 16px;">Vous n'êtes pas prêt à créer un compte Indy ? Pas de problème. Entrez votre email pour recevoir votre document et nos conseils pour freelances.</p>
+            <div style="display: flex; gap: 8px;" x-data="{ emailSent: false, email: '' }">
+                <template x-if="!emailSent">
+                    <div style="display: flex; gap: 8px; width: 100%;">
+                        <input type="email" x-model="email" placeholder="votre@email.com" class="tool-text-input" style="flex: 1; border-color: #93c5fd;">
+                        <button type="button" @click="if(email) { emailSent = true; setTimeout(() => emailSent = false, 4000); email = ''; }" style="padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">M'envoyer la facture</button>
+                    </div>
+                </template>
+                <template x-if="emailSent">
+                    <div style="color: #059669; font-weight: 700; display: flex; align-items: center; gap: 8px; padding: 10px 0;">
+                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                        C'est envoyé ! Vérifiez votre boîte mail d'ici quelques minutes.
+                    </div>
+                </template>
+            </div>
+        </div>
         
         <div style="grid-column: 1 / -1; margin-top: 16px;">
             <button @click="window.print()" style="width: 100%; padding: 18px; background: #0f172a; color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2); transition: 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 16px rgba(15, 23, 42, 0.3)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 12px rgba(15, 23, 42, 0.2)';">
@@ -144,7 +164,7 @@
         <div style="display: flex; gap: 40px; margin-bottom: 40px; border-top: 2px solid #f1f5f9; border-bottom: 2px solid #f1f5f9; padding: 16px 0;">
             <div>
                 <div style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase;">N° Facture</div>
-                <div style="font-weight: 800; font-size: 16px;" x-text="invoice.number || 'F2026-000'"></div>
+                <div style="font-weight: 800; font-size: 16px;" x-text="invoice.number || 'F2026-001'"></div>
             </div>
             <div>
                 <div style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase;">Date d'émission</div>
