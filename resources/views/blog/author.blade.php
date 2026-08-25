@@ -28,7 +28,7 @@
                     Kylian Dev.</h2>
                 <p style="color: var(--home-accent); font-weight: 700; margin-bottom: 16px;">Créateur de BusinessKit</p>
                 <p style="line-height: 1.7; color: var(--home-text); margin-bottom: 16px;">
-                    Depuis 2015 je compare les logiciels destinés aux freelances français. Pour garantir une analyse
+                    Depuis 2025 je compare les logiciels destinés aux freelances français. Pour garantir une analyse
                     pertinente sur des marchés spécifiques (comme l'immobilier, la santé ou l'e-commerce), je m'entoure
                     d'experts métier et de professionnels en exercice qui valident chaque guide sectoriel. Chaque logiciel
                     est testé selon une grille publique de 25 critères et mis à jour plusieurs fois par an. L'objectif de
@@ -109,15 +109,15 @@
                     <li><strong>Prix (20%) :</strong> <span style="color: #10b981; font-weight: bold;">10/10</span> (Plan
                         gratuit complet)</li>
                     <li><strong>Fonctionnalités (25%) :</strong> <span
-                            style="color: #f59e0b; font-weight: bold;">9/10</span> (Excellent, mais pas de gestion de
+                            style="color: #10b981; font-weight: bold;">9.5/10</span> (Excellent, mais pas de gestion de
                         stock/caisse)</li>
                     <li><strong>UX (20%) :</strong> <span style="color: #10b981; font-weight: bold;">10/10</span> (Interface
                         ultra fluide pour néophytes)</li>
-                    <li><strong>Support (15%) :</strong> <span style="color: #f59e0b; font-weight: bold;">9/10</span> (Chat
+                    <li><strong>Support (15%) :</strong> <span style="color: #10b981; font-weight: bold;">9.5/10</span> (Chat
                         très réactif)</li>
                     <li><strong>Automatisation (10%) :</strong> <span
-                            style="color: #10b981; font-weight: bold;">10/10</span> (Déclarations en 1 clic)</li>
-                    <li><strong>Sécurité (10%) :</strong> <span style="color: #f59e0b; font-weight: bold;">9/10</span>
+                            style="color: #10b981; font-weight: bold;">9.5/10</span> (Déclarations en 1 clic)</li>
+                    <li><strong>Sécurité (10%) :</strong> <span style="color: #10b981; font-weight: bold;">9.5/10</span>
                         (Agrément ACPR)</li>
                 </ul>
             </div>
@@ -127,17 +127,17 @@
                     style="font-size: 18px; margin-bottom: 16px; border-bottom: 1px solid var(--home-border); padding-bottom: 12px;">
                     Pennylane (Note : 9.4/10)</h4>
                 <ul style="list-style: none; padding: 0; line-height: 1.6; font-size: 15px;">
-                    <li><strong>Prix (20%) :</strong> <span style="color: #f59e0b; font-weight: bold;">8/10</span> (Pas de
-                        plan gratuit, dès 14€/mois)</li>
+                    <li><strong>Prix (20%) :</strong> <span style="color: #10b981; font-weight: bold;">9/10</span> (Très compétitif
+                        dès 14€/mois)</li>
                     <li><strong>Fonctionnalités (25%) :</strong> <span
                             style="color: #10b981; font-weight: bold;">10/10</span> (Vraie gestion d'engagement et stocks)
                     </li>
-                    <li><strong>UX (20%) :</strong> <span style="color: #f59e0b; font-weight: bold;">8/10</span> (Outil
-                        expert, légère courbe d'apprentissage)</li>
-                    <li><strong>Support (15%) :</strong> <span style="color: #f59e0b; font-weight: bold;">9/10</span>
+                    <li><strong>UX (20%) :</strong> <span style="color: #10b981; font-weight: bold;">9/10</span> (Interface
+                        très puissante, légère courbe d'apprentissage)</li>
+                    <li><strong>Support (15%) :</strong> <span style="color: #10b981; font-weight: bold;">9/10</span>
                         (Support premium)</li>
-                    <li><strong>Automatisation (10%) :</strong> <span style="color: #f59e0b; font-weight: bold;">9/10</span>
-                        (API très ouverte, mais setup nécessaire)</li>
+                    <li><strong>Automatisation (10%) :</strong> <span style="color: #10b981; font-weight: bold;">9.5/10</span>
+                        (API très ouverte, setup nécessaire)</li>
                     <li><strong>Sécurité (10%) :</strong> <span style="color: #10b981; font-weight: bold;">10/10</span>
                         (Infrastructures bancaires robustes)</li>
                 </ul>
