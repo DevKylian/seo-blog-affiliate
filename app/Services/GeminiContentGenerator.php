@@ -1237,8 +1237,8 @@ PROMPT;
 MAILLAGE INTERNE CONTEXTUEL — {$expected} LIEN(S) À INSÉRER DANS CETTE RÉPONSE
 {$targets}
 - Insère chaque URL exactement une fois dans une phrase qui apporte déjà une information utile au lecteur.
-- Utilise le titre fourni comme texte d’ancrage Markdown. N’affiche jamais l’URL brute dans le texte visible.
-- Intègre le titre dans une phrase grammaticalement naturelle ; ne le pose jamais seul comme une recommandation artificielle.
+- Utilise une ancre contextuelle naturelle (quelques mots descriptifs, pas le titre exact). N'affiche jamais l'URL brute dans le texte visible.
+- Intègre l'ancre dans une phrase grammaticalement naturelle ; ne le pose jamais seul comme une recommandation artificielle.
 - N’utilise jamais un bloc « À lire aussi » ni une liste de liens.
 - Répartis les liens dans les sections les plus pertinentes. Ne place aucun lien dans un H2/H3, un tableau, la FAQ ou la conclusion.
 - Syntaxe obligatoire : [ancre contextuelle](URL exacte). N’invente aucune information sur la page cible.
@@ -1392,12 +1392,12 @@ DIRECTIVES SEO, UX & AFFILIATION — À APPLIQUER DANS CETTE PARTIE
 - ALIGNEMENT : chaque paragraphe sert l’intention, l’angle, l’audience et la promesse verrouillés. Aucun sujet voisin ajouté pour remplir.
 - ANTI-HALLUCINATION : N'invente JAMAIS de nom de logiciel, module ou outil fictif (ex: "FinanceCore Module"). Cite exclusivement des outils réels (Indy, Abby, Pennylane, Qonto, etc.).
 - VOCABULAIRE MÉTIER : conserve le champ lexical exact de la requête. Pour un CRM : prospects, leads, pipeline, contacts, adoption, conversion et chiffre d’affaires ; aucun vocabulaire SEO hors sujet.
-- CRÉDIBILITÉ ET AUTEUR : adopte un ton strictement éditorial et journalistique. N'utilise JAMAIS la première personne du singulier ("je", "mon") et ne t'invente AUCUNE fausse expertise personnelle (ex: "J'ai 12 ans d'expertise"). Expose au moins une limite réaliste pour chaque outil recommandé.
-- TÉMOIGNAGES : n'invente JAMAIS de faux témoignages avec des noms inventés (ex: "Marc D.", "Sophie L."). Utilise plutôt des cas d'usage ou personas génériques ("Pour un mandataire immobilier...", "Une SCI à l'IS...").
+- CRÉDIBILITÉ ET AUTEUR : adopte un ton strictement éditorial, journalistique et IMPERSONNEL (troisième personne uniquement, ex: "De nombreux professionnels..."). Interdiction formelle d'utiliser "je", "mon", "notre" ou de simuler une expérience personnelle. Expose au moins une limite réaliste pour chaque outil recommandé.
+- TÉMOIGNAGES : Aucun témoignage fictif. Ne fais parler aucune personne inventée (ex: "Jean Dupont"). Remplace par des faits ou des cas d'usage génériques ("Dans le cas d'un artisan...").
 - SOURCES OFFICIELLES : si tu cites des sources officielles ou légales (BOFiP, URSSAF, Légifrance...), insère systématiquement un lien HTML cliquable vers leur site officiel (ex: <a href="https://bofip.impots.gouv.fr/">BOFiP</a>, <a href="https://www.urssaf.fr/">URSSAF</a>).
 - RECOMMANDATION INDY NUANCÉE : ne survends pas Indy à des profils pour qui l'outil n'est pas forcément adapté (gestionnaires de SCI à l'IS complexes, LMP nécessitant une comptabilité d'engagement lourde). Nuance toujours ton conseil.
 - IMAGES ET CRÉDITS : n'ajoute absolument JAMAIS de mentions de type "(Photo: Pexels)" ou autre crédit photo sous les titres.
-- TABLEAU : une seule matrice dans la section dédiée, avec au moins 3 colonnes, 2 lignes, des différences décisionnelles et une colonne « Limites » en multi-produits. Réinjecte impérativement les références des sources (ex: [S2]) dans les cellules du tableau, en particulier pour les limites et fonctionnalités. Précise toujours explicitement que la facturation (devis et factures) est illimitée sur le plan gratuit d'Indy (avantage comparatif majeur). Jamais une grille « Oui/Oui ».
+- TABLEAU : une seule matrice dans la section dédiée. Le tableau doit OBLIGATOIREMENT comparer au moins 2 logiciels réels (ex: Pennylane vs Indy). Interdiction absolue de comparer un logiciel à "Facturation manuelle" ou "Tableur". Réinjecte les références des sources (ex: [S2]). Précise que la facturation est illimitée sur le plan gratuit d'Indy. Jamais une grille « Oui/Oui ».
 - TARIFICATION : aucun prix inventé, aucun bloc vide et jamais « tarif non communiqué ». À défaut de montant prouvé, explique le modèle vérifiable et les composantes du coût total de possession, puis renvoie vers la grille officielle. Utilise uniquement les tarifs fournis dans le contexte du logiciel cible. Ne jamais inventer de plans tarifaires.
 - DONNEES CONCURRENTES 2026 : Interdiction absolue d'inventer des offres (ex: Abby Découverte) ou des limites (ex: 3 factures) si elles ne sont pas texto dans les preuves. Utiliser sa mémoire interne est interdit.
 - SCÉNARIO : une seule hypothèse explicitement illustrative dans la section prévue. Toute simulation de gain de temps doit obligatoirement être convertie en gain financier (€) sur la base d'un TJM réaliste.

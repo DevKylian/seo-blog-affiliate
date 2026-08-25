@@ -68,7 +68,7 @@
         $ctaTextDesktop = "Indy automatise votre compta et vos déclarations — gratuit sans limite de temps, sans engagement";
         $ctaTextMobile = "🎯 Indy : Compta 100% gratuite";
         $ctaHeaderLabel = "Profiter de l'offre gratuite Indy";
-        $ctaButtonLabel = "Créer mon compte gratuit &rarr;";
+        $ctaButtonLabel = (isset($recommendedProject) && strtolower($recommendedProject->name) === "pennylane") ? "Démarrer l'essai &rarr;" : "Créer mon compte gratuit &rarr;";
 
         $recommendedProject = null;
 

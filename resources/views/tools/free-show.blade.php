@@ -66,7 +66,7 @@
             <p style="font-size: 17px; color: rgba(255, 255, 255, 0.9); margin: 0 auto; line-height: 1.6; max-width: 600px; font-weight: 500;">{{ $tool['conversion_text'] ?? 'Ne perdez plus de temps sur l\'administratif. Découvrez comment les meilleurs logiciels pour indépendants font le travail à votre place, sans débourser un centime.' }}</p>
         </div>
         <a href="{{ $tool['conversion_link'] ?? route('home') . '#wizard' }}" style="position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 10px; background: white; color: {{ $tool['conversion_color'] ?? '#2563eb' }}; padding: 18px 36px; border-radius: 12px; font-weight: 800; font-size: 16px; text-decoration: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 15px 35px rgba(0, 0, 0, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
-            {{ $tool['conversion_cta'] ?? 'Créer mon compte gratuit' }}
+            {{ $tool['conversion_cta'] ?? (strtolower($tool['name'] ?? '') === 'pennylane' ? 'Démarrer l\'essai gratuit' : 'Créer mon compte gratuit') }}
             <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
         </a>
     </aside>
