@@ -115,31 +115,43 @@
             </label>
         </div>
 
-        <!-- Capture Email -->
-        <div class="tool-input-group" style="grid-column: 1 / -1; margin-top: 8px; background: #eff6ff; padding: 24px; border-radius: 12px; border: 1px solid #bfdbfe;">
-            <h4 style="font-size: 15px; font-weight: 800; color: #1e3a8a; margin-bottom: 8px;">Télécharger la facture</h4>
-            <p style="font-size: 13px; color: #3b82f6; margin-bottom: 16px;">Vous n'êtes pas prêt à créer un compte Indy ? Pas de problème. Entrez votre email pour débloquer le téléchargement de votre facture en PDF.</p>
-            <div style="display: flex; gap: 8px;" x-data="{ emailSent: false, email: '' }">
+        <!-- Capture Email & Download -->
+        <div style="grid-column: 1 / -1; margin-top: 32px; background: linear-gradient(145deg, #ffffff, #f8fafc); padding: 40px 32px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; align-items: center; text-align: center;">
+            
+            <div style="width: 64px; height: 64px; background: #eff6ff; color: #2563eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            </div>
+            
+            <h4 style="font-size: 22px; font-weight: 900; color: #0f172a; margin-bottom: 12px;">Votre facture est prête à être générée</h4>
+            <p style="font-size: 15px; color: #64748b; margin-bottom: 24px; max-width: 480px;">Entrez simplement votre adresse email pour lancer le téléchargement de votre facture au format PDF.</p>
+            
+            <div x-data="{ emailSent: false, email: '', loading: false }" style="width: 100%; max-width: 400px; position: relative;">
                 <template x-if="!emailSent">
-                    <div style="display: flex; gap: 8px; width: 100%;">
-                        <input type="email" x-model="email" placeholder="votre@email.com" class="tool-text-input" style="flex: 1; border-color: #93c5fd;">
-                        <button type="button" @click="if(email) { fetch('{{ route('newsletter.subscribe') }}', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ email: email, source: 'outil' }) }).then(res => { if(res.ok) { emailSent = true; setTimeout(() => emailSent = false, 4000); email = ''; window.print(); } }); }" style="padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">Télécharger la facture</button>
-                    </div>
+                    <form @submit.prevent="if(email && !loading) { loading = true; fetch('{{ route('newsletter.subscribe') }}', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ email: email, source: 'outil' }) }).then(res => { if(res.ok) { emailSent = true; setTimeout(() => { emailSent = false; email = ''; }, 4000); window.print(); } loading = false; }).catch(() => loading = false); }">
+                        <input type="email" required x-model="email" placeholder="votre@email.com" class="tool-text-input" style="width: 100%; padding: 16px 20px; font-size: 16px; border-radius: 12px; margin-bottom: 16px; border: 2px solid #e2e8f0; text-align: center; transition: all 0.3s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#e2e8f0'">
+                        
+                        <button type="submit" style="width: 100%; padding: 18px; background: #0f172a; color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2); transition: 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 16px rgba(15, 23, 42, 0.3)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 12px rgba(15, 23, 42, 0.2)';">
+                            <span x-show="!loading" style="display:flex; align-items:center; gap:8px;">
+                                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                Télécharger la facture (PDF)
+                            </span>
+                            <span x-show="loading">Génération en cours...</span>
+                        </button>
+                    </form>
                 </template>
                 <template x-if="emailSent">
-                    <div style="color: #059669; font-weight: 700; display: flex; align-items: center; gap: 8px; padding: 10px 0;">
-                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                        C'est fait ! Le téléchargement a démarré.
+                    <div style="padding: 24px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 16px; color: #166534; font-weight: 800; font-size: 16px; display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: #22c55e; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.3);">
+                            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        Succès ! Le téléchargement a démarré.
                     </div>
                 </template>
             </div>
-        </div>
-        
-        <div style="grid-column: 1 / -1; margin-top: 16px;">
-            <button @click="window.print()" style="width: 100%; padding: 18px; background: #0f172a; color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2); transition: 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 16px rgba(15, 23, 42, 0.3)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 12px rgba(15, 23, 42, 0.2)';">
-                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                Télécharger en PDF (Imprimer)
-            </button>
+            <div style="font-size: 13px; color: #94a3b8; margin-top: 20px; display:flex; align-items:center; justify-content:center; gap:6px; font-weight: 600;">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                Vos données restent confidentielles et ne sont pas vendues.
+            </div>
         </div>
     </div>
 
