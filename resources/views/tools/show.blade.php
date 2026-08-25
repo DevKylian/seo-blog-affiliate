@@ -235,11 +235,12 @@
                 <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 Ce qu'on a adoré
             </div>
-            <ul class="pros-list">
-                <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg> Synchronisation bancaire extrêmement rapide et fiable.</li>
-                <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg> Automatisation complète des déclarations URSSAF (en un clic).</li>
-                <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg> Plan gratuit généreux sans limite de temps.</li>
-                <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg> Interface moderne et pas de jargon comptable complexe.</li>
+                        <ul class="pros-list">
+                @forelse((->strengths ?? []) as )
+                    <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg> {{  }}</li>
+                @empty
+                    <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg> Fonctionnalités de base incluses.</li>
+                @endforelse
             </ul>
         </div>
         <div class="cons-box">
@@ -247,9 +248,12 @@
                 <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 Ce qui peut bloquer
             </div>
-            <ul class="cons-list">
-                <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg> Le support client par chat peut parfois prendre 24h à répondre.</li>
-                <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg> Manque de fonctionnalités CRM avancées.</li>
+                        <ul class="cons-list">
+                @forelse((->limitations ?? []) as )
+                    <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg> {{  }}</li>
+                @empty
+                    <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg> Pas de limites majeures détectées.</li>
+                @endforelse
             </ul>
         </div>
     </section>
@@ -258,32 +262,31 @@
     <section class="target-audience">
         <h2 class="target-audience-title">🎯 Pour qui {{ ucfirst($tool->name) }} est-il fait ?</h2>
         <div class="target-grid">
-            <div class="target-card target-card-good">
-                <h4>✅ Parfait si vous êtes :</h4>
-                <p style="font-size:14px; color:var(--tool-muted); line-height:1.5;">Freelance, consultant, artisan en micro-entreprise ou dirigeant de SASU/EURL sans salarié. Vous voulez faire votre comptabilité seul sans vous prendre la tête.</p>
+                        <div class="target-card target-card-good">
+                <h4>✅ Parfait si vous cherchez :</h4>
+                <ul style="font-size:14px; color:var(--tool-muted); line-height:1.5; padding-left:20px;">
+                    @forelse(array_slice(->strengths ?? [], 0, 3) as )
+                        <li>{{ explode(':', )[0] }}</li>
+                    @empty
+                        <li>Une solution de gestion pour indépendant.</li>
+                    @endforelse
+                </ul>
             </div>
             <div class="target-card target-card-bad">
-                <h4>❌ À éviter si vous êtes :</h4>
-                <p style="font-size:14px; color:var(--tool-muted); line-height:1.5;">Une TPE/PME avec des salariés, ou si vous avez des besoins en gestion de stock complexe et de multi-devises.</p>
+                <h4>❌ À éviter si vous avez besoin de :</h4>
+                <ul style="font-size:14px; color:var(--tool-muted); line-height:1.5; padding-left:20px;">
+                    @forelse(array_slice(->limitations ?? [], 0, 3) as )
+                        <li>{{ explode(':', )[0] }}</li>
+                    @empty
+                        <li>Fonctionnalités avancées non listées.</li>
+                    @endforelse
+                </ul>
             </div>
         </div>
     </section>
 
     <!-- Contenu SEO / Fonctionnalités -->
-    <article class="review-content-section">
-        <h2>Les fonctionnalités clés passées au crible</h2>
-        <p>Lors de nos tests intensifs de <strong>{{ ucfirst($tool->name) }}</strong>, nous avons scruté les modules les plus importants pour un indépendant. Voici notre avis détaillé sur chaque fonctionnalité.</p>
-        
-        <h3>1. La Facturation</h3>
-        <p>Le module de facturation est extrêmement fluide. Vous pouvez créer un devis et le transformer en facture en un seul clic. La personnalisation visuelle (logo, couleurs) est présente mais reste basique comparée à des outils 100% dédiés au design.</p>
-        
-        <h3>2. La Comptabilité Automatisée</h3>
-        <p>C'est ici que {{ ucfirst($tool->name) }} brille. Grâce à l'Open Banking, l'outil se connecte à votre banque (plus de 150 banques compatibles) et catégorise automatiquement 90% de vos dépenses. Un gain de temps monumental.</p>
-        
-        <h3>3. Gestion des déclarations</h3>
-        <p>Fini les allers-retours sur le site de l'URSSAF ou des Impôts. Le logiciel pré-remplit les déclarations de TVA et de chiffre d'affaires.</p>
-
-    </article>
+    
 
     <!-- Verdict -->
     <section class="verdict-box">
