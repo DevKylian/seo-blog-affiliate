@@ -117,13 +117,13 @@
 
         <!-- Capture Email -->
         <div class="tool-input-group" style="grid-column: 1 / -1; margin-top: 8px; background: #eff6ff; padding: 24px; border-radius: 12px; border: 1px solid #bfdbfe;">
-            <h4 style="font-size: 15px; font-weight: 800; color: #1e3a8a; margin-bottom: 8px;">Recevoir cette facture par email (+ notre Kit de Démarrage Gratuit)</h4>
-            <p style="font-size: 13px; color: #3b82f6; margin-bottom: 16px;">Vous n'êtes pas prêt à créer un compte Indy ? Pas de problème. Entrez votre email pour recevoir votre document et nos conseils pour freelances.</p>
+            <h4 style="font-size: 15px; font-weight: 800; color: #1e3a8a; margin-bottom: 8px;">Télécharger la facture</h4>
+            <p style="font-size: 13px; color: #3b82f6; margin-bottom: 16px;">Vous n'êtes pas prêt à créer un compte Indy ? Pas de problème. Entrez votre email pour débloquer le téléchargement de votre facture en PDF.</p>
             <div style="display: flex; gap: 8px;" x-data="{ emailSent: false, email: '' }">
                 <template x-if="!emailSent">
                     <div style="display: flex; gap: 8px; width: 100%;">
                         <input type="email" x-model="email" placeholder="votre@email.com" class="tool-text-input" style="flex: 1; border-color: #93c5fd;">
-                        <button type="button" @click="if(email) { fetch('{{ route('newsletter.subscribe') }}', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ email: email, source: 'outil' }) }).then(res => { if(res.ok) { emailSent = true; setTimeout(() => emailSent = false, 4000); email = ''; window.print(); } }); }" style="padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">M'envoyer la facture</button>
+                        <button type="button" @click="if(email) { fetch('{{ route('newsletter.subscribe') }}', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ email: email, source: 'outil' }) }).then(res => { if(res.ok) { emailSent = true; setTimeout(() => emailSent = false, 4000); email = ''; window.print(); } }); }" style="padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">Télécharger la facture</button>
                     </div>
                 </template>
                 <template x-if="emailSent">
