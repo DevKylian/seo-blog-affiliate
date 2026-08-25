@@ -236,8 +236,8 @@
                 Ce qu'on a adoré
             </div>
                         <ul class="pros-list">
-                @forelse((->strengths ?? []) as )
-                    <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg> {{  }}</li>
+                @forelse(($tool->strengths ?? []) as $strength)
+                    <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg> {{ $strength }}</li>
                 @empty
                     <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg> Fonctionnalités de base incluses.</li>
                 @endforelse
@@ -249,8 +249,8 @@
                 Ce qui peut bloquer
             </div>
                         <ul class="cons-list">
-                @forelse((->limitations ?? []) as )
-                    <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg> {{  }}</li>
+                @forelse(($tool->limitations ?? []) as $limitation)
+                    <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg> {{ $limitation }}</li>
                 @empty
                     <li><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg> Pas de limites majeures détectées.</li>
                 @endforelse
@@ -265,8 +265,8 @@
                         <div class="target-card target-card-good">
                 <h4>✅ Parfait si vous cherchez :</h4>
                 <ul style="font-size:14px; color:var(--tool-muted); line-height:1.5; padding-left:20px;">
-                    @forelse(array_slice(->strengths ?? [], 0, 3) as )
-                        <li>{{ explode(':', )[0] }}</li>
+                    @forelse(array_slice($tool->strengths ?? [], 0, 3) as $strength)
+                        <li>{{ explode(':', $strength)[0] }}</li>
                     @empty
                         <li>Une solution de gestion pour indépendant.</li>
                     @endforelse
@@ -275,8 +275,8 @@
             <div class="target-card target-card-bad">
                 <h4>❌ À éviter si vous avez besoin de :</h4>
                 <ul style="font-size:14px; color:var(--tool-muted); line-height:1.5; padding-left:20px;">
-                    @forelse(array_slice(->limitations ?? [], 0, 3) as )
-                        <li>{{ explode(':', )[0] }}</li>
+                    @forelse(array_slice($tool->limitations ?? [], 0, 3) as $limitation)
+                        <li>{{ explode(':', $limitation)[0] }}</li>
                     @empty
                         <li>Fonctionnalités avancées non listées.</li>
                     @endforelse
