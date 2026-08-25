@@ -123,13 +123,13 @@
                 <template x-if="!emailSent">
                     <div style="display: flex; gap: 8px; width: 100%;">
                         <input type="email" x-model="email" placeholder="votre@email.com" class="tool-text-input" style="flex: 1; border-color: #93c5fd;">
-                        <button type="button" @click="if(email) { emailSent = true; setTimeout(() => emailSent = false, 4000); email = ''; }" style="padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">M'envoyer la facture</button>
+                        <button type="button" @click="if(email) { fetch('{{ route('newsletter.subscribe') }}', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ email: email, source: 'outil' }) }).then(res => { if(res.ok) { emailSent = true; setTimeout(() => emailSent = false, 4000); email = ''; window.print(); } }); }" style="padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">M'envoyer la facture</button>
                     </div>
                 </template>
                 <template x-if="emailSent">
                     <div style="color: #059669; font-weight: 700; display: flex; align-items: center; gap: 8px; padding: 10px 0;">
                         <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                        C'est envoyé ! Vérifiez votre boîte mail d'ici quelques minutes.
+                        C'est fait ! Le téléchargement a démarré.
                     </div>
                 </template>
             </div>

@@ -258,6 +258,7 @@ Rédige uniquement ces H2, dans cet ordre exact :
 {$retryRule}
 
 RÈGLES BLOQUANTES
+- IMPORTANT CONTEXTE TEMPOREL : Nous sommes en août 2026. La réception des factures électroniques devient OBLIGATOIRE le 1er septembre 2026 en France pour toutes les entreprises assujetties à la TVA, y compris les micro-entrepreneurs. Tu dois impérativement mentionner cette urgence imminente (J-7) et positionner le logiciel recommandé (comme Indy ou Pennylane) comme la solution salvatrice et conforme à cette nouvelle loi (Format Factur-X). Le logiciel n'est plus juste une option de confort, c'est une obligation légale vitale.
 - Retourne uniquement un objet JSON avec la clé body contenant du Markdown, sans H1.
 - Arrête la rédaction dès que les H2 demandés sont terminés. Ne dépasse jamais {$maximumPartWords} mots dans cette partie.
 - CURRENT_DATE est réservé au header et au footer injectés par le CMS. N’écris aucune date de vérification, formule « vérifié le », « en date du », « informations disponibles au » ou « mis à jour le » dans le body, la FAQ ou la conclusion.

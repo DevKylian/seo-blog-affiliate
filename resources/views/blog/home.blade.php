@@ -52,6 +52,19 @@
 
 
 
+    <div x-data="{ invoices: 20, get penalty() { return Math.min(this.invoices * 15, 15000); } }" style="background: white; border: 2px solid #ef4444; border-radius: 16px; padding: 24px; margin: 32px 0; max-width: 600px; margin-left: auto; margin-right: auto; box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.1);">
+    <h3 style="color: #0f172a; font-size: 20px; font-weight: 800; margin-bottom: 16px; display:flex; align-items:center; gap:8px;">⚖️ Calculez votre risque d'amende DGFiP</h3>
+    <p style="color: #475569; font-size: 14px; margin-bottom: 16px;">Combien de factures B2B émettez-vous ou recevez-vous par mois ?</p>
+    <div style="display:flex; align-items:center; gap: 16px; margin-bottom: 24px;">
+        <input type="range" x-model="invoices" min="0" max="1000" step="5" style="flex:1; cursor:pointer; accent-color: #ef4444;">
+        <span style="font-weight: 800; font-size: 18px; color: #0f172a; min-width: 60px;" x-text="invoices + ' factures'"></span>
+    </div>
+    <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 16px; border-radius: 0 8px 8px 0; margin-bottom: 24px;">
+        <div style="font-size: 15px; color: #991b1b; font-weight: 700;">⚠️ Vous risquez <span style="font-size: 20px; font-weight: 900;" x-text="penalty + ' €'"></span> d'amende mensuelle si vous n'êtes pas équipé au format Factur-X d'ici le 1er septembre 2026.</div>
+    </div>
+    <a href="{{ route('affiliate.redirect', 'indy') }}" target="_blank" rel="sponsored nofollow" style="display:block; text-align:center; background: #10b981; color: white; padding: 12px 24px; border-radius: 8px; font-weight: 800; text-decoration: none; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2); transition: all 0.2s;">S'équiper à 0€ avec Indy &rarr;</a>
+</div>
+
     <!-- Top Selection Section (avec Badges) -->
     <section class="home-section" id="selection">
         
@@ -86,6 +99,7 @@
                 <div class="hp-selection-content" style="display:flex; flex-wrap:wrap; gap:32px; align-items:center;">
                     <div style="flex: 1 1 300px;">
                         <h3 class="hp-selection-title" style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Indy ⭐</h3>
+                          <div style="display:inline-block; margin-top: 8px; margin-bottom: 12px; background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 700; align-items:center; gap: 4px; width: fit-content;">✅ Prêt pour la réforme 2026 (Format Factur-X)</div>
                         <p style="color:var(--home-muted); font-size:15px; margin-bottom:24px;">Une alternative simple à la comptabilité traditionnelle pour freelances et petites entreprises.</p>
                         
                         <ul class="hp-clean-list" style="margin-bottom:16px;">

@@ -153,3 +153,4 @@ Route::get('/llms.txt', function () {
     
     return response($content)->header('Content-Type', 'text/plain; charset=UTF-8');
 });
+Route::post('/newsletter/subscribe', function (\Illuminate\Http\Request $request) { $request->validate(['email' => 'required|email']); \App\Models\NewsletterSubscriber::updateOrCreate(['email' => $request->email], ['source' => $request->source ?? 'newsletter']); return response()->json(['success' => true]); })->name('newsletter.subscribe');

@@ -60,6 +60,10 @@
     <script defer src="https://cloud.umami.is/script.js" data-website-id="f009de17-3390-42ab-8741-cc2362bd5cc1"></script>
 </head>
 <body class="blog-body">
+<div style="background-color: #ef4444; color: white; text-align: center; padding: 12px 16px; font-weight: 700; font-size: 14px; position: sticky; top: 0; z-index: 9999; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+    🚨 URGENCE 1er SEPTEMBRE 2026 : La réception des factures électroniques devient obligatoire pour tous les indépendants. 
+    <a href="/outils" style="color: white; text-decoration: underline; font-weight: 800; margin-left: 8px;">Trouvez votre plateforme gratuite et conforme &rarr;</a>
+</div>
     @php
         $ctaLink = route('affiliate.redirect', 'indy');
         $ctaName = 'Indy';
