@@ -171,12 +171,12 @@ final class AffiliateBlockService
         }
         $strong = in_array($intentType, ['solution', 'money'], true);
         
-        $title = $isIndy ? 'Essayez Indy gratuitement' : (strtolower($projectName) === 'pennylane' ? "Essayez {$projectName} (15j offerts)" : "Essayez {$projectName} gratuitement");
+        $title = $isIndy ? 'Essayez Indy gratuitement' : (strtolower($projectName) === 'pennylane' ? "Découvrez {$projectName} dès 14€/mois" : "Essayez {$projectName} gratuitement");
         $description = $isIndy 
             ? "✅ 1er mois offert sans engagement\nCentralisez votre facturation, vos dépenses et votre comptabilité dans un seul outil pensé pour les indépendants. Gagnez du temps dès aujourd'hui avec une solution simple et rapide à prendre en main."
-            : (strtolower($projectName) === 'pennylane' ? "Centralisez votre facturation, vos dépenses et votre comptabilité dans un seul outil. Gagnez du temps dès aujourd'hui.\n\n✅ Pensé pour les dirigeants\n✅ Prise en main immédiate\n✅ Support et assistance\n✅ Essai gratuit de 15 jours" : "Centralisez votre facturation, vos dépenses et votre comptabilité dans un outil pensé pour les indépendants.\n\n✅ Pensé pour les indépendants\n✅ Prise en main immédiate\n✅ Support et assistance");
+            : (strtolower($projectName) === 'pennylane' ? "Centralisez votre facturation, vos dépenses et votre comptabilité dans un seul outil. Gagnez du temps dès aujourd'hui.\n\n✅ Pensé pour les dirigeants\n✅ Prise en main immédiate\n✅ Support et assistance\n✅ Dès 14€/mois" : "Centralisez votre facturation, vos dépenses et votre comptabilité dans un outil pensé pour les indépendants.\n\n✅ Pensé pour les indépendants\n✅ Prise en main immédiate\n✅ Support et assistance");
             
-        $cta = (strtolower($projectName) === 'pennylane') ? "🚀 Démarrer l'essai gratuit" : "🚀 Créer mon compte gratuit";
+        $cta = (strtolower($projectName) === 'pennylane') ? "🚀 Découvrir Pennylane" : "🚀 Créer mon compte gratuit";
 
         if ($isIndy) {
             $context = mb_strtolower($article->title . ' ' . $article->primary_keyword);

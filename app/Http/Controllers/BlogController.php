@@ -309,6 +309,7 @@ class BlogController extends Controller
                 'conversion_cta' => 'Passer à la facturation 100% gratuite',
                 'conversion_link' => '/go/indy',
                 'conversion_color' => '#F75A77',
+                'conversion_label' => '💡 Bon à savoir',
                 'faq' => [
                     [
                         'question' => 'Ce générateur de facture est-il vraiment gratuit ?',
@@ -336,6 +337,7 @@ class BlogController extends Controller
                 'conversion_cta' => 'Automatiser mon URSSAF gratuitement',
                 'conversion_link' => '/go/indy',
                 'conversion_color' => '#F75A77',
+                'conversion_label' => '💡 Le saviez-vous ?',
                 'faq' => [
                     [
                         'question' => 'Quels sont les taux de cotisations de la micro-entreprise en 2026 ?',
@@ -359,6 +361,7 @@ class BlogController extends Controller
                 'conversion_cta' => 'Essayer Indy gratuitement',
                 'conversion_link' => '/go/indy',
                 'conversion_color' => '#F75A77',
+                'conversion_label' => '💡 Astuce',
                 'faq' => [
                     [
                         'question' => 'Comment calculer le prix TTC à partir du HT ?',
@@ -382,6 +385,7 @@ class BlogController extends Controller
                 'conversion_cta' => 'Découvrir Indy gratuitement',
                 'conversion_link' => '/go/indy',
                 'conversion_color' => '#F75A77',
+                'conversion_label' => '💡 Pour aller plus loin',
             ],
             [
                 'slug' => 'calculateur-frais-kilometriques',
@@ -395,6 +399,7 @@ class BlogController extends Controller
                 'conversion_cta' => 'Gérer mes IK gratuitement avec Indy',
                 'conversion_link' => '/go/indy',
                 'conversion_color' => '#F75A77',
+                'conversion_label' => '💡 Gain de temps',
             ],
             [
                 'slug' => 'comparateur-micro-sasu',
@@ -408,6 +413,7 @@ class BlogController extends Controller
                 'conversion_cta' => 'Créer ma société gratuitement avec Indy',
                 'conversion_link' => '/go/indy',
                 'conversion_color' => '#F75A77',
+                'conversion_label' => '💡 Bon à savoir',
             ],
             [
                 'slug' => 'simulateur-micro-vs-reel',
@@ -421,6 +427,7 @@ class BlogController extends Controller
                 'conversion_cta' => 'Découvrir la compta au réel avec Indy (Gratuit)',
                 'conversion_link' => '/go/indy',
                 'conversion_color' => '#F75A77',
+                'conversion_label' => '💡 Astuce',
             ],
             [
                 'slug' => 'simulateur-sasu-dividendes',
@@ -434,6 +441,7 @@ class BlogController extends Controller
                 'conversion_cta' => 'Gérer ma SASU avec Indy (Gratuit)',
                 'conversion_link' => '/go/indy',
                 'conversion_color' => '#F75A77',
+                'conversion_label' => '💡 Pour aller plus loin',
             ],
             [
                 'slug' => 'seuil-tva-micro-entreprise',
@@ -447,6 +455,7 @@ class BlogController extends Controller
                 'conversion_cta' => 'Sécuriser ma facturation avec Indy (Gratuit)',
                 'conversion_link' => '/go/indy',
                 'conversion_color' => '#F75A77',
+                'conversion_label' => '💡 Le saviez-vous ?',
             ],
             [
                 'slug' => 'calculateur-tva-sur-marge',
@@ -459,7 +468,8 @@ class BlogController extends Controller
                 'conversion_text' => 'Attention : Indy ne gère pas la TVA sur marge. Pennylane est indispensable pour les vendeurs de seconde main.',
                 'conversion_cta' => 'Découvrir Pennylane',
                 'conversion_link' => '/go/pennylane',
-                'conversion_color' => '#3b82f6',
+                'conversion_color' => '#f59e0b',
+                'conversion_label' => '⚠️ Attention',
             ],
             [
                 'slug' => 'simulateur-seuil-oss',
@@ -473,6 +483,7 @@ class BlogController extends Controller
                 'conversion_cta' => 'Connecter ma boutique à Pennylane',
                 'conversion_link' => '/go/pennylane',
                 'conversion_color' => '#3b82f6',
+                'conversion_label' => '💡 Gain de temps',
             ],
             [
                 'slug' => 'generateur-penalites-retard',
@@ -486,6 +497,7 @@ class BlogController extends Controller
                 'conversion_cta' => 'Gérer mes factures avec Indy',
                 'conversion_link' => '/go/indy',
                 'conversion_color' => '#F75A77',
+                'conversion_label' => '💡 Astuce',
             ]
         ];
     }
