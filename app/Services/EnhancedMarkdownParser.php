@@ -9,8 +9,12 @@ class EnhancedMarkdownParser
 {
     public function parse(string $markdown): string
     {
-        // 0. Remove raw JSON-LD scripts from markdown (handled by layout/head)
+        // 0. Remove raw JSON-LD scripts and Obsidian artifacts from markdown
+        $markdown = preg_replace('/<!--\s*🔍\s*Données structurées.*?-->/is', '', $markdown);
         $markdown = preg_replace('/<script type="application\/ld\+json">.*?<\/script>/is', '', $markdown);
+        $markdown = preg_replace('/⬆️\s*Stratégie parente.*$/im', '', $markdown);
+        // Clean up any trailing horizontal rules left at the very end of the file
+        $markdown = preg_replace('/(?:\s*---)+\s*$/is', '', $markdown);
 
         // 1. Auto-format standard markdown FAQs into custom blocks
         $markdown = $this->autoFormatFaq($markdown);
