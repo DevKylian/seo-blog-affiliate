@@ -24,8 +24,8 @@ class EnhancedMarkdownParser
 
     private function autoFormatFaq(string $markdown): string
     {
-        // Match standard FAQs (## Foire aux questions, ## FAQ, etc) up to the next H2 or end of string
-        return preg_replace_callback('/^##\s+(?:FAQ|Foire aux questions|Questions fr[ée]quentes|Questions Fr[ée]quentes).*?(?=(?:^##\s)|\z)/ism', function ($matches) {
+        // Match standard FAQs up to the next H1/H2, hr (---), html tag at start of line, or end of string
+        return preg_replace_callback('/^##\s+(?:FAQ|Foire aux questions|Questions fr[ée]quentes|Questions Fr[ée]quentes).*?(?=(?:^#{1,2}\s)|(?:^---)|(?:^<[a-z!])|\z)/ism', function ($matches) {
             $faqSection = $matches[0];
             
             // Extract the title
