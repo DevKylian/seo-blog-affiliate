@@ -268,34 +268,35 @@
     <style>
         .desktop-sticky-cta {
             position: fixed;
-            bottom: 16px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.95);
+            bottom: 24px;
+            right: 24px;
+            background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(226, 232, 240, 0.8);
-            padding: 12px 12px 12px 24px;
-            border-radius: 100px;
+            padding: 20px;
+            border-radius: 16px;
             z-index: 100;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 24px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-            width: max-content;
-            max-width: 90vw;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+            width: 320px;
+            max-width: calc(100vw - 48px);
         }
         .desktop-sticky-cta-btn {
             background: #F75A77;
             color: white;
-            padding: 10px 24px;
-            border-radius: 100px;
+            padding: 12px 20px;
+            border-radius: 12px;
             font-weight: 800;
-            font-size: 15px;
+            font-size: 14px;
+            text-align: center;
             text-decoration: none;
             transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 0 4px 10px rgba(247, 90, 119, 0.3);
-            white-space: nowrap;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
         }
         .desktop-sticky-cta-btn:hover {
             transform: translateY(-2px);
@@ -312,19 +313,17 @@
             box-shadow: 0 6px 15px {{ $ctaColor }}66 !important;
         }
     </style>
-    <div class="desktop-sticky-cta no-print" x-data="{ showDesktopCta: true }" x-show="showDesktopCta">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="background: {{ $ctaBgColor }}; color: {{ $ctaColor }}; padding: 4px 10px; border-radius: 100px; font-weight: 800; font-size: 12px; text-transform: uppercase;">🎯 Notre recommandation n°1</div>
-            <strong style="color: #0f172a; font-size: 14px;">{{ $ctaTextDesktop }}</strong>
-        </div>
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <a href="{{ $ctaLink }}" class="desktop-sticky-cta-btn" style="background: {{ $ctaColor }}; box-shadow: 0 4px 10px {{ $ctaColor }}4D;" target="_blank" rel="sponsored nofollow">
-                {!! $ctaButtonLabel !!}
-            </a>
-            <button type="button" @click="showDesktopCta = false" aria-label="Fermer" style="background: #f1f5f9; border: none; color: #64748b; cursor: pointer; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#e2e8f0'; this.style.color='#0f172a';" onmouseout="this.style.background='#f1f5f9'; this.style.color='#64748b';">
-                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    <div class="desktop-sticky-cta no-print" x-data="{ showDesktopCta: true }" x-show="showDesktopCta" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 transform translate-y-0" x-transition:leave-end="opacity-0 transform translate-y-4">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+            <div style="background: {{ $ctaBgColor }}; color: {{ $ctaColor }}; padding: 4px 10px; border-radius: 100px; font-weight: 800; font-size: 11px; text-transform: uppercase; display: inline-block;">🎯 Notre recommandation</div>
+            <button type="button" @click="showDesktopCta = false" aria-label="Fermer" style="background: #f1f5f9; border: none; color: #64748b; cursor: pointer; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; margin-top: -4px; margin-right: -4px;" onmouseover="this.style.background='#e2e8f0'; this.style.color='#0f172a';" onmouseout="this.style.background='#f1f5f9'; this.style.color='#64748b';">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
         </div>
+        <strong style="color: #0f172a; font-size: 14px; line-height: 1.5;">{{ $ctaTextDesktop }}</strong>
+        <a href="{{ $ctaLink }}" class="desktop-sticky-cta-btn" style="background: {{ $ctaColor }}; box-shadow: 0 4px 10px {{ $ctaColor }}4D;" target="_blank" rel="sponsored nofollow">
+            {!! $ctaButtonLabel !!}
+        </a>
     </div>
 
     @livewireScripts
