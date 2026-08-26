@@ -9,7 +9,10 @@ class EnhancedMarkdownParser
 {
     public function parse(string $markdown): string
     {
-        // 0. Auto-format standard markdown FAQs into custom blocks
+        // 0. Remove raw JSON-LD scripts from markdown (handled by layout/head)
+        $markdown = preg_replace('/<script type="application\/ld\+json">.*?<\/script>/is', '', $markdown);
+
+        // 1. Auto-format standard markdown FAQs into custom blocks
         $markdown = $this->autoFormatFaq($markdown);
 
         // 1. Process custom blocks (e.g., :::quick-answer, :::takeaway, :::case, :::faq)
