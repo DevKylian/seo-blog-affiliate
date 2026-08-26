@@ -2,7 +2,7 @@
     <div class="hp-wizard" x-data="softwareWizardV2()" id="wizard" style="{{ isset($isArticle) && $isArticle ? 'margin-top: 20px; margin-bottom: 40px; border-top: none;' : '' }}">
         
         <div class="hp-wizard-header" x-show="step > 0 && step < 5" style="display:none;">
-            <h3 class="hp-wizard-title">Trouvez le logiciel idéal en 4 questions</h3>
+            <div style="font-size: 13px; font-weight: 800; color: #2563eb; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; text-align: center;">Quiz interactif</div>`n            <h3 class="hp-wizard-title">Trouvez le logiciel idéal en 4 questions</h3>
             <div class="hp-wizard-progress">
                 <div class="hp-wizard-step-dot" :class="{'active': step >= 1}"></div>
                 <div class="hp-wizard-step-dot" :class="{'active': step >= 2}"></div>
