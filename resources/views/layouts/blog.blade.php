@@ -69,7 +69,7 @@
         $ctaName = 'Indy';
         $ctaColor = '#F75A77';
         $ctaBgColor = '#fdf2f8';
-        $ctaTextDesktop = "Indy automatise votre compta et vos déclarations — gratuit sans limite de temps, sans engagement";
+        $ctaTextDesktop = "Automatise votre compta et vos déclarations — gratuit";
         $ctaTextMobile = "🎯 Indy : Compta 100% gratuite";
         $ctaHeaderLabel = "Profiter de l'offre gratuite Indy";
         $ctaButtonLabel = (isset($recommendedProject) && strtolower($recommendedProject->name) === "pennylane") ? "Découvrir les offres &rarr;" : "Créer mon compte gratuit &rarr;";
@@ -280,7 +280,7 @@
             flex-direction: column;
             gap: 16px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
-            width: 320px;
+            width: 380px;
             max-width: calc(100vw - 48px);
         }
         .desktop-sticky-cta-btn {
@@ -315,12 +315,12 @@
     </style>
     <div class="desktop-sticky-cta no-print" x-data="{ showDesktopCta: true }" x-show="showDesktopCta" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 transform translate-y-0" x-transition:leave-end="opacity-0 transform translate-y-4">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
-            <div style="background: {{ $ctaBgColor }}; color: {{ $ctaColor }}; padding: 4px 10px; border-radius: 100px; font-weight: 800; font-size: 11px; text-transform: uppercase; display: inline-block;">🎯 Notre recommandation</div>
+            <div style="background: {{ $ctaBgColor }}; color: {{ $ctaColor }}; padding: 4px 10px; border-radius: 100px; font-weight: 800; font-size: 11px; text-transform: uppercase; display: inline-block;">🎁 Notre recommandation</div>
             <button type="button" @click="showDesktopCta = false" aria-label="Fermer" style="background: #f1f5f9; border: none; color: #64748b; cursor: pointer; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; margin-top: -4px; margin-right: -4px;" onmouseover="this.style.background='#e2e8f0'; this.style.color='#0f172a';" onmouseout="this.style.background='#f1f5f9'; this.style.color='#64748b';">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
         </div>
-        <strong style="color: #0f172a; font-size: 14px; line-height: 1.5;">{{ $ctaTextDesktop }}</strong>
+        <div style="color: #0f172a; font-size: 14px; line-height: 1.5;">{{ $ctaTextDesktop }}</div>
         <a href="{{ $ctaLink }}" class="desktop-sticky-cta-btn" style="background: {{ $ctaColor }}; box-shadow: 0 4px 10px {{ $ctaColor }}4D;" target="_blank" rel="sponsored nofollow">
             {!! $ctaButtonLabel !!}
         </a>
