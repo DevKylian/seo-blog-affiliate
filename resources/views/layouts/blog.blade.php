@@ -69,7 +69,7 @@
         $ctaName = 'Indy';
         $ctaColor = '#F75A77';
         $ctaBgColor = '#fdf2f8';
-        $ctaTextDesktop = "Automatise votre compta et vos déclarations — gratuit";
+        $ctaTextDesktop = "Indy <strong>automatise votre compta et vos déclarations</strong> — <strong>gratuit</strong> sans limite de temps, sans engagement";
         $ctaTextMobile = "🎯 Indy : Compta 100% gratuite";
         $ctaHeaderLabel = "Profiter de l'offre gratuite Indy";
         $ctaButtonLabel = (isset($recommendedProject) && strtolower($recommendedProject->name) === "pennylane") ? "Découvrir les offres &rarr;" : "Créer mon compte gratuit &rarr;";
@@ -320,7 +320,7 @@
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
         </div>
-        <div style="color: #0f172a; font-size: 14px; line-height: 1.5;">{{ $ctaTextDesktop }}</div>
+        <div style="color: #0f172a; font-size: 14px; line-height: 1.5;">{!! $ctaTextDesktop !!}</div>
         <a href="{{ $ctaLink }}" class="desktop-sticky-cta-btn" style="background: {{ $ctaColor }}; box-shadow: 0 4px 10px {{ $ctaColor }}4D;" target="_blank" rel="sponsored nofollow">
             {!! $ctaButtonLabel !!}
         </a>
