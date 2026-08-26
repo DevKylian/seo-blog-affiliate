@@ -280,7 +280,7 @@
             flex-direction: column;
             gap: 16px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
-            width: 380px;
+            width: 420px;
             max-width: calc(100vw - 48px);
         }
         .desktop-sticky-cta-btn {
