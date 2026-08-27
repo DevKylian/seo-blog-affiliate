@@ -65,14 +65,14 @@
     <a href="/outils" style="color: #60a5fa; text-decoration: none; font-weight: 800; margin-left: 8px; transition: color 0.2s;" onmouseover="this.style.color='#93c5fd'" onmouseout="this.style.color='#60a5fa'">Trouvez votre plateforme conforme &rarr;</a>
 </div>
     @php
-        $ctaLink = route('affiliate.redirect', 'indy');
-        $ctaName = 'Indy';
-        $ctaColor = '#F75A77';
-        $ctaBgColor = '#fdf2f8';
-        $ctaTextDesktop = "Indy <strong>automatise votre compta et vos déclarations</strong> — <strong>gratuit</strong> sans limite de temps, sans engagement";
-        $ctaTextMobile = "🎯 Indy : Compta 100% gratuite";
-        $ctaHeaderLabel = "Profiter de l'offre gratuite Indy";
-        $ctaButtonLabel = (isset($recommendedProject) && strtolower($recommendedProject->name) === "pennylane") ? "Découvrir les offres &rarr;" : "Créer mon compte gratuit &rarr;";
+        $ctaLink = route('tools.index');
+        $ctaName = 'Trouver mon logiciel';
+        $ctaColor = '#2563eb';
+        $ctaBgColor = '#eff6ff';
+        $ctaTextDesktop = "<strong>Trouver le logiciel adapté</strong> à votre métier et vos besoins — <strong>Comparatif 100% indépendant</strong>";
+        $ctaTextMobile = "🎯 Trouvez votre logiciel idéal";
+        $ctaHeaderLabel = "Trouver mon logiciel adapté";
+        $ctaButtonLabel = "Voir le comparatif &rarr;";
 
         $recommendedProject = null;
 
@@ -114,16 +114,20 @@
                 $name = 'indy';
                 $slug = 'indy';
             }
-        } else {
-            $name = 'indy';
-            $slug = 'indy';
         }
 
         if ($name) {
             $ctaLink = route('affiliate.redirect', $slug);
             $ctaName = ucfirst($name);
             
-            if (str_contains($name, 'pennylane')) {
+            if (str_contains($name, 'indy')) {
+                $ctaColor = '#F75A77';
+                $ctaBgColor = '#fdf2f8';
+                $ctaTextDesktop = "Indy <strong>automatise votre compta et vos déclarations</strong> — <strong>gratuit</strong> sans limite de temps, sans engagement";
+                $ctaTextMobile = "🎯 Indy : Compta 100% gratuite";
+                $ctaHeaderLabel = "Profiter de l'offre gratuite Indy";
+                $ctaButtonLabel = "Créer mon compte gratuit &rarr;";
+            } elseif (str_contains($name, 'pennylane')) {
                 $ctaColor = '#10B981';
                 $ctaBgColor = '#ecfdf5';
                 $ctaTextDesktop = "Pennylane : La plateforme tout-en-un pour gérer votre facturation et votre trésorerie";
