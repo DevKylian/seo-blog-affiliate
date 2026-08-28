@@ -21,7 +21,8 @@
             'urssaf' => true,
             'accounting' => false,
             'liasse' => true,
-            'iaFeature' => true
+            'iaFeature' => true,
+            'hasEInvoicing' => true
         ],
         [
             'slug' => 'dougs',
@@ -38,7 +39,8 @@
             'urssaf' => true,
             'accounting' => true,
             'liasse' => true,
-            'iaFeature' => false
+            'iaFeature' => false,
+            'hasEInvoicing' => true
         ],
         [
             'slug' => 'pennylane',
@@ -55,7 +57,8 @@
             'urssaf' => false,
             'accounting' => true,
             'liasse' => true,
-            'iaFeature' => true
+            'iaFeature' => true,
+            'hasEInvoicing' => true
         ],
         [
             'slug' => 'tiime',
@@ -72,7 +75,8 @@
             'urssaf' => false,
             'accounting' => true,
             'liasse' => true,
-            'iaFeature' => true
+            'iaFeature' => true,
+            'hasEInvoicing' => true
         ],
         [
             'slug' => 'abby',
@@ -89,7 +93,8 @@
             'urssaf' => true,
             'accounting' => false,
             'liasse' => false,
-            'iaFeature' => false
+            'iaFeature' => false,
+            'hasEInvoicing' => true
         ],
         [
             'slug' => 'shine',
@@ -107,7 +112,8 @@
             'urssaf_label' => '✅ (Micro)',
             'accounting' => false,
             'liasse' => false,
-            'iaFeature' => true
+            'iaFeature' => true,
+            'hasEInvoicing' => true
         ]
     ];
 @endphp
@@ -168,6 +174,14 @@
                                 </div>
                                 <span>{{ $t['name'] }}</span>
                             </a>
+                            @if(isset($t['hasEInvoicing']) && $t['hasEInvoicing'])
+                                <div style="margin-top: 12px;">
+                                    <span style="display:inline-flex; align-items:center; justify-content:center; gap:4px; font-size:10px; background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; padding:4px 8px; border-radius:100px; font-weight:700; line-height:1.2; text-align:center;">
+                                        <svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                        Prêt Facture Électronique 2026
+                                    </span>
+                                </div>
+                            @endif
                         </th>
                     @endforeach
                 </tr>
