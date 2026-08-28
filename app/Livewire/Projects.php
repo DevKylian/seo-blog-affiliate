@@ -31,6 +31,8 @@ class Projects extends Component
 
     public string $currency = 'EUR';
 
+    public bool $hasEInvoicing = false;
+
     public ?string $brand_color = null;
 
     public string $description = '';
@@ -74,6 +76,7 @@ class Projects extends Component
             'country' => ['required', 'string', 'size:2'],
             'currency' => ['required', 'string', 'size:3'],
             'brand_color' => ['nullable', 'string', 'max:20'],
+            'hasEInvoicing' => ['boolean'],
             'competitorsText' => ['nullable', 'string', 'max:5000'],
             'competitorPricingUrlsText' => ['nullable', 'string', 'max:10000'],
             'screenshot' => ['nullable', 'image', 'max:2048'], // 2MB Max
@@ -94,6 +97,7 @@ class Projects extends Component
             'affiliate_url' => $data['affiliateUrl'] ?: null,
             'country' => strtoupper($data['country']),
             'currency' => strtoupper($data['currency']),
+            'has_e_invoicing' => $this->hasEInvoicing,
             'brand_color' => $data['brand_color'] ?? null,
             'description' => $this->description ?: null,
             'positioning' => $this->positioning ?: null,
@@ -124,7 +128,7 @@ class Projects extends Component
         
         app(\App\Services\AffiliateSeoDefaults::class)->ensureForProject($project);
 
-        $this->reset(['editingId', 'name', 'websiteUrl', 'pricingUrl', 'affiliateUrl', 'description', 'positioning', 'featuresText', 'strengthsText', 'limitationsText', 'bestForText', 'faqText', 'competitorsText', 'competitorPricingUrlsText', 'screenshot']);
+        $this->reset(['editingId', 'name', 'websiteUrl', 'pricingUrl', 'affiliateUrl', 'hasEInvoicing', 'description', 'positioning', 'featuresText', 'strengthsText', 'limitationsText', 'bestForText', 'faqText', 'competitorsText', 'competitorPricingUrlsText', 'screenshot']);
         $this->message = 'Le projet a été enregistré. Vous pouvez maintenant collecter ses sources.';
     }
 
@@ -211,6 +215,7 @@ class Projects extends Component
         $this->websiteUrl = $project->website_url;
         $this->pricingUrl = (string) $project->pricing_url;
         $this->affiliateUrl = (string) $project->affiliate_url;
+        $this->hasEInvoicing = (bool) $project->has_e_invoicing;
         $this->country = $project->country;
         $this->currency = $project->currency;
         $this->description = (string) $project->description;
@@ -231,7 +236,7 @@ class Projects extends Component
         $editingProjectDeleted = $this->editingId && in_array($this->editingId, $ids, true);
         $count = SeoProject::query()->whereIn('id', $ids)->delete();
         if ($editingProjectDeleted) {
-            $this->reset(['editingId', 'name', 'websiteUrl', 'pricingUrl', 'affiliateUrl', 'description', 'positioning', 'featuresText', 'strengthsText', 'limitationsText', 'bestForText', 'faqText', 'competitorsText', 'competitorPricingUrlsText']);
+            $this->reset(['editingId', 'name', 'websiteUrl', 'pricingUrl', 'affiliateUrl', 'hasEInvoicing', 'description', 'positioning', 'featuresText', 'strengthsText', 'limitationsText', 'bestForText', 'faqText', 'competitorsText', 'competitorPricingUrlsText']);
         }
         $this->resetBulkSelection();
         $this->message = "{$count} projet(s) et toutes leurs données associées supprimés.";

@@ -31,6 +31,7 @@ class SeoProject extends Model
         'faq' => 'array',
         'competitors' => 'array',
         'competitor_pricing_urls' => 'array',
+        'has_e_invoicing' => 'boolean',
     ];
 
     public function getScreenshotUrlAttribute(): ?string

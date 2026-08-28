@@ -39,8 +39,7 @@
             'urssaf' => true,
             'accounting' => true,
             'liasse' => true,
-            'iaFeature' => false,
-            'hasEInvoicing' => true
+            'iaFeature' => false
         ],
         [
             'slug' => 'pennylane',
@@ -93,8 +92,7 @@
             'urssaf' => true,
             'accounting' => false,
             'liasse' => false,
-            'iaFeature' => false,
-            'hasEInvoicing' => true
+            'iaFeature' => false
         ],
         [
             'slug' => 'shine',
@@ -112,8 +110,7 @@
             'urssaf_label' => '✅ (Micro)',
             'accounting' => false,
             'liasse' => false,
-            'iaFeature' => true,
-            'hasEInvoicing' => true
+            'iaFeature' => true
         ]
     ];
 @endphp
@@ -174,11 +171,15 @@
                                 </div>
                                 <span>{{ $t['name'] }}</span>
                             </a>
-                            @if(isset($t['hasEInvoicing']) && $t['hasEInvoicing'])
-                                <div style="margin-top: 12px;">
-                                    <span style="display:inline-flex; align-items:center; justify-content:center; gap:4px; font-size:10px; background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; padding:4px 8px; border-radius:100px; font-weight:700; line-height:1.2; text-align:center;">
-                                        <svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                                        Prêt Facture Électronique 2026
+                            @php
+                                $projectFromDb = $tools->firstWhere('slug', $t['slug']);
+                                $hasEInvoicing = $projectFromDb ? $projectFromDb->has_e_invoicing : false;
+                            @endphp
+                            @if($hasEInvoicing)
+                                <div style="margin-top: 12px; display: flex; justify-content: center;">
+                                    <span style="display:inline-flex; align-items:center; gap:4px; font-size:10px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 4px 8px; border-radius: 100px; font-weight: 700; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3); line-height: 1.2; text-align: center;">
+                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                        Prêt Facture Électro 2026
                                     </span>
                                 </div>
                             @endif

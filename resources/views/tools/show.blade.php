@@ -67,12 +67,6 @@
     function getBarColor($score) {
         return floatval($score) > 8 ? 'background: #10b981;' : '';
     }
-
-    $compatibilities = !empty($tool->features) && is_array($tool->features) ? $tool->features : [
-        'Auto-entrepreneur', 'SASU', 'TVA', 'BNC', 'BIC', 'SCI', 'LMNP', 
-        'Facture électronique', 'Banque', 'API', 'Stripe', 'Déclarations URSSAF', 'Application mobile'
-    ];
-    $hasEInvoicing = collect($compatibilities)->map(fn($f) => strtolower(trim($f)))->contains(fn($f) => in_array($f, ['facture électronique', 'facturation électronique', 'facture electronique', 'facturation electronique']));
 @endphp
 
 <main class="tool-container">
@@ -91,11 +85,11 @@
                         <span class="review-stars-score">{{ $rating['score'] }}<span style="font-size:16px; color:var(--tool-muted);">/10</span></span>
                         <a href="#avis" style="color:var(--tool-primary); font-size:14px; font-weight:700;">({{ $rating['reviews_count'] }} avis vérifiés)</a>
                     </div>
-                    @if($hasEInvoicing)
-                        <div style="margin-top: 12px;">
-                            <span style="display:inline-flex; align-items:center; gap:6px; font-size:12px; background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; padding:4px 10px; border-radius:100px; font-weight:700;">
-                                <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                                Prêt Facture Électronique 2026
+                    @if($tool->has_e_invoicing)
+                        <div style="margin-top: 14px;">
+                            <span style="display:inline-flex; align-items:center; gap:6px; font-size:12px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 6px 14px; border-radius: 100px; font-weight: 700; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); letter-spacing: 0.2px;">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                Prêt Facturation Électronique 2026
                             </span>
                         </div>
                     @endif
@@ -169,7 +163,10 @@
             </h3>
             <div style="display:flex; flex-wrap:wrap; gap:12px;">
                 @php
-                    // $compatibilities is already defined at the top of the file
+                    $compatibilities = !empty($tool->features) && is_array($tool->features) ? $tool->features : [
+                        'Auto-entrepreneur', 'SASU', 'TVA', 'BNC', 'BIC', 'SCI', 'LMNP', 
+                        'Facture électronique', 'Banque', 'API', 'Stripe', 'Déclarations URSSAF', 'Application mobile'
+                    ];
                 @endphp
                 @foreach($compatibilities as $feature)
                     <span style="display:inline-flex; align-items:center; gap:6px; background:#f8fafc; border:1px solid #e2e8f0; padding:8px 14px; border-radius:100px; font-size:13px; font-weight:700; color:var(--tool-text);">
