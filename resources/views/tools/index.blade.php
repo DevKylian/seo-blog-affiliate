@@ -177,9 +177,8 @@
                             @endphp
                             @if($hasEInvoicing)
                                 <div style="margin-top: 12px; display: flex; justify-content: center;">
-                                    <span style="display:inline-flex; align-items:center; gap:4px; font-size:10px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 4px 8px; border-radius: 100px; font-weight: 700; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3); line-height: 1.2; text-align: center;">
-                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                                        Prêt Facture Électro 2026
+                                    <span style="display:inline-flex; align-items:center; font-size:10px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 4px 8px; border-radius: 100px; font-weight: 700; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3); line-height: 1.2; text-align: center;">
+                                        Facture electronique 2026
                                     </span>
                                 </div>
                             @endif
