@@ -151,7 +151,7 @@
                 padding: 32px 24px 24px; 
                 border-bottom: 1px solid #e2e8f0;
             }
-            .reco-badge { left: 50%; transform: translateX(-50%); top: -14px; white-space: nowrap; }
+            .reco-badge { left: 50%; transform: translateX(-50%); top: 0; border-radius: 0 0 8px 8px; white-space: nowrap; }
             .cell-platform { width: 100%; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; }
             
             .mobile-data-grid { display: grid; grid-template-columns: 1fr 1fr; width: 100%; gap: 16px; align-items: center; }
