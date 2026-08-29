@@ -118,7 +118,7 @@ class EnhancedMarkdownParser
         }, $markdown);
 
         // "Ma recommandation" CTA block
-        $markdown = preg_replace_callback('/⭐\s*Ma recommandation[^\n]*\n(.*?)\n\s*\[([^\]]+)\]\(([^)]+)\)/is', function ($matches) {
+        $markdown = preg_replace_callback('/(?:^|\n)#*\s*⭐\s*Ma recommandation\s*\r?\n(.*?)\r?\n\[([^\]]+)\]\(([^)]+)\)/is', function ($matches) {
             $content = Str::markdown(trim($matches[1]));
             $btnText = trim($matches[2]);
             $btnUrl = trim($matches[3]);
