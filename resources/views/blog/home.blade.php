@@ -167,24 +167,10 @@
         <div class="hp-compare-table">
             @php
                 $indyProject = $projects->firstWhere('slug', 'indy');
-                $indyColor = $indyProject->brand_color ?? '#F75A77';
-                $indyTextColor = $indyProject ? $indyProject->brand_text_color : '#ffffff';
-                
                 $tiimeProject = $projects->firstWhere('slug', 'tiime');
-                $tiimeColor = $tiimeProject->brand_color ?? '#F43F5E';
-                $tiimeTextColor = $tiimeProject ? $tiimeProject->brand_text_color : '#ffffff';
-                
                 $shineProject = $projects->firstWhere('slug', 'shine');
-                $shineColor = $shineProject->brand_color ?? '#f97316';
-                $shineTextColor = $shineProject ? $shineProject->brand_text_color : '#ffffff';
-                
                 $abbyProject = $projects->firstWhere('slug', 'abby');
-                $abbyColor = $abbyProject->brand_color ?? '#a855f7';
-                $abbyTextColor = $abbyProject ? $abbyProject->brand_text_color : '#ffffff';
-                
                 $pennylaneProject = $projects->firstWhere('slug', 'pennylane');
-                $pennylaneColor = $pennylaneProject->brand_color ?? '#3b82f6';
-                $pennylaneTextColor = $pennylaneProject ? $pennylaneProject->brand_text_color : '#ffffff';
             @endphp
             
             <div class="hp-compare-header">
@@ -196,18 +182,14 @@
             </div>
 
             <!-- Indy (Recommandé) -->
-            <div class="hp-compare-row is-recommended" style="--home-accent: {{ $indyColor }}; --home-accent-text: {{ $indyTextColor }}; --home-accent-shadow: {{ $indyColor }}4D;">
+            <div class="hp-compare-row is-recommended" style="--home-accent: #ea580c; --home-accent-text: #ffffff; --home-accent-shadow: rgba(234, 88, 12, 0.3);">
                 <div class="reco-badge">
                     <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
                     Recommandée
                 </div>
                 
                 <div class="cell-platform">
-                    @if($indyProject && $indyProject->logo)
-                        <img src="{{ Storage::url($indyProject->logo) }}" alt="Logo Indy" class="cell-platform-logo">
-                    @else
-                        <img src="/images/default-logo.png" alt="Logo Indy" class="cell-platform-logo" style="background: {{ $indyColor }}; padding: 0;">
-                    @endif
+                    <img src="{{ $indyProject ? $indyProject->logo_url : 'https://www.google.com/s2/favicons?domain=indy.fr&sz=128' }}" alt="Logo Indy" class="cell-platform-logo">
                     <div class="cell-platform-info">
                         <h3>Indy</h3>
                         <p>Compta & facturation tout-en-un pour les indépendants</p>
@@ -238,7 +220,7 @@
                 </div>
                 
                 <div class="cell-cta">
-                    <a href="{{ route('tools.show', 'indy') }}" style="--cta-bg: {{ $indyColor }}; --cta-text: {{ $indyTextColor }}; --cta-shadow: {{ $indyColor }}4D;">
+                    <a href="{{ route('tools.show', 'indy') }}" style="--cta-bg: #ea580c; --cta-text: #ffffff; --cta-shadow: rgba(234, 88, 12, 0.3);">
                         Voir l'offre &rarr;
                     </a>
                 </div>
@@ -247,11 +229,7 @@
             <!-- Tiime -->
             <div class="hp-compare-row">
                 <div class="cell-platform">
-                    @if($tiimeProject && $tiimeProject->logo)
-                        <img src="{{ Storage::url($tiimeProject->logo) }}" alt="Logo Tiime" class="cell-platform-logo">
-                    @else
-                        <div class="cell-platform-logo" style="display:flex; align-items:center; justify-content:center; background: #1e293b; color: white; font-weight: 800; font-size: 20px;">T</div>
-                    @endif
+                    <img src="{{ $tiimeProject ? $tiimeProject->logo_url : 'https://www.google.com/s2/favicons?domain=tiime.fr&sz=128' }}" alt="Logo Tiime" class="cell-platform-logo">
                     <div class="cell-platform-info">
                         <h3>Tiime</h3>
                         <p>Tout-en-un freelances, TPE & expert-comptables</p>
@@ -282,7 +260,7 @@
                 </div>
                 
                 <div class="cell-cta">
-                    <a href="{{ route('tools.show', 'tiime') }}" style="--cta-bg: {{ $tiimeColor }}; --cta-text: {{ $tiimeTextColor }}; --cta-shadow: {{ $tiimeColor }}4D;">
+                    <a href="{{ route('tools.show', 'tiime') }}" style="--cta-bg: #ea580c; --cta-text: #ffffff; --cta-shadow: rgba(234, 88, 12, 0.3);">
                         Voir l'offre &rarr;
                     </a>
                 </div>
@@ -291,11 +269,7 @@
             <!-- Shine -->
             <div class="hp-compare-row">
                 <div class="cell-platform">
-                    @if($shineProject && $shineProject->logo)
-                        <img src="{{ Storage::url($shineProject->logo) }}" alt="Logo Shine" class="cell-platform-logo">
-                    @else
-                        <div class="cell-platform-logo" style="display:flex; align-items:center; justify-content:center; background: {{ $shineColor }}; color: white; font-weight: 800; font-size: 20px;">S</div>
-                    @endif
+                    <img src="{{ $shineProject ? $shineProject->logo_url : 'https://www.google.com/s2/favicons?domain=shine.fr&sz=128' }}" alt="Logo Shine" class="cell-platform-logo">
                     <div class="cell-platform-info">
                         <h3>Shine</h3>
                         <p>Néobanque pro avec facturation intégrée &middot; agréée DGFIP</p>
@@ -326,7 +300,7 @@
                 </div>
                 
                 <div class="cell-cta">
-                    <a href="{{ route('tools.show', 'shine') }}" style="--cta-bg: {{ $shineColor }}; --cta-text: {{ $shineTextColor }}; --cta-shadow: {{ $shineColor }}4D;">
+                    <a href="{{ route('tools.show', 'shine') }}" style="--cta-bg: #ea580c; --cta-text: #ffffff; --cta-shadow: rgba(234, 88, 12, 0.3);">
                         Voir l'offre &rarr;
                     </a>
                 </div>
@@ -335,11 +309,7 @@
             <!-- Abby -->
             <div class="hp-compare-row">
                 <div class="cell-platform">
-                    @if($abbyProject && $abbyProject->logo)
-                        <img src="{{ Storage::url($abbyProject->logo) }}" alt="Logo Abby" class="cell-platform-logo">
-                    @else
-                        <div class="cell-platform-logo" style="display:flex; align-items:center; justify-content:center; background: {{ $abbyColor }}; color: white; font-weight: 800; font-size: 20px;">A</div>
-                    @endif
+                    <img src="{{ $abbyProject ? $abbyProject->logo_url : 'https://www.google.com/s2/favicons?domain=app.abby.fr&sz=128' }}" alt="Logo Abby" class="cell-platform-logo">
                     <div class="cell-platform-info">
                         <h3>Abby</h3>
                         <p>Spécialiste micro-entrepreneur &middot; URSSAF, devis en 1 outil</p>
@@ -370,7 +340,7 @@
                 </div>
                 
                 <div class="cell-cta">
-                    <a href="{{ route('tools.show', 'abby') }}" style="--cta-bg: {{ $abbyColor }}; --cta-text: {{ $abbyTextColor }}; --cta-shadow: {{ $abbyColor }}4D;">
+                    <a href="{{ route('tools.show', 'abby') }}" style="--cta-bg: #ea580c; --cta-text: #ffffff; --cta-shadow: rgba(234, 88, 12, 0.3);">
                         Voir l'offre &rarr;
                     </a>
                 </div>
@@ -379,11 +349,7 @@
             <!-- Pennylane -->
             <div class="hp-compare-row">
                 <div class="cell-platform">
-                    @if($pennylaneProject && $pennylaneProject->logo)
-                        <img src="{{ Storage::url($pennylaneProject->logo) }}" alt="Logo Pennylane" class="cell-platform-logo">
-                    @else
-                        <div class="cell-platform-logo" style="display:flex; align-items:center; justify-content:center; background: {{ $pennylaneColor }}; color: white; font-weight: 800; font-size: 20px;">P</div>
-                    @endif
+                    <img src="{{ $pennylaneProject ? $pennylaneProject->logo_url : 'https://www.google.com/s2/favicons?domain=pennylane.com&sz=128' }}" alt="Logo Pennylane" class="cell-platform-logo">
                     <div class="cell-platform-info">
                         <h3>Pennylane</h3>
                         <p>Compta & facturation pour PME travaillant avec un expert-comptable</p>
@@ -414,7 +380,7 @@
                 </div>
                 
                 <div class="cell-cta">
-                    <a href="{{ route('tools.show', 'pennylane') }}" style="--cta-bg: {{ $pennylaneColor }}; --cta-text: {{ $pennylaneTextColor }}; --cta-shadow: {{ $pennylaneColor }}4D;">
+                    <a href="{{ route('tools.show', 'pennylane') }}" style="--cta-bg: #ea580c; --cta-text: #ffffff; --cta-shadow: rgba(234, 88, 12, 0.3);">
                         Voir l'offre &rarr;
                     </a>
                 </div>
