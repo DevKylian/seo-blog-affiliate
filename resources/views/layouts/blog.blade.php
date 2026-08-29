@@ -68,6 +68,7 @@
         $ctaLink = route('tools.index');
         $ctaName = 'Trouver mon logiciel';
         $ctaColor = '#2563eb';
+        $ctaTextColor = '#ffffff';
         $ctaBgColor = '#eff6ff';
         $ctaTextDesktop = "<strong>Trouver le logiciel adapté</strong> à votre métier et vos besoins — <strong>Comparatif 100% indépendant</strong>";
         $ctaTextMobile = "🎯 Trouvez votre logiciel idéal";
@@ -122,6 +123,7 @@
             
             if (str_contains($name, 'indy')) {
                 $ctaColor = '#F75A77';
+                $ctaTextColor = '#ffffff';
                 $ctaBgColor = '#fdf2f8';
                 $ctaTextDesktop = "Indy <strong>automatise votre compta et vos déclarations</strong> — <strong>gratuit</strong> sans limite de temps, sans engagement";
                 $ctaTextMobile = "🎯 Indy : Compta 100% gratuite";
@@ -129,6 +131,7 @@
                 $ctaButtonLabel = "Créer mon compte gratuit &rarr;";
             } elseif (str_contains($name, 'pennylane')) {
                 $ctaColor = '#10B981';
+                $ctaTextColor = '#ffffff';
                 $ctaBgColor = '#ecfdf5';
                 $ctaTextDesktop = "Pennylane : La plateforme tout-en-un pour gérer votre facturation et votre trésorerie";
                 $ctaTextMobile = "🎯 Pennylane : Facturation & Compta intégrées";
@@ -136,6 +139,7 @@
                 $ctaButtonLabel = "Découvrir les offres &rarr;";
             } elseif (str_contains($name, 'shine')) {
                 $ctaColor = '#F59E0B';
+                $ctaTextColor = '#0f172a';
                 $ctaBgColor = '#fffbeb';
                 $ctaTextDesktop = "Shine : Le compte pro en ligne avec outil de facturation intégré pour les indépendants";
                 $ctaTextMobile = "🎯 Shine : Le compte pro qui simplifie tout";
@@ -143,6 +147,7 @@
                 $ctaButtonLabel = "Ouvrir un compte Shine &rarr;";
             } elseif (str_contains($name, 'qonto')) {
                 $ctaColor = '#6366F1';
+                $ctaTextColor = '#ffffff';
                 $ctaBgColor = '#eef2ff';
                 $ctaTextDesktop = "Qonto : Le compte pro leader en Europe pour gérer vos finances d'entreprise";
                 $ctaTextMobile = "🎯 Qonto : Le compte pro européen";
@@ -150,6 +155,7 @@
                 $ctaButtonLabel = "Ouvrir un compte Qonto &rarr;";
             } elseif (str_contains($name, 'blank')) {
                 $ctaColor = '#1E293B';
+                $ctaTextColor = '#ffffff';
                 $ctaBgColor = '#f1f5f9';
                 $ctaTextDesktop = "Blank : Le compte pro du Crédit Agricole pensé pour les indépendants";
                 $ctaTextMobile = "🎯 Blank : Le compte pro par Crédit Agricole";
@@ -157,6 +163,7 @@
                 $ctaButtonLabel = "Ouvrir un compte Blank &rarr;";
             } elseif (str_contains($name, 'tiime')) {
                 $ctaColor = '#F43F5E';
+                $ctaTextColor = '#ffffff';
                 $ctaBgColor = '#fff1f2';
                 $ctaTextDesktop = "Tiime : L'application de facturation et comptabilité ultra simple pour freelances";
                 $ctaTextMobile = "🎯 Tiime : Facturation & Compta simples";
@@ -164,6 +171,7 @@
                 $ctaButtonLabel = "Essayer Tiime &rarr;";
             } elseif (str_contains($name, 'abby')) {
                 $ctaColor = '#8B5CF6';
+                $ctaTextColor = '#ffffff';
                 $ctaBgColor = '#f5f3ff';
                 $ctaTextDesktop = "Abby : Le copilote ultra-simple pour gérer votre micro-entreprise de A à Z";
                 $ctaTextMobile = "🎯 Abby : La gestion simplifiée";
@@ -173,6 +181,10 @@
             
             if (isset($recommendedProject->brand_color) && $recommendedProject->brand_color) {
                 $ctaColor = $recommendedProject->brand_color;
+            }
+            
+            if (isset($recommendedProject->brand_text_color) && $recommendedProject->brand_text_color) {
+                $ctaTextColor = $recommendedProject->brand_text_color;
             }
         }
     @endphp
@@ -196,11 +208,11 @@
         }
     </style>
     <div class="mobile-top-cta no-print" x-data="{ showAlert: true }" x-show="showAlert" style="background: {{ $ctaColor }};">
-        <a href="{{ $ctaLink }}" target="_blank" rel="sponsored nofollow" style="display: flex; justify-content: center; align-items: center; gap: 6px; flex: 1; color: white; text-decoration: none;">
+        <a href="{{ $ctaLink }}" target="_blank" rel="sponsored nofollow" style="display: flex; justify-content: center; align-items: center; gap: 6px; flex: 1; color: {{ $ctaTextColor }}; text-decoration: none;">
             <span>{{ $ctaTextMobile }}</span>
             <span style="text-decoration: underline; margin-left: 6px;">Voir l'offre</span>
         </a>
-        <button type="button" @click="showAlert = false" aria-label="Fermer" style="background: transparent; border: none; color: white; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; opacity: 0.8;">
+        <button type="button" @click="showAlert = false" aria-label="Fermer" style="background: transparent; border: none; color: {{ $ctaTextColor }}; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; opacity: 0.8;">
             <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
     </div>
@@ -226,7 +238,7 @@
                 <a href="{{ route('metiers.index') }}" class="nav-link">Métiers</a>
                 <a href="{{ route('free-tools.index') }}" class="nav-link">Outils gratuits</a>
                 <a href="{{ route('tools.index') }}" class="nav-link">Comparateur</a>
-                <a href="{{ $ctaLink }}" class="nav-cta" style="background: {{ $ctaColor }}; box-shadow: 0 4px 6px {{ $ctaColor }}33;" target="_blank" rel="sponsored nofollow">{{ $ctaHeaderLabel }}</a>
+                <a href="{{ $ctaLink }}" class="nav-cta" style="background: {{ $ctaColor }}; color: {{ $ctaTextColor }}; box-shadow: 0 4px 6px {{ $ctaColor }}33;" target="_blank" rel="sponsored nofollow">{{ $ctaHeaderLabel }}</a>
             </nav>
         </header>
     </div>
@@ -329,7 +341,7 @@
             </button>
         </div>
         <div style="color: #0f172a; font-size: 14px; line-height: 1.5;">{!! $ctaTextDesktop !!}</div>
-        <a href="{{ $ctaLink }}" class="desktop-sticky-cta-btn" style="background: {{ $ctaColor }}; box-shadow: 0 4px 10px {{ $ctaColor }}4D;" target="_blank" rel="sponsored nofollow">
+        <a href="{{ $ctaLink }}" class="desktop-sticky-cta-btn" style="background: {{ $ctaColor }}; color: {{ $ctaTextColor }}; box-shadow: 0 4px 10px {{ $ctaColor }}4D;" target="_blank" rel="sponsored nofollow">
             {!! $ctaButtonLabel !!}
         </a>
     </div>
