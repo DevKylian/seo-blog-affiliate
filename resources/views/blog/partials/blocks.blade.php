@@ -55,14 +55,11 @@
                         <p>{!! nl2br(e(implode("\n", $textLines))) !!}</p>
                     </div>
                     @if(count($bullets) > 0)
-                        <div class="hp-premium-features" style="margin-top: 24px;">
-                            <strong>Fonctionnalités clés</strong>
-                            <ul class="premium-cta-indy__bullets">
+                        <div class="hp-premium-features" style="margin-top: 20px;">
+                            <ul class="premium-cta-indy__bullets" style="display: flex; flex-direction: column; gap: 8px; list-style: none; padding: 0; margin: 0;">
                                 @foreach($bullets as $bullet)
-                                    <li>
-                                        <i style="background: var(--cta-theme); color: var(--cta-text);">
-                                            <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                                        </i>
+                                    <li style="display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: #334155; line-height: 1.4;">
+                                        <svg style="width: 18px; height: 18px; color: var(--cta-theme); flex-shrink: 0; margin-top: 1px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
                                         {{ $bullet }}
                                     </li>
                                 @endforeach
