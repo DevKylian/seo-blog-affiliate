@@ -100,17 +100,17 @@
             background: #f8fafc;
         }
         .hp-compare-row.is-recommended {
-            border-top: 3px solid var(--home-accent);
-            background: #fffcf8;
+            border-top: 3px solid #F75A77; /* Rose Indy */
+            background: #fdf1f3; /* Rose très léger */
         }
         .hp-compare-row.is-recommended:hover {
-            background: #fff7ed;
+            background: #fce4e8; /* Rose très léger au survol */
         }
         .reco-badge {
             position: absolute;
             top: -14px;
             left: 24px;
-            background: var(--home-accent);
+            background: #F75A77;
             color: #fff;
             padding: 4px 12px;
             border-radius: 100px;
@@ -193,7 +193,7 @@
                 <div class="cell-platform">
                     <img src="{{ $indyProject ? $indyProject->logo_url : 'https://www.google.com/s2/favicons?domain=indy.fr&sz=128' }}" alt="Logo Indy" class="cell-platform-logo">
                     <div class="cell-platform-info">
-                        <h3>Indy</h3>
+                        <h3><a href="{{ route('tools.show', 'indy') }}" style="text-decoration: none; color: inherit;">Indy</a></h3>
                         <p>Compta & facturation tout-en-un pour les indépendants</p>
                     </div>
                 </div>
@@ -239,7 +239,7 @@
                 <div class="cell-platform">
                     <img src="{{ $tiimeProject ? $tiimeProject->logo_url : 'https://www.google.com/s2/favicons?domain=tiime.fr&sz=128' }}" alt="Logo Tiime" class="cell-platform-logo">
                     <div class="cell-platform-info">
-                        <h3>Tiime</h3>
+                        <h3><a href="{{ route('tools.show', 'tiime') }}" style="text-decoration: none; color: inherit;">Tiime</a></h3>
                         <p>Tout-en-un freelances, TPE & expert-comptables</p>
                     </div>
                 </div>
@@ -285,7 +285,7 @@
                 <div class="cell-platform">
                     <img src="{{ $shineProject ? $shineProject->logo_url : 'https://www.google.com/s2/favicons?domain=shine.fr&sz=128' }}" alt="Logo Shine" class="cell-platform-logo">
                     <div class="cell-platform-info">
-                        <h3>Shine</h3>
+                        <h3><a href="{{ route('tools.show', 'shine') }}" style="text-decoration: none; color: inherit;">Shine</a></h3>
                         <p>Néobanque pro avec facturation intégrée &middot; agréée DGFIP</p>
                     </div>
                 </div>
@@ -331,7 +331,7 @@
                 <div class="cell-platform">
                     <img src="{{ $abbyProject ? $abbyProject->logo_url : 'https://www.google.com/s2/favicons?domain=app.abby.fr&sz=128' }}" alt="Logo Abby" class="cell-platform-logo">
                     <div class="cell-platform-info">
-                        <h3>Abby</h3>
+                        <h3><a href="{{ route('tools.show', 'abby') }}" style="text-decoration: none; color: inherit;">Abby</a></h3>
                         <p>Spécialiste micro-entrepreneur &middot; URSSAF, devis en 1 outil</p>
                     </div>
                 </div>
@@ -377,7 +377,7 @@
                 <div class="cell-platform">
                     <img src="{{ $pennylaneProject ? $pennylaneProject->logo_url : 'https://www.google.com/s2/favicons?domain=pennylane.com&sz=128' }}" alt="Logo Pennylane" class="cell-platform-logo">
                     <div class="cell-platform-info">
-                        <h3>Pennylane</h3>
+                        <h3><a href="{{ route('tools.show', 'pennylane') }}" style="text-decoration: none; color: inherit;">Pennylane</a></h3>
                         <p>Compta & facturation pour PME travaillant avec un expert-comptable</p>
                     </div>
                 </div>
