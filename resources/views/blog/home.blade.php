@@ -58,128 +58,374 @@
         
         <h2 class="home-section-title">Notre recommandation selon votre situation</h2>
         
-        <div class="home-softwares-list">
+        <style>
+        .hp-compare-table {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            margin-top: 32px;
+        }
+        .hp-compare-header {
+            display: grid;
+            grid-template-columns: 2.5fr 1fr 1fr 1fr 1.2fr;
+            gap: 16px;
+            padding: 20px 24px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 12px;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .hp-compare-row {
+            display: grid;
+            grid-template-columns: 2.5fr 1fr 1fr 1fr 1.2fr;
+            gap: 16px;
+            padding: 24px;
+            align-items: center;
+            border-bottom: 1px solid #f1f5f9;
+            position: relative;
+            transition: background 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+        .hp-compare-row:last-child {
+            border-bottom: none;
+        }
+        .hp-compare-row:hover {
+            background: #f8fafc;
+        }
+        .hp-compare-row.is-recommended {
+            border-top: 3px solid var(--home-accent, #f97316);
+            background: #fffcf8;
+        }
+        .hp-compare-row.is-recommended:hover {
+            background: #fff7ed;
+        }
+        .reco-badge {
+            position: absolute;
+            top: -14px;
+            left: 24px;
+            background: var(--home-accent, #f97316);
+            color: var(--home-accent-text, #fff);
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 4px 6px -1px var(--home-accent-shadow, rgba(249, 115, 22, 0.3));
+        }
+
+        .cell-platform { display: flex; align-items: center; gap: 16px; }
+        .cell-platform-logo { width: 56px; height: 56px; border-radius: 12px; object-fit: contain; border: 1px solid #f1f5f9; background: white; padding: 6px; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .cell-platform-info h3 { font-size: 18px; font-weight: 800; color: #0f172a; margin-bottom: 4px; }
+        .cell-platform-info p { font-size: 13px; color: #64748b; line-height: 1.4; margin: 0; }
+
+        .cell-value { font-size: 15px; color: #0f172a; }
+        .cell-value strong { font-size: 16px; font-weight: 800; display: block; margin-bottom: 2px; }
+        .cell-value small { font-size: 13px; color: #64748b; font-weight: 600; display: block; }
+
+        .cell-rating { display: flex; flex-direction: column; align-items: flex-start; }
+        .rating-badge { display: inline-flex; align-items: center; gap: 4px; background: #fef9c3; color: #854d0e; padding: 4px 10px; border-radius: 100px; font-weight: 800; font-size: 14px; margin-bottom: 4px; }
+        .rating-badge svg { width: 14px; height: 14px; fill: #eab308; }
+        .rating-count { font-size: 12px; color: #64748b; font-weight: 600; }
+
+        .cell-cta a { display: flex; align-items: center; justify-content: center; width: 100%; background: var(--cta-bg, #0f172a); color: var(--cta-text, #fff); font-weight: 700; font-size: 15px; padding: 12px 16px; border-radius: 10px; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 6px -1px var(--cta-shadow, rgba(0,0,0,0.1)); gap: 6px; }
+        .cell-cta a:hover { transform: translateY(-2px); box-shadow: 0 8px 12px -1px var(--cta-shadow, rgba(0,0,0,0.2)); }
+
+        /* Responsive Mobile (Stacked Cards) */
+        @media (max-width: 992px) {
+            .hp-compare-header { display: none; }
+            .hp-compare-row { 
+                display: flex; 
+                flex-direction: column; 
+                align-items: flex-start; 
+                gap: 16px; 
+                padding: 32px 24px 24px; 
+                border-bottom: 1px solid #e2e8f0;
+            }
+            .reco-badge { left: 50%; transform: translateX(-50%); top: -14px; white-space: nowrap; }
+            .cell-platform { width: 100%; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; }
+            
+            .mobile-data-grid { display: grid; grid-template-columns: 1fr 1fr; width: 100%; gap: 16px; align-items: center; }
+            .mobile-data-label { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; display: block; letter-spacing: 0.5px; }
+            
+            .cell-cta { width: 100%; margin-top: 8px; }
+        }
+        @media (min-width: 993px) {
+            .mobile-data-label { display: none; }
+            .mobile-data-grid { display: contents; }
+        }
+        </style>
+        
+        <div class="hp-compare-table">
             @php
                 $indyProject = $projects->firstWhere('slug', 'indy');
                 $indyColor = $indyProject->brand_color ?? '#F75A77';
                 $indyTextColor = $indyProject ? $indyProject->brand_text_color : '#ffffff';
-                $indyTextOnWhite = ($indyTextColor === '#0f172a') ? '#0f172a' : $indyColor;
                 
-                $pennylaneProject = $projects->firstWhere('slug', 'pennylane');
-                $pennylaneColor = $pennylaneProject->brand_color ?? '#3b82f6';
-                $pennylaneTextColor = $pennylaneProject ? $pennylaneProject->brand_text_color : '#ffffff';
-                $pennylaneTextOnWhite = ($pennylaneTextColor === '#0f172a') ? '#0f172a' : $pennylaneColor;
-                
-                $abbyProject = $projects->firstWhere('slug', 'abby');
-                $abbyColor = $abbyProject->brand_color ?? '#a855f7';
-                $abbyTextColor = $abbyProject ? $abbyProject->brand_text_color : '#ffffff';
-                $abbyTextOnWhite = ($abbyTextColor === '#0f172a') ? '#0f172a' : $abbyColor;
+                $tiimeProject = $projects->firstWhere('slug', 'tiime');
+                $tiimeColor = $tiimeProject->brand_color ?? '#F43F5E';
+                $tiimeTextColor = $tiimeProject ? $tiimeProject->brand_text_color : '#ffffff';
                 
                 $shineProject = $projects->firstWhere('slug', 'shine');
                 $shineColor = $shineProject->brand_color ?? '#f97316';
                 $shineTextColor = $shineProject ? $shineProject->brand_text_color : '#ffffff';
-                $shineTextOnWhite = ($shineTextColor === '#0f172a') ? '#0f172a' : $shineColor;
+                
+                $abbyProject = $projects->firstWhere('slug', 'abby');
+                $abbyColor = $abbyProject->brand_color ?? '#a855f7';
+                $abbyTextColor = $abbyProject ? $abbyProject->brand_text_color : '#ffffff';
+                
+                $pennylaneProject = $projects->firstWhere('slug', 'pennylane');
+                $pennylaneColor = $pennylaneProject->brand_color ?? '#3b82f6';
+                $pennylaneTextColor = $pennylaneProject ? $pennylaneProject->brand_text_color : '#ffffff';
             @endphp
             
-            <!-- Notre sélection 1: Indy -->
-            <div class="hp-selection-card" style="--home-accent: {{ $indyColor }}; --home-accent-hover: {{ $indyColor }}; --home-primary: {{ $indyTextOnWhite }}; border-color: var(--home-accent);">
-                <div class="hp-selection-badge" style="background: var(--home-accent); color: {{ $indyTextColor }};">🏆 Notre meilleure recommandation pour les indépendants</div>
-                <div class="hp-selection-content" style="display:flex; flex-wrap:wrap; gap:32px; align-items:center;">
-                    <div style="flex: 1 1 300px;">
-                        <h3 class="hp-selection-title" style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Indy ⭐</h3>
-                          <div style="display:inline-block; margin-top: 8px; margin-bottom: 12px; background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 700; align-items:center; gap: 4px; width: fit-content;">✅ Prêt pour la réforme 2026 (Format Factur-X)</div>
-                        <p style="color:var(--home-muted); font-size:15px; margin-bottom:24px;">Une alternative simple à la comptabilité traditionnelle pour freelances et petites entreprises.</p>
-                        
-                        <ul class="hp-clean-list" style="margin-bottom:16px;">
-                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Devis & Facturation illimités</li>
-                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Déclarations URSSAF & TVA automatiques</li>
-                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Bilan & Liasse Fiscale générés facilement</li>
-                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Compte Pro intégré sans frais cachés</li>
-                        </ul>
+            <div class="hp-compare-header">
+                <div>Plateforme</div>
+                <div>À partir de</div>
+                <div>Essai gratuit</div>
+                <div>Note</div>
+                <div></div>
+            </div>
+
+            <!-- Indy (Recommandé) -->
+            <div class="hp-compare-row is-recommended" style="--home-accent: {{ $indyColor }}; --home-accent-text: {{ $indyTextColor }}; --home-accent-shadow: {{ $indyColor }}4D;">
+                <div class="reco-badge">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                    Recommandée
+                </div>
+                
+                <div class="cell-platform">
+                    @if($indyProject && $indyProject->logo)
+                        <img src="{{ Storage::url($indyProject->logo) }}" alt="Logo Indy" class="cell-platform-logo">
+                    @else
+                        <img src="/images/default-logo.png" alt="Logo Indy" class="cell-platform-logo" style="background: {{ $indyColor }}; padding: 0;">
+                    @endif
+                    <div class="cell-platform-info">
+                        <h3>Indy</h3>
+                        <p>Compta & facturation tout-en-un pour les indépendants</p>
                     </div>
-                    <div class="home-software-action" style="flex: 0 0 220px; display:flex; flex-direction:column;">
-                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-bottom:16px;">
-                            <div style="font-size:18px; font-weight:900; color:var(--home-primary); display:flex; align-items:center; gap:6px;">💰 Dès 0€/mois</div>
-                            <div style="font-size:14px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 9.7/10</div>
+                </div>
+                
+                <div class="mobile-data-grid">
+                    <div class="cell-value">
+                        <span class="mobile-data-label">À partir de</span>
+                        <strong>Gratuit</strong>
+                        <small>Sans engagement</small>
+                    </div>
+                    
+                    <div class="cell-value">
+                        <span class="mobile-data-label">Essai gratuit</span>
+                        <strong>15 jours</strong>
+                        <small>Essai Premium</small>
+                    </div>
+                    
+                    <div class="cell-rating">
+                        <span class="mobile-data-label">Note</span>
+                        <div class="rating-badge">
+                            <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            9.7/10
                         </div>
-                        <a href="{{ route('tools.show', 'indy') }}" class="home-software-btn" style="margin-bottom:12px; width:100%; text-align:center; box-sizing:border-box;">Lire le test complet</a>
-                        <a href="{{ route('affiliate.redirect', 'indy') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: {{ $indyColor }}; color: {{ $indyTextColor }};">Profiter de l'offre gratuite</a>
+                        <div class="rating-count">+14 000 avis</div>
                     </div>
+                </div>
+                
+                <div class="cell-cta">
+                    <a href="{{ route('tools.show', 'indy') }}" style="--cta-bg: {{ $indyColor }}; --cta-text: {{ $indyTextColor }}; --cta-shadow: {{ $indyColor }}4D;">
+                        Voir l'offre &rarr;
+                    </a>
                 </div>
             </div>
 
-            <!-- 2. Pennylane -->
-            <div class="hp-selection-card" style="--home-accent: {{ $pennylaneColor }}; --home-accent-hover: {{ $pennylaneColor }}; --home-primary: {{ $pennylaneTextOnWhite }}; border-color: var(--home-accent); margin-top: 24px;">
-                <div class="hp-selection-badge" style="background: var(--home-accent); color: {{ $pennylaneTextColor }};">🏢 Indispensable pour l'E-commerce, les TPE et la TVA sur marge</div>
-                <div class="hp-selection-content" style="display:flex; flex-wrap:wrap; gap:32px; align-items:center;">
-                    <div style="flex: 1 1 300px;">
-                        <h3 class="hp-selection-title" style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Pennylane <span style="font-size:10px; padding:2px 8px; background:#f1f5f9; border-radius:4px; color:var(--home-muted); text-transform:uppercase; font-weight:700; letter-spacing:0.05em;">Compta + Banque</span></h3>
-                        <p style="color:var(--home-muted); font-size:14px; margin-bottom:16px;">Une solution unifiée pour la gestion financière et comptable des PME.</p>
-                        <ul class="hp-clean-list">
-                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Compte Pro intégré</li>
-                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Devis & Facturation</li>
-                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Partage Expert-Comptable</li>
-                        </ul>
+            <!-- Tiime -->
+            <div class="hp-compare-row">
+                <div class="cell-platform">
+                    @if($tiimeProject && $tiimeProject->logo)
+                        <img src="{{ Storage::url($tiimeProject->logo) }}" alt="Logo Tiime" class="cell-platform-logo">
+                    @else
+                        <div class="cell-platform-logo" style="display:flex; align-items:center; justify-content:center; background: #1e293b; color: white; font-weight: 800; font-size: 20px;">T</div>
+                    @endif
+                    <div class="cell-platform-info">
+                        <h3>Tiime</h3>
+                        <p>Tout-en-un freelances, TPE & expert-comptables</p>
                     </div>
-                    <div class="home-software-action" style="flex: 0 0 220px; display:flex; flex-direction:column;">
-                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-bottom:16px;">
-                            <div style="font-size:18px; font-weight:900; color:var(--home-primary); display:flex; align-items:center; gap:6px;">💰 Dès 14€/mois</div>
-                            <div style="font-size:14px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 9.4/10</div>
+                </div>
+                
+                <div class="mobile-data-grid">
+                    <div class="cell-value">
+                        <span class="mobile-data-label">À partir de</span>
+                        <strong>Gratuit</strong>
+                        <small>Smart 14,90€ / Business</small>
+                    </div>
+                    
+                    <div class="cell-value">
+                        <span class="mobile-data-label">Essai gratuit</span>
+                        <strong>2 mois</strong>
+                        <small>Business offerts</small>
+                    </div>
+                    
+                    <div class="cell-rating">
+                        <span class="mobile-data-label">Note</span>
+                        <div class="rating-badge">
+                            <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            4.8/5
                         </div>
-                        <a href="{{ route('tools.show', 'pennylane') }}" class="home-software-btn" style="margin-bottom:12px; width:100%; text-align:center; box-sizing:border-box;">Lire le test complet</a>
-                        <a href="{{ route('affiliate.redirect', 'pennylane') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: {{ $pennylaneColor }}; color: {{ $pennylaneTextColor }};">Découvrir l'offre</a>
+                        <div class="rating-count">1 510 avis</div>
                     </div>
+                </div>
+                
+                <div class="cell-cta">
+                    <a href="{{ route('tools.show', 'tiime') }}" style="--cta-bg: {{ $tiimeColor }}; --cta-text: {{ $tiimeTextColor }}; --cta-shadow: {{ $tiimeColor }}4D;">
+                        Voir l'offre &rarr;
+                    </a>
                 </div>
             </div>
 
-            <!-- 3. Abby -->
-            <div class="hp-selection-card" style="--home-accent: {{ $abbyColor }}; --home-accent-hover: {{ $abbyColor }}; --home-primary: {{ $abbyTextOnWhite }}; border-color: var(--home-accent); margin-top: 24px;">
-                <div class="hp-selection-badge" style="background: var(--home-accent); color: {{ $abbyTextColor }};">🚀 L'outil gratuit parfait pour les Micro-entrepreneurs purs</div>
-                <div class="hp-selection-content" style="display:flex; flex-wrap:wrap; gap:32px; align-items:center;">
-                    <div style="flex: 1 1 300px;">
-                        <h3 class="hp-selection-title" style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Abby <span style="font-size:10px; padding:2px 8px; background:#f1f5f9; border-radius:4px; color:var(--home-muted); text-transform:uppercase; font-weight:700; letter-spacing:0.05em;">Pour micro-entrepreneurs</span></h3>
-                        <p style="color:var(--home-muted); font-size:14px; margin-bottom:16px;">L'application tout-en-un conçue spécifiquement pour les auto-entrepreneurs.</p>
-                        <ul class="hp-clean-list">
-                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Facturation gratuite</li>
-                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Déclaration URSSAF</li>
-                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Paiement en ligne</li>
-                        </ul>
+            <!-- Shine -->
+            <div class="hp-compare-row">
+                <div class="cell-platform">
+                    @if($shineProject && $shineProject->logo)
+                        <img src="{{ Storage::url($shineProject->logo) }}" alt="Logo Shine" class="cell-platform-logo">
+                    @else
+                        <div class="cell-platform-logo" style="display:flex; align-items:center; justify-content:center; background: {{ $shineColor }}; color: white; font-weight: 800; font-size: 20px;">S</div>
+                    @endif
+                    <div class="cell-platform-info">
+                        <h3>Shine</h3>
+                        <p>Néobanque pro avec facturation intégrée &middot; agréée DGFIP</p>
                     </div>
-                    <div class="home-software-action" style="flex: 0 0 220px; display:flex; flex-direction:column;">
-                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-bottom:16px;">
-                            <div style="font-size:18px; font-weight:900; color:var(--home-primary); display:flex; align-items:center; gap:6px;">💰 Dès 0€/mois</div>
-                            <div style="font-size:14px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 8.8/10</div>
+                </div>
+                
+                <div class="mobile-data-grid">
+                    <div class="cell-value">
+                        <span class="mobile-data-label">À partir de</span>
+                        <strong>Gratuit</strong>
+                        <small>Facturation illimitée</small>
+                    </div>
+                    
+                    <div class="cell-value">
+                        <span class="mobile-data-label">Essai gratuit</span>
+                        <strong>30 jours</strong>
+                        <small>Comptes payants</small>
+                    </div>
+                    
+                    <div class="cell-rating">
+                        <span class="mobile-data-label">Note</span>
+                        <div class="rating-badge">
+                            <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            9.3/10
                         </div>
-                        <a href="{{ route('tools.show', 'abby') }}" class="home-software-btn" style="margin-bottom:12px; width:100%; text-align:center; box-sizing:border-box;">Lire le test complet</a>
-                        <a href="{{ route('affiliate.redirect', 'abby') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: {{ $abbyColor }}; color: {{ $abbyTextColor }};">Découvrir l'offre</a>
+                        <div class="rating-count">8 230 avis</div>
                     </div>
+                </div>
+                
+                <div class="cell-cta">
+                    <a href="{{ route('tools.show', 'shine') }}" style="--cta-bg: {{ $shineColor }}; --cta-text: {{ $shineTextColor }}; --cta-shadow: {{ $shineColor }}4D;">
+                        Voir l'offre &rarr;
+                    </a>
                 </div>
             </div>
 
-            <!-- 4. Shine -->
-            <div class="hp-selection-card" style="--home-accent: {{ $shineColor }}; --home-accent-hover: {{ $shineColor }}; --home-primary: {{ $shineTextOnWhite }}; border-color: var(--home-accent); margin-top: 24px;">
-                <div class="hp-selection-badge" style="background: var(--home-accent); color: {{ $shineTextColor }};">💳 La meilleure banque pro pour VTC, Livreurs et Freelances</div>
-                <div class="hp-selection-content" style="display:flex; flex-wrap:wrap; gap:32px; align-items:center;">
-                    <div style="flex: 1 1 300px;">
-                        <h3 class="hp-selection-title" style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">Shine <span style="font-size:10px; padding:2px 8px; background:#f1f5f9; border-radius:4px; color:var(--home-muted); text-transform:uppercase; font-weight:700; letter-spacing:0.05em;">Compte Pro & Facturation</span></h3>
-                        <p style="color:var(--home-muted); font-size:14px; margin-bottom:16px;">Le compte pro qui offre un outil de facturation intégré et un support premium.</p>
-                        <ul class="hp-clean-list">
-                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Carte Mastercard Business</li>
-                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Outil de devis et facturation inclus</li>
-                            <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Assurances professionnelles</li>
-                        </ul>
-                    </div>
-                    <div class="home-software-action" style="flex: 0 0 220px; display:flex; flex-direction:column;">
-                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-bottom:16px;">
-                            <div style="font-size:18px; font-weight:900; color:var(--home-primary); display:flex; align-items:center; gap:6px;">💰 Dès 0€/mois</div>
-                            <div style="font-size:14px; font-weight:800; color:#eab308; display:flex; align-items:center; gap:4px;">⭐ Note : 9.3/10</div>
-                        </div>
-                        <a href="{{ route('tools.show', 'shine') }}" class="home-software-btn" style="margin-bottom:12px; width:100%; text-align:center; box-sizing:border-box;">Lire le test complet</a>
-                        <a href="{{ route('affiliate.redirect', 'shine') }}" target="_blank" rel="sponsored nofollow" class="home-software-btn hp-btn-primary" style="width:100%; text-align:center; box-sizing:border-box; background: {{ $shineColor }}; color: {{ $shineTextColor }};">Découvrir l'offre</a>
+            <!-- Abby -->
+            <div class="hp-compare-row">
+                <div class="cell-platform">
+                    @if($abbyProject && $abbyProject->logo)
+                        <img src="{{ Storage::url($abbyProject->logo) }}" alt="Logo Abby" class="cell-platform-logo">
+                    @else
+                        <div class="cell-platform-logo" style="display:flex; align-items:center; justify-content:center; background: {{ $abbyColor }}; color: white; font-weight: 800; font-size: 20px;">A</div>
+                    @endif
+                    <div class="cell-platform-info">
+                        <h3>Abby</h3>
+                        <p>Spécialiste micro-entrepreneur &middot; URSSAF, devis en 1 outil</p>
                     </div>
                 </div>
+                
+                <div class="mobile-data-grid">
+                    <div class="cell-value">
+                        <span class="mobile-data-label">À partir de</span>
+                        <strong>0 €/mois</strong>
+                        <small>Offre gratuite</small>
+                    </div>
+                    
+                    <div class="cell-value">
+                        <span class="mobile-data-label">Essai gratuit</span>
+                        <strong>14 jours</strong>
+                        <small>Sans CB</small>
+                    </div>
+                    
+                    <div class="cell-rating">
+                        <span class="mobile-data-label">Note</span>
+                        <div class="rating-badge">
+                            <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            8.8/10
+                        </div>
+                        <div class="rating-count">336 avis</div>
+                    </div>
+                </div>
+                
+                <div class="cell-cta">
+                    <a href="{{ route('tools.show', 'abby') }}" style="--cta-bg: {{ $abbyColor }}; --cta-text: {{ $abbyTextColor }}; --cta-shadow: {{ $abbyColor }}4D;">
+                        Voir l'offre &rarr;
+                    </a>
+                </div>
+            </div>
+
+            <!-- Pennylane -->
+            <div class="hp-compare-row">
+                <div class="cell-platform">
+                    @if($pennylaneProject && $pennylaneProject->logo)
+                        <img src="{{ Storage::url($pennylaneProject->logo) }}" alt="Logo Pennylane" class="cell-platform-logo">
+                    @else
+                        <div class="cell-platform-logo" style="display:flex; align-items:center; justify-content:center; background: {{ $pennylaneColor }}; color: white; font-weight: 800; font-size: 20px;">P</div>
+                    @endif
+                    <div class="cell-platform-info">
+                        <h3>Pennylane</h3>
+                        <p>Compta & facturation pour PME travaillant avec un expert-comptable</p>
+                    </div>
+                </div>
+                
+                <div class="mobile-data-grid">
+                    <div class="cell-value">
+                        <span class="mobile-data-label">À partir de</span>
+                        <strong>14 €/mois</strong>
+                        <small>Indépendant &middot; sans engagement</small>
+                    </div>
+                    
+                    <div class="cell-value">
+                        <span class="mobile-data-label">Essai gratuit</span>
+                        <strong>15 jours</strong>
+                        <small>Tous plans</small>
+                    </div>
+                    
+                    <div class="cell-rating">
+                        <span class="mobile-data-label">Note</span>
+                        <div class="rating-badge">
+                            <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            9.4/10
+                        </div>
+                        <div class="rating-count">1 240 avis</div>
+                    </div>
+                </div>
+                
+                <div class="cell-cta">
+                    <a href="{{ route('tools.show', 'pennylane') }}" style="--cta-bg: {{ $pennylaneColor }}; --cta-text: {{ $pennylaneTextColor }}; --cta-shadow: {{ $pennylaneColor }}4D;">
+                        Voir l'offre &rarr;
+                    </a>
+                </div>
+            </div>
+            
+            <div style="background: #f8fafc; padding: 12px 24px; font-size: 12px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                <span>Tarifs publics 2026 &middot; Avis utilisateurs agrégés (App Store, Trustpilot)</span>
+                <a href="{{ route('tools.index') }}" style="color: #3b82f6; text-decoration: none; font-weight: 700;">Voir le comparateur complet &rarr;</a>
             </div>
         </div>
+
     </section>
 
     <!-- Sélecteur de Métiers Interactif (Alpine.js) -->
