@@ -65,24 +65,25 @@
             border-radius: 20px;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
             overflow: hidden;
-            margin-top: 32px;
+            margin: 32px auto 0;
+            max-width: 1150px;
         }
         .hp-compare-header {
             display: grid;
-            grid-template-columns: 2.5fr 1fr 1fr 1fr 1.2fr;
+            grid-template-columns: 2.2fr 0.9fr 0.9fr 1.1fr 0.8fr 1.1fr;
             gap: 16px;
             padding: 20px 24px;
             background: #f8fafc;
             border-bottom: 1px solid #e2e8f0;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 800;
             color: #64748b;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
         .hp-compare-row {
             display: grid;
-            grid-template-columns: 2.5fr 1fr 1fr 1fr 1.2fr;
+            grid-template-columns: 2.2fr 0.9fr 0.9fr 1.1fr 0.8fr 1.1fr;
             gap: 16px;
             padding: 24px;
             align-items: center;
@@ -99,7 +100,7 @@
             background: #f8fafc;
         }
         .hp-compare-row.is-recommended {
-            border-top: 3px solid var(--home-accent, #f97316);
+            border-top: 3px solid var(--home-accent);
             background: #fffcf8;
         }
         .hp-compare-row.is-recommended:hover {
@@ -109,8 +110,8 @@
             position: absolute;
             top: -14px;
             left: 24px;
-            background: var(--home-accent, #f97316);
-            color: var(--home-accent-text, #fff);
+            background: var(--home-accent);
+            color: #fff;
             padding: 4px 12px;
             border-radius: 100px;
             font-size: 11px;
@@ -119,7 +120,7 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            box-shadow: 0 4px 6px -1px var(--home-accent-shadow, rgba(249, 115, 22, 0.3));
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         .cell-platform { display: flex; align-items: center; gap: 16px; }
@@ -128,16 +129,16 @@
         .cell-platform-info p { font-size: 13px; color: #64748b; line-height: 1.4; margin: 0; }
 
         .cell-value { font-size: 15px; color: #0f172a; }
-        .cell-value strong { font-size: 16px; font-weight: 800; display: block; margin-bottom: 2px; }
-        .cell-value small { font-size: 13px; color: #64748b; font-weight: 600; display: block; }
+        .cell-value strong { font-size: 15px; font-weight: 800; display: block; margin-bottom: 2px; }
+        .cell-value small { font-size: 12px; color: #64748b; font-weight: 600; display: block; }
 
         .cell-rating { display: flex; flex-direction: column; align-items: flex-start; }
         .rating-badge { display: inline-flex; align-items: center; gap: 4px; background: #fef9c3; color: #854d0e; padding: 4px 10px; border-radius: 100px; font-weight: 800; font-size: 14px; margin-bottom: 4px; }
         .rating-badge svg { width: 14px; height: 14px; fill: #eab308; }
-        .rating-count { font-size: 12px; color: #64748b; font-weight: 600; }
+        .rating-count { font-size: 11px; color: #64748b; font-weight: 600; }
 
-        .cell-cta a { display: flex; align-items: center; justify-content: center; width: 100%; background: var(--cta-bg, #0f172a); color: var(--cta-text, #fff); font-weight: 700; font-size: 15px; padding: 12px 16px; border-radius: 10px; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 6px -1px var(--cta-shadow, rgba(0,0,0,0.1)); gap: 6px; }
-        .cell-cta a:hover { transform: translateY(-2px); box-shadow: 0 8px 12px -1px var(--cta-shadow, rgba(0,0,0,0.2)); }
+        .cell-cta a { display: flex; align-items: center; justify-content: center; width: 100%; background: var(--home-primary); color: #fff; font-weight: 700; font-size: 14px; padding: 12px 16px; border-radius: 10px; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); gap: 6px; }
+        .cell-cta a:hover { transform: translateY(-2px); box-shadow: 0 8px 12px -1px rgba(0,0,0,0.2); }
 
         /* Responsive Mobile (Stacked Cards) */
         @media (max-width: 992px) {
@@ -177,12 +178,13 @@
                 <div>Plateforme</div>
                 <div>À partir de</div>
                 <div>Essai gratuit</div>
+                <div>Facturation 2026</div>
                 <div>Note</div>
                 <div></div>
             </div>
 
             <!-- Indy (Recommandé) -->
-            <div class="hp-compare-row is-recommended" style="--home-accent: #ea580c; --home-accent-text: #ffffff; --home-accent-shadow: rgba(234, 88, 12, 0.3);">
+            <div class="hp-compare-row is-recommended">
                 <div class="reco-badge">
                     <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
                     Recommandée
@@ -209,6 +211,12 @@
                         <small>Essai Premium</small>
                     </div>
                     
+                    <div class="cell-value">
+                        <span class="mobile-data-label">Facturation 2026</span>
+                        <strong style="color: #16a34a; display: flex; align-items: center; gap: 4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Prêt (PDP)</strong>
+                        <small>Format Factur-X</small>
+                    </div>
+                    
                     <div class="cell-rating">
                         <span class="mobile-data-label">Note</span>
                         <div class="rating-badge">
@@ -220,7 +228,7 @@
                 </div>
                 
                 <div class="cell-cta">
-                    <a href="{{ route('tools.show', 'indy') }}" style="--cta-bg: #ea580c; --cta-text: #ffffff; --cta-shadow: rgba(234, 88, 12, 0.3);">
+                    <a href="{{ route('tools.show', 'indy') }}">
                         Voir l'offre &rarr;
                     </a>
                 </div>
@@ -249,6 +257,12 @@
                         <small>Business offerts</small>
                     </div>
                     
+                    <div class="cell-value">
+                        <span class="mobile-data-label">Facturation 2026</span>
+                        <strong style="color: #16a34a; display: flex; align-items: center; gap: 4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Compatible</strong>
+                        <small>Devis & Factures</small>
+                    </div>
+                    
                     <div class="cell-rating">
                         <span class="mobile-data-label">Note</span>
                         <div class="rating-badge">
@@ -260,7 +274,7 @@
                 </div>
                 
                 <div class="cell-cta">
-                    <a href="{{ route('tools.show', 'tiime') }}" style="--cta-bg: #ea580c; --cta-text: #ffffff; --cta-shadow: rgba(234, 88, 12, 0.3);">
+                    <a href="{{ route('tools.show', 'tiime') }}">
                         Voir l'offre &rarr;
                     </a>
                 </div>
@@ -289,6 +303,12 @@
                         <small>Comptes payants</small>
                     </div>
                     
+                    <div class="cell-value">
+                        <span class="mobile-data-label">Facturation 2026</span>
+                        <strong style="color: #16a34a; display: flex; align-items: center; gap: 4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Intégré</strong>
+                        <small>Outil inclus</small>
+                    </div>
+                    
                     <div class="cell-rating">
                         <span class="mobile-data-label">Note</span>
                         <div class="rating-badge">
@@ -300,7 +320,7 @@
                 </div>
                 
                 <div class="cell-cta">
-                    <a href="{{ route('tools.show', 'shine') }}" style="--cta-bg: #ea580c; --cta-text: #ffffff; --cta-shadow: rgba(234, 88, 12, 0.3);">
+                    <a href="{{ route('tools.show', 'shine') }}">
                         Voir l'offre &rarr;
                     </a>
                 </div>
@@ -329,6 +349,12 @@
                         <small>Sans CB</small>
                     </div>
                     
+                    <div class="cell-value">
+                        <span class="mobile-data-label">Facturation 2026</span>
+                        <strong style="color: #16a34a; display: flex; align-items: center; gap: 4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Prêt</strong>
+                        <small>Conforme 2026</small>
+                    </div>
+                    
                     <div class="cell-rating">
                         <span class="mobile-data-label">Note</span>
                         <div class="rating-badge">
@@ -340,7 +366,7 @@
                 </div>
                 
                 <div class="cell-cta">
-                    <a href="{{ route('tools.show', 'abby') }}" style="--cta-bg: #ea580c; --cta-text: #ffffff; --cta-shadow: rgba(234, 88, 12, 0.3);">
+                    <a href="{{ route('tools.show', 'abby') }}">
                         Voir l'offre &rarr;
                     </a>
                 </div>
@@ -369,6 +395,12 @@
                         <small>Tous plans</small>
                     </div>
                     
+                    <div class="cell-value">
+                        <span class="mobile-data-label">Facturation 2026</span>
+                        <strong style="color: #16a34a; display: flex; align-items: center; gap: 4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> PDP certifiée</strong>
+                        <small>Immatriculée</small>
+                    </div>
+                    
                     <div class="cell-rating">
                         <span class="mobile-data-label">Note</span>
                         <div class="rating-badge">
@@ -380,7 +412,7 @@
                 </div>
                 
                 <div class="cell-cta">
-                    <a href="{{ route('tools.show', 'pennylane') }}" style="--cta-bg: #ea580c; --cta-text: #ffffff; --cta-shadow: rgba(234, 88, 12, 0.3);">
+                    <a href="{{ route('tools.show', 'pennylane') }}">
                         Voir l'offre &rarr;
                     </a>
                 </div>
@@ -388,7 +420,7 @@
             
             <div style="background: #f8fafc; padding: 12px 24px; font-size: 12px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
                 <span>Tarifs publics 2026 &middot; Avis utilisateurs agrégés (App Store, Trustpilot)</span>
-                <a href="{{ route('tools.index') }}" style="color: #3b82f6; text-decoration: none; font-weight: 700;">Voir le comparateur complet &rarr;</a>
+                <a href="{{ route('tools.index') }}" style="color: var(--home-primary); text-decoration: none; font-weight: 700;">Voir le comparateur complet &rarr;</a>
             </div>
         </div>
 
