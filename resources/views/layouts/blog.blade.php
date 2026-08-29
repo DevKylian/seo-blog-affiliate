@@ -243,6 +243,7 @@
             </nav>
         </header>
     </div>
+    </div>
     <main>@yield('content')</main>
     <footer class="blog-footer">
         <div class="footer-wrapper" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 48px; width: 100%; margin-bottom: 48px;">
