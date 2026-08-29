@@ -170,6 +170,10 @@
                 $ctaHeaderLabel = "Découvrir Abby";
                 $ctaButtonLabel = "Essayer Abby &rarr;";
             }
+            
+            if (isset($recommendedProject->brand_color) && $recommendedProject->brand_color) {
+                $ctaColor = $recommendedProject->brand_color;
+            }
         }
     @endphp
     <!-- Top Alert Banner for Mobile -->
