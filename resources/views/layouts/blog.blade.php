@@ -60,10 +60,6 @@
     <script defer src="https://cloud.umami.is/script.js" data-website-id="f009de17-3390-42ab-8741-cc2362bd5cc1"></script>
 </head>
 <body class="blog-body">
-<div class="no-print" style="background-color: #0f172a; color: #e2e8f0; text-align: center; padding: 8px 16px; font-weight: 600; font-size: 13px; position: relative; z-index: 40;">
-    📢 1er septembre 2026 : La réception des factures électroniques devient obligatoire. 
-    <a href="/outils" style="color: #60a5fa; text-decoration: none; font-weight: 800; margin-left: 8px; transition: color 0.2s;" onmouseover="this.style.color='#93c5fd'" onmouseout="this.style.color='#60a5fa'">Trouvez votre plateforme conforme &rarr;</a>
-</div>
     @php
         $ctaLink = route('tools.index');
         $ctaName = 'Trouver mon logiciel';
@@ -216,8 +212,13 @@
             <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
     </div>
-    <div class="no-print" style="position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(226, 232, 240, 0.8); width: 100%;">
-        <header x-data="{ mobileMenuOpen: false }" style="display: flex; align-items: center; justify-content: space-between; max-width: 1050px; margin: 0 auto; flex-wrap: wrap; height: auto; min-height: 78px; padding: 16px 24px;">
+    <div class="no-print" style="position: sticky; top: 0; z-index: 50; width: 100%; display: flex; flex-direction: column;">
+        <div style="background-color: #0f172a; color: #e2e8f0; text-align: center; padding: 8px 16px; font-weight: 600; font-size: 13px;">
+            📢 1er septembre 2026 : La réception des factures électroniques devient obligatoire. 
+            <a href="/outils" style="color: #60a5fa; text-decoration: none; font-weight: 800; margin-left: 8px; transition: color 0.2s;" onmouseover="this.style.color='#93c5fd'" onmouseout="this.style.color='#60a5fa'">Trouvez votre plateforme conforme &rarr;</a>
+        </div>
+        <div style="background: rgba(255,255,255,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(226, 232, 240, 0.8); width: 100%;">
+            <header x-data="{ mobileMenuOpen: false }" style="display: flex; align-items: center; justify-content: space-between; max-width: 1050px; margin: 0 auto; flex-wrap: wrap; height: auto; min-height: 78px; padding: 16px 24px;">
             
             <!-- LOGO -->
             <a class="brand public-brand" href="{{ route('home') }}" style="text-decoration: none; display: flex; align-items: center; gap: 11px;">
