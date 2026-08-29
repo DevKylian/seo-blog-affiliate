@@ -117,33 +117,6 @@ class EnhancedMarkdownParser
             return $html;
         }, $markdown);
 
-        // "Ma recommandation" CTA block
-        $markdown = preg_replace_callback('/(?:^|\n)#*\s*⭐\s*Ma recommandation\s*\r?\n(.*?)\r?\n\[([^\]]+)\]\(([^)]+)\)/is', function ($matches) {
-            $content = Str::markdown(trim($matches[1]));
-            $btnText = trim($matches[2]);
-            $btnUrl = trim($matches[3]);
-            
-            return "<div class=\"premium-reco-block no-print\">
-                <style>
-                    .premium-reco-block { background: linear-gradient(145deg, #ffffff, #f8fafc); border: 1px solid #e2e8f0; border-radius: 24px; padding: 48px 32px; margin: 48px 0; text-align: center; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
-                    .premium-reco-block::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899); }
-                    .premium-reco-icon { display: inline-flex; align-items: center; justify-content: center; width: 72px; height: 72px; background: #eff6ff; border-radius: 50%; color: #3b82f6; margin-bottom: 24px; box-shadow: 0 0 0 10px rgba(239,246,255,0.6); }
-                    .premium-reco-title { color: #0f172a; font-size: 28px; font-weight: 800; margin-bottom: 16px; font-family: 'Manrope', sans-serif; letter-spacing: -0.5px; }
-                    .premium-reco-text { color: #475569; font-size: 16px; line-height: 1.8; margin-bottom: 32px; max-width: 650px; margin-left: auto; margin-right: auto; }
-                    .premium-reco-text p { margin-bottom: 16px; }
-                    .premium-reco-text p:last-child { margin-bottom: 0; }
-                    .premium-reco-btn { display: inline-flex; align-items: center; justify-content: center; background: #0f172a; color: white !important; font-weight: 700; font-size: 16px; padding: 16px 32px; border-radius: 12px; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 10px 20px rgba(15,23,42,0.2); }
-                    .premium-reco-btn:hover { transform: translateY(-2px); box-shadow: 0 15px 25px rgba(15,23,42,0.3); }
-                </style>
-                <div class=\"premium-reco-icon\">
-                    <svg width=\"32\" height=\"32\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\" stroke-width=\"2.5\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M5 13l4 4L19 7\"></path></svg>
-                </div>
-                <h3 class=\"premium-reco-title\">Ma recommandation</h3>
-                <div class=\"premium-reco-text\">{$content}</div>
-                <a href=\"{$btnUrl}\" class=\"premium-reco-btn\" target=\"_blank\" rel=\"sponsored noopener\">{$btnText}</a>
-            </div>\n\n";
-        }, $markdown);
-
         return $markdown;
     }
 
