@@ -102,6 +102,18 @@ class Articles extends Component
         $this->message = 'Exception enregistrée. Le contenu reste visible et son score est conservé.';
     }
 
+    public function publishSelected(): void
+    {
+        $ids = array_intersect($this->normalizedSelectedIds(), $this->bulkSelectionIds());
+        $count = Article::query()->whereIn('id', $ids)->update([
+            'status' => 'published',
+            'published_at' => now(),
+        ]);
+        $this->resetBulkSelection();
+        $this->message = "{$count} article(s) publié(s) avec succès.";
+        $this->resetPage();
+    }
+
     public function deleteSelected(): void
     {
         $ids = array_intersect($this->normalizedSelectedIds(), $this->bulkSelectionIds());

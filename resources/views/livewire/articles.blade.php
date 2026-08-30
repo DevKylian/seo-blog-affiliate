@@ -24,7 +24,7 @@
                 <div class="search-box"><span>⌕</span><input wire:model.live.debounce.300ms="search" type="search" placeholder="Rechercher…"></div>
             </div>
         </div>
-        @if($selectedIds)<div class="bulk-toolbar"><strong>{{ count($selectedIds) }} sélectionné(s)</strong><button type="button" wire:click="clearSelection">Annuler</button><button class="danger" type="button" wire:click="deleteSelected" wire:confirm="Supprimer définitivement les articles sélectionnés, y compris leurs versions et relations ?">Supprimer</button></div>@endif
+        @if($selectedIds)<div class="bulk-toolbar"><strong>{{ count($selectedIds) }} sélectionné(s)</strong><button type="button" wire:click="clearSelection">Annuler</button><button type="button" style="background: #10b981; color: white; border-color: #10b981;" wire:click="publishSelected" wire:confirm="Publier les articles sélectionnés maintenant ?">Publier</button><button class="danger" type="button" wire:click="deleteSelected" wire:confirm="Supprimer définitivement les articles sélectionnés, y compris leurs versions et relations ?">Supprimer</button></div>@endif
         @if($massView)
         <div x-data="{
             copyAll() {
