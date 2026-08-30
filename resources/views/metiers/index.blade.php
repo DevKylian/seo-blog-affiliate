@@ -64,17 +64,19 @@
                         </div>
                         <p style="margin: 0 0 16px 0; font-size: 13px; color: #475569; line-height: 1.4;" x-text="job.outils_recommandes[0]?.argumentaire"></p>
                         
-                        <a :href="getAffiliateLink(job.outils_recommandes[0]?.nom)" target="_blank" rel="sponsored nofollow"
-                           :style="`display: block; width: 100%; text-align: center; background: ${getToolColor(job.outils_recommandes[0]?.nom).badge}; color: ${getToolColor(job.outils_recommandes[0]?.nom).text}; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none; transition: opacity 0.2s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 8px;`"
-                           onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
-                            Essayer gratuitement →
-                        </a>
-                        
-                        <a :href="getHubLink(job.nom)"
-                           style="display: block; width: 100%; text-align: center; background: transparent; color: #475569; border: 1px solid #cbd5e1; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none; transition: all 0.2s; margin-top: auto;"
-                           onmouseover="this.style.background='#f1f5f9'; this.style.borderColor='#94a3b8'; this.style.color='#0f172a'" onmouseout="this.style.background='transparent'; this.style.borderColor='#cbd5e1'; this.style.color='#475569'">
-                            Voir le guide complet
-                        </a>
+                        <div style="margin-top: auto; display: flex; flex-direction: column; gap: 8px;">
+                            <a :href="getAffiliateLink(job.outils_recommandes[0]?.nom)" target="_blank" rel="sponsored nofollow"
+                               :style="`display: block; width: 100%; text-align: center; background: ${getToolColor(job.outils_recommandes[0]?.nom).badge}; color: ${getToolColor(job.outils_recommandes[0]?.nom).text}; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none; transition: opacity 0.2s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);`"
+                               onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                                Essayer gratuitement →
+                            </a>
+                            
+                            <a :href="getHubLink(job.nom)"
+                               style="display: block; width: 100%; text-align: center; background: transparent; color: #475569; border: 1px solid #cbd5e1; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none; transition: all 0.2s;"
+                               onmouseover="this.style.background='#f1f5f9'; this.style.borderColor='#94a3b8'; this.style.color='#0f172a'" onmouseout="this.style.background='transparent'; this.style.borderColor='#cbd5e1'; this.style.color='#475569'">
+                                Voir le guide complet
+                            </a>
+                        </div>
                     </div>
 
                 </div>
