@@ -46,7 +46,7 @@
             'name' => 'Pennylane',
             'logo' => 'P',
             'domain' => 'pennylane.com',
-            'price' => '14€ / mois',
+            'price' => '7€ / mois',
             'isFree' => false,
             'hasIa' => true,
             'isSasu' => true,

@@ -128,7 +128,7 @@
                     Pennylane (Note : 9.4/10)</h4>
                 <ul style="list-style: none; padding: 0; line-height: 1.6; font-size: 15px;">
                     <li><strong>Prix (20%) :</strong> <span style="color: #10b981; font-weight: bold;">9/10</span> (Très compétitif
-                        dès 14€/mois)</li>
+                        dès 7€/mois)</li>
                     <li><strong>Fonctionnalités (25%) :</strong> <span
                             style="color: #10b981; font-weight: bold;">10/10</span> (Vraie gestion d'engagement et stocks)
                     </li>
