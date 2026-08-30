@@ -565,8 +565,9 @@ final class EditorialDuplicateDetector
         return $type === 'pricing' || $intent === 'transactional' ? 'decision' : 'consideration';
     }
 
-    private function uniquePromise(string $product, string $topic, string $audience): string
+    private function uniquePromise(?string $product, string $topic, string $audience): string
     {
+        $product = $product ?? 'le logiciel';
         return match ($topic) {
             'pipeline-commercial' => "guider la configuration du premier pipeline commercial dans {$product}",
             'suivi-prospects' => "automatiser les relances et le suivi des prospects dans {$product}",
