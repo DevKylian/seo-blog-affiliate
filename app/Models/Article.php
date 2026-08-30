@@ -132,7 +132,7 @@ class Article extends Model
             'best_tools' => route('best-tools.show', $this->slug),
             'review' => route('reviews.show', $this->slug),
             'guide' => route('guides.show', $this->slug),
-            'pilier' => route('hubs.show', $this->slug),
+            'pilier', 'metier' => route('hubs.show', $this->slug),
             default => route('blog.show', $this->slug),
         };
     }
@@ -145,7 +145,7 @@ class Article extends Model
             'best_tools' => route('best-tools.show', $this->slug, false),
             'review' => route('reviews.show', $this->slug, false),
             'guide' => route('guides.show', $this->slug, false),
-            'pilier' => route('hubs.show', $this->slug, false),
+            'pilier', 'metier' => route('hubs.show', $this->slug, false),
             default => route('blog.show', $this->slug, false),
         };
     }
