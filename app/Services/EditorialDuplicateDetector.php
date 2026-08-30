@@ -173,14 +173,10 @@ final class EditorialDuplicateDetector
         return [
             'entity_key' => $blueprint['entity'],
             'topic_key' => $blueprint['topic'],
-            'content_angle' => $blueprint['angle'],
-            'editorial_audience' => $blueprint['audience'],
             'funnel_stage' => $blueprint['funnel_stage'],
             'topic_fingerprint' => $blueprint['fingerprint'],
-            'unique_promise' => $blueprint['unique_promise'],
             'editorial_problem' => $blueprint['problem'] ?? null,
             'expected_outcome' => $blueprint['expected_outcome'] ?? null,
-            'excluded_topics' => $blueprint['excluded_topics'],
         ];
     }
 
