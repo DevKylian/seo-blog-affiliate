@@ -103,7 +103,7 @@ class ArticleEditor extends Component
             }],
             'body' => ['required', 'string', 'min:50'],
             'status' => ['required', 'in:draft,review,scheduled,published,archived'],
-            'type' => ['required', 'in:tool_review,pricing,comparison,best_tools,alternatives,informational,question,pilier'],
+            'type' => ['required', 'in:tool_review,pricing,comparison,best_tools,alternatives,informational,question,pilier,metier'],
             'scheduledAt' => ['nullable', 'date'],
             'toolIds' => ['array'],
             'toolIds.*' => ['exists:seo_projects,id'],
