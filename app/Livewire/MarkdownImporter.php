@@ -22,7 +22,8 @@ class MarkdownImporter extends Component
         $count = 0;
         foreach ($this->markdownFiles as $file) {
             $content = file_get_contents($file->getRealPath());
-            $service->import($content);
+            $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $service->import($content, $filename);
             $count++;
         }
 

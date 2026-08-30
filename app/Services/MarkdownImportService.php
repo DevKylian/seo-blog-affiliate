@@ -10,7 +10,7 @@ use Carbon\Carbon;
 
 class MarkdownImportService
 {
-    public function import(string $content): Article
+    public function import(string $content, ?string $filename = null): Article
     {
         $yaml = [];
         $body = $content;
@@ -35,7 +35,7 @@ class MarkdownImportService
             $body = preg_replace('/^#\s+.+\s*$/m', '', $body, 1);
         }
 
-        $slug = !empty($yaml['slug']) ? Str::slug($yaml['slug']) : Str::slug($title);
+        $slug = !empty($yaml['slug']) ? Str::slug($yaml['slug']) : ($filename ? Str::slug($filename) : Str::slug($title));
         $originalSlug = $slug;
         $counter = 1;
         while (Article::where('slug', $slug)->exists()) {
