@@ -15,13 +15,13 @@ final class EditorialDuplicateDetector
         private readonly CompetitorCatalog $competitors,
     ) {}
 
-    public function blueprint(SeoProject $project, ?Keyword $keyword, string $type): array
+    public function blueprint(?SeoProject $project, ?Keyword $keyword, string $type): array
     {
         $keywordValue = trim((string) $keyword?->keyword);
         $topic = $this->topicKey($keywordValue, $type);
         $crmDomain = str_contains($topic, 'crm')
             || preg_match('/crm|clients?|prospects?|leads?|pipeline|commercial/iu', $keywordValue) === 1;
-        $entity = Str::slug($project->name).($crmDomain ? '-crm' : '');
+        $entity = Str::slug($project?->name).($crmDomain ? '-crm' : '');
         $intent = $this->intent($keyword, $type);
         $audience = $this->audience($keywordValue);
         $angle = $this->angle($topic, $type);
@@ -34,8 +34,8 @@ final class EditorialDuplicateDetector
             'angle' => $angle,
             'funnel_stage' => $this->funnelStage($intent, $type),
             'primary_keyword' => $keywordValue,
-            'unique_promise' => $this->uniquePromise($project->name, $topic, $audience),
-            'problem' => $this->uniquePromise($project->name, $topic, $audience),
+            'unique_promise' => $this->uniquePromise($project?->name, $topic, $audience),
+            'problem' => $this->uniquePromise($project?->name, $topic, $audience),
             'expected_outcome' => $this->expectedOutcome($topic),
             'excluded_topics' => $this->excludedTopics($topic, $type),
             'outline' => [],
