@@ -35,7 +35,7 @@ class MarkdownImportService
             $body = preg_replace('/^#\s+.+\s*$/m', '', $body, 1);
         }
 
-        $slug = Str::slug($title);
+        $slug = !empty($yaml['slug']) ? Str::slug($yaml['slug']) : Str::slug($title);
         $originalSlug = $slug;
         $counter = 1;
         while (Article::where('slug', $slug)->exists()) {
