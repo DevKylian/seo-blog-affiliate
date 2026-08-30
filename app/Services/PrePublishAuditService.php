@@ -201,10 +201,7 @@ final class PrePublishAuditService
             $complianceScore -= 25;
             $recommendations[] = 'Le contenu contient une affirmation réglementaire sans claim légal vérifié.';
         }
-        if ($this->hasUnlabeledSimulation($body)) {
-            $complianceScore -= 20;
-            $blockers[] = 'Une simulation chiffrée doit être explicitement indiquée comme fictive ou illustrative.';
-        }
+
         $accentWarnings = $this->missingFrenchAccents($body);
         if ($accentWarnings >= 8) {
             $complianceScore -= 20;
