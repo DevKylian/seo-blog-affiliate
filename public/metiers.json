@@ -1,962 +1,962 @@
 [
-  {
-    "nom": "Médecin Généraliste",
-    "emoji": "🩺",
-    "statuts": [
-      "EI (BNC)",
-      "SELARL",
-      "SELAS"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Pensé pour le médical. Automatise la liasse 2035 et l'agrégation bancaire sécurisée (ACPR).",
-    "tool_link": "/go/indy",
-    "category": "Santé & Bien-être"
-  },
-  {
-    "nom": "Infirmier Libéral (IDEL)",
-    "emoji": "💉",
-    "statuts": [
-      "Micro-entreprise",
-      "EI (BNC)",
-      "SELARL"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Le standard pour les IDEL. Zéro saisie et gestion parfaite des indemnités kilométriques.",
-    "tool_link": "/go/indy",
-    "category": "Santé & Bien-être"
-  },
-  {
-    "nom": "Kinésithérapeute",
-    "emoji": "🦴",
-    "statuts": [
-      "Micro-entreprise",
-      "EI (BNC)",
-      "SELARL"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Automatise le rapprochement bancaire et la 2035 pour les kinés.",
-    "tool_link": "/go/indy",
-    "category": "Santé & Bien-être"
-  },
-  {
-    "nom": "Ostéopathe",
-    "emoji": "💆",
-    "statuts": [
-      "Micro-entreprise",
-      "EI (BNC)"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Parfait pour la gestion BNC exonérée de TVA. App à partir de 0€.",
-    "tool_link": "/go/indy",
-    "category": "Santé & Bien-être"
-  },
-  {
-    "nom": "Psychologue",
-    "emoji": "🧠",
-    "statuts": [
-      "Micro-entreprise",
-      "EI (BNC)"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Catégorise automatiquement les frais récurrents comme Doctolib.",
-    "tool_link": "/go/indy",
-    "category": "Santé & Bien-être"
-  },
-  {
-    "nom": "Orthophoniste",
-    "emoji": "🗣️",
-    "statuts": [
-      "EI (BNC)"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Gestion simplifiée des dépenses déductibles BNC sans paperasse.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Sage-femme libérale",
-    "emoji": "👶",
-    "statuts": [
-      "EI (BNC)",
-      "Micro-entreprise"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Gère parfaitement les tournées à domicile et la déclaration 2035.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Chirurgien-dentiste",
-    "emoji": "🦷",
-    "statuts": [
-      "EI (BNC)",
-      "SELARL"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Amortissements faciles pour les fauteuils et équipements.",
-    "tool_link": "/go/indy",
-    "category": "Santé & Bien-être"
-  },
-  {
-    "nom": "Vétérinaire",
-    "emoji": "🐕",
-    "statuts": [
-      "BNC",
-      "SELARL",
-      "SCP"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Automatisation parfaite pour les BNC classiques, liasse 2035 générée en 1 clic.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Pédicure-Podologue",
-    "emoji": "🦶",
-    "statuts": [
-      "BNC",
-      "Micro-BNC"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Le standard absolu pour gérer sa 2035 sans expert-comptable.",
-    "tool_link": "/go/indy",
-    "category": "Santé & Bien-être"
-  },
-  {
-    "nom": "Coach Sportif",
-    "emoji": "🏋️",
-    "statuts": [
-      "Micro-entreprise",
-      "EI (BNC)"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Idéal pour déduire les locations de salle. Justificatifs numérisés certifiés.",
-    "tool_link": "/go/indy",
-    "category": "Conseil & Services"
-  },
-  {
-    "nom": "Sophrologue",
-    "emoji": "🧘",
-    "statuts": [
-      "Micro-entreprise",
-      "EI (BNC)"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Automatisation des déclarations sociales avec compte pro gratuit inclus.",
-    "tool_link": "/go/indy",
-    "category": "Santé & Bien-être"
-  },
-  {
-    "nom": "Diététicien",
-    "emoji": "🥗",
-    "statuts": [
-      "Micro-entreprise",
-      "EI (BNC)"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Compta 100% en ligne adaptée aux téléconsultations, 0 saisie.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Psychothérapeute",
-    "emoji": "🛋️",
-    "statuts": [
-      "BNC",
-      "Micro-BNC"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Zero paperasse, synchronisation bancaire directe.",
-    "tool_link": "/go/indy",
-    "category": "Santé & Bien-être"
-  },
-  {
-    "nom": "Chiropracteur",
-    "emoji": "🦴",
-    "statuts": [
-      "BNC",
-      "Micro-BNC"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Synchronisation bancaire parfaite et gestion URSSAF automatisée.",
-    "tool_link": "/go/indy",
-    "category": "Santé & Bien-être"
-  },
-  {
-    "nom": "Naturopathe / Art-Thérapeute / Musicothérapeute",
-    "emoji": "🌿",
-    "statuts": [
-      "Micro-BNC",
-      "BNC"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Gère parfaitement la liasse 2035 et le compte bancaire dédié.",
-    "tool_link": "/go/indy",
-    "category": "Santé & Bien-être"
-  },
-  {
-    "nom": "Psychanalyste",
-    "emoji": "🧠",
-    "statuts": [
-      "BNC",
-      "Micro-BNC"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Synchronisation bancaire fiable et catégorisation des recettes sans dévoiler l'identité patient.",
-    "tool_link": "/go/indy",
-    "category": "Santé & Bien-être"
-  },
-  {
-    "nom": "Développeur Freelance",
-    "emoji": "💻",
-    "statuts": [
-      "Micro-entreprise",
-      "EI",
-      "EURL",
-      "SASU"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Le meilleur pour piloter sa SASU/EURL, détecter la TVA des SaaS et générer le bilan.",
-    "tool_link": "/go/indy",
-    "category": "Tech & Web"
-  },
-  {
-    "nom": "Data Scientist",
-    "emoji": "📊",
-    "statuts": [
-      "Micro-entreprise",
-      "EURL",
-      "SASU"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Gère parfaitement la TVA intracommunautaire sur les services Cloud.",
-    "tool_link": "/go/indy",
-    "category": "Tech & Web"
-  },
-  {
-    "nom": "Expert Cybersécurité",
-    "emoji": "🔒",
-    "statuts": [
-      "EURL",
-      "SASU"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Zéro saisie manuelle pour les dizaines de petites licences mensuelles.",
-    "tool_link": "/go/indy",
-    "category": "Tech & Web"
-  },
-  {
-    "nom": "Administrateur Réseau / DevOps",
-    "emoji": "⚙️",
-    "statuts": [
-      "Micro-entreprise",
-      "SASU",
-      "EURL"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Tableau de bord financier en temps réel.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Consultant SEO",
-    "emoji": "🔍",
-    "statuts": [
-      "Micro-entreprise",
-      "EI",
-      "EURL",
-      "SASU"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Reconnait automatiquement Semrush/Ahrefs et gère les factures sous-traitants.",
-    "tool_link": "/go/indy",
-    "category": "Tech & Web"
-  },
-  {
-    "nom": "Rédacteur Web",
-    "emoji": "✍️",
-    "statuts": [
-      "Micro-entreprise",
-      "EI (BNC)"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Facturation illimitée gratuite et déclarations URSSAF automatisées.",
-    "tool_link": "/go/indy",
-    "category": "Tech & Web"
-  },
-  {
-    "nom": "Graphiste / UX-UI",
-    "emoji": "🎨",
-    "statuts": [
-      "Micro-entreprise",
-      "MDA/Agessa",
-      "EURL",
-      "SASU"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Amortissement automatique du matériel informatique coûteux.",
-    "tool_link": "/go/indy",
-    "category": "Créatif & Média"
-  },
-  {
-    "nom": "Traffic Manager / Media Buyer",
-    "emoji": "📈",
-    "statuts": [
-      "Micro-entreprise",
-      "SASU"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Détecte et remplit automatiquement la TVA CA3 sur les dépenses Ads (TVA intraco).",
-    "tool_link": "/go/indy",
-    "category": "Conseil & Services"
-  },
-  {
-    "nom": "Traducteur / Interprète",
-    "emoji": "🌍",
-    "statuts": [
-      "Micro-BNC",
-      "BNC"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Gère facilement la facturation HT hors de France et les déclarations DES.",
-    "tool_link": "/go/indy",
-    "category": "Conseil & Services"
-  },
-  {
-    "nom": "Correcteur / Lecteur / Écrivain Public",
-    "emoji": "✍️",
-    "statuts": [
-      "Micro-BNC",
-      "BNC"
-    ],
-    "tool_name": "Abby",
-    "tool_arg": "Le meilleur outil de facturation pour les micro-entrepreneurs de ce secteur.",
-    "tool_link": "/go/abby",
-    "category": "Conseil & Services"
-  },
-  {
-    "nom": "Consultant en Management",
-    "emoji": "💼",
-    "statuts": [
-      "Micro-entreprise",
-      "SASU",
-      "EURL"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Application mobile avec photo des reçus : jetez vos tickets de restaurant légalement.",
-    "tool_link": "/go/indy",
-    "category": "Conseil & Services"
-  },
-  {
-    "nom": "Formateur Indépendant",
-    "emoji": "🎓",
-    "statuts": [
-      "Micro-entreprise",
-      "EI",
-      "SASU"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Gère la facturation sans TVA et les données pour le BPF.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Assistant(e) Virtuel(le)",
-    "emoji": "📱",
-    "statuts": [
-      "Micro-entreprise",
-      "EI"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Outil 100% gratuit suffisant pour les flux simples en micro.",
-    "tool_link": "/go/indy",
-    "category": "Tech & Web"
-  },
-  {
-    "nom": "Agent Commercial Immobilier",
-    "emoji": "🏠",
-    "statuts": [
-      "Micro-entreprise",
-      "EI (BNC)"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Le meilleur pour déduire les IK des visites immobilières.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Gestionnaire SCI / LMNP",
-    "emoji": "🏢",
-    "statuts": [
-      "SCI",
-      "LMNP"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Idéal pour les loueurs en meublé (LMNP) et les SCI à l'IS ou IR.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Chauffeur VTC",
-    "emoji": "🚘",
-    "statuts": [
-      "Micro-entreprise",
-      "EURL",
-      "SASU"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Détection auto de la TVA sur l'essence et amortissement du véhicule.",
-    "tool_link": "/go/indy",
-    "category": "Mobilité & Livraison"
-  },
-  {
-    "nom": "Livreur Indépendant (Deliveroo/UberEats)",
-    "emoji": "🛵",
-    "statuts": [
-      "Micro-entreprise"
-    ],
-    "tool_name": "Shine",
-    "tool_arg": "Le compte pro N°1 des coursiers. Shine gère gratuitement la création de votre micro-entreprise.",
-    "tool_link": "/go/shine",
-    "category": "Mobilité & Livraison"
-  },
-  {
-    "nom": "Librairie / Cave à vin / Fleuriste",
-    "emoji": "🛍️",
-    "statuts": [
-      "SASU",
-      "EURL",
-      "SARL",
-      "SAS",
-      "Micro-entreprise"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Solution très intuitive pour les petits commerces avec un faible volume de facturation directe.",
-    "tool_link": "/go/indy",
-    "category": "Commerce & E-commerce"
-  },
-  {
-    "nom": "Coiffeur / Institut de beauté",
-    "emoji": "✂️",
-    "statuts": [
-      "SASU",
-      "EURL",
-      "Micro-entreprise"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Gère parfaitement les salons de coiffure et instituts avec vente de produits annexes.",
-    "tool_link": "/go/indy",
-    "category": "Artisanat & BTP"
-  },
-  {
-    "nom": "Friperie / Revendeur Occasion",
-    "emoji": "👕",
-    "statuts": [
-      "Toutes sociétés"
-    ],
-    "tool_name": "Pennylane",
-    "tool_arg": "Obligatoire : Indy ne gère pas la TVA sur marge. Pennylane est indispensable ici.",
-    "tool_link": "/go/pennylane",
-    "category": "Commerce & E-commerce"
-  },
-  {
-    "nom": "Restauration / Food Truck",
-    "emoji": "🍔",
-    "statuts": [
-      "Toutes sociétés"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Indy gère parfaitement la restauration, à la stricte condition d'être en société à l'IS (utilisation des bilans de commerce).",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Créateur Etsy / Petits Objets Neufs",
-    "emoji": "🧶",
-    "statuts": [
-      "Micro-entreprise",
-      "SASU"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Parfait si vos ventes européennes sont inférieures à 10 000€/an et 0 vente hors UE.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Dropshipper / E-commerçant International",
-    "emoji": "🌍",
-    "statuts": [
-      "EURL",
-      "SASU",
-      "SARL"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Indy accompagne l'inscription au guichet OSS pour les ventes intra-UE (sauf entre deux mêmes pays).",
-    "tool_link": "/go/indy",
-    "category": "Commerce & E-commerce"
-  },
-  {
-    "nom": "Reseller Vinted / Achat-Revente",
-    "emoji": "👟",
-    "statuts": [
-      "Micro-entreprise",
-      "SASU",
-      "EURL"
-    ],
-    "tool_name": "Pennylane",
-    "tool_arg": "Indispensable si vous êtes assujetti à la TVA, car Indy ne gère pas la TVA sur marge spécifique aux biens d'occasion.",
-    "tool_link": "/go/pennylane",
-    "category": "Autres"
-  },
-  {
-    "nom": "Plombier / Électricien / Maçon (Gros chantiers)",
-    "emoji": "🏗️",
-    "statuts": [
-      "SARL",
-      "SASU",
-      "EURL"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Indy gère parfaitement l'édition de factures d'acompte et de solde, idéal pour les chantiers.",
-    "tool_link": "/go/indy",
-    "category": "Artisanat & BTP"
-  },
-  {
-    "nom": "Dépanneur Express / Petit Bricolage",
-    "emoji": "🛠️",
-    "statuts": [
-      "Micro-entreprise",
-      "SASU"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Parfait pour l'artisanat de dépannage sans gestion d'acomptes.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Influenceur / Créateur TikTok & Instagram",
-    "emoji": "📱",
-    "statuts": [
-      "Micro-entreprise",
-      "SASU",
-      "EURL"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Gère très bien les revenus publicitaires et les factures B2B.",
-    "tool_link": "/go/indy",
-    "category": "Tech & Web"
-  },
-  {
-    "nom": "Créateur UGC (User Generated Content)",
-    "emoji": "🤳",
-    "statuts": [
-      "Micro-entreprise"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Parfait pour automatiser l'URSSAF et éditer des factures sans frais.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Streamer Twitch / YouTubeur",
-    "emoji": "🎮",
-    "statuts": [
-      "Micro-entreprise",
-      "SASU",
-      "EURL"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Parfait pour gérer l'amortissement du matériel onéreux (caméras, setup PC).",
-    "tool_link": "/go/indy",
-    "category": "Tech & Web"
-  },
-  {
-    "nom": "Monteur Vidéo \"Short-Form\" (Reels, TikTok)",
-    "emoji": "🎬",
-    "statuts": [
-      "Micro-entreprise",
-      "EI (BNC)"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Idéal pour piloter l'irrégularité des revenus avec une vision claire de la trésorerie.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Podcasteur Pro",
-    "emoji": "🎙️",
-    "statuts": [
-      "Micro-entreprise",
-      "SASU"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Automatisation efficace de la facturation des régies publicitaires.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Expert / Développeur No-Code",
-    "emoji": "⚡",
-    "statuts": [
-      "SASU",
-      "EURL",
-      "Micro-entreprise"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Reconnaissance automatique des factures SaaS étrangères et gestion fluide du passage en société.",
-    "tool_link": "/go/indy",
-    "category": "Tech & Web"
-  },
-  {
-    "nom": "Closer B2B (Commercial indépendant)",
-    "emoji": "🤝",
-    "statuts": [
-      "Micro-entreprise",
-      "EI (BNC)"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Interface claire pour facturer vos pourcentages et commissions.",
-    "tool_link": "/go/indy",
-    "category": "Conseil & Services"
-  },
-  {
-    "nom": "Prompt Engineer / Consultant IA",
-    "emoji": "🤖",
-    "statuts": [
-      "SASU",
-      "EURL",
-      "Micro-entreprise"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Outil innovant parfaitement aligné avec l'esprit tech des consultants IA.",
-    "tool_link": "/go/indy",
-    "category": "Conseil & Services"
-  },
-  {
-    "nom": "Growth Hacker / Acheteur Média",
-    "emoji": "🚀",
-    "statuts": [
-      "SASU",
-      "EURL",
-      "Micro-entreprise"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Automatise la déclaration de TVA (CA3) sur ces milliers d'euros de dépenses spécifiques.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Vendeur de Formations en Ligne (Infopreneur)",
-    "emoji": "🎓",
-    "statuts": [
-      "SASU",
-      "EURL",
-      "SARL"
-    ],
-    "tool_name": "Pennylane",
-    "tool_arg": "Indispensable ici si fort volume, car Indy va saturer avec trop de lignes de paiement Stripe.",
-    "tool_link": "/go/pennylane",
-    "category": "Commerce & E-commerce"
-  },
-  {
-    "nom": "Auteur de Newsletter Payante (Substack)",
-    "emoji": "✉️",
-    "statuts": [
-      "Micro-entreprise"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Parfait pour un volume modéré de souscriptions récurrentes.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Business Coach / Mindset Coach",
-    "emoji": "🧠",
-    "statuts": [
-      "EI (BNC)",
-      "Micro-entreprise"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Le standard absolu pour les professions libérales et de conseil en BNC.",
-    "tool_link": "/go/indy",
-    "category": "Santé & Bien-être"
-  },
-  {
-    "nom": "Consultant en Sommeil Bébé / Périnatalité",
-    "emoji": "👶",
-    "statuts": [
-      "Micro-entreprise",
-      "EI (BNC)"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Solution idéale pour se libérer de la paperasse et se concentrer sur les clients.",
-    "tool_link": "/go/indy",
-    "category": "Conseil & Services"
-  },
-  {
-    "nom": "Wedding Planner",
-    "emoji": "💍",
-    "statuts": [
-      "SASU",
-      "EURL",
-      "Micro-entreprise"
-    ],
-    "tool_name": "Pennylane",
-    "tool_arg": "Obligatoire si vous encaissez des acomptes globaux pour payer d'autres prestataires (trésorerie complexe).",
-    "tool_link": "/go/pennylane",
-    "category": "Autres"
-  },
-  {
-    "nom": "Loueur en Meublé Non Professionnel (LMNP)",
-    "emoji": "🏠",
-    "statuts": [
-      "LMNP"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Ils ont un module LMNP spécifique qui cartonne pour amortir le bien et réduire ses impôts à 0€.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Conciergerie Airbnb",
-    "emoji": "🔑",
-    "statuts": [
-      "SASU",
-      "EURL"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Pilote très bien la facturation de services (ménage, accueil) et les commissions.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Sous-location Professionnelle",
-    "emoji": "🛏️",
-    "statuts": [
-      "SASU"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Rapprochement bancaire fluide pour suivre les marges entre le loyer payé et les nuitées encaissées.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Avocat",
-    "emoji": "⚖️",
-    "statuts": [
-      "BNC",
-      "SELARL",
-      "AARPI"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Gère parfaitement la TVA sur encaissements et la 2035.",
-    "tool_link": "/go/indy",
-    "category": "Conseil & Services"
-  },
-  {
-    "nom": "Commissaire aux comptes / Auditeur",
-    "emoji": "📊",
-    "statuts": [
-      "BNC",
-      "Société"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Pour le CAC indépendant qui veut faire sa 2035 seul.",
-    "tool_link": "/go/indy",
-    "category": "Tech & Web"
-  },
-  {
-    "nom": "Administrateur & Mandataire Judiciaire",
-    "emoji": "🏛️",
-    "statuts": [
-      "BNC",
-      "Société"
-    ],
-    "tool_name": "Pennylane",
-    "tool_arg": "Obligatoire pour ce type de structure complexe nécessitant un expert-comptable.",
-    "tool_link": "/go/pennylane",
-    "category": "Tech & Web"
-  },
-  {
-    "nom": "Actuaire",
-    "emoji": "📈",
-    "statuts": [
-      "BNC",
-      "Micro-BNC"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Le plus rapide pour les consultants en actuariat.",
-    "tool_link": "/go/indy",
-    "category": "Conseil & Services"
-  },
-  {
-    "nom": "Conseil en Investissements Financiers (CIF)",
-    "emoji": "💼",
-    "statuts": [
-      "BNC",
-      "SARL",
-      "SASU"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Parfait si vous exercez en nom propre.",
-    "tool_link": "/go/indy",
-    "category": "Conseil & Services"
-  },
-  {
-    "nom": "Conseil en Propriété Industrielle",
-    "emoji": "©️",
-    "statuts": [
-      "BNC",
-      "Société"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Gestion simplifiée de vos honoraires et débours.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Architecte",
-    "emoji": "📐",
-    "statuts": [
-      "BNC",
-      "SELARL"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Parfait pour l'architecte indépendant avec peu de charges complexes.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Géomètre-Expert",
-    "emoji": "🗺️",
-    "statuts": [
-      "BNC",
-      "SELARL"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Amortissement du matériel de topographie géré automatiquement.",
-    "tool_link": "/go/indy",
-    "category": "Conseil & Services"
-  },
-  {
-    "nom": "Expert Agricole & Foncier",
-    "emoji": "🚜",
-    "statuts": [
-      "BNC"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Gestion complète du barème kilométrique et de la 2035.",
-    "tool_link": "/go/indy",
-    "category": "Conseil & Services"
-  },
-  {
-    "nom": "Agent d'assurances",
-    "emoji": "🛡️",
-    "statuts": [
-      "BNC",
-      "Société"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Catégorisation intelligente de vos bordereaux de commissions sans TVA.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Maître d'œuvre / Économiste de la construction",
-    "emoji": "🏗️",
-    "statuts": [
-      "BNC",
-      "Société"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Parfait pour gérer vos honoraires de maîtrise d'œuvre et la TVA afférente.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Urbaniste / Paysagiste (Bureau d'études)",
-    "emoji": "🌳",
-    "statuts": [
-      "BNC",
-      "Micro-BNC"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Amortissement automatique de vos licences et matériels informatiques.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Ingénieur Conseil",
-    "emoji": "⚙️",
-    "statuts": [
-      "BNC",
-      "SASU",
-      "EURL"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Le plus rapide pour suivre la facturation des missions de conseil.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Auto-École",
-    "emoji": "🚗",
-    "statuts": [
-      "BIC",
-      "SARL",
-      "SASU"
-    ],
-    "tool_name": "Pennylane",
-    "tool_arg": "L'outil parfait pour gérer la flotte de véhicules et collaborer avec son expert-comptable.",
-    "tool_link": "/go/pennylane",
-    "category": "Autres"
-  },
-  {
-    "nom": "Accompagnateur de groupe / Guide",
-    "emoji": "🏔️",
-    "statuts": [
-      "Micro-entreprise",
-      "BNC"
-    ],
-    "tool_name": "Abby",
-    "tool_arg": "Idéal pour piloter ses factures avec les plafonds auto-entrepreneur.",
-    "tool_link": "/go/abby",
-    "category": "Autres"
-  },
-  {
-    "nom": "Agent Privé de Recherches / Enquêteur",
-    "emoji": "🕵️",
-    "statuts": [
-      "BNC",
-      "Micro-BNC"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Vos frais professionnels sont catégorisés automatiquement sans dévoiler le détail de vos affaires à un tiers humain.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Guide Conférencier / Guide Touristique",
-    "emoji": "🗺️",
-    "statuts": [
-      "Micro-BNC",
-      "BNC"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Idéal pour déduire un maximum de frais de repas et de déplacement.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  },
-  {
-    "nom": "Généalogiste",
-    "emoji": "📜",
-    "statuts": [
-      "BNC",
-      "Société"
-    ],
-    "tool_name": "Indy",
-    "tool_arg": "Facturation fluide des forfaits de recherche généalogique.",
-    "tool_link": "/go/indy",
-    "category": "Autres"
-  }
+    {
+        "nom": "Médecin Généraliste",
+        "emoji": "🩺",
+        "statuts": [
+            "EI (BNC)",
+            "SELARL",
+            "SELAS"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Pensé pour le médical. Automatise la liasse 2035 et l'agrégation bancaire sécurisée (ACPR).",
+        "tool_link": "\/go\/indy",
+        "category": "Santé & Bien-être"
+    },
+    {
+        "nom": "Infirmier Libéral (IDEL)",
+        "emoji": "💉",
+        "statuts": [
+            "Micro-entreprise",
+            "EI (BNC)",
+            "SELARL"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Le standard pour les IDEL. Zéro saisie et gestion parfaite des indemnités kilométriques.",
+        "tool_link": "\/go\/indy",
+        "category": "Santé & Bien-être"
+    },
+    {
+        "nom": "Kinésithérapeute",
+        "emoji": "🦴",
+        "statuts": [
+            "Micro-entreprise",
+            "EI (BNC)",
+            "SELARL"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Automatise le rapprochement bancaire et la 2035 pour les kinés.",
+        "tool_link": "\/go\/indy",
+        "category": "Santé & Bien-être"
+    },
+    {
+        "nom": "Ostéopathe",
+        "emoji": "💆",
+        "statuts": [
+            "Micro-entreprise",
+            "EI (BNC)"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Parfait pour la gestion BNC exonérée de TVA. App à partir de 0€.",
+        "tool_link": "\/go\/indy",
+        "category": "Santé & Bien-être"
+    },
+    {
+        "nom": "Psychologue",
+        "emoji": "🧠",
+        "statuts": [
+            "Micro-entreprise",
+            "EI (BNC)"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Catégorise automatiquement les frais récurrents comme Doctolib.",
+        "tool_link": "\/go\/indy",
+        "category": "Santé & Bien-être"
+    },
+    {
+        "nom": "Orthophoniste",
+        "emoji": "🗣️",
+        "statuts": [
+            "EI (BNC)"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Gestion simplifiée des dépenses déductibles BNC sans paperasse.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Sage-femme libérale",
+        "emoji": "👶",
+        "statuts": [
+            "EI (BNC)",
+            "Micro-entreprise"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Gère parfaitement les tournées à domicile et la déclaration 2035.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Chirurgien-dentiste",
+        "emoji": "🦷",
+        "statuts": [
+            "EI (BNC)",
+            "SELARL"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Amortissements faciles pour les fauteuils et équipements.",
+        "tool_link": "\/go\/indy",
+        "category": "Santé & Bien-être"
+    },
+    {
+        "nom": "Vétérinaire",
+        "emoji": "🐕",
+        "statuts": [
+            "BNC",
+            "SELARL",
+            "SCP"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Automatisation parfaite pour les BNC classiques, liasse 2035 générée en 1 clic.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Pédicure-Podologue",
+        "emoji": "🦶",
+        "statuts": [
+            "BNC",
+            "Micro-BNC"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Le standard absolu pour gérer sa 2035 sans expert-comptable.",
+        "tool_link": "\/go\/indy",
+        "category": "Santé & Bien-être"
+    },
+    {
+        "nom": "Coach Sportif",
+        "emoji": "🏋️",
+        "statuts": [
+            "Micro-entreprise",
+            "EI (BNC)"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Idéal pour déduire les locations de salle. Justificatifs numérisés certifiés.",
+        "tool_link": "\/go\/indy",
+        "category": "Conseil & Services"
+    },
+    {
+        "nom": "Sophrologue",
+        "emoji": "🧘",
+        "statuts": [
+            "Micro-entreprise",
+            "EI (BNC)"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Automatisation des déclarations sociales avec compte pro gratuit inclus.",
+        "tool_link": "\/go\/indy",
+        "category": "Santé & Bien-être"
+    },
+    {
+        "nom": "Diététicien",
+        "emoji": "🥗",
+        "statuts": [
+            "Micro-entreprise",
+            "EI (BNC)"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Compta 100% en ligne adaptée aux téléconsultations, 0 saisie.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Psychothérapeute",
+        "emoji": "🛋️",
+        "statuts": [
+            "BNC",
+            "Micro-BNC"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Zero paperasse, synchronisation bancaire directe.",
+        "tool_link": "\/go\/indy",
+        "category": "Santé & Bien-être"
+    },
+    {
+        "nom": "Chiropracteur",
+        "emoji": "🦴",
+        "statuts": [
+            "BNC",
+            "Micro-BNC"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Synchronisation bancaire parfaite et gestion URSSAF automatisée.",
+        "tool_link": "\/go\/indy",
+        "category": "Santé & Bien-être"
+    },
+    {
+        "nom": "Naturopathe \/ Art-Thérapeute \/ Musicothérapeute",
+        "emoji": "🌿",
+        "statuts": [
+            "Micro-BNC",
+            "BNC"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Gère parfaitement la liasse 2035 et le compte bancaire dédié.",
+        "tool_link": "\/go\/indy",
+        "category": "Santé & Bien-être"
+    },
+    {
+        "nom": "Psychanalyste",
+        "emoji": "🧠",
+        "statuts": [
+            "BNC",
+            "Micro-BNC"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Synchronisation bancaire fiable et catégorisation des recettes sans dévoiler l'identité patient.",
+        "tool_link": "\/go\/indy",
+        "category": "Santé & Bien-être"
+    },
+    {
+        "nom": "Développeur Freelance",
+        "emoji": "💻",
+        "statuts": [
+            "Micro-entreprise",
+            "EI",
+            "EURL",
+            "SASU"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Le meilleur pour piloter sa SASU\/EURL, détecter la TVA des SaaS et générer le bilan.",
+        "tool_link": "\/go\/indy",
+        "category": "Tech & Web"
+    },
+    {
+        "nom": "Data Scientist",
+        "emoji": "📊",
+        "statuts": [
+            "Micro-entreprise",
+            "EURL",
+            "SASU"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Gère parfaitement la TVA intracommunautaire sur les services Cloud.",
+        "tool_link": "\/go\/indy",
+        "category": "Tech & Web"
+    },
+    {
+        "nom": "Expert Cybersécurité",
+        "emoji": "🔒",
+        "statuts": [
+            "EURL",
+            "SASU"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Zéro saisie manuelle pour les dizaines de petites licences mensuelles.",
+        "tool_link": "\/go\/indy",
+        "category": "Tech & Web"
+    },
+    {
+        "nom": "Administrateur Réseau \/ DevOps",
+        "emoji": "⚙️",
+        "statuts": [
+            "Micro-entreprise",
+            "SASU",
+            "EURL"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Tableau de bord financier en temps réel.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Consultant SEO",
+        "emoji": "🔍",
+        "statuts": [
+            "Micro-entreprise",
+            "EI",
+            "EURL",
+            "SASU"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Reconnait automatiquement Semrush\/Ahrefs et gère les factures sous-traitants.",
+        "tool_link": "\/go\/indy",
+        "category": "Tech & Web"
+    },
+    {
+        "nom": "Rédacteur Web",
+        "emoji": "✍️",
+        "statuts": [
+            "Micro-entreprise",
+            "EI (BNC)"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Facturation illimitée gratuite et déclarations URSSAF automatisées.",
+        "tool_link": "\/go\/indy",
+        "category": "Tech & Web"
+    },
+    {
+        "nom": "Graphiste \/ UX-UI",
+        "emoji": "🎨",
+        "statuts": [
+            "Micro-entreprise",
+            "MDA\/Agessa",
+            "EURL",
+            "SASU"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Amortissement automatique du matériel informatique coûteux.",
+        "tool_link": "\/go\/indy",
+        "category": "Créatif & Média"
+    },
+    {
+        "nom": "Traffic Manager \/ Media Buyer",
+        "emoji": "📈",
+        "statuts": [
+            "Micro-entreprise",
+            "SASU"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Détecte et remplit automatiquement la TVA CA3 sur les dépenses Ads (TVA intraco).",
+        "tool_link": "\/go\/indy",
+        "category": "Conseil & Services"
+    },
+    {
+        "nom": "Traducteur \/ Interprète",
+        "emoji": "🌍",
+        "statuts": [
+            "Micro-BNC",
+            "BNC"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Gère facilement la facturation HT hors de France et les déclarations DES.",
+        "tool_link": "\/go\/indy",
+        "category": "Conseil & Services"
+    },
+    {
+        "nom": "Correcteur \/ Lecteur \/ Écrivain Public",
+        "emoji": "✍️",
+        "statuts": [
+            "Micro-BNC",
+            "BNC"
+        ],
+        "tool_name": "Abby",
+        "tool_arg": "Le meilleur outil de facturation pour les micro-entrepreneurs de ce secteur.",
+        "tool_link": "\/go\/abby",
+        "category": "Conseil & Services"
+    },
+    {
+        "nom": "Consultant en Management",
+        "emoji": "💼",
+        "statuts": [
+            "Micro-entreprise",
+            "SASU",
+            "EURL"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Application mobile avec photo des reçus : jetez vos tickets de restaurant légalement.",
+        "tool_link": "\/go\/indy",
+        "category": "Conseil & Services"
+    },
+    {
+        "nom": "Formateur Indépendant",
+        "emoji": "🎓",
+        "statuts": [
+            "Micro-entreprise",
+            "EI",
+            "SASU"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Gère la facturation sans TVA et les données pour le BPF.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Assistant(e) Virtuel(le)",
+        "emoji": "📱",
+        "statuts": [
+            "Micro-entreprise",
+            "EI"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Outil 100% gratuit suffisant pour les flux simples en micro.",
+        "tool_link": "\/go\/indy",
+        "category": "Tech & Web"
+    },
+    {
+        "nom": "Agent Commercial Immobilier",
+        "emoji": "🏠",
+        "statuts": [
+            "Micro-entreprise",
+            "EI (BNC)"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Le meilleur pour déduire les IK des visites immobilières.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Gestionnaire SCI \/ LMNP",
+        "emoji": "🏢",
+        "statuts": [
+            "SCI",
+            "LMNP"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Idéal pour les loueurs en meublé (LMNP) et les SCI à l'IS ou IR.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Chauffeur VTC",
+        "emoji": "🚘",
+        "statuts": [
+            "Micro-entreprise",
+            "EURL",
+            "SASU"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Détection auto de la TVA sur l'essence et amortissement du véhicule.",
+        "tool_link": "\/go\/indy",
+        "category": "Mobilité & Livraison"
+    },
+    {
+        "nom": "Livreur Indépendant (Deliveroo\/UberEats)",
+        "emoji": "🛵",
+        "statuts": [
+            "Micro-entreprise"
+        ],
+        "tool_name": "Shine",
+        "tool_arg": "Le compte pro N°1 des coursiers. Shine gère gratuitement la création de votre micro-entreprise.",
+        "tool_link": "\/go\/shine",
+        "category": "Mobilité & Livraison"
+    },
+    {
+        "nom": "Librairie \/ Cave à vin \/ Fleuriste",
+        "emoji": "🛍️",
+        "statuts": [
+            "SASU",
+            "EURL",
+            "SARL",
+            "SAS",
+            "Micro-entreprise"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Solution très intuitive pour les petits commerces avec un faible volume de facturation directe.",
+        "tool_link": "\/go\/indy",
+        "category": "Commerce & E-commerce"
+    },
+    {
+        "nom": "Coiffeur \/ Institut de beauté",
+        "emoji": "✂️",
+        "statuts": [
+            "SASU",
+            "EURL",
+            "Micro-entreprise"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Gère parfaitement les salons de coiffure et instituts avec vente de produits annexes.",
+        "tool_link": "\/go\/indy",
+        "category": "BTP"
+    },
+    {
+        "nom": "Friperie \/ Revendeur Occasion",
+        "emoji": "👕",
+        "statuts": [
+            "Toutes sociétés"
+        ],
+        "tool_name": "Pennylane",
+        "tool_arg": "Obligatoire : Indy ne gère pas la TVA sur marge. Pennylane est indispensable ici.",
+        "tool_link": "\/go\/pennylane",
+        "category": "Commerce & E-commerce"
+    },
+    {
+        "nom": "Restauration \/ Food Truck",
+        "emoji": "🍔",
+        "statuts": [
+            "Toutes sociétés"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Indy gère parfaitement la restauration, à la stricte condition d'être en société à l'IS (utilisation des bilans de commerce).",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Créateur Etsy \/ Petits Objets Neufs",
+        "emoji": "🧶",
+        "statuts": [
+            "Micro-entreprise",
+            "SASU"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Parfait si vos ventes européennes sont inférieures à 10 000€\/an et 0 vente hors UE.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Dropshipper \/ E-commerçant International",
+        "emoji": "🌍",
+        "statuts": [
+            "EURL",
+            "SASU",
+            "SARL"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Indy accompagne l'inscription au guichet OSS pour les ventes intra-UE (sauf entre deux mêmes pays).",
+        "tool_link": "\/go\/indy",
+        "category": "Commerce & E-commerce"
+    },
+    {
+        "nom": "Reseller Vinted \/ Achat-Revente",
+        "emoji": "👟",
+        "statuts": [
+            "Micro-entreprise",
+            "SASU",
+            "EURL"
+        ],
+        "tool_name": "Pennylane",
+        "tool_arg": "Indispensable si vous êtes assujetti à la TVA, car Indy ne gère pas la TVA sur marge spécifique aux biens d'occasion.",
+        "tool_link": "\/go\/pennylane",
+        "category": "Autres"
+    },
+    {
+        "nom": "Plombier \/ Électricien \/ Maçon (Gros chantiers)",
+        "emoji": "🏗️",
+        "statuts": [
+            "SARL",
+            "SASU",
+            "EURL"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Indy gère parfaitement l'édition de factures d'acompte et de solde, idéal pour les chantiers.",
+        "tool_link": "\/go\/indy",
+        "category": "BTP"
+    },
+    {
+        "nom": "Dépanneur Express \/ Petit Bricolage",
+        "emoji": "🛠️",
+        "statuts": [
+            "Micro-entreprise",
+            "SASU"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Parfait pour l'artisanat de dépannage sans gestion d'acomptes.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Influenceur \/ Créateur TikTok & Instagram",
+        "emoji": "📱",
+        "statuts": [
+            "Micro-entreprise",
+            "SASU",
+            "EURL"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Gère très bien les revenus publicitaires et les factures B2B.",
+        "tool_link": "\/go\/indy",
+        "category": "Tech & Web"
+    },
+    {
+        "nom": "Créateur UGC (User Generated Content)",
+        "emoji": "🤳",
+        "statuts": [
+            "Micro-entreprise"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Parfait pour automatiser l'URSSAF et éditer des factures sans frais.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Streamer Twitch \/ YouTubeur",
+        "emoji": "🎮",
+        "statuts": [
+            "Micro-entreprise",
+            "SASU",
+            "EURL"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Parfait pour gérer l'amortissement du matériel onéreux (caméras, setup PC).",
+        "tool_link": "\/go\/indy",
+        "category": "Tech & Web"
+    },
+    {
+        "nom": "Monteur Vidéo \"Short-Form\" (Reels, TikTok)",
+        "emoji": "🎬",
+        "statuts": [
+            "Micro-entreprise",
+            "EI (BNC)"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Idéal pour piloter l'irrégularité des revenus avec une vision claire de la trésorerie.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Podcasteur Pro",
+        "emoji": "🎙️",
+        "statuts": [
+            "Micro-entreprise",
+            "SASU"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Automatisation efficace de la facturation des régies publicitaires.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Expert \/ Développeur No-Code",
+        "emoji": "⚡",
+        "statuts": [
+            "SASU",
+            "EURL",
+            "Micro-entreprise"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Reconnaissance automatique des factures SaaS étrangères et gestion fluide du passage en société.",
+        "tool_link": "\/go\/indy",
+        "category": "Tech & Web"
+    },
+    {
+        "nom": "Closer B2B (Commercial indépendant)",
+        "emoji": "🤝",
+        "statuts": [
+            "Micro-entreprise",
+            "EI (BNC)"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Interface claire pour facturer vos pourcentages et commissions.",
+        "tool_link": "\/go\/indy",
+        "category": "Conseil & Services"
+    },
+    {
+        "nom": "Prompt Engineer \/ Consultant IA",
+        "emoji": "🤖",
+        "statuts": [
+            "SASU",
+            "EURL",
+            "Micro-entreprise"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Outil innovant parfaitement aligné avec l'esprit tech des consultants IA.",
+        "tool_link": "\/go\/indy",
+        "category": "Conseil & Services"
+    },
+    {
+        "nom": "Growth Hacker \/ Acheteur Média",
+        "emoji": "🚀",
+        "statuts": [
+            "SASU",
+            "EURL",
+            "Micro-entreprise"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Automatise la déclaration de TVA (CA3) sur ces milliers d'euros de dépenses spécifiques.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Vendeur de Formations en Ligne (Infopreneur)",
+        "emoji": "🎓",
+        "statuts": [
+            "SASU",
+            "EURL",
+            "SARL"
+        ],
+        "tool_name": "Pennylane",
+        "tool_arg": "Indispensable ici si fort volume, car Indy va saturer avec trop de lignes de paiement Stripe.",
+        "tool_link": "\/go\/pennylane",
+        "category": "Commerce & E-commerce"
+    },
+    {
+        "nom": "Auteur de Newsletter Payante (Substack)",
+        "emoji": "✉️",
+        "statuts": [
+            "Micro-entreprise"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Parfait pour un volume modéré de souscriptions récurrentes.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Business Coach \/ Mindset Coach",
+        "emoji": "🧠",
+        "statuts": [
+            "EI (BNC)",
+            "Micro-entreprise"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Le standard absolu pour les professions libérales et de conseil en BNC.",
+        "tool_link": "\/go\/indy",
+        "category": "Santé & Bien-être"
+    },
+    {
+        "nom": "Consultant en Sommeil Bébé \/ Périnatalité",
+        "emoji": "👶",
+        "statuts": [
+            "Micro-entreprise",
+            "EI (BNC)"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Solution idéale pour se libérer de la paperasse et se concentrer sur les clients.",
+        "tool_link": "\/go\/indy",
+        "category": "Conseil & Services"
+    },
+    {
+        "nom": "Wedding Planner",
+        "emoji": "💍",
+        "statuts": [
+            "SASU",
+            "EURL",
+            "Micro-entreprise"
+        ],
+        "tool_name": "Pennylane",
+        "tool_arg": "Obligatoire si vous encaissez des acomptes globaux pour payer d'autres prestataires (trésorerie complexe).",
+        "tool_link": "\/go\/pennylane",
+        "category": "Autres"
+    },
+    {
+        "nom": "Loueur en Meublé Non Professionnel (LMNP)",
+        "emoji": "🏠",
+        "statuts": [
+            "LMNP"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Ils ont un module LMNP spécifique qui cartonne pour amortir le bien et réduire ses impôts à 0€.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Conciergerie Airbnb",
+        "emoji": "🔑",
+        "statuts": [
+            "SASU",
+            "EURL"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Pilote très bien la facturation de services (ménage, accueil) et les commissions.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Sous-location Professionnelle",
+        "emoji": "🛏️",
+        "statuts": [
+            "SASU"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Rapprochement bancaire fluide pour suivre les marges entre le loyer payé et les nuitées encaissées.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Avocat",
+        "emoji": "⚖️",
+        "statuts": [
+            "BNC",
+            "SELARL",
+            "AARPI"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Gère parfaitement la TVA sur encaissements et la 2035.",
+        "tool_link": "\/go\/indy",
+        "category": "Conseil & Services"
+    },
+    {
+        "nom": "Commissaire aux comptes \/ Auditeur",
+        "emoji": "📊",
+        "statuts": [
+            "BNC",
+            "Société"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Pour le CAC indépendant qui veut faire sa 2035 seul.",
+        "tool_link": "\/go\/indy",
+        "category": "Tech & Web"
+    },
+    {
+        "nom": "Administrateur & Mandataire Judiciaire",
+        "emoji": "🏛️",
+        "statuts": [
+            "BNC",
+            "Société"
+        ],
+        "tool_name": "Pennylane",
+        "tool_arg": "Obligatoire pour ce type de structure complexe nécessitant un expert-comptable.",
+        "tool_link": "\/go\/pennylane",
+        "category": "Tech & Web"
+    },
+    {
+        "nom": "Actuaire",
+        "emoji": "📈",
+        "statuts": [
+            "BNC",
+            "Micro-BNC"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Le plus rapide pour les consultants en actuariat.",
+        "tool_link": "\/go\/indy",
+        "category": "Conseil & Services"
+    },
+    {
+        "nom": "Conseil en Investissements Financiers (CIF)",
+        "emoji": "💼",
+        "statuts": [
+            "BNC",
+            "SARL",
+            "SASU"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Parfait si vous exercez en nom propre.",
+        "tool_link": "\/go\/indy",
+        "category": "Conseil & Services"
+    },
+    {
+        "nom": "Conseil en Propriété Industrielle",
+        "emoji": "©️",
+        "statuts": [
+            "BNC",
+            "Société"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Gestion simplifiée de vos honoraires et débours.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Architecte",
+        "emoji": "📐",
+        "statuts": [
+            "BNC",
+            "SELARL"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Parfait pour l'architecte indépendant avec peu de charges complexes.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Géomètre-Expert",
+        "emoji": "🗺️",
+        "statuts": [
+            "BNC",
+            "SELARL"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Amortissement du matériel de topographie géré automatiquement.",
+        "tool_link": "\/go\/indy",
+        "category": "Conseil & Services"
+    },
+    {
+        "nom": "Expert Agricole & Foncier",
+        "emoji": "🚜",
+        "statuts": [
+            "BNC"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Gestion complète du barème kilométrique et de la 2035.",
+        "tool_link": "\/go\/indy",
+        "category": "Conseil & Services"
+    },
+    {
+        "nom": "Agent d'assurances",
+        "emoji": "🛡️",
+        "statuts": [
+            "BNC",
+            "Société"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Catégorisation intelligente de vos bordereaux de commissions sans TVA.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Maître d'œuvre \/ Économiste de la construction",
+        "emoji": "🏗️",
+        "statuts": [
+            "BNC",
+            "Société"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Parfait pour gérer vos honoraires de maîtrise d'œuvre et la TVA afférente.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Urbaniste \/ Paysagiste (Bureau d'études)",
+        "emoji": "🌳",
+        "statuts": [
+            "BNC",
+            "Micro-BNC"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Amortissement automatique de vos licences et matériels informatiques.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Ingénieur Conseil",
+        "emoji": "⚙️",
+        "statuts": [
+            "BNC",
+            "SASU",
+            "EURL"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Le plus rapide pour suivre la facturation des missions de conseil.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Auto-École",
+        "emoji": "🚗",
+        "statuts": [
+            "BIC",
+            "SARL",
+            "SASU"
+        ],
+        "tool_name": "Pennylane",
+        "tool_arg": "L'outil parfait pour gérer la flotte de véhicules et collaborer avec son expert-comptable.",
+        "tool_link": "\/go\/pennylane",
+        "category": "Autres"
+    },
+    {
+        "nom": "Accompagnateur de groupe \/ Guide",
+        "emoji": "🏔️",
+        "statuts": [
+            "Micro-entreprise",
+            "BNC"
+        ],
+        "tool_name": "Abby",
+        "tool_arg": "Idéal pour piloter ses factures avec les plafonds auto-entrepreneur.",
+        "tool_link": "\/go\/abby",
+        "category": "Autres"
+    },
+    {
+        "nom": "Agent Privé de Recherches \/ Enquêteur",
+        "emoji": "🕵️",
+        "statuts": [
+            "BNC",
+            "Micro-BNC"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Vos frais professionnels sont catégorisés automatiquement sans dévoiler le détail de vos affaires à un tiers humain.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Guide Conférencier \/ Guide Touristique",
+        "emoji": "🗺️",
+        "statuts": [
+            "Micro-BNC",
+            "BNC"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Idéal pour déduire un maximum de frais de repas et de déplacement.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    },
+    {
+        "nom": "Généalogiste",
+        "emoji": "📜",
+        "statuts": [
+            "BNC",
+            "Société"
+        ],
+        "tool_name": "Indy",
+        "tool_arg": "Facturation fluide des forfaits de recherche généalogique.",
+        "tool_link": "\/go\/indy",
+        "category": "Autres"
+    }
 ]

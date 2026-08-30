@@ -213,7 +213,7 @@
                     
                     <div class="cell-value">
                         <span class="mobile-data-label">Facturation 2026</span>
-                        <strong style="color: #16a34a; display: flex; align-items: center; gap: 4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Prêt (PDP)</strong>
+                        <strong style="color: #16a34a; display: flex; align-items: center; gap: 4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Plateforme Agréée</strong>
                         <small>Format Factur-X</small>
                     </div>
                     
@@ -259,7 +259,7 @@
                     
                     <div class="cell-value">
                         <span class="mobile-data-label">Facturation 2026</span>
-                        <strong style="color: #16a34a; display: flex; align-items: center; gap: 4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Compatible</strong>
+                        <strong style="color: #16a34a; display: flex; align-items: center; gap: 4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Plateforme Agréée</strong>
                         <small>Devis & Factures</small>
                     </div>
                     
@@ -305,7 +305,7 @@
                     
                     <div class="cell-value">
                         <span class="mobile-data-label">Facturation 2026</span>
-                        <strong style="color: #16a34a; display: flex; align-items: center; gap: 4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Intégré</strong>
+                        <strong style="color: #16a34a; display: flex; align-items: center; gap: 4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Plateforme Agréée</strong>
                         <small>Outil inclus</small>
                     </div>
                     
@@ -351,7 +351,7 @@
                     
                     <div class="cell-value">
                         <span class="mobile-data-label">Facturation 2026</span>
-                        <strong style="color: #16a34a; display: flex; align-items: center; gap: 4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Prêt</strong>
+                        <strong style="color: #16a34a; display: flex; align-items: center; gap: 4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Plateforme Agréée</strong>
                         <small>Conforme 2026</small>
                     </div>
                     
@@ -397,7 +397,7 @@
                     
                     <div class="cell-value">
                         <span class="mobile-data-label">Facturation 2026</span>
-                        <strong style="color: #16a34a; display: flex; align-items: center; gap: 4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> PDP certifiée</strong>
+                        <strong style="color: #16a34a; display: flex; align-items: center; gap: 4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Plateforme Agréée</strong>
                         <small>Immatriculée</small>
                     </div>
                     
