@@ -58,6 +58,14 @@ class ArticleEditor extends Component
 
     public string $message = '';
 
+    public string $contentAngle = '';
+
+    public string $editorialAudience = '';
+
+    public string $uniquePromise = '';
+
+    public string $excludedTopicsText = '';
+
     public function mount(?Article $article = null): void
     {
         $this->article = $article?->exists ? $article->load(['categories', 'tags', 'tools']) : null;
