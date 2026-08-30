@@ -71,10 +71,11 @@
                                 Essayer gratuitement →
                             </a>
                             
-                            <a :href="getHubLink(job.nom)"
-                               style="display: block; width: 100%; text-align: center; background: transparent; color: #475569; border: 1px solid #cbd5e1; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none; transition: all 0.2s;"
-                               onmouseover="this.style.background='#f1f5f9'; this.style.borderColor='#94a3b8'; this.style.color='#0f172a'" onmouseout="this.style.background='transparent'; this.style.borderColor='#cbd5e1'; this.style.color='#475569'">
-                                Voir le guide complet
+                            <a :href="job.isPublished ? getHubLink(job.nom) : '#'"
+                               :style="`display: block; width: 100%; text-align: center; background: transparent; border: 1px solid #cbd5e1; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none; transition: all 0.2s; color: ${job.isPublished ? '#475569' : '#94a3b8'}; cursor: ${job.isPublished ? 'pointer' : 'default'};`"
+                               x-on:mouseover="if(job.isPublished) { $el.style.background='#f1f5f9'; $el.style.borderColor='#94a3b8'; $el.style.color='#0f172a' }"
+                               x-on:mouseout="if(job.isPublished) { $el.style.background='transparent'; $el.style.borderColor='#cbd5e1'; $el.style.color='#475569' }"
+                               x-text="job.isPublished ? 'Voir le guide complet' : 'Voir le guide complet (soon)'">
                             </a>
                         </div>
                     </div>
@@ -100,13 +101,21 @@
             searchQuery: '',
             selectedSector: 'all',
             sectors: @json($secteurs),
+            publishedMetiers: @json($publishedMetiers),
             
             get allJobs() {
                 let jobs = [];
                 this.sectors.forEach(sector => {
                     sector.metiers.forEach(m => {
+                        const slug = m.nom.toLowerCase()
+                                        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                                        .replace(/[^a-z0-9]/g, '-')
+                                        .replace(/-+/g, '-')
+                                        .replace(/^-|-$/g, '');
                         jobs.push({
                             ...m,
+                            slug: slug,
+                            isPublished: this.publishedMetiers.includes(slug),
                             sector_id: sector.id,
                             sector_label: sector.label
                         });

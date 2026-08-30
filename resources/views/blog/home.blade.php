@@ -483,7 +483,7 @@
         <!-- Grille des Résultats -->
         <div class="hp-grid-3">
             <template x-for="metier in displayedMetiers" :key="metier.nom">
-                <a :href="metier.url" class="hp-article-card" style="padding: 0; display: flex; flex-direction: column; overflow: hidden; border-radius: 16px; text-decoration: none; border: 1px solid #e2e8f0; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 25px -5px rgba(0, 0, 0, 0.1)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                <a :href="metier.isPublished ? metier.url : '#'" class="hp-article-card" :style="`padding: 0; display: flex; flex-direction: column; overflow: hidden; border-radius: 16px; text-decoration: none; border: 1px solid #e2e8f0; transition: transform 0.2s, box-shadow 0.2s; cursor: ${metier.isPublished ? 'pointer' : 'default'}`" x-on:mouseover="if(metier.isPublished){ $el.style.transform='translateY(-4px)'; $el.style.boxShadow='0 10px 25px -5px rgba(0, 0, 0, 0.1)'; }" x-on:mouseout="if(metier.isPublished){ $el.style.transform='translateY(0)'; $el.style.boxShadow='none'; }">
                     <div style="padding: 24px; display: flex; flex-direction: column; flex-grow: 1; background: #ffffff;">
                         <div style="font-size: 32px; margin-bottom: 12px;" x-text="metier.emoji"></div>
                         <div class="hp-card-title" style="font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 16px; line-height: 1.3;" x-text="metier.nom"></div>
@@ -497,9 +497,9 @@
                             <span :style="'display: inline-block; padding: 2px 8px; background: color-mix(in srgb, ' + getToolColor(metier.tool_name) + ' 15%, transparent); border-radius: 4px; font-weight: 700; color: ' + getToolTextColor(metier.tool_name)" x-text="'🏆 ' + metier.tool_name"></span>
                         </div>
                         
-                        <div class="hp-card-footer" style="margin-top: auto; color: var(--home-accent); font-weight: 700; border-top: 1px solid #f1f5f9; padding-top: 16px; display: flex; align-items: center; justify-content: space-between;">
-                            Voir le guide complet 
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                        <div class="hp-card-footer" :style="`margin-top: auto; color: ${metier.isPublished ? 'var(--home-accent)' : '#94a3b8'}; font-weight: 700; border-top: 1px solid #f1f5f9; padding-top: 16px; display: flex; align-items: center; justify-content: space-between;`">
+                            <span x-text="metier.isPublished ? 'Voir le guide complet' : 'Voir le guide complet (soon)'"></span> 
+                            <svg x-show="metier.isPublished" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                         </div>
                     </div>
                 </a>

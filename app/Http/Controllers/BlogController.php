@@ -27,6 +27,8 @@ class BlogController extends Controller
 
         $metiers = json_decode(file_get_contents(public_path('metiers.json')), true);
 
+        $publishedMetiers = \App\Models\Article::where('type', 'metier')->where('status', 'published')->pluck('slug')->toArray();
+
         return view('blog.home', [
             'intention' => $intention,
             'latestArticles' => Article::query()->with(['project', 'categories'])->where('status', 'published')->latest('published_at')->limit(6)->get(),
@@ -34,11 +36,12 @@ class BlogController extends Controller
             'categories' => $this->getCategoriesWithCounts(),
             'freeTools' => $this->freeToolCatalog(),
             'projects' => SeoProject::where('status', 'active')->get(),
-            'metiers' => collect($metiers)->map(function ($m) {
+            'metiers' => collect($metiers)->map(function ($m) use ($publishedMetiers) {
                 // Generate slug from the title to construct URLs properly
                 $slug = \Illuminate\Support\Str::slug($m['nom']);
                 $m['slug'] = $slug;
                 $m['url'] = route('hubs.show', $slug);
+                $m['isPublished'] = in_array($slug, $publishedMetiers);
                 return $m;
             })->toArray()
         ]);

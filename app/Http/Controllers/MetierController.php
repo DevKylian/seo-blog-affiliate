@@ -23,9 +23,12 @@ class MetierController extends Controller
             ];
         }
 
+        $publishedMetiers = \App\Models\Article::where('type', 'metier')->where('status', 'published')->pluck('slug')->toArray();
+
         return view('metiers.index', [
             'secteurs' => $secteurs,
-            'brandColors' => $brandColors
+            'brandColors' => $brandColors,
+            'publishedMetiers' => $publishedMetiers
         ]);
     }
 }
