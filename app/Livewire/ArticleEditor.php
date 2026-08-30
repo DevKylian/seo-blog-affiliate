@@ -105,9 +105,6 @@ class ArticleEditor extends Component
                 if ($this->looksLikeDuplicateNumericSlug((string) $value)) {
                     $fail('Les suffixes numériques sont interdits pour les slugs SEO. Différenciez l’angle éditorial.');
                 }
-                if (count(array_filter(explode('-', (string) $value))) > 5) {
-                    $fail('Le slug SEO doit contenir au maximum 5 mots utiles.');
-                }
             }],
             'body' => ['required', 'string', 'min:50'],
             'status' => ['required', 'in:draft,review,scheduled,published,archived'],
